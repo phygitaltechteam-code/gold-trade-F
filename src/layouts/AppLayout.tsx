@@ -1,0 +1,50 @@
+import {useAuthContext} from '@/context/AuthContext';
+import Footer from '@/features/Footer/Footer';
+import {
+  Navigate,
+  Outlet,
+  useLocation,
+  useNavigate,
+} from '@tanstack/react-router';
+import {useEffect, useState} from 'react';
+
+const AppLayout = () => {
+  const {isAuthenticated} = useAuthContext();
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const showFooterRoutes = ['/dashboard', '/projects', '/profile'];
+
+  const showFooter = showFooterRoutes.includes(location.pathname);
+
+  useEffect(() => {
+    !isAuthenticated && navigate({to: '/signin'});
+  }, [isAuthenticated]);
+
+  return (
+    <div className="dark:bg-boxdark-2 dark:text-bodydark">
+      <div className="flex h-screen overflow-hidden">
+        {/* Backdrop for mobile */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
+        {/* Main content */}
+        <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
+          <main>
+            <div className="mx-auto max-w-screen-2xl p-1 pb-20 md:pb-0">
+              <Outlet />
+              <div className="block md:hidden">{!showFooter && <Footer />}</div>
+            </div>
+          </main>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AppLayout;
