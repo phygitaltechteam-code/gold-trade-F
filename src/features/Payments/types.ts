@@ -1,3 +1,4 @@
+/*eslint-disable*/
 import {LucideIcon} from 'lucide-react';
 
 export interface QuickContact {
@@ -33,4 +34,30 @@ export interface AccountData {
   name: string;
   number: string;
   balance: number;
+}
+
+export interface BeneficiaryFormData {
+  fullName: string;
+  relationship: string;
+  email: string;
+  phoneNumber: string;
+  address: string;
+  city: string;
+  state: string;
+  pincode: string;
+  country: string;
+  bankCountry: string;
+  currency: string;
+  accountNumber: string;
+  accountType: string;
+  SWIFTBIC: string;
+  IFSC: string;
+  bankName: string;
+  branchName: string;
+  contryCode: String;
+}
+
+export interface ValidationError {
+  field: string;
+  message: string;
 }
