@@ -20,7 +20,7 @@ const navItems = [
   {
     label: 'Payments',
     icon: FaThLarge,
-    to: '/paymentdashbord',
+    to: '/wallet/paymentdashbord',
     iconSize: 'text-xl',
   },
 

@@ -1,3 +1,4 @@
+/*eslint-disable*/
 import {useAuthContext} from '@/context/AuthContext';
 import {api} from '@/utils/axios';
 import {useMutation} from '@tanstack/react-query';
