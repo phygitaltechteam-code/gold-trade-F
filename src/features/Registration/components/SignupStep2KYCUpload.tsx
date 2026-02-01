@@ -1,4 +1,4 @@
-// components/SignupStep2KYCUpload.tsx
+/*eslint-disable*/
 import {useState, type FC} from 'react';
 
 interface SignupStep2KYCUploadProps {

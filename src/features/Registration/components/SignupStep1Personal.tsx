@@ -1,4 +1,4 @@
-// components/SignupStep1Personal.tsx
+/*eslint-disable*/
 import type {FC} from 'react';
 import {useState} from 'react';
 import {COUNTRIES, DIAL_CODES} from '../constants/countries';

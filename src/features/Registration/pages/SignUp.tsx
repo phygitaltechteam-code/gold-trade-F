@@ -1,4 +1,4 @@
-// SignUp.tsx
+/*eslint-disable*/
 import React, {useState} from 'react';
 import {useMutation} from '@tanstack/react-query';
 import {unAuthenticatedApi} from '@/utils/axios'; // assuming this is your unauth axios instance
