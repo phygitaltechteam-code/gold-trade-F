@@ -46,7 +46,7 @@ const ConfirmNewPin: React.FC = () => {
       navigate({to: '/accounthub/acounthub'});
     } else {
       setError(true);
-      // Clear PIN after showing error 
+      // Clear PIN after showing error
       setTimeout(() => {
         setPin('');
       }, 1000);

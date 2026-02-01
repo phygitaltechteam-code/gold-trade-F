@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState} from 'react';
 
 export const Verification: React.FC = () => {
   const [statusText, setStatusText] = useState('SCANNING DOCUMENTS');

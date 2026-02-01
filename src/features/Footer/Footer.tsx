@@ -16,6 +16,14 @@ const navItems = [
     to: '/dashboard',
     iconSize: 'text-xl',
   },
+
+  {
+    label: 'Payments',
+    icon: FaThLarge,
+    to: '/paymentdashbord',
+    iconSize: 'text-xl',
+  },
+
   {
     label: 'Settings',
     icon: FaEllipsisV,
@@ -191,6 +199,7 @@ const Footer = () => {
                 <button
                   aria-label={label}
                   onClick={() => {
+                    console;
                     navigate({to});
                     hideTooltip();
                   }}

@@ -6,7 +6,7 @@ const BiometricSetup: FC = () => {
   return (
     <div className="bg-gray-50 dark:bg-gray-950 flex min-h-screen w-full items-center justify-center p-4 font-['Inter'] antialiased selection:bg-[#F57F3D]/30">
       {/* Mobile frame wrapper */}
-      <div className="border-gray-200/60 dark:border-gray-800/60 relative mx-auto min-h-[844px] w-full max-w-[390px] overflow-hidden  bg-[#f8f6f5] shadow-2xl dark:bg-[#221610]">
+      <div className="border-gray-200/60 dark:border-gray-800/60 relative mx-auto min-h-[844px] w-full max-w-[390px] overflow-hidden bg-[#f8f6f5] shadow-2xl dark:bg-[#221610]">
         {/* Background grid + fade */}
         <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
           <svg
