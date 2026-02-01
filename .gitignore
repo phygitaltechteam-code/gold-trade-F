@@ -22,7 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-.src
 .env
 .eslintcache
 routeTree.gen.ts
