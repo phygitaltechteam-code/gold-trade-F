@@ -1,10 +1,23 @@
+/*eslint-disable*/
 import React from 'react';
 import {Plus} from 'lucide-react';
-import {QUICK_CONTACTS} from '../constants';
 import {useNavigate} from '@tanstack/react-router';
+import {useGetBeneficiary} from '@/lib/react-query/beneficiary';
 
 const QuickSend: React.FC = () => {
   const navigate = useNavigate();
+  const {data: allBeneficiary} = useGetBeneficiary();
+  console.log('all beneficiary', allBeneficiary);
+
+  const getInitials = (name: string) => {
+    if (!name) return '';
+    const parts = name.trim().split(' ');
+    if (parts.length === 1) {
+      return parts[0][0].toUpperCase();
+    }
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
+
   return (
     <div className="px-5 py-2">
       <div className="mb-4 flex items-center justify-between">
@@ -26,33 +39,20 @@ const QuickSend: React.FC = () => {
           <span className="text-gray-600 text-xs font-medium">Add New</span>
         </div>
 
-        {/* Contacts */}
-        {QUICK_CONTACTS.map((contact) => (
+        {allBeneficiary?.map((contact: any) => (
           <div
             key={contact.id}
             className="group relative flex min-w-[64px] cursor-pointer flex-col items-center gap-2"
+            onClick={() => navigate({to: '/beneficiary/sendmoney'})}
           >
-            <div
-              className="relative"
-              onClick={() => navigate({to: '/sendpayment'})}
-            >
-              {contact.avatarUrl ? (
-                <img
-                  src={contact.avatarUrl}
-                  alt={contact.name}
-                  className="h-16 w-16 rounded-full border-2 border-transparent object-cover transition-all group-hover:border-primary/10"
-                />
-              ) : (
-                <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-transparent bg-blue-100 text-xl font-bold text-blue-600 group-hover:border-primary/10">
-                  MK
-                </div>
-              )}
-              {contact.isOnline && (
-                <span className="absolute bottom-1 right-0 h-4 w-4 rounded-full border-2 border-white bg-green-500"></span>
-              )}
+            <div className="relative">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-transparent bg-blue-100 text-xl font-bold text-blue-600 group-hover:border-primary/10">
+                {getInitials(contact.fullName)}
+              </div>
             </div>
+
             <span className="text-gray-600 text-xs font-medium">
-              {contact.name}
+              {contact.fullName}
             </span>
           </div>
         ))}

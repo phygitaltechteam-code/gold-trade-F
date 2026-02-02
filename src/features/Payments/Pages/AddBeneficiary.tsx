@@ -12,10 +12,8 @@ import {
   SectionHeader,
   ProgressBar,
   Divider,
-  MobilePrefixSelect,
 } from '../Components/BenifeciaryFormComponents';
 import {useAddBeneficiary} from '@/lib/react-query/beneficiary';
-import {on} from 'events';
 
 const AddBeneficiary: React.FC = () => {
   const navigate = useNavigate();
@@ -96,12 +94,11 @@ const AddBeneficiary: React.FC = () => {
 
   return (
     <div className="font-sans relative mx-auto flex h-full min-h-screen w-full max-w-md flex-col bg-white shadow-xl dark:bg-[#1e1e1e]">
-      {/* --- Sticky Header --- */}
       <div className="border-gray-100 dark:border-gray-800 sticky top-0 z-30 flex items-center justify-between border-b bg-white/95 px-4 pb-2 pt-4 backdrop-blur-sm dark:bg-[#1e1e1e]/95">
         <button
           className="text-text-main hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center rounded-full p-2 transition-colors dark:text-white"
           aria-label="Go back"
-          // onClick={() => navigate({ to: '/paymentdashboard' })}
+          onClick={() => navigate({to: '/wallet/paymentdashbord'})}
         >
           <MdArrowBack size={24} />
         </button>

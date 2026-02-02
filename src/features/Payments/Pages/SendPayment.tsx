@@ -38,7 +38,7 @@ const PaymentSend: React.FC = () => {
         <header className="relative z-10 mt-2 flex shrink-0 items-center justify-between px-4 py-4">
           <button
             className="flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-white/50 active:scale-95"
-            onClick={() => navigate({to: '/paymentdashbord'})}
+            onClick={() => navigate({to: '/wallet/paymentdashbord'})}
           >
             <MdArrowBack className="text-swiss-navy text-2xl" />
           </button>

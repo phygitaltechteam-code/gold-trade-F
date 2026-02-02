@@ -7,19 +7,6 @@ import {
 } from 'lucide-react';
 import {QuickContact, Recipient} from './types';
 
-export const QUICK_CONTACTS: QuickContact[] = [
-  {
-    id: '1',
-    name: 'Alice',
-    avatarUrl: 'https://picsum.photos/id/64/200/200',
-    isOnline: true,
-  },
-  {id: '2', name: 'Robert', avatarUrl: 'https://picsum.photos/id/91/200/200'},
-  {id: '3', name: 'Mom', avatarUrl: ''}, // Intentionally empty to test fallback/initials if needed, or specific style
-  {id: '4', name: 'Sarah', avatarUrl: 'https://picsum.photos/id/129/200/200'},
-  {id: '5', name: 'Mike', avatarUrl: 'https://picsum.photos/id/338/200/200'},
-];
-
 export const RECIPIENTS: Recipient[] = [
   {
     id: 'r1',

@@ -10,3 +10,13 @@ export const addBenefishiary = async (data: BeneficiaryFormData) => {
     throw error;
   }
 };
+
+export const getBenefishiary = async () => {
+  try {
+    const response = await api.get(`customer/wallet/beneficiary`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching client by ID:', error);
+    throw error;
+  }
+};

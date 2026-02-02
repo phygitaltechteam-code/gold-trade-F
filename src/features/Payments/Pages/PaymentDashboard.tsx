@@ -10,9 +10,7 @@ const PaymentDashboard: React.FC = () => {
 
   return (
     <div className="bg-gray-50 flex min-h-screen items-start justify-center pt-0 md:pt-10">
-      {/* Mobile Container Simulation */}
       <div className="relative flex min-h-screen w-full max-w-md flex-col overflow-hidden bg-white shadow-2xl md:min-h-[850px] md:rounded-3xl">
-        {/* Header */}
         <header className="z-10 flex items-center justify-between bg-white px-5 py-4">
           <button
             className="text-gray-800 hover:bg-gray-100 -ml-2 rounded-full p-2 transition-colors"
@@ -28,7 +26,6 @@ const PaymentDashboard: React.FC = () => {
           </button>
         </header>
 
-        {/* Search Bar */}
         <div className="bg-white px-5 py-2">
           <div className="relative">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
