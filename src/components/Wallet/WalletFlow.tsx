@@ -80,7 +80,7 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
       accountType:
         transactionData.accountType === 'private'
           ? 'E_PRIVATEACCOUNT'
-          : 'VIRTUAL_ACCOUNT',
+          : 'E_TEMPORYACCOUNT',
     };
 
     console.log('Transaction Payload:', payload);

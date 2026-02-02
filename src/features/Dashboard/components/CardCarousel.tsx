@@ -21,7 +21,6 @@ export const CardCarousel: React.FC<CardCarouselProps> = ({cards}) => {
                 : 'border border-slate-700 bg-slate-900 shadow-slate-900/20 dark:bg-slate-800'
             }`}
           >
-            {/* Background Effects for Orange Card */}
             {card.theme === 'orange' && (
               <>
                 <div className="absolute -right-8 -top-12 h-48 w-48 rounded-full border-[32px] border-white/10 mix-blend-overlay"></div>
@@ -30,7 +29,6 @@ export const CardCarousel: React.FC<CardCarouselProps> = ({cards}) => {
               </>
             )}
 
-            {/* Background Effects for Dark Card */}
             {card.theme === 'dark' && (
               <>
                 <div className="absolute right-0 top-0 h-full w-full bg-gradient-to-br from-slate-800 to-slate-900 opacity-50"></div>
@@ -63,7 +61,6 @@ export const CardCarousel: React.FC<CardCarouselProps> = ({cards}) => {
         ))}
       </div>
 
-      {/* Pagination Indicators */}
       <div className="mt-1 flex justify-center gap-1.5">
         {cards.map((card, index) => (
           <div
