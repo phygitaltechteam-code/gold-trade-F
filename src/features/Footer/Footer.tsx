@@ -5,7 +5,7 @@ import {useNavigate, useLocation} from '@tanstack/react-router';
 
 const navItems = [
   {
-    label: 'Customers',
+    label: 'Payments',
     icon: FaUsers,
     to: '/',
     iconSize: 'text-3xl',
@@ -18,7 +18,7 @@ const navItems = [
   },
 
   {
-    label: 'Payments',
+    label: 'Customers',
     icon: FaThLarge,
     to: '/wallet/paymentdashbord',
     iconSize: 'text-xl',

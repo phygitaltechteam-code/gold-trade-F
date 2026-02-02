@@ -1,11 +1,14 @@
 import React, {useState, useRef} from 'react';
 import {ArrowLeft, ArrowRight, Lock, Camera} from 'lucide-react';
 import {MdBackspace} from 'react-icons/md';
-import {useNavigate} from '@tanstack/react-router';
 
 interface TopUpScreenProps {
   onBack?: () => void;
-  onContinue?: (amount: string) => void;
+  onContinue?: (
+    amount: string,
+    accountType: 'private' | 'virtual',
+    receipt?: File,
+  ) => void;
 }
 
 const TopUpScreen: React.FC<TopUpScreenProps> = ({onBack, onContinue}) => {
@@ -16,19 +19,16 @@ const TopUpScreen: React.FC<TopUpScreenProps> = ({onBack, onContinue}) => {
   const [isInputActive, setIsInputActive] = useState<boolean>(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const navigate = useNavigate();
 
   // Handle keypad button press
   const handleKeyPress = (key: string) => {
-    // Activate input line animation
     setIsInputActive(true);
     setTimeout(() => setIsInputActive(false), 300);
 
     if (key === '.' && inputValue.includes('.')) {
-      return; // Prevent multiple decimal points
+      return;
     }
 
-    // Remove commas for calculation
     const currentValue = inputValue.replace(/,/g, '');
 
     if (key === '.' && currentValue === '') {
@@ -36,7 +36,6 @@ const TopUpScreen: React.FC<TopUpScreenProps> = ({onBack, onContinue}) => {
       return;
     }
 
-    // Limit to 9 digits before decimal
     const parts = currentValue.split('.');
     if (parts[0].length >= 9 && key !== '.' && key !== '0') {
       return;
@@ -51,7 +50,6 @@ const TopUpScreen: React.FC<TopUpScreenProps> = ({onBack, onContinue}) => {
 
   // Handle backspace
   const handleBackspace = () => {
-    // Activate input line animation
     setIsInputActive(true);
     setTimeout(() => setIsInputActive(false), 300);
 
@@ -65,7 +63,6 @@ const TopUpScreen: React.FC<TopUpScreenProps> = ({onBack, onContinue}) => {
 
   // Add quick amount
   const handleAddAmount = (amount: number) => {
-    // Activate input line animation
     setIsInputActive(true);
     setTimeout(() => setIsInputActive(false), 300);
 
@@ -79,7 +76,6 @@ const TopUpScreen: React.FC<TopUpScreenProps> = ({onBack, onContinue}) => {
     const value = inputValue.replace(/,/g, '');
     if (value === '' || value === '0') return '0';
 
-    // Check if it ends with decimal point
     if (value.endsWith('.')) {
       const integerPart = parseInt(value.slice(0, -1) || '0', 10);
       return integerPart.toLocaleString() + '.';
@@ -89,7 +85,6 @@ const TopUpScreen: React.FC<TopUpScreenProps> = ({onBack, onContinue}) => {
     const integerPart = parseInt(parts[0] || '0', 10).toLocaleString();
 
     if (parts.length > 1) {
-      // Limit decimal to 2 places
       const decimalPart = parts[1].slice(0, 2);
       return `${integerPart}.${decimalPart}`;
     }
@@ -101,7 +96,7 @@ const TopUpScreen: React.FC<TopUpScreenProps> = ({onBack, onContinue}) => {
   const handleContinue = () => {
     const amount = formattedValue();
     if (onContinue) {
-      onContinue(amount);
+      onContinue(amount, accountType, selectedFile || undefined);
     }
   };
 
@@ -118,7 +113,6 @@ const TopUpScreen: React.FC<TopUpScreenProps> = ({onBack, onContinue}) => {
     if (file) {
       setSelectedFile(file);
       console.log('Selected file:', file.name, file.size);
-      // You can handle file upload logic here
     }
   };
 
@@ -179,7 +173,7 @@ const TopUpScreen: React.FC<TopUpScreenProps> = ({onBack, onContinue}) => {
           </p>
           <div className="relative mb-6 flex items-center justify-center">
             <span className="mr-1 text-4xl font-bold text-[#0d131c] dark:text-white">
-              $
+              ₹
             </span>
             <div className="relative">
               <input
@@ -188,7 +182,6 @@ const TopUpScreen: React.FC<TopUpScreenProps> = ({onBack, onContinue}) => {
                 type="text"
                 value={formattedValue()}
               />
-              {/* Animated underline for amount input */}
               <div
                 className={`absolute bottom-[-4px] left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#F57F3d] to-transparent transition-all duration-300 ${
                   isInputActive
@@ -196,7 +189,6 @@ const TopUpScreen: React.FC<TopUpScreenProps> = ({onBack, onContinue}) => {
                     : 'scale-x-0 opacity-0'
                 }`}
               />
-              {/* Static subtle line */}
               <div className="absolute bottom-[-6px] left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-slate-300 to-transparent dark:via-slate-600" />
             </div>
           </div>
@@ -222,17 +214,14 @@ const TopUpScreen: React.FC<TopUpScreenProps> = ({onBack, onContinue}) => {
                 className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-[#1a2533] dark:text-slate-300 dark:hover:bg-slate-700"
               >
                 <Camera className="h-4 w-4 text-[#F57F3d]" />
-                Attach Receipt
+                Attach Receipt (Optional)
               </button>
             )}
-
-            {/* Hidden file input for camera/gallery/file manager */}
             <input
               type="file"
               ref={fileInputRef}
               className="hidden"
               accept="image/*,application/pdf,.doc,.docx"
-              capture="environment"
               onChange={handleFileSelect}
             />
           </div>
@@ -244,19 +233,19 @@ const TopUpScreen: React.FC<TopUpScreenProps> = ({onBack, onContinue}) => {
             onClick={() => handleAddAmount(50)}
             className="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full border border-slate-200 bg-white px-5 shadow-sm transition-all hover:bg-slate-50 active:border-[#F57F3d] active:bg-[#F57F3d]/10 active:text-[#F57F3d] dark:border-slate-700 dark:bg-[#1a2533] dark:hover:bg-slate-700"
           >
-            <span className="text-sm font-medium leading-normal">+ $50</span>
+            <span className="text-sm font-medium leading-normal">+ ₹50</span>
           </button>
           <button
             onClick={() => handleAddAmount(100)}
             className="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full border border-[#F57F3d]/30 bg-[#F57F3d]/5 px-5 text-[#F57F3d] shadow-sm ring-1 ring-[#F57F3d]/20 transition-all hover:bg-[#F57F3d]/10"
           >
-            <span className="text-sm font-bold leading-normal">+ $100</span>
+            <span className="text-sm font-bold leading-normal">+ ₹100</span>
           </button>
           <button
             onClick={() => handleAddAmount(500)}
             className="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full border border-slate-200 bg-white px-5 shadow-sm transition-all hover:bg-slate-50 active:border-[#F57F3d] active:bg-[#F57F3d]/10 active:text-[#F57F3d] dark:border-slate-700 dark:bg-[#1a2533] dark:hover:bg-slate-700"
           >
-            <span className="text-sm font-medium leading-normal">+ $500</span>
+            <span className="text-sm font-medium leading-normal">+ ₹500</span>
           </button>
         </div>
 
@@ -301,12 +290,19 @@ const TopUpScreen: React.FC<TopUpScreenProps> = ({onBack, onContinue}) => {
           </div>
 
           <button
-            onClick={() =>
-              navigate({to: '/wallet/pin', search: {amount: formattedValue()}})
+            onClick={handleContinue}
+            disabled={
+              !formattedValue() ||
+              parseFloat(formattedValue().replace(/,/g, '')) <= 0
             }
-            className="flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-[#F57F3d] text-lg font-bold text-white shadow-lg shadow-[#F57F3d]/30 transition-all hover:bg-[#d96626] active:scale-[0.98]"
+            className={`flex h-14 w-full items-center justify-center gap-2 rounded-xl text-lg font-bold text-white shadow-lg transition-all active:scale-[0.98] ${
+              !formattedValue() ||
+              parseFloat(formattedValue().replace(/,/g, '')) <= 0
+                ? 'bg-gray-400 shadow-gray-400/30 cursor-not-allowed'
+                : 'bg-[#F57F3d] shadow-[#F57F3d]/30 hover:bg-[#d96626]'
+            }`}
           >
-            Add ${formattedValue()}
+            Add ₹{formattedValue()}
             <ArrowRight className="h-5 w-5" />
           </button>
         </div>

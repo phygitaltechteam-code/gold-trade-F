@@ -1,4 +1,5 @@
 import TopUpScreen from '@/components/Wallet/TopUpScreen';
+import WalletFlow from '@/components/Wallet/WalletFlow';
 import {createFileRoute} from '@tanstack/react-router';
 
 export const Route = createFileRoute('/_app/wallet/toupscreen')({
@@ -6,5 +7,6 @@ export const Route = createFileRoute('/_app/wallet/toupscreen')({
 });
 
 function RouteComponent() {
-  return <TopUpScreen />;
+  // return <TopUpScreen />;
+  return <WalletFlow />;
 }

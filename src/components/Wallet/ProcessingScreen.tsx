@@ -1,278 +1,167 @@
-import {useNavigate, useLocation} from '@tanstack/react-router';
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 import {
-  MdClose,
   MdAccountBalance,
   MdCall,
   MdLock,
-  MdCheckCircle,
-  MdError,
   MdArrowBack,
+  MdError,
+  MdLockOutline,
 } from 'react-icons/md';
+import {TransactionData} from './WalletFlow';
 
 interface ProcessingScreenProps {
-  primaryColor?: string;
-  backgroundColorLight?: string;
-  backgroundColorDark?: string;
-  textColor?: string;
+  transactionData: TransactionData;
+  onBack?: () => void;
+  isAdminApproved?: boolean;
+  errorMessage?: string;
+  isSubmitting?: boolean;
 }
 
 const ProcessingScreen: React.FC<ProcessingScreenProps> = ({
-  primaryColor = '#F57F3D',
-  backgroundColorLight = '#f8f6f5',
-  backgroundColorDark = '#221610',
-  textColor = '#0F1535',
+  transactionData,
+  onBack,
+  isAdminApproved = false,
+  errorMessage = '',
+  isSubmitting = false,
 }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  type WalletState = {amount?: string};
-  const state = location.state as WalletState | undefined;
-  const amount = state?.amount ?? '';
+  // Determine what to show based on transaction status
+  // const isError = transactionData.status === 'failed' || errorMessage;
+  const isPending = transactionData.status === 'pending';
+  const isApproved = transactionData.status === 'processing';
 
-  const [progress, setProgress] = useState(0);
-  const [status, setStatus] = useState<'processing' | 'success' | 'error'>(
-    'processing',
-  );
-  const [statusMessage, setStatusMessage] = useState(
-    'We are securely processing your payment',
-  );
+  // Check if it's a PIN error
+  const isPinError =
+    errorMessage.toLowerCase().includes('pin') ||
+    errorMessage.toLowerCase().includes('security') ||
+    errorMessage.toLowerCase().includes('password') ||
+    errorMessage.toLowerCase().includes('invalid');
 
-  // Determine if we're in dark mode
-  const isDarkMode = false;
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 67) {
-          clearInterval(timer);
-          return 67;
-        }
-        return prev + 1;
-      });
-    }, 100);
-
-    // Simulate processing time
-    setTimeout(() => {
-      clearInterval(timer);
-      setProgress(100);
-      setStatus('success');
-      setStatusMessage('Transaction Successful!');
-
-      // Navigate to success screen after delay
-      setTimeout(() => {
-        navigate({to: '/wallet/success', state: {amount}});
-      }, 2000);
-    }, 5000);
-
-    return () => clearInterval(timer);
-  }, [navigate, amount]);
-
-  const getStatusIcon = () => {
-    switch (status) {
-      case 'processing':
-        return (
-          <div className="relative flex items-center justify-center">
-            <div
-              className="animate-spinner h-28 w-28 rounded-full border-4"
-              style={{
-                borderColor: `${primaryColor}10`,
-                borderTopColor: primaryColor,
-              }}
-            ></div>
-            <div
-              className="absolute flex h-20 w-20 items-center justify-center rounded-full border shadow-lg"
-              style={{
-                backgroundColor: isDarkMode ? '#1f2937' : '#FFFFFF',
-                borderColor: isDarkMode ? '#374151' : '#f3f4f6',
-              }}
-            >
-              <MdAccountBalance
-                className="text-[40px]"
-                style={{color: primaryColor}}
-              />
-            </div>
-          </div>
-        );
-      case 'success':
-        return (
-          <div className="relative flex items-center justify-center">
-            <div className="h-28 w-28 rounded-full border-4 border-green-500/10"></div>
-            <div className="absolute flex h-20 w-20 items-center justify-center rounded-full border border-slate-100 bg-white shadow-lg dark:border-slate-800 dark:bg-slate-900">
-              <MdCheckCircle className="text-[48px] text-green-600" />
-            </div>
-          </div>
-        );
-      case 'error':
-        return (
-          <div className="relative flex items-center justify-center">
-            <div className="h-28 w-28 rounded-full border-4 border-red-500/10"></div>
-            <div className="absolute flex h-20 w-20 items-center justify-center rounded-full border border-slate-100 bg-white shadow-lg dark:border-slate-800 dark:bg-slate-900">
-              <MdError className="text-[48px] text-red-600" />
-            </div>
-          </div>
-        );
-    }
-  };
-
-  // Processing state
   return (
-    <div
-      className="font-display flex h-screen flex-col overflow-hidden py-2 antialiased selection:bg-primary/20"
-      style={{
-        backgroundColor: isDarkMode
-          ? backgroundColorDark
-          : backgroundColorLight,
-        color: isDarkMode ? '#FFFFFF' : textColor,
-      }}
-    >
+    <div className="font-display bg-gray-50 text-gray-900 dark:bg-gray-900 flex h-screen flex-col overflow-hidden antialiased dark:text-white">
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4">
         <button
-          onClick={() => navigate(-1)}
-          className="flex size-10 items-center justify-center rounded-full transition-colors"
-          style={{
-            backgroundColor: isDarkMode
-              ? 'rgba(255,255,255,0.05)'
-              : 'rgba(0,0,0,0.05)',
-          }}
+          onClick={onBack}
+          className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 flex size-10 items-center justify-center rounded-full transition-colors"
         >
           <MdArrowBack className="text-2xl" />
         </button>
-        <h2 className="text-lg font-bold">Payment Processing</h2>
-        <button
-          onClick={() => navigate({to: '/'})}
-          className="flex size-10 items-center justify-center rounded-full transition-colors"
-          style={{
-            backgroundColor: isDarkMode
-              ? 'rgba(255,255,255,0.05)'
-              : 'rgba(0,0,0,0.05)',
-          }}
-        >
-          <MdClose className="text-2xl" />
-        </button>
+        <h2 className="text-lg font-bold">
+          {isPending ? 'Payment Processing' : 'Payment Processing'}
+        </h2>
+        <div className="w-10"></div>
       </div>
 
-      {/* Main Content */}
       <div className="flex flex-1 flex-col items-center justify-center px-6 py-4">
-        {/* Animated Status Icon */}
-        <div className="mb-8">{getStatusIcon()}</div>
+        {/* Icon */}
+        <div className="relative mb-8 flex items-center justify-center">
+          {isPending ? (
+            // ERROR STATE
+            <>
+              <div className="h-28 w-28 rounded-full border-4 border-red-500/10"></div>
+              <div className="border-gray-100 dark:border-gray-800 dark:bg-gray-900 absolute flex h-20 w-20 items-center justify-center rounded-full border bg-white shadow-lg">
+                {isPinError ? (
+                  <MdLockOutline className="text-[48px] text-red-600" />
+                ) : (
+                  <MdError className="text-[48px] text-red-600" />
+                )}
+              </div>
+            </>
+          ) : (
+            // PROCESSING/PENDING STATE
+            <>
+              <div className="h-28 w-28 animate-spin rounded-full border-4 border-orange-500/10 border-t-orange-500"></div>
+              <div className="border-gray-100 dark:border-gray-800 dark:bg-gray-900 absolute flex h-20 w-20 items-center justify-center rounded-full border bg-white shadow-lg">
+                <MdAccountBalance className="text-[40px] text-orange-500" />
+              </div>
+            </>
+          )}
+        </div>
 
         <div className="w-full max-w-xs space-y-4 text-center">
           <h2 className="text-2xl font-extrabold tracking-tight">
-            Transfer in Progress
+            {isPending ? 'Transfer in Progress' : 'Transfer in Progress'}
           </h2>
 
-          {/* Amount Display */}
-          {amount && (
+          {/* Admin Status - Show when pending */}
+          {isPending && (
+            <div className="inline-flex items-center gap-2 rounded-full bg-yellow-100 px-3 py-1 text-sm font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
+              <div className="h-2 w-2 animate-pulse rounded-full bg-yellow-500"></div>
+              Awaiting Admin Approval
+            </div>
+          )}
+
+          {/* Amount Display - Show for all states */}
+          {transactionData.amount && (
             <div
-              className="rounded-xl border px-4 py-3"
-              style={{
-                backgroundColor: isDarkMode ? '#1d4ed820' : '#dbeafe80',
-                borderColor: isDarkMode ? '#1e40af80' : '#93c5fd80',
-              }}
+              className={`rounded-xl border px-4 py-3 ${
+                isApproved
+                  ? 'border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-900/20'
+                  : 'border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-900/20'
+              }`}
             >
-              <p className="mb-1 text-lg font-semibold">${amount}</p>
-              <p
-                className="text-sm"
-                style={{
-                  color: isDarkMode ? '#94a3b8' : '#64748b',
-                }}
-              >
-                to Rahul Sharma
+              <p className="mb-1 text-lg font-semibold">
+                ₹{transactionData.amount}
+              </p>
+              <p className="text-sm opacity-80">
+                Account:{' '}
+                {transactionData.accountType === 'private'
+                  ? 'Private Account'
+                  : 'Virtual Account'}
               </p>
             </div>
           )}
 
+          {/* Status Message */}
           <p
-            className="text-sm leading-relaxed"
-            style={{
-              color: isDarkMode ? '#cbd5e1' : '#475569',
-            }}
+            className={`text-sm leading-relaxed ${
+              isApproved
+                ? 'text-red-600 dark:text-red-400'
+                : 'text-gray-600 dark:text-gray-400'
+            }`}
           >
-            We are securely processing your payment to Rahul Sharma. This
-            usually takes a few seconds. Please do not close the app.
+            {isApproved
+              ? errorMessage
+              : isPending
+                ? 'Your transaction is awaiting admin approval. This usually takes 2-5 minutes.'
+                : 'Your transaction is being processed...'}
           </p>
+
+          {/* Admin Approved Status */}
+          {isAdminApproved && isPending && (
+            <div className="inline-flex items-center gap-2 rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300">
+              ✓ Approved by Admin
+            </div>
+          )}
         </div>
 
-        {/* Progress Bar */}
-        <div
-          className="mt-8 h-1 w-full max-w-[180px] overflow-hidden rounded-full"
-          style={{
-            backgroundColor: isDarkMode ? '#374151' : '#e2e8f0',
-          }}
-        >
-          <div
-            className="h-full rounded-full transition-all duration-300 ease-out"
-            style={{
-              backgroundColor: primaryColor,
-              width: `${progress}%`,
-              opacity: 0.5,
-            }}
-          ></div>
-        </div>
-
-        {/* Progress Percentage */}
-        <div className="mt-2 text-sm font-medium" style={{color: primaryColor}}>
-          {progress}%
-        </div>
+        {/* Retry Button for Error State */}
+        {isPending && (
+          <button
+            onClick={onBack}
+            className="mt-6 flex items-center gap-2 rounded-full bg-orange-500 px-6 py-3 font-semibold text-white transition-colors hover:bg-orange-600"
+          >
+            Try Again
+          </button>
+        )}
       </div>
 
-      {/* Footer */}
-      <div className="px-6 py-4">
-        <div className="mx-auto max-w-md">
-          <button
-            className="flex w-full items-center justify-center gap-2 rounded-xl border py-3 transition-colors"
-            style={{
-              color: primaryColor,
-              borderColor: `${primaryColor}20`,
-              fontWeight: 600,
-            }}
-            onMouseOver={(e) =>
-              (e.currentTarget.style.backgroundColor = `${primaryColor}10`)
-            }
-            onMouseOut={(e) =>
-              (e.currentTarget.style.backgroundColor = 'transparent')
-            }
-            onMouseDown={(e) =>
-              (e.currentTarget.style.backgroundColor = `${primaryColor}20`)
-            }
-            onMouseUp={(e) =>
-              (e.currentTarget.style.backgroundColor = `${primaryColor}10`)
-            }
-          >
-            <MdCall className="text-xl" />
-            <span>Need help? Call Support</span>
-          </button>
+      {/* Footer - Only show for non-error states */}
+      {!isPending && (
+        <div className="px-6 py-4">
+          <div className="mx-auto max-w-md">
+            <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-orange-200 bg-orange-50 py-3 font-semibold text-orange-600 transition-colors hover:bg-orange-100 dark:border-orange-900 dark:bg-orange-900/20 dark:text-orange-400 dark:hover:bg-orange-900/30">
+              <MdCall className="text-xl" />
+              <span>Need help? Call Support</span>
+            </button>
 
-          <div
-            className="mt-4 flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-widest"
-            style={{
-              color: isDarkMode ? '#6b7280' : '#94a3b8',
-            }}
-          >
-            <MdLock className="text-[12px]" />
-            <span>Secure End-to-End Encryption</span>
+            <div className="text-gray-500 dark:text-gray-400 mt-4 flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-widest">
+              <MdLock className="text-[12px]" />
+              <span>Secure End-to-End Encryption</span>
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Remove scrollbar globally for this screen */}
-      <style jsx global>{`
-        body {
-          overflow: hidden !important;
-        }
-        .animate-spinner {
-          animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-      `}</style>
+      )}
     </div>
   );
 };
