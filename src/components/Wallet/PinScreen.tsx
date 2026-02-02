@@ -1,34 +1,31 @@
 import React, {useState, useEffect} from 'react';
-import {useNavigate} from '@tanstack/react-router';
-import {
-  MdArrowBack,
-  MdLock,
-  MdBackspace,
-  MdCheck,
-  MdOutlineCircle,
-} from 'react-icons/md';
+import {MdArrowBack, MdLock, MdBackspace, MdCheck} from 'react-icons/md';
 
 interface PinScreenProps {
-  primaryColor?: string;
-  accentColor?: string;
-  backgroundColor?: string;
-  textColor?: string;
+  onPinSubmit: (pin: string) => void;
+  onBack?: () => void;
+  transactionAmount?: string;
 }
 
 const PinScreen: React.FC<PinScreenProps> = ({
-  primaryColor = '#F57F3D',
-  accentColor = '#0F1535',
-  backgroundColor = '#FFFFFF',
-  textColor = '#0F1535',
+  onPinSubmit,
+  onBack,
+  transactionAmount,
 }) => {
-  const navigate = useNavigate();
   const [pin, setPin] = useState<string>('');
 
   const handleKeyPress = (key: string) => {
-    setPin((prev) => {
-      if (prev.length >= 6) return prev;
-      return prev + key;
-    });
+    if (pin.length >= 6) return;
+
+    const newPin = pin + key;
+    setPin(newPin);
+
+    // Auto submit when 6 digits are entered
+    if (newPin.length === 6) {
+      setTimeout(() => {
+        onPinSubmit(newPin);
+      }, 100);
+    }
   };
 
   const handleBackspace = () => {
@@ -36,29 +33,12 @@ const PinScreen: React.FC<PinScreenProps> = ({
   };
 
   return (
-    <div
-      className="font-display flex h-full flex-col overflow-hidden py-2 antialiased selection:bg-primary/20"
-      style={{
-        backgroundColor,
-        color: textColor,
-      }}
-    >
-      {/* Header */}
-      <header
-        className="fixed left-0 right-0 top-0 z-50 backdrop-blur-sm"
-        style={{backgroundColor: `${backgroundColor}E6`}}
-      >
+    <div className="font-display text-gray-900 dark:bg-gray-900 flex h-full flex-col overflow-hidden bg-white py-2 antialiased dark:text-white">
+      <header className="dark:bg-gray-900/80 fixed left-0 right-0 top-0 z-50 bg-white/80 backdrop-blur-sm">
         <div className="flex h-16 items-center justify-between px-6">
           <button
-            onClick={() => navigate({to: '/wallet/toupscreen'})}
-            className="-ml-2 flex h-10 w-10 items-center justify-center rounded-full transition-colors"
-            style={{
-              color: textColor,
-              backgroundColor:
-                backgroundColor === '#FFFFFF'
-                  ? 'transparent'
-                  : 'rgba(0,0,0,0.05)',
-            }}
+            onClick={onBack}
+            className="hover:bg-gray-100 dark:hover:bg-gray-800 -ml-2 flex h-10 w-10 items-center justify-center rounded-full transition-colors"
           >
             <MdArrowBack className="text-2xl" />
           </button>
@@ -68,16 +48,18 @@ const PinScreen: React.FC<PinScreenProps> = ({
 
       <main className="relative z-10 mx-auto flex w-full max-w-md flex-1 flex-col px-8 pb-4 pt-16">
         <div className="mb-8 mt-12 flex flex-col items-center text-center">
-          <div className="mb-6" style={{color: primaryColor}}>
+          <div className="mb-6 text-orange-500">
             <MdLock className="text-5xl font-light" />
           </div>
-          <h1
-            className="mb-2 text-[32px] font-semibold tracking-tight"
-            style={{color: textColor}}
-          >
+          <h1 className="mb-2 text-[32px] font-semibold tracking-tight">
             Enter Security PIN
           </h1>
-          <p className="text-sm font-medium" style={{color: `${textColor}80`}}>
+          {transactionAmount && (
+            <p className="mb-2 text-lg font-medium text-orange-500">
+              Amount: ₹{transactionAmount}
+            </p>
+          )}
+          <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">
             Please enter your 6-digit access code
           </p>
         </div>
@@ -93,13 +75,13 @@ const PinScreen: React.FC<PinScreenProps> = ({
                 key={index}
                 className="flex h-12 w-full items-center justify-center border-b-2 transition-colors"
                 style={{
-                  borderColor: isFilled ? primaryColor : 'rgba(0,0,0,0.1)',
+                  borderColor: isFilled ? '#F57F3D' : 'rgba(0,0,0,0.1)',
                 }}
               >
                 {isFilled && (
                   <div
                     className="animate-in zoom-in mt-4 h-2.5 w-2.5 rounded-full duration-200"
-                    style={{backgroundColor: accentColor}}
+                    style={{backgroundColor: '#F57F3D'}}
                   />
                 )}
               </div>
@@ -113,23 +95,7 @@ const PinScreen: React.FC<PinScreenProps> = ({
             <button
               key={num}
               onClick={() => handleKeyPress(num.toString())}
-              className="mx-auto flex h-16 w-16 items-center justify-center rounded-full text-[32px] font-normal transition-all active:scale-95"
-              style={{
-                color: textColor,
-                backgroundColor: 'transparent',
-              }}
-              onMouseOver={(e) =>
-                (e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.05)')
-              }
-              onMouseOut={(e) =>
-                (e.currentTarget.style.backgroundColor = 'transparent')
-              }
-              onMouseDown={(e) =>
-                (e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.1)')
-              }
-              onMouseUp={(e) =>
-                (e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.05)')
-              }
+              className="hover:bg-gray-100 dark:hover:bg-gray-800 mx-auto flex h-16 w-16 items-center justify-center rounded-full text-[32px] font-normal transition-all active:scale-95"
             >
               {num}
             </button>
@@ -137,72 +103,33 @@ const PinScreen: React.FC<PinScreenProps> = ({
 
           <button
             onClick={handleBackspace}
-            className="mx-auto flex h-16 w-16 items-center justify-center rounded-full transition-all active:scale-95"
-            style={{
-              color: `${textColor}66`,
-              backgroundColor: 'transparent',
-            }}
-            onMouseOver={(e) =>
-              (e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.05)')
-            }
-            onMouseOut={(e) =>
-              (e.currentTarget.style.backgroundColor = 'transparent')
-            }
-            onMouseDown={(e) =>
-              (e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.1)')
-            }
-            onMouseUp={(e) =>
-              (e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.05)')
-            }
+            className="text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 mx-auto flex h-16 w-16 items-center justify-center rounded-full transition-all active:scale-95"
           >
             <MdBackspace className="text-2xl" />
           </button>
 
           <button
             onClick={() => handleKeyPress('0')}
-            className="mx-auto flex h-16 w-16 items-center justify-center rounded-full text-[32px] font-normal transition-all active:scale-95"
-            style={{
-              color: textColor,
-              backgroundColor: 'transparent',
-            }}
-            onMouseOver={(e) =>
-              (e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.05)')
-            }
-            onMouseOut={(e) =>
-              (e.currentTarget.style.backgroundColor = 'transparent')
-            }
-            onMouseDown={(e) =>
-              (e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.1)')
-            }
-            onMouseUp={(e) =>
-              (e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.05)')
-            }
+            className="hover:bg-gray-100 dark:hover:bg-gray-800 mx-auto flex h-16 w-16 items-center justify-center rounded-full text-[32px] font-normal transition-all active:scale-95"
           >
             0
           </button>
 
           <button
-            onClick={() =>
-              navigate({to: '/wallet/processing', search: {amount: pin}})
-            }
-            className="mx-auto flex h-16 w-16 items-center justify-center rounded-full shadow-lg transition-all active:scale-95"
-            style={{
-              backgroundColor: primaryColor,
-              color: '#FFFFFF',
-              boxShadow: `${primaryColor}33 0px 10px 25px -5px`,
-            }}
+            onClick={() => pin.length >= 6 && onPinSubmit(pin)}
+            disabled={pin.length < 6}
+            className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full shadow-lg transition-all active:scale-95 ${
+              pin.length >= 6
+                ? 'bg-orange-500 text-white shadow-orange-500/20 hover:bg-orange-600'
+                : 'bg-gray-200 text-gray-400 dark:bg-gray-800 cursor-not-allowed'
+            }`}
           >
             <MdCheck className="text-2xl" />
           </button>
         </div>
 
         <div className="mb-2 flex justify-center">
-          <button
-            className="rounded-full px-6 py-2 text-sm font-medium transition-colors"
-            style={{color: `${textColor}66`}}
-            onMouseOver={(e) => (e.currentTarget.style.color = textColor)}
-            onMouseOut={(e) => (e.currentTarget.style.color = `${textColor}66`)}
-          >
+          <button className="text-gray-600 dark:text-gray-400 hover:text-gray-900 rounded-full px-6 py-2 text-sm font-medium transition-colors dark:hover:text-white">
             Forgot PIN?
           </button>
         </div>
