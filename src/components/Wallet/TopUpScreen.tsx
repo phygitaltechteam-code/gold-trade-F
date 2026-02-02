@@ -1,6 +1,7 @@
 import React, {useState, useRef} from 'react';
 import {ArrowLeft, ArrowRight, Lock, Camera} from 'lucide-react';
 import {MdBackspace} from 'react-icons/md';
+import {useNavigate} from '@tanstack/react-router';
 
 interface TopUpScreenProps {
   onBack?: () => void;
@@ -12,6 +13,7 @@ interface TopUpScreenProps {
 }
 
 const TopUpScreen: React.FC<TopUpScreenProps> = ({onBack, onContinue}) => {
+  const navigate = useNavigate();
   const [inputValue, setInputValue] = useState<string>('2500');
   const [accountType, setAccountType] = useState<'private' | 'virtual'>(
     'private',
@@ -130,7 +132,7 @@ const TopUpScreen: React.FC<TopUpScreenProps> = ({onBack, onContinue}) => {
       <div className="sticky top-0 z-10 bg-[#f8f6f5] px-4 pb-2 pt-6 dark:bg-[#221610]">
         <div className="flex items-center justify-between">
           <button
-            onClick={onBack}
+            onClick={() => navigate({to: '/dashboard'})}
             className="flex size-10 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-slate-200 dark:hover:bg-slate-800"
           >
             <ArrowLeft className="h-6 w-6 text-[#0d131c] dark:text-white" />

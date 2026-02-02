@@ -8,6 +8,7 @@ import {
   MdLockOutline,
 } from 'react-icons/md';
 import {TransactionData} from './WalletFlow';
+import {useNavigate} from '@tanstack/react-router';
 
 interface ProcessingScreenProps {
   transactionData: TransactionData;
@@ -24,8 +25,7 @@ const ProcessingScreen: React.FC<ProcessingScreenProps> = ({
   errorMessage = '',
   isSubmitting = false,
 }) => {
-  // Determine what to show based on transaction status
-  // const isError = transactionData.status === 'failed' || errorMessage;
+  const navigate = useNavigate();
   const isPending = transactionData.status === 'pending';
   const isApproved = transactionData.status === 'processing';
 
@@ -41,7 +41,7 @@ const ProcessingScreen: React.FC<ProcessingScreenProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4">
         <button
-          onClick={onBack}
+          onClick={() => navigate({to: '/dashboard'})}
           className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 flex size-10 items-center justify-center rounded-full transition-colors"
         >
           <MdArrowBack className="text-2xl" />
