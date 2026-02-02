@@ -1,3 +1,5 @@
+import {IconType} from 'react-icons/lib';
+
 export interface Transaction {
   id: string;
   title: string;
@@ -5,29 +7,48 @@ export interface Transaction {
   amount: number;
   type: 'income' | 'expense';
   category: string;
-  icon: string;
+  icon: IconType;
   colorClass: string;
   iconBgClass: string;
+  status?: 'Pending' | 'Approved' | 'Rejected';
+  amountColor?: string;
+  badgeClass?: string;
+  accountType?: string;
+  showAmount?: boolean;
 }
-
-export interface BankCard {
+export interface ApiTransaction {
   id: string;
+  walletId: string;
+  particular: string;
+  receiverId: string | null;
+  senderId: string | null;
+  beneficiaryId: string | null;
+  amount: number;
+  amountType: string;
+  accountType: string;
   type: string;
-  balance: number;
-  currency: string;
-  isPrimary: boolean;
-  theme: 'orange' | 'dark';
+  rejectReason: string | null;
+  isPending: boolean;
+  isRejected: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface ActionItem {
+export interface ApiWallet {
   id: string;
-  label: string;
-  icon: string;
+  eprivateAccount: number;
+  temporyAccount: number;
 }
 
-export interface NavItem {
-  id: string;
-  label: string;
-  icon: string;
-  active?: boolean;
+export interface ApiDashboardData {
+  wallet: ApiWallet;
+  transactions: ApiTransaction[];
+}
+
+export interface DashboardResponse {
+  statusCode: number;
+  status: boolean;
+  message: string;
+  data: ApiDashboardData;
+  errors: null;
 }

@@ -1,87 +1,100 @@
-import React from 'react';
+/*eslint-disable*/
+import React, {useEffect} from 'react';
 import {Header} from '../components/Header';
 import {CardCarousel} from '../components/CardCarousel';
 import {QuickActions} from '../components/QuickActions';
 import {TransactionList} from '../components/TransactionList';
-import {BankCard, Transaction} from '../types';
-import {MdPayment, MdShoppingBag, MdCoffee, MdMovie} from 'react-icons/md';
 import Footer from '@/features/Footer/Footer';
-const mockCards: BankCard[] = [
-  {
-    id: '1',
-    type: 'E Private Account',
-    balance: 870.5,
-    currency: 'USD',
-    isPrimary: true,
-    theme: 'orange',
-  },
-  {
-    id: '2',
-    type: 'Temporarily Virtual Account',
-    balance: 3500.0,
-    currency: 'USD',
-    isPrimary: false,
-    theme: 'dark',
-  },
-];
-
-const mockTransactions: Transaction[] = [
-  {
-    id: '1',
-    title: 'Income',
-    date: 'Today, 9:00 AM',
-    amount: 420.0,
-    type: 'income',
-    category: 'Salary',
-    icon: MdPayment,
-    colorClass: 'text-green-600 dark:text-green-400',
-    iconBgClass: 'bg-green-100 dark:bg-green-900/30',
-  },
-  {
-    id: '2',
-    title: 'Marketplace',
-    date: 'Yesterday, 5:42 PM',
-    amount: 30.0,
-    type: 'expense',
-    category: 'Electronics',
-    icon: MdShoppingBag,
-    colorClass: 'text-primary dark:text-orange-400',
-    iconBgClass: 'bg-primary/10 dark:bg-orange-900/30',
-  },
-  {
-    id: '3',
-    title: 'Cafe Central',
-    date: 'Yesterday, 8:15 AM',
-    amount: 4.2,
-    type: 'expense',
-    category: 'Food & Drink',
-    icon: MdCoffee,
-    colorClass: 'text-slate-600 dark:text-slate-300',
-    iconBgClass: 'bg-slate-100 dark:bg-slate-700',
-  },
-  {
-    id: '4',
-    title: 'Netflix Subscription',
-    date: 'Oct 24, 10:00 AM',
-    amount: 15.99,
-    type: 'expense',
-    category: 'Entertainment',
-    icon: MdMovie,
-    colorClass: 'text-red-600 dark:text-red-400',
-    iconBgClass: 'bg-red-100 dark:bg-red-900/30',
-  },
-];
+import {useGetProfileMutation} from './dashboardmutation';
+import {MdRefresh} from 'react-icons/md';
+import {transformApiTransaction, transformWalletData} from '@/utils/formatters';
+import {BankCard} from '../types';
 
 const Dashboard: React.FC = () => {
+  const {
+    data: apiResponse,
+    isLoading,
+    error,
+    refetch,
+  } = useGetProfileMutation();
+
+  if (isLoading) {
+    return (
+      <div className="bg-background-light dark:bg-background-dark relative mx-auto flex h-screen w-full max-w-md flex-col items-center justify-center shadow-2xl">
+        <div className="h-16 w-16 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+        <p className="mt-4 text-slate-600 dark:text-slate-300">
+          Loading dashboard...
+        </p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-background-light dark:bg-background-dark relative mx-auto flex h-screen w-full max-w-md flex-col items-center justify-center shadow-2xl">
+        <div className="rounded-lg bg-red-50 p-6 dark:bg-red-900/20">
+          <p className="text-red-600 dark:text-red-400">
+            Failed to load dashboard data
+          </p>
+          <p className="mt-2 text-sm text-red-500 dark:text-red-300">
+            {error instanceof Error ? error.message : 'Unknown error occurred'}
+          </p>
+          <button
+            onClick={() => refetch()}
+            className="mt-4 flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-white hover:bg-orange-600"
+          >
+            <MdRefresh />
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!apiResponse) {
+    return (
+      <div className="bg-background-light dark:bg-background-dark relative mx-auto flex h-screen w-full max-w-md flex-col items-center justify-center shadow-2xl">
+        <div className="rounded-lg bg-yellow-50 p-6 dark:bg-yellow-900/20">
+          <p className="text-yellow-600 dark:text-yellow-400">
+            No data available
+          </p>
+          <button
+            onClick={() => refetch()}
+            className="mt-4 flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-white hover:bg-orange-600"
+          >
+            <MdRefresh />
+            Refresh
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const dashboardData = apiResponse.data || apiResponse;
+
+  const wallet = dashboardData.wallet || dashboardData.data?.wallet;
+  const apiTransactions =
+    dashboardData.transactions || dashboardData.data?.transactions || [];
+
+  const walletCards: BankCard[] = transformWalletData(wallet, apiTransactions);
+
+  const transactions = Array.isArray(apiTransactions)
+    ? apiTransactions.map((tx: any) => {
+        const transformed = transformApiTransaction(tx);
+
+        return transformed;
+      })
+    : [];
+
   return (
     <>
       <div className="bg-background-light dark:bg-background-dark relative mx-auto flex h-full w-full max-w-md flex-col overflow-x-hidden shadow-2xl">
         <div className="h-2 w-full bg-transparent" />
         <Header />
         <main className="flex flex-1 flex-col">
-          <CardCarousel cards={mockCards} />
+          <CardCarousel cards={walletCards} />
           <QuickActions />
-          <TransactionList transactions={mockTransactions} />
+          <TransactionList transactions={transactions} />
         </main>
       </div>
       <Footer />
