@@ -15,6 +15,9 @@ export interface Transaction {
   badgeClass?: string;
   accountType?: string;
   showAmount?: boolean;
+  isRejected?: boolean;
+  rejectReason?: string | null;
+  rejectedDate?: string;
 }
 export interface ApiTransaction {
   id: string;
