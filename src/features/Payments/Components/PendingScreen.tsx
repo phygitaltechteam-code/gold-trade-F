@@ -16,7 +16,7 @@ const StatusScreen: React.FC = () => {
       <header className="sticky top-0 z-30 flex items-center justify-between bg-white/50 p-4 backdrop-blur-sm">
         <button
           className="text-navy flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-black/5"
-          onClick={() => navigate({to: '/addbeneficiary'})}
+          onClick={() => navigate({to: '/wallet/paymentdashbord'})}
         >
           <MdClose className="text-2xl" />
         </button>
@@ -84,7 +84,7 @@ const StatusScreen: React.FC = () => {
         <div className="mt-8 w-full">
           <button
             className="group flex h-14 w-full items-center justify-center gap-2 rounded-xl border-t border-white/20 bg-gradient-to-r from-primary to-[#E06925] text-lg font-bold text-white shadow-[0_10px_20px_-5px_rgba(245,127,61,0.4)] transition-all hover:from-[#E06925] hover:to-primary active:scale-[0.98]"
-            onClick={() => navigate({to: '/paymentdashbord'})}
+            onClick={() => navigate({to: '/wallet/paymentdashbord'})}
           >
             <span>Back to Dashboard</span>
             <MdArrowForward className="text-xl transition-transform group-hover:translate-x-1" />

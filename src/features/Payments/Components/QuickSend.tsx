@@ -19,7 +19,7 @@ const QuickSend: React.FC = () => {
         <div className="flex min-w-[64px] flex-col items-center gap-2">
           <button
             className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-dashed border-primary/20 bg-primary/5 text-primary transition-colors hover:bg-primary/10"
-            onClick={() => navigate({to: '/wallet/addbeneficiaryy'})}
+            onClick={() => navigate({to: '/beneficiary/addbeneficiaryy'})}
           >
             <Plus size={24} strokeWidth={2.5} />
           </button>

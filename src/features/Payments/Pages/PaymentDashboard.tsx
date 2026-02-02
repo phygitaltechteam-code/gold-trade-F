@@ -2,8 +2,10 @@ import React, {useState} from 'react';
 import {ArrowLeft, ScanLine, Search} from 'lucide-react';
 import QuickSend from '../Components/QuickSend';
 import RecipientList from '../Components/RecipientList';
+import {useNavigate} from '@tanstack/react-router';
 
 const PaymentDashboard: React.FC = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
 
   return (
@@ -12,7 +14,10 @@ const PaymentDashboard: React.FC = () => {
       <div className="relative flex min-h-screen w-full max-w-md flex-col overflow-hidden bg-white shadow-2xl md:min-h-[850px] md:rounded-3xl">
         {/* Header */}
         <header className="z-10 flex items-center justify-between bg-white px-5 py-4">
-          <button className="text-gray-800 hover:bg-gray-100 -ml-2 rounded-full p-2 transition-colors">
+          <button
+            className="text-gray-800 hover:bg-gray-100 -ml-2 rounded-full p-2 transition-colors"
+            onClick={() => navigate({to: '/dashboard'})}
+          >
             <ArrowLeft size={24} strokeWidth={2.5} />
           </button>
           <h1 className="text-gray-900 text-xl font-extrabold">
