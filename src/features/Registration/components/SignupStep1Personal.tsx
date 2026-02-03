@@ -7,9 +7,9 @@ interface SignupStep1PersonalProps {
   initialData: {
     accountHolderName: string;
     dateOfBirth: string;
-    nationality: string;
-    swiftBicCode: string;
-    countryOfAccount: string;
+    // nationality: string;
+    // swiftBicCode: string;
+    // countryOfAccount: string;
     contactEmail: string;
     password: string;
     securityPin: string;
@@ -156,7 +156,7 @@ const SignupStep1Personal: FC<SignupStep1PersonalProps> = ({
                 </p>
               </label>
 
-              <label className="flex flex-col gap-2">
+              {/* <label className="flex flex-col gap-2">
                 <span className="text-base font-medium text-[#0d131c] dark:text-white">
                   Nationality
                 </span>
@@ -179,9 +179,9 @@ const SignupStep1Personal: FC<SignupStep1PersonalProps> = ({
                     </option>
                   ))}
                 </select>
-              </label>
+              </label> */}
 
-              <label className="flex flex-col gap-2">
+              {/* <label className="flex flex-col gap-2">
                 <span className="text-base font-medium text-[#0d131c] dark:text-white">
                   SWIFT/BIC Code
                 </span>
@@ -197,9 +197,9 @@ const SignupStep1Personal: FC<SignupStep1PersonalProps> = ({
                 <p className="text-xs text-slate-500 dark:text-slate-400">
                   Required if funding from international accounts.
                 </p>
-              </label>
+              </label> */}
 
-              <label className="flex flex-col gap-2">
+              {/* <label className="flex flex-col gap-2">
                 <span className="text-base font-medium text-[#0d131c] dark:text-white">
                   Country of Account
                 </span>
@@ -217,7 +217,7 @@ const SignupStep1Personal: FC<SignupStep1PersonalProps> = ({
                     </option>
                   ))}
                 </select>
-              </label>
+              </label> */}
             </div>
 
             {/* CONTACT INFORMATION */}
@@ -276,7 +276,7 @@ const SignupStep1Personal: FC<SignupStep1PersonalProps> = ({
                 <div className="relative">
                   <input
                     className="w-full rounded-xl border border-[#ced9e9] bg-white/80 px-4 py-3.5 text-base text-[#0d131c] shadow-sm outline-none backdrop-blur-sm transition-all placeholder:text-[#94a3b8] focus:border-[#F57F3D] focus:ring-1 focus:ring-[#F57F3D]/50 dark:border-slate-600 dark:bg-slate-800/80 dark:text-white"
-                    placeholder="Minimum 8 characters"
+                    placeholder="6 characters"
                     type="number"
                     value={formData.securityPin}
                     onChange={(e) =>
