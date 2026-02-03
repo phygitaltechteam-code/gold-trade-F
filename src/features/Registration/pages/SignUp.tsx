@@ -6,6 +6,7 @@ import {unAuthenticatedApi} from '@/utils/axios'; // assuming this is your unaut
 import SignupStep1Personal from '../components/SignupStep1Personal';
 import SignupStep2KYCUpload from '../components/SignupStep2KYCUpload';
 import SignupStep3FacialVerification from '../components/SignupStep3FacialVerification';
+import {useNavigate} from '@tanstack/react-router';
 
 export interface PersonalData {
   accountHolderName: string;
@@ -36,6 +37,7 @@ export interface FacialVerificationData {
 }
 
 const SignUp = () => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
 
   const [personalData, setPersonalData] = useState<PersonalData>({
@@ -89,6 +91,9 @@ const SignUp = () => {
 
     onSuccess: (data) => {
       console.log('Registration successful:', data);
+      navigate({
+        to: '/verification',
+      });
       // → redirect to login / dashboard / show success message
       // e.g. navigate('/login') or set some success state
     },
