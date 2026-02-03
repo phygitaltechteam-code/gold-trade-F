@@ -1,6 +1,7 @@
 // components/SignupStep3FacialVerification.tsx
 import type {FC} from 'react';
-import {useRef, useState, useEffect} from 'react';
+import {useState, useRef, useCallback} from 'react';
+import Webcam from 'react-webcam';
 
 interface SignupStep3FacialVerificationProps {
   onComplete: (image: File | null) => void;
@@ -15,116 +16,53 @@ const SignupStep3FacialVerification: FC<SignupStep3FacialVerificationProps> = ({
   const [capturedImage, setCapturedImage] = useState<File | null>(null);
   const [cameraActive, setCameraActive] = useState(true);
   const [cameraError, setCameraError] = useState<string | null>(null);
-  const [isCameraInitialized, setIsCameraInitialized] = useState(false);
-
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
+  const webcamRef = useRef<Webcam>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Initialize camera on component mount
-  useEffect(() => {
-    initializeCamera();
-
-    // Cleanup function to stop camera when component unmounts
-    return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop());
-      }
-    };
-  }, []);
-
-  const initializeCamera = async () => {
-    try {
-      setCameraError(null);
-
-      // Check if browser supports mediaDevices API
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error('Your browser does not support camera access');
-      }
-
-      // Request camera access
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: 'user',
-          width: {ideal: 1280},
-          height: {ideal: 720},
-        },
-        audio: false,
-      });
-
-      streamRef.current = stream;
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-        setCameraActive(true);
-        setIsCameraInitialized(true);
-      }
-    } catch (error) {
-      console.error('Camera error:', error);
-      setCameraError(
-        error instanceof Error
-          ? error.message
-          : 'Unable to access camera. Please check permissions.',
-      );
-      setCameraActive(false);
-      setIsCameraInitialized(true);
-    }
+  const videoConstraints = {
+    facingMode: 'user',
+    width: {ideal: 1280},
+    height: {ideal: 720},
   };
 
-  const capturePhoto = () => {
-    if (!videoRef.current || !canvasRef.current) return;
-
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    const context = canvas.getContext('2d');
-
-    if (!context) return;
-
-    // Set canvas dimensions to match video
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
-    // Draw current video frame to canvas
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+  const capturePhoto = useCallback(() => {
+    if (!webcamRef.current) return;
 
     setIsCapturing(true);
 
-    // Convert canvas to blob and then to File
-    canvas.toBlob(
-      (blob) => {
-        if (blob) {
-          // Create a File object from the blob
-          const file = new File([blob], 'face-verification.jpg', {
-            type: 'image/jpeg',
-            lastModified: Date.now(),
-          });
+    const imageSrc = webcamRef.current.getScreenshot();
+    if (!imageSrc) {
+      setIsCapturing(false);
+      return;
+    }
 
-          // Simulate processing delay
-          setTimeout(() => {
-            setCapturedImage(file);
-            setIsCapturing(false);
-          }, 1000);
-        }
-      },
-      'image/jpeg',
-      0.9,
-    );
-  };
+    // data:image/jpeg;base64,... → Blob → File
+    fetch(imageSrc)
+      .then((res) => res.blob())
+      .then((blob) => {
+        if (blob.size === 0) throw new Error('Empty image');
+        const file = new File([blob], 'face-verification.jpg', {
+          type: 'image/jpeg',
+          lastModified: Date.now(),
+        });
+
+        // Simulate processing delay (same as original)
+        setTimeout(() => {
+          setCapturedImage(file);
+          setIsCapturing(false);
+        }, 1000);
+      })
+      .catch((err) => {
+        console.error('Capture failed:', err);
+        setIsCapturing(false);
+      });
+  }, []);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       setIsCapturing(true);
-
-      // Stop camera if active
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop());
-        setCameraActive(false);
-      }
-
-      // Simulate processing delay
+      // No need to stop webcam stream manually — react-webcam handles cleanup
       setTimeout(() => {
         setCapturedImage(file);
         setIsCapturing(false);
@@ -133,32 +71,15 @@ const SignupStep3FacialVerification: FC<SignupStep3FacialVerificationProps> = ({
   };
 
   const handleContinueWithoutPhoto = () => {
-    // Stop camera if active
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-    }
     onComplete(null);
-  };
-
-  const handleUseCamera = () => {
-    if (!cameraActive) {
-      initializeCamera();
-    }
   };
 
   const handleRetakePhoto = () => {
     setCapturedImage(null);
-    if (!cameraActive) {
-      initializeCamera();
-    }
   };
 
   const handleComplete = () => {
     if (capturedImage) {
-      // Stop camera
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop());
-      }
       onComplete(capturedImage);
     }
   };
@@ -179,16 +100,13 @@ const SignupStep3FacialVerification: FC<SignupStep3FacialVerificationProps> = ({
           onChange={handleFileSelect}
         />
 
-        {/* Hidden canvas for capturing photos */}
-        <canvas ref={canvasRef} className="hidden" />
-
-        {/* Background elements */}
+        {/* Background elements – unchanged */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute -right-80 -top-80 size-[600px] rounded-full bg-gradient-to-br from-[#F57F3D]/5 to-transparent blur-3xl" />
           <div className="absolute -bottom-80 -left-80 size-[600px] rounded-full bg-gradient-to-tr from-[#F57F3D]/5 to-transparent blur-3xl" />
         </div>
 
-        {/* Sticky header */}
+        {/* Sticky header – unchanged */}
         <div className="sticky top-0 z-20 flex items-center justify-between bg-[#f8f6f5]/90 p-4 pb-2 backdrop-blur-sm dark:bg-[#221610]/90">
           <button
             onClick={onBack}
@@ -203,7 +121,7 @@ const SignupStep3FacialVerification: FC<SignupStep3FacialVerificationProps> = ({
           </h2>
         </div>
 
-        {/* Progress bar */}
+        {/* Progress bar – unchanged */}
         <div className="relative z-10 flex w-full flex-col items-center justify-center gap-2 px-6 py-4">
           <div className="flex w-full flex-row items-center justify-center gap-2">
             <div className="h-1.5 flex-1 rounded-full bg-[#F57F3D]" />
@@ -227,15 +145,16 @@ const SignupStep3FacialVerification: FC<SignupStep3FacialVerificationProps> = ({
             </p>
           </div>
 
-          {/* Facial capture area */}
+          {/* Facial capture area – almost identical structure */}
           <div className="mb-10 flex flex-col items-center justify-center">
-            <div className="relative mx-auto h-[320px] w-[260px]">
-              {/* Camera overlay frame */}
+            <div className="relative mx-auto h-[340px] w-[280px]">
+              {/* Camera overlay frame – pulse during capture */}
               <div
-                className={`absolute inset-0 rounded-[40%] border-4 border-[#F57F3D] ${isCapturing ? 'animate-pulse' : ''} pointer-events-none z-20 opacity-70`}
+                className={`absolute inset-0 rounded-[40%] border-2 border-[#F57F3D] ${
+                  isCapturing ? 'animate-pulse' : ''
+                } pointer-events-none z-20 opacity-70`}
               />
 
-              {/* Camera display or captured image */}
               <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-[40%] border-4 border-[#F57F3D] bg-slate-50 shadow-xl dark:bg-slate-900">
                 {capturedImage ? (
                   <div className="flex h-full w-full flex-col items-center justify-center p-4">
@@ -260,27 +179,32 @@ const SignupStep3FacialVerification: FC<SignupStep3FacialVerificationProps> = ({
                       {cameraError}
                     </p>
                     <button
-                      onClick={initializeCamera}
+                      onClick={() => setCameraError(null)} // retry resets error → webcam remounts
                       className="mt-4 rounded-lg bg-[#F57F3D] px-4 py-2 font-medium text-white transition-colors hover:bg-[#e06c2e]"
                     >
                       Try Again
                     </button>
                   </div>
-                ) : !isCameraInitialized ? (
-                  <div className="flex flex-col items-center justify-center p-4">
-                    <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-[#F57F3D]"></div>
-                    <p className="mt-4 text-slate-600 dark:text-slate-300">
-                      Initializing camera...
-                    </p>
-                  </div>
-                ) : cameraActive ? (
+                ) : (
                   <>
-                    <video
-                      ref={videoRef}
-                      autoPlay
-                      playsInline
-                      muted
-                      className="scale-x(-1) h-full w-full transform rounded-[40%] object-cover" // Mirror for selfie view
+                    <Webcam
+                      audio={false}
+                      ref={webcamRef}
+                      screenshotFormat="image/jpeg"
+                      videoConstraints={videoConstraints}
+                      mirrored={true} // built-in mirroring (replaces your scale-x(-1))
+                      className="h-full w-full rounded-[40%] object-cover"
+                      onUserMediaError={(err: MediaError) => {
+                        setCameraError(
+                          err.message ||
+                            'Unable to access camera. Please check permissions and ensure a secure (HTTPS) connection.',
+                        );
+                        setCameraActive(false);
+                      }}
+                      onUserMedia={() => {
+                        setCameraActive(true);
+                        setCameraError(null);
+                      }}
                     />
                     <div className="absolute top-6 rounded-full bg-black/50 px-4 py-1.5 backdrop-blur-md">
                       <p className="text-sm font-medium text-white">
@@ -293,26 +217,11 @@ const SignupStep3FacialVerification: FC<SignupStep3FacialVerificationProps> = ({
                       </p>
                     </div>
                   </>
-                ) : (
-                  <div className="flex flex-col items-center justify-center p-4">
-                    <span className="material-symbols-outlined mb-4 text-6xl text-slate-300 dark:text-slate-600">
-                      camera_alt
-                    </span>
-                    <p className="mb-4 text-center text-slate-600 dark:text-slate-300">
-                      Camera is not active
-                    </p>
-                    <button
-                      onClick={handleUseCamera}
-                      className="rounded-lg bg-[#F57F3D] px-4 py-2 font-medium text-white transition-colors hover:bg-[#e06c2e]"
-                    >
-                      Use Camera
-                    </button>
-                  </div>
                 )}
               </div>
             </div>
 
-            {/* Status message */}
+            {/* Status message – same logic */}
             {isCapturing ? (
               <p className="mt-6 animate-pulse text-base font-semibold text-[#F57F3D]">
                 Verifying identity...
@@ -332,7 +241,7 @@ const SignupStep3FacialVerification: FC<SignupStep3FacialVerificationProps> = ({
             )}
           </div>
 
-          {/* Action buttons for capture/retake/upload */}
+          {/* Action buttons – same layout & styles */}
           <div className="mb-8 flex flex-col gap-4">
             {capturedImage ? (
               <div className="flex gap-3">
@@ -373,9 +282,9 @@ const SignupStep3FacialVerification: FC<SignupStep3FacialVerificationProps> = ({
                 </button>
                 <button
                   onClick={capturePhoto}
-                  disabled={isCapturing || !cameraActive}
+                  disabled={isCapturing || !!cameraError || !cameraActive}
                   className={`flex h-14 flex-1 items-center justify-center gap-2 rounded-xl bg-[#F57F3D] text-base font-semibold text-white shadow-[#F57F3D]/20 transition-colors ${
-                    isCapturing || !cameraActive
+                    isCapturing || !!cameraError || !cameraActive
                       ? 'cursor-not-allowed opacity-50'
                       : 'hover:bg-[#e06c2e]'
                   }`}
@@ -389,7 +298,7 @@ const SignupStep3FacialVerification: FC<SignupStep3FacialVerificationProps> = ({
             )}
           </div>
 
-          {/* Continue without photo option */}
+          {/* Continue without photo – unchanged */}
           <div className="mt-8 border-t border-slate-200 pt-8 dark:border-slate-800">
             <p className="mb-4 text-center text-slate-600 dark:text-slate-400">
               Having trouble with the camera?
@@ -411,7 +320,7 @@ const SignupStep3FacialVerification: FC<SignupStep3FacialVerificationProps> = ({
             </p>
           </div>
 
-          {/* Tips */}
+          {/* Tips – unchanged */}
           <div className="mt-8 grid grid-cols-2 gap-3">
             <div className="flex flex-col items-center rounded-2xl border border-slate-100 bg-white/80 p-4 text-center backdrop-blur-sm dark:border-slate-800 dark:bg-slate-800/50">
               <span className="material-symbols-outlined mb-2 text-2xl text-[#F57F3D]">
@@ -436,25 +345,11 @@ const SignupStep3FacialVerification: FC<SignupStep3FacialVerificationProps> = ({
               </p>
             </div>
           </div>
-
-          <p className="mt-8 text-center text-xs text-slate-500 dark:text-slate-400">
-            This is a secure, one-time check. Your biometric data is encrypted
-            and never stored as an image.
-          </p>
         </div>
 
-        {/* Fixed bottom bar */}
+        {/* Fixed bottom bar – adapted camera status */}
         <div className="fixed bottom-0 left-0 right-0 z-20 mx-auto max-w-[390px] border-t border-slate-100 bg-white/80 p-6 backdrop-blur-md dark:border-slate-800 dark:bg-[#221610]/80">
           <div className="flex flex-col items-center gap-4">
-            <div className="flex items-center gap-1.5 opacity-80">
-              <span className="material-symbols-outlined text-[18px] text-green-600">
-                verified_user
-              </span>
-              <span className="text-xs font-medium text-slate-600 dark:text-slate-300">
-                Bank-grade encryption • AI liveness detection
-              </span>
-            </div>
-
             {/* Status indicator */}
             <div className="flex items-center justify-center gap-2">
               <div
