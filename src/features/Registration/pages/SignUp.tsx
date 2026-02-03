@@ -26,7 +26,7 @@ export interface PersonalData {
 }
 
 export interface KYCDocument {
-  type: 'Passport' | 'Aadhaar' | 'PAN Card';
+  type: 'Passport';
   number: string;
   file: File | null;
 }
@@ -57,7 +57,7 @@ const SignUp = () => {
   });
 
   const [kycDocument, setKycDocument] = useState<KYCDocument>({
-    type: 'Aadhaar',
+    type: 'Passport',
     number: '',
     file: null,
   });
@@ -122,29 +122,17 @@ const SignUp = () => {
       `${personalData.contactPhone.trim()}`.replace(/\s+/g, ''),
     );
     formData.append('dob', personalData.dateOfBirth || ''); // yyyy-mm-dd
-    formData.append('nationality', personalData.nationality || 'Indian');
+    // formData.append('nationality', personalData.nationality || 'Indian');
     formData.append('address', personalData.streetAddress.trim() || '');
     formData.append('city', personalData.city.trim() || '');
     formData.append('state', personalData.stateProvince.trim() || '');
-    formData.append('country', personalData.country || 'India');
+    // formData.append('country', personalData.country || 'India');
     formData.append('pincode', personalData.postalCode.trim() || '');
     formData.append('securityPin', personalData.securityPin.trim() || '');
-    formData.append('SWIFTBIC', personalData.swiftBicCode || '');
+    // formData.append('SWIFTBIC', personalData.swiftBicCode || '');
     formData.append('role', 'CUSTOMER');
     formData.append('documentNumber', '');
-    if (kycDocument.type === 'Aadhaar') {
-      formData.append('documentType', 'Aadhaar');
-      formData.append('documentNumber', kycDocument.number.replace(/\s+/g, ''));
-      if (kycDocument.file) {
-        formData.append('aadharCard', kycDocument.file);
-      }
-    } else if (kycDocument.type === 'PAN Card') {
-      formData.append('documentType', 'PAN');
-      formData.append('documentNumber', kycDocument.number.toUpperCase());
-      if (kycDocument.file) {
-        formData.append('panCard', kycDocument.file);
-      }
-    } else if (kycDocument.type === 'Passport') {
+    if (kycDocument.type === 'Passport') {
       formData.append('documentType', 'Passport');
       formData.append('documentNumber', kycDocument.number.toUpperCase());
       if (kycDocument.file) {
