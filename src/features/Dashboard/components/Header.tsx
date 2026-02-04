@@ -4,6 +4,20 @@ import {useNavigate} from '@tanstack/react-router';
 
 export const Header: React.FC = () => {
   const navigate = useNavigate();
+  const tokenData = localStorage.getItem('token');
+  const token = tokenData ? JSON.parse(tokenData) : null;
+  const user = token ? token.user : null;
+
+  const currentTime = new Date().getHours();
+  let greeting;
+
+  if (currentTime < 12) {
+    greeting = 'Good Morning';
+  } else if (currentTime < 17) {
+    greeting = 'Good Afternoon';
+  } else {
+    greeting = 'Good Evening';
+  }
 
   const handleProfileClick = () => {
     navigate({to: '/accounthub/acounthub'});
@@ -13,10 +27,10 @@ export const Header: React.FC = () => {
     <div className="sticky top-0 z-20 flex items-center justify-between bg-white px-6 py-4 dark:bg-[#101722]">
       <div className="flex flex-1 flex-col justify-center">
         <p className="text-sm font-medium leading-normal text-slate-500 dark:text-[#94a3b8]">
-          Good Morning,
+          {greeting},
         </p>
         <h2 className="text-xl font-bold leading-tight tracking-tight text-[#0d131c] dark:text-white">
-          Asha Joshi
+          {user?.fullname}
         </h2>
       </div>
 
