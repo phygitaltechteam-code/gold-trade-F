@@ -3,9 +3,28 @@ import {MdArrowBack, MdLock} from 'react-icons/md';
 import {PinDisplay} from './PinDisplay';
 import {Numpad} from './NumPad';
 import {useNavigate} from '@tanstack/react-router';
+import {
+  PaymentData,
+  SetPaymentData,
+  StepProps,
+  walletAmmount,
+} from '../Pages/PaymentWrapper';
 
 const PIN_LENGTH = 6;
-const SecurityPinPage = () => {
+
+type props = StepProps & {
+  paymentData: PaymentData;
+  setPaymentData: SetPaymentData;
+  walletAmmount: walletAmmount;
+};
+
+const SecurityPinPage: React.FC<props> = ({
+  nextStep,
+  paymentData,
+  setPaymentData,
+  walletAmmount,
+  prevStep,
+}) => {
   const navigate = useNavigate();
   const [pin, setPin] = useState<string>('');
 

@@ -43,7 +43,13 @@ const QuickSend: React.FC = () => {
           <div
             key={contact.id}
             className="group relative flex min-w-[64px] cursor-pointer flex-col items-center gap-2"
-            onClick={() => navigate({to: '/beneficiary/sendmoney'})}
+            onClick={() => {
+              if (contact?.isVerified) {
+                navigate({to: `/payment/send/${contact?.customerId}`});
+              } else {
+                navigate({to: `/beneficiary/statuspending`});
+              }
+            }}
           >
             <div className="relative">
               <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-transparent bg-blue-100 text-xl font-bold text-blue-600 group-hover:border-primary/10">

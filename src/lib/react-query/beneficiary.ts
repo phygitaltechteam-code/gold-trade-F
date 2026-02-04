@@ -1,6 +1,10 @@
 import {useQueryClient, useMutation, useQuery} from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import {addBenefishiary, getBenefishiary} from '../beneficiary/beneficiary';
+import {
+  addBenefishiary,
+  getBenefishiary,
+  getWalletByCustomer,
+} from '../beneficiary/beneficiary';
 import {BeneficiaryFormData} from '@/features/Payments/types';
 
 export const useAddBeneficiary = () => {
@@ -21,4 +25,10 @@ export const useGetBeneficiary = () =>
   useQuery({
     queryKey: ['beneficiary'],
     queryFn: () => getBenefishiary(),
+  });
+
+export const useGetWalletByCustomer = () =>
+  useQuery({
+    queryKey: ['wallet'],
+    queryFn: () => getWalletByCustomer(),
   });

@@ -2,8 +2,25 @@ import React from 'react';
 import {MdAccountBalance, MdLock, MdCall} from 'react-icons/md';
 import {FiPaperclip} from 'react-icons/fi';
 import {CircularSpinner} from './CircularSpinner';
+import {
+  PaymentData,
+  SetPaymentData,
+  StepProps,
+  walletAmmount,
+} from '../Pages/PaymentWrapper';
 
-export const TransferStatusScreen: React.FC = () => {
+type props = StepProps & {
+  paymentData: PaymentData;
+  setPaymentData: SetPaymentData;
+  walletAmmount: walletAmmount;
+};
+export const TransferStatusScreen: React.FC<props> = ({
+  nextStep,
+  paymentData,
+  setPaymentData,
+  walletAmmount,
+  prevStep,
+}) => {
   return (
     <div className="bg-gray-50 flex min-h-screen justify-center">
       <div className="flex min-h-screen w-full max-w-md flex-col bg-white shadow-sm">
