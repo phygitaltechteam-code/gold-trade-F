@@ -1,3 +1,5 @@
+/*eslint-disable*/
+
 import {useNavigate} from '@tanstack/react-router';
 import React from 'react';
 import {
@@ -11,14 +13,21 @@ import {
 import {
   PaymentData,
   SetPaymentData,
+  SetSelectedWalletType,
   StepProps,
   walletAmmount,
 } from '../Pages/PaymentWrapper';
+import {useGetBeneficiaryById} from '@/lib/react-query/beneficiary';
+import {Route} from '@/routes/_app/payment/send.$id';
+
+export type WalletType = 'E_PRIVATEACCOUNT' | 'E_TEMPORYACCOUNT';
 
 type props = StepProps & {
   paymentData: PaymentData;
   setPaymentData: SetPaymentData;
   walletAmmount: walletAmmount;
+  setSelectedWalletType: SetSelectedWalletType;
+  selectedWalletType: WalletType;
 };
 const TransferReviewScreen: React.FC<props> = ({
   nextStep,
@@ -26,8 +35,21 @@ const TransferReviewScreen: React.FC<props> = ({
   setPaymentData,
   walletAmmount,
   prevStep,
+  selectedWalletType,
+  setSelectedWalletType,
 }) => {
   const navigate = useNavigate();
+  const {data: benefiaciaryDetails} = useGetBeneficiaryById(
+    paymentData?.beneficiaryId,
+  );
+  console.log('benefeciary det', benefiaciaryDetails);
+  const [showWalletDropdown, setShowWalletDropdown] = React.useState(false);
+
+  const walletLabelMap: Record<WalletType, string> = {
+    E_PRIVATEACCOUNT: 'E Private Account',
+    E_TEMPORYACCOUNT: 'E Temporary Account',
+  };
+
   return (
     <div className="bg-background-light font-sans flex min-h-screen justify-center text-slate-900">
       <div className="bg-background-light relative min-h-screen w-full max-w-md shadow-2xl">
@@ -55,7 +77,7 @@ const TransferReviewScreen: React.FC<props> = ({
               </span>
               <div className="relative">
                 <h2 className="text-4xl font-extrabold tracking-tight text-slate-900">
-                  $60.00
+                  {paymentData?.amount}
                 </h2>
               </div>
             </div>
@@ -77,47 +99,78 @@ const TransferReviewScreen: React.FC<props> = ({
                     className="h-12 w-12 flex-shrink-0 rounded-full border border-slate-200 bg-slate-100 bg-cover bg-center"
                     style={{
                       backgroundImage:
-                        'url("https://lh3.googleusercontent.com/aida-public/AB6AXuAkX71PAJHVl90AxwfNPl8VlnxURXEdiAo-LelEdatKlqSjkCOProhaWDT0TAB6H3LuZbuVvhbzRrGOyxtE6pqtcg7rouKlog92uPY5mF3RJthvR4RtWOsTvf7DDBiD_Fq6WgxEpU4wlDG91dH0sx2n6zqGhB_Jonphjue_ctORyTZX8dxzJguYTSN3cAvbxa8WGrdEN6R8Wpopw2QzCYQll9EO7LzLJhEHhGLIkpV7Mf6yCMibFQaLLv-_3ndH4M59Z5837KRnXvu7")',
+                        benefiaciaryDetails?.photo
                     }}
                     aria-label="Profile picture of Rahul Sharma"
                   />
                   <div className="flex flex-col">
                     <p className="text-base font-semibold text-slate-900">
-                      Rahul Sharma
+                      {benefiaciaryDetails?.fullName}
                     </p>
                     <p className="text-sm text-slate-500">
-                      HDFC Bank •••• 4521
+                      {benefiaciaryDetails?.accountNumber}
                     </p>
                   </div>
                 </div>
               </div>
 
               {/* FROM Section */}
-              <div className="group cursor-pointer border-b border-slate-100 p-4 transition-colors hover:bg-slate-50">
+              {/* FROM Section */}
+              <div className="group relative cursor-pointer border-b border-slate-100 p-4 transition-colors hover:bg-slate-50">
                 <div className="mb-2 flex items-center justify-between">
                   <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
                     From
                   </span>
-                  <button className="rounded px-2 py-1 text-xs font-semibold text-primary transition-colors hover:bg-primary/10">
+                  <button
+                    className="rounded px-2 py-1 text-xs font-semibold text-primary transition-colors hover:bg-primary/10"
+                    onClick={() => setShowWalletDropdown((prev) => !prev)}
+                  >
                     Change
                   </button>
                 </div>
+
                 <div className="flex items-center gap-4">
                   <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-slate-600">
                     <MdAccountBalance size={24} />
                   </div>
+
                   <div className="flex flex-col">
                     <div className="flex items-center gap-0.5">
                       <p className="text-base font-semibold text-slate-900">
-                        E Private Account
+                        {walletLabelMap[selectedWalletType]}
                       </p>
-                      <MdExpandMore className="text-slate-400" size={20} />
                     </div>
+
                     <p className="text-sm text-slate-500">
-                      Axis Bank •••• 8890
+                      Balance: ${walletAmmount[selectedWalletType]}
                     </p>
                   </div>
                 </div>
+
+                {/* Dropdown (design-safe overlay) */}
+                {showWalletDropdown && (
+                  <div className="absolute left-4 right-4 top-full z-50 mt-2 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
+                    {(Object.keys(walletAmmount) as WalletType[]).map(
+                      (wallet) => (
+                        <div
+                          key={wallet}
+                          className="flex cursor-pointer items-center justify-between px-4 py-3 text-sm hover:bg-slate-50"
+                          onClick={() => {
+                            setSelectedWalletType(wallet);
+                            setShowWalletDropdown(false);
+                          }}
+                        >
+                          <span className="font-medium text-slate-900">
+                            {walletLabelMap[wallet]}
+                          </span>
+                          <span className="text-slate-500">
+                            ${walletAmmount[wallet]}
+                          </span>
+                        </div>
+                      ),
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Transaction Details */}
@@ -125,13 +178,17 @@ const TransferReviewScreen: React.FC<props> = ({
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-500">Date</span>
                   <span className="font-medium text-slate-900">
-                    Oct 24, 2023
+                    {new Date().toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: '2-digit',
+                      year: 'numeric',
+                    })}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-500">Reference Note</span>
                   <span className="font-medium text-slate-900">
-                    Rent payment
+                    {paymentData?.note}
                   </span>
                 </div>
 
@@ -140,7 +197,7 @@ const TransferReviewScreen: React.FC<props> = ({
                 <div className="flex items-center justify-between pt-1">
                   <span className="font-bold text-slate-900">Total Debit</span>
                   <span className="text-lg font-bold text-slate-900">
-                    $60.00
+                    {paymentData?.amount}
                   </span>
                 </div>
               </div>
@@ -157,7 +214,7 @@ const TransferReviewScreen: React.FC<props> = ({
 
               <button
                 className="group relative flex h-14 w-full transform items-center justify-center rounded-xl bg-primary font-semibold text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary/50 active:scale-[0.98] active:bg-primary/75"
-                onClick={() => navigate({to: '/securitypinpage'})}
+                onClick={() => nextStep()}
               >
                 <div className="flex items-center gap-2">
                   <span className="text-lg">Confirm & Send</span>

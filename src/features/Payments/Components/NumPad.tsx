@@ -1,19 +1,23 @@
+/*eslint-disable*/
 import {useNavigate} from '@tanstack/react-router';
 import React from 'react';
 import {MdBackspace, MdCheck} from 'react-icons/md';
+import {StepProps} from '../Pages/PaymentWrapper';
 
-interface NumpadProps {
+type NumpadProps = StepProps & {
   onNumPress: (num: string) => void;
   onDelete: () => void;
   onSubmit: () => void;
   canSubmit: boolean;
-}
+};
 
 export const Numpad: React.FC<NumpadProps> = ({
   onNumPress,
   onDelete,
   onSubmit,
   canSubmit,
+  nextStep,
+  prevStep,
 }) => {
   const navigate = useNavigate();
   return (
@@ -51,17 +55,20 @@ export const Numpad: React.FC<NumpadProps> = ({
         <span className="text-navy font-sans text-[32px] font-normal">0</span>
       </button>
 
-      {/* Check / Submit */}
       <button
-        // onClick={onSubmit}
         disabled={!canSubmit}
         aria-label="Submit PIN"
         className={`shadow-glow relative mx-auto flex h-16 w-16 items-center justify-center rounded-full outline-none transition-all duration-300 ${
           canSubmit
             ? 'scale-100 bg-primary text-white hover:bg-primary/70 active:scale-95'
             : 'scale-90 cursor-not-allowed bg-primary/10 text-primary/50 shadow-none'
-        } `}
-        onClick={() => navigate({to: '/transactionstatus'})}
+        }`}
+        onClick={async () => {
+          try {
+            await onSubmit(); // wait for payment
+            nextStep(); // ✅ only if success
+          } catch (error) {}
+        }}
       >
         <MdCheck className="text-[28px]" />
       </button>

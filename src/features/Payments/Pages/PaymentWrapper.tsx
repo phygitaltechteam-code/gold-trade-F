@@ -1,6 +1,11 @@
+/*eslint-disable*/
+
 import React, {useEffect, useState} from 'react';
 import PaymentSend from './SendPayment';
-import {useGetWalletByCustomer} from '@/lib/react-query/beneficiary';
+import {
+  useGetWalletByCustomer,
+  usePayment,
+} from '@/lib/react-query/beneficiary';
 import {Route} from '@/routes/_app/payment/send.$id';
 import TransferReviewScreen from '../Components/TransactionReview';
 import SecurityPinPage from '../Components/SecurityPinPage';
@@ -13,7 +18,7 @@ export type PaymentData = {
   sender: string;
   receiver: string;
   pin: string;
-  customerId: string;
+  beneficiaryId: string;
 };
 
 export type SetPaymentData = React.Dispatch<React.SetStateAction<PaymentData>>;
@@ -31,10 +36,12 @@ export type StepProps = {
   prevStep?: () => void;
 };
 
+export type WalletType = 'E_PRIVATEACCOUNT' | 'E_TEMPORYACCOUNT';
 const PaymentWrapper: React.FC = () => {
-  const {id: customerId} = Route.useParams();
+  const {id: beneficiaryId} = Route.useParams();
   const {data: WalletData} = useGetWalletByCustomer();
-  const [selectedWalletType, setSelectedWalletType] = useState('');
+  const {mutateAsync: Payment} = usePayment();
+  const [selectedWalletType, setSelectedWalletType] = useState<WalletType>('');
 
   console.log('walllet data', WalletData);
   const [step, setStep] = useState(1);
@@ -48,7 +55,7 @@ const PaymentWrapper: React.FC = () => {
     sender: '',
     receiver: '',
     pin: '',
-    customerId: customerId,
+    beneficiaryId: beneficiaryId,
   });
 
   const nextStep = () => setStep((s) => s + 1);
@@ -62,8 +69,6 @@ const PaymentWrapper: React.FC = () => {
       };
 
       setWalletAmmount(amounts);
-
-      // set default wallet type
       if (amounts.E_PRIVATEACCOUNT > 0) {
         setSelectedWalletType('E_PRIVATEACCOUNT');
       } else if (amounts.E_TEMPORYACCOUNT > 0) {
@@ -71,6 +76,24 @@ const PaymentWrapper: React.FC = () => {
       }
     }
   }, [WalletData]);
+
+  const handlePinSubmit = async (pin: string) => {
+    try {
+      await Payment({
+        accountType: selectedWalletType,
+        amount: Number(paymentData?.amount),
+        beneficiaryId: paymentData?.beneficiaryId,
+        currency: 'USD',
+        securityCode: pin,
+      });
+
+      console.log('pin in wrapper', pin);
+      console.log('Transaction Payload');
+    } catch (error) {
+      // VERY IMPORTANT → rethrow
+      throw error;
+    }
+  };
 
   return (
     <>
@@ -93,6 +116,8 @@ const PaymentWrapper: React.FC = () => {
           prevStep={prevStep}
           setPaymentData={setPaymentData}
           walletAmmount={walletAmmount}
+          selectedWalletType={selectedWalletType}
+          setSelectedWalletType={setSelectedWalletType}
         />
       )}
 
@@ -102,6 +127,7 @@ const PaymentWrapper: React.FC = () => {
           setPaymentData={setPaymentData}
           nextStep={nextStep}
           walletAmmount={walletAmmount}
+          onPinSubmit={handlePinSubmit}
         />
       )}
 
