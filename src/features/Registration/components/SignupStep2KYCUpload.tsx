@@ -1,5 +1,4 @@
-/* eslint-disable */
-import { useState, type FC } from 'react';
+import {useState, type FC} from 'react';
 
 type KYCPassportData = {
   type: 'Passport';
@@ -48,7 +47,9 @@ const SignupStep2KYCUpload: FC<SignupStep2KYCUploadProps> = ({
             onClick={onBack}
             className="flex size-12 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
           >
-            <span className="material-symbols-outlined text-2xl">arrow_back</span>
+            <span className="material-symbols-outlined text-2xl">
+              arrow_back
+            </span>
           </button>
           <h2 className="flex-1 pr-12 text-center text-lg font-bold dark:text-white">
             Verify Identity

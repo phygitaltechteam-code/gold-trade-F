@@ -6,6 +6,7 @@ import TopUpScreen from '@/components/Wallet/TopUpScreen';
 import AdminApprovedScreen from '@/components/Wallet/AdminApprovedScreen';
 import React, {useState} from 'react';
 import {useTopupMutation} from './topupmutate';
+import {useNavigate} from '@tanstack/react-router'; // ADD THIS IMPORT
 
 interface WalletFlowProps {
   onComplete?: (transactionData: TransactionData) => void;
@@ -35,6 +36,8 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
   });
   const [isAdminApproved, setIsAdminApproved] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
+
+  const navigate = useNavigate(); // ADD THIS
 
   const {mutate: saveTransactionData, isPending: isSubmitting} =
     useTopupMutation();
@@ -101,16 +104,21 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
         onSuccess: (response) => {
           console.log('API Response:', response);
 
-          if (response.success) {
-            // Check the status from API
-            if (response.status === 'approved') {
-              // Direct approval - go to success
-              setIsAdminApproved(true);
-              setTransactionData((prev) => ({
-                ...prev,
-                status: 'success',
-              }));
-              setCurrentStep('success');
+          // Check API response structure - FIXED THIS
+          if (response.statusCode === 200 || response.status === true) {
+            // Direct approval - go to success
+            setIsAdminApproved(true);
+            setTransactionData((prev) => ({
+              ...prev,
+              status: 'success',
+            }));
+
+            // Show success screen for 2 seconds then redirect to dashboard
+            setCurrentStep('success');
+
+            // Redirect to dashboard after 2 seconds
+            setTimeout(() => {
+              navigate({to: '/dashboard'});
 
               if (onComplete) {
                 onComplete({
@@ -118,37 +126,53 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
                   status: 'success',
                 });
               }
-            } else if (response.status === 'pending') {
-              // Needs admin approval
+            }, 2000);
+          } else if (
+            response.status === 'pending' ||
+            response.data?.isPending
+          ) {
+            // Needs admin approval
+            setTransactionData((prev) => ({
+              ...prev,
+              status: 'pending',
+            }));
+
+            // Show admin approval screen
+            setCurrentStep('adminApproved');
+
+            // After admin approval, show success and redirect
+            setTimeout(() => {
+              setIsAdminApproved(true);
               setTransactionData((prev) => ({
                 ...prev,
-                status: 'pending',
+                status: 'success',
               }));
-              // Simulate admin approval after 5 seconds
+              setCurrentStep('success');
+
+              // Redirect to dashboard after success screen
               setTimeout(() => {
-                setIsAdminApproved(true);
-                setTransactionData((prev) => ({
-                  ...prev,
-                  status: 'success',
-                }));
-                // Show admin approved screen first
-                setCurrentStep('adminApproved');
-              }, 5000);
-            } else {
-              // Rejected
-              setErrorMessage(response.message || 'Transaction was rejected');
-              setTransactionData((prev) => ({
-                ...prev,
-                status: 'failed',
-              }));
-            }
+                navigate({to: '/dashboard'});
+
+                if (onComplete) {
+                  onComplete({
+                    ...transactionData,
+                    status: 'success',
+                  });
+                }
+              }, 2000);
+            }, 5000);
           } else {
-            // API returned success: false
-            setErrorMessage(response.message || 'Transaction failed');
+            // Rejected or failed
+            setErrorMessage(response.message || 'Transaction was rejected');
             setTransactionData((prev) => ({
               ...prev,
               status: 'failed',
             }));
+
+            // Show error and redirect after 3 seconds
+            setTimeout(() => {
+              navigate({to: '/dashboard'});
+            }, 3000);
           }
         },
         onError: (error: any) => {
@@ -156,7 +180,9 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
 
           // Check if it's a PIN error
           const errorMsg =
-            error.message || 'Transaction failed. Please try again.';
+            error?.response?.data?.message ||
+            error?.message ||
+            'Transaction failed. Please try again.';
 
           if (
             errorMsg.toLowerCase().includes('pin') ||
@@ -165,8 +191,14 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
             errorMsg.toLowerCase().includes('invalid')
           ) {
             setErrorMessage('Invalid PIN. Please try again.');
+            // Go back to PIN screen for retry
+            setCurrentStep('pin');
           } else {
             setErrorMessage(errorMsg);
+            // Show error and redirect to dashboard after 3 seconds
+            setTimeout(() => {
+              navigate({to: '/dashboard'});
+            }, 3000);
           }
 
           setTransactionData((prev) => ({
@@ -183,6 +215,11 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
         ...prev,
         status: 'failed',
       }));
+
+      // Redirect to dashboard after error
+      setTimeout(() => {
+        navigate({to: '/dashboard'});
+      }, 3000);
     }
   };
 
@@ -199,7 +236,8 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
         setCurrentStep('processing');
         break;
       case 'success':
-        setCurrentStep('topup');
+        // Instead of going to topup, go to dashboard
+        navigate({to: '/dashboard'});
         resetTransaction();
         break;
     }
@@ -253,6 +291,10 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
           onBack={handleBack}
           onContinue={() => {
             setCurrentStep('success');
+            // Redirect after showing success
+            setTimeout(() => {
+              navigate({to: '/dashboard'});
+            }, 2000);
           }}
         />
       )}
@@ -262,7 +304,8 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
           transactionData={transactionData}
           onBack={handleBack}
           onComplete={() => {
-            setCurrentStep('topup');
+            // Go directly to dashboard
+            navigate({to: '/dashboard'});
             resetTransaction();
           }}
         />

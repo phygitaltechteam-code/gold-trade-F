@@ -7,15 +7,14 @@ import Solutions from './Solutions';
 import StatsCTA from './StatsCTA';
 import Footer from './Footer';
 
-
 function LandingPage() {
   return (
-    <div className="min-h-screen bg-background-light text-navy font-display antialiased">
+    <div className="bg-background-light text-navy font-display min-h-screen antialiased">
       <Ticker />
       <Navbar />
       <main>
         <Hero />
-        <MarketOverview  />
+        <MarketOverview />
         <Solutions />
         <StatsCTA />
       </main>

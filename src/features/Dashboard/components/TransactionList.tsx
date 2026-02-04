@@ -1,3 +1,4 @@
+// TransactionList.tsx
 import React, {useState} from 'react';
 import {Transaction} from '../types';
 import {
@@ -6,6 +7,7 @@ import {
   MdExpandMore,
   MdExpandLess,
 } from 'react-icons/md';
+import {useNavigate} from '@tanstack/react-router';
 
 interface TransactionListProps {
   transactions: Transaction[];
@@ -17,10 +19,18 @@ export const TransactionList: React.FC<TransactionListProps> = ({
   initialLimit = 3,
 }) => {
   const [showAll, setShowAll] = useState(false);
+  const navigate = useNavigate();
 
   const displayedTransactions = showAll
     ? transactions
     : transactions.slice(0, initialLimit);
+
+  const handleTransactionClick = (transactionId: string) => {
+    navigate({
+      to: '/wallet/transaction/$id',
+      params: {id: transactionId},
+    });
+  };
 
   if (!transactions || transactions.length === 0) {
     return (
@@ -54,7 +64,6 @@ export const TransactionList: React.FC<TransactionListProps> = ({
       <div className="mb-4 mt-2 flex items-center justify-between">
         <h3 className="text-lg font-bold leading-tight text-[#0d131c] dark:text-white">
           Recent Transactions
-          {/* ({transactions.length}) */}
         </h3>
 
         {transactions.length > initialLimit && (
@@ -80,18 +89,18 @@ export const TransactionList: React.FC<TransactionListProps> = ({
       <div className="flex flex-col gap-3">
         {displayedTransactions.map((tx) => {
           const Icon = tx.icon;
-
-          const amountSign = tx.type === 'income' ? '+' : '-';
-
+          // Determine amount sign based on type (CREDIT = income, DEBIT = expense)
+          const amountSign = tx.type === 'CREDIT' ? '+' : '-';
           const amountColor =
             tx.amountColor ||
-            (tx.type === 'income'
+            (tx.type === 'CREDIT'
               ? 'text-green-600 dark:text-green-400'
               : 'text-[#0d131c] dark:text-white');
 
           return (
             <div
               key={tx.id}
+              onClick={() => handleTransactionClick(tx.id)}
               className="flex cursor-pointer items-center justify-between rounded-xl border border-slate-100 bg-white p-3 transition-colors hover:bg-slate-50 dark:border-slate-700/50 dark:bg-slate-800/50 dark:hover:bg-slate-800"
             >
               <div className="flex items-center gap-4">
@@ -102,10 +111,10 @@ export const TransactionList: React.FC<TransactionListProps> = ({
                 </div>
                 <div className="flex flex-col">
                   <p className="text-base font-semibold leading-tight text-[#0d131c] dark:text-white">
-                    {tx.title}
+                    {tx.title || tx.particular}
                   </p>
                   <p className="mt-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">
-                    {tx.date}
+                    {tx.date || new Date(tx.createdAt).toLocaleDateString()}
                   </p>
                   {tx.status && (
                     <div className="mt-1">
@@ -134,21 +143,13 @@ export const TransactionList: React.FC<TransactionListProps> = ({
                     {amountSign}${tx.amount.toFixed(2)}
                   </p>
                   <p className="text-xs text-slate-400 dark:text-slate-500">
-                    {tx.category}
+                    {tx.category || (tx.type === 'CREDIT' ? 'Credit' : 'Debit')}
                   </p>
                 </div>
-
-                {tx.status === 'Approved' && tx.type === 'income' && (
-                  <span className="mt-1 inline-block rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                    Credit Approved
-                  </span>
-                )}
-
-                {tx.status === 'Rejected' && (
-                  <span className="mt-1 inline-block rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/30 dark:text-red-300">
-                    Transaction Rejected
-                  </span>
-                )}
+                <div className="mt-2 flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
+                  <span>View details</span>
+                  <MdChevronRight className="h-4 w-4" />
+                </div>
               </div>
             </div>
           );
