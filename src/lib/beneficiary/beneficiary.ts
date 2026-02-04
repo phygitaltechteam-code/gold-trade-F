@@ -20,3 +20,13 @@ export const getBenefishiary = async () => {
     throw error;
   }
 };
+
+export const getWalletByCustomer = async () => {
+  try {
+    const response = await api.get(`/customer/wallet/wallet`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching wallet details:', error);
+    throw error;
+  }
+};

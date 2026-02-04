@@ -1,8 +1,25 @@
 import React from 'react';
 import {MdHelpOutline, MdCheck, MdIosShare} from 'react-icons/md';
 import ReceiptCard from './ReceiptCard';
+import {
+  PaymentData,
+  SetPaymentData,
+  StepProps,
+  walletAmmount,
+} from '../Pages/PaymentWrapper';
 
-const TransactionSuccess: React.FC = () => {
+type props = StepProps & {
+  paymentData: PaymentData;
+  setPaymentData: SetPaymentData;
+  walletAmmount: walletAmmount;
+};
+const TransactionSuccess: React.FC<props> = ({
+  nextStep,
+  paymentData,
+  setPaymentData,
+  walletAmmount,
+  prevStep,
+}) => {
   return (
     <div className="bg-background-light flex min-h-screen justify-center">
       {' '}

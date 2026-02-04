@@ -8,8 +8,25 @@ import {
   MdSend,
   MdFace,
 } from 'react-icons/md';
+import {
+  PaymentData,
+  SetPaymentData,
+  StepProps,
+  walletAmmount,
+} from '../Pages/PaymentWrapper';
 
-const TransferReviewScreen: React.FC = () => {
+type props = StepProps & {
+  paymentData: PaymentData;
+  setPaymentData: SetPaymentData;
+  walletAmmount: walletAmmount;
+};
+const TransferReviewScreen: React.FC<props> = ({
+  nextStep,
+  paymentData,
+  setPaymentData,
+  walletAmmount,
+  prevStep,
+}) => {
   const navigate = useNavigate();
   return (
     <div className="bg-background-light font-sans flex min-h-screen justify-center text-slate-900">
@@ -21,7 +38,7 @@ const TransferReviewScreen: React.FC = () => {
                 type="button"
                 className="-ml-2 flex h-10 w-10 items-center justify-center rounded-full text-slate-900 transition-colors hover:bg-slate-100"
                 aria-label="Go back"
-                onClick={() => navigate({to: '/sendpayment'})}
+                onClick={() => prevStep}
               >
                 <MdArrowBack size={24} />
               </button>

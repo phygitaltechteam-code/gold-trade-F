@@ -5,30 +5,99 @@ import CurrencySelector from '../Components/CurrencySelector';
 import AmountDisplay from '../Components/AccountDisplay';
 import Keypad from '../Components/KeyPad';
 import {useNavigate} from '@tanstack/react-router';
+import {
+  PaymentData,
+  SetPaymentData,
+  SetSelectedWalletType,
+  StepProps,
+  walletAmmount,
+} from './PaymentWrapper';
+import toast from 'react-hot-toast';
 
-const PaymentSend: React.FC = () => {
+export type WalletType = 'E_PRIVATEACCOUNT' | 'E_TEMPORYACCOUNT';
+type props = StepProps & {
+  paymentData: PaymentData;
+  setPaymentData: SetPaymentData;
+  walletAmmount: walletAmmount;
+  setSelectedWalletType: SetSelectedWalletType;
+  selectedWalletType: WalletType;
+};
+
+const PaymentSend: React.FC<props> = ({
+  paymentData,
+  setPaymentData,
+  nextStep,
+  prevStep,
+  walletAmmount,
+  selectedWalletType,
+  setSelectedWalletType,
+}) => {
+  console.log('wallet ammountt', walletAmmount);
+  console.log(selectedWalletType);
   const navigate = useNavigate();
-  const [amount, setAmount] = useState<string>('60.00');
 
-  const handleKeyPress = useCallback((key: string) => {
-    setAmount((prev) => {
-      if (key === '.' && prev.includes('.')) return prev;
-      if (prev === '0' && key !== '.') return key;
-      if (prev === '' && key === '.') return '0.';
-      if (prev.includes('.')) {
-        const [, decimals] = prev.split('.');
-        if (decimals && decimals.length >= 2) return prev;
-      }
-      if (prev.replace('.', '').length >= 7) return prev;
+  const selectedWalletBalance = walletAmmount?.[selectedWalletType] ?? 0;
 
-      return prev + key;
-    });
-  }, []);
+  const enteredAmount = Number(paymentData.amount || 0);
+
+  const isInsufficientBalance = enteredAmount > selectedWalletBalance;
+
+  const handleKeyPress = useCallback(
+    (key: string) => {
+      setPaymentData((prev) => {
+        const value = prev.amount || '';
+
+        if (key === '.' && value.includes('.')) return prev;
+
+        if (value === '0' && key !== '.') {
+          const nextAmount = key;
+          if (Number(nextAmount) > selectedWalletBalance) {
+            toast.error('Insufficient wallet balance');
+            return prev;
+          }
+          return {...prev, amount: nextAmount};
+        }
+
+        if (value === '' && key === '.') {
+          return {...prev, amount: '0.'};
+        }
+        if (value.includes('.')) {
+          const [, decimals] = value.split('.');
+          if (decimals?.length >= 2) return prev;
+        }
+        if (value.replace('.', '').length >= 7) return prev;
+
+        const nextAmount = value + key;
+
+        if (Number(nextAmount) > selectedWalletBalance) {
+          toast.error('Insufficient wallet balance');
+          return prev;
+        }
+
+        return {
+          ...prev,
+          amount: nextAmount,
+        };
+      });
+    },
+    [selectedWalletBalance],
+  );
 
   const handleBackspace = useCallback(() => {
-    setAmount((prev) => {
-      if (prev.length <= 1) return '';
-      return prev.slice(0, -1);
+    setPaymentData((prev) => {
+      const value = prev?.amount;
+
+      if (!value || value.length <= 1) {
+        return {
+          ...prev,
+          amount: '',
+        };
+      }
+
+      return {
+        ...prev,
+        amount: value.slice(0, -1),
+      };
     });
   }, []);
 
@@ -47,9 +116,13 @@ const PaymentSend: React.FC = () => {
           </h2>
         </header>
         <main className="no-scrollbar relative z-0 flex flex-1 flex-col items-center overflow-y-auto px-4 pb-4 pt-4">
-          <AccountSelector />
+          <AccountSelector
+            selectedWalletType={selectedWalletType}
+            setSelectedWalletType={setSelectedWalletType}
+            walletAmmount={walletAmmount}
+          />
           <CurrencySelector />
-          <AmountDisplay amount={amount} />
+          <AmountDisplay amount={paymentData?.amount} />
 
           <div className="mb-8"></div>
           <div className="group relative mb-auto w-full max-w-xs">
@@ -68,8 +141,16 @@ const PaymentSend: React.FC = () => {
           <Keypad onKeyPress={handleKeyPress} onBackspace={handleBackspace} />
 
           <button
+            // disabled={isInsufficientBalance || enteredAmount <= 0}
             className="group flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-primary font-bold tracking-wide text-white shadow-lg shadow-primary/30 transition-all hover:bg-[#e06b2c] active:scale-[0.99]"
-            onClick={() => navigate({to: '/transactionreview'})}
+            onClick={() => {
+              if (isInsufficientBalance || enteredAmount <= 0) {
+                toast.error('Insufficient wallet balance');
+                return;
+              }
+
+              nextStep();
+            }}
           >
             Continue
             <MdArrowForward className="text-xl transition-transform group-hover:translate-x-1" />
