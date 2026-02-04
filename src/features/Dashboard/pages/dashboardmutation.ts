@@ -57,3 +57,28 @@ export const useGetProfileMutation = () => {
     retry: 1,
   });
 };
+
+export const useGetTransactionById = (id: string) => {
+  return useQuery({
+    queryKey: ['transaction', id],
+    queryFn: async () => {
+      if (!id) {
+        throw new Error('Transaction ID is required');
+      }
+
+      try {
+        const response = await api.get(`/customer/wallet/transaction/${id}`);
+        return response.data;
+      } catch (error: any) {
+        const errorMessage =
+          error?.response?.data?.message ||
+          error?.message ||
+          'Failed to get transaction';
+        toast.error(errorMessage);
+        throw error;
+      }
+    },
+    retry: 1,
+    enabled: !!id,
+  });
+};

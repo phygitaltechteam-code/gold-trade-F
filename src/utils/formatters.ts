@@ -1,4 +1,5 @@
 /*eslint-disable*/
+import {ApiTransaction} from '@/features/Dashboard/types';
 import {Transaction, BankCard} from '../types';
 import {
   MdPayment,
@@ -11,6 +12,10 @@ import {
   MdCheckCircle,
   MdHourglassEmpty,
   MdCancel,
+  MdLocalGasStation,
+  MdHome,
+  MdCreditCard,
+  MdMoney,
 } from 'react-icons/md';
 
 // Helper function to format date
@@ -84,6 +89,7 @@ const getFallbackTransaction = (): Transaction => {
     amountColor: 'text-slate-600 dark:text-slate-400',
     badgeClass:
       'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300',
+    rejectReason: null,
   };
 };
 
@@ -288,55 +294,133 @@ const getColorClasses = (
   }
 };
 
-// Transform API transaction to UI transaction
-export const transformApiTransaction = (apiTx: any): Transaction => {
-  if (!apiTx) {
-    return getFallbackTransaction();
+export const transformApiTransaction = (apiTransaction: any): Transaction => {
+  if (!apiTransaction) {
+    throw new Error('No transaction data provided');
   }
 
   // Determine status
-  const status = getTransactionStatus(apiTx);
+  let status: 'Pending' | 'Approved' | 'Rejected';
+  if (apiTransaction.isPending) {
+    status = 'Pending';
+  } else if (apiTransaction.isRejected) {
+    status = 'Rejected';
+  } else {
+    status = 'Approved';
+  }
 
-  // Get icon based on particular and status
-  const Icon = getTransactionIcon(apiTx.particular, status, apiTx.accountType);
-
-  // Get color classes based on type and status
-  const colorClasses = getColorClasses(
-    apiTx.type || 'CREDIT',
-    status,
-    apiTx.accountType,
-    apiTx.isRejected,
-  );
-
-  // Determine if it's income or expense
+  // Determine transaction type (CREDIT = income, DEBIT = expense)
   const transactionType =
-    (apiTx.type || 'CREDIT') === 'CREDIT' ? 'income' : 'expense';
+    apiTransaction.type === 'CREDIT' ? 'income' : 'expense';
 
-  // Get category with status and account type
-  const category = getTransactionCategory(
-    apiTx.particular,
-    apiTx.accountType,
-    status,
-  );
+  // Map icon based on particular
+  let Icon = MdAccountBalance;
+  let category = 'Transaction';
+
+  const particular = apiTransaction.particular?.toLowerCase() || '';
+  if (
+    particular.includes('topup') ||
+    particular.includes('deposit') ||
+    particular.includes('credit')
+  ) {
+    Icon = MdAccountBalance;
+    category = 'Top Up';
+  } else if (particular.includes('transfer') || particular.includes('send')) {
+    Icon = MdArrowUpward;
+    category = 'Transfer';
+  } else if (
+    particular.includes('withdraw') ||
+    particular.includes('withdrawal')
+  ) {
+    Icon = MdArrowDownward;
+    category = 'Withdrawal';
+  } else if (
+    particular.includes('food') ||
+    particular.includes('restaurant') ||
+    particular.includes('dining')
+  ) {
+    Icon = MdRestaurant;
+    category = 'Food & Dining';
+  } else if (
+    particular.includes('shopping') ||
+    particular.includes('store') ||
+    particular.includes('retail')
+  ) {
+    Icon = MdShoppingCart;
+    category = 'Shopping';
+  } else if (
+    particular.includes('gas') ||
+    particular.includes('fuel') ||
+    particular.includes('transport')
+  ) {
+    Icon = MdLocalGasStation;
+    category = 'Transportation';
+  } else if (
+    particular.includes('rent') ||
+    particular.includes('home') ||
+    particular.includes('housing')
+  ) {
+    Icon = MdHome;
+    category = 'Housing';
+  } else if (
+    particular.includes('payment') ||
+    particular.includes('bill') ||
+    particular.includes('utility')
+  ) {
+    Icon = MdCreditCard;
+    category = 'Bills';
+  } else if (particular.includes('salary') || particular.includes('income')) {
+    Icon = MdMoney;
+    category = 'Income';
+  } else {
+    Icon = MdPayment;
+    category = 'Payment';
+  }
+
+  // Format date
+  const date = new Date(apiTransaction.createdAt);
+  const formattedDate = date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+
+  // Determine styling
+  const iconBgClass =
+    transactionType === 'income'
+      ? 'bg-green-100 dark:bg-green-900/30'
+      : 'bg-orange-100 dark:bg-orange-900/30';
+
+  const colorClass =
+    transactionType === 'income'
+      ? 'text-green-600 dark:text-green-400'
+      : 'text-orange-600 dark:text-orange-400';
+
+  const badgeClass =
+    status === 'Approved'
+      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+      : status === 'Pending'
+        ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
+        : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
+
+  const amountColor =
+    transactionType === 'income'
+      ? 'text-green-600 dark:text-green-400'
+      : 'text-[#0d131c] dark:text-white';
 
   return {
-    id: apiTx.id || `tx-${Date.now()}`,
-    title: apiTx.particular || 'Transaction',
-    date: formatTransactionDate(apiTx.createdAt || new Date().toISOString()),
-    amount: apiTx.amount || 0,
-    type: transactionType,
-    category: category,
+    ...apiTransaction,
+    title: apiTransaction.particular,
+    date: formattedDate,
+    status,
+    category,
     icon: Icon,
-    colorClass: colorClasses.colorClass,
-    iconBgClass: colorClasses.iconBgClass,
-    status: status,
-    amountColor: colorClasses.amountColor,
-    badgeClass: colorClasses.badgeClass,
-    accountType: apiTx.accountType,
-    showAmount: colorClasses.showAmount, // Add flag to control amount display
+    iconBgClass,
+    colorClass,
+    badgeClass,
+    amountColor,
   };
 };
-
 // Get default cards
 const getDefaultCards = (): BankCard[] => {
   return [
@@ -422,7 +506,7 @@ export const transformWalletData = (
     {
       id: wallet.id || 'private-1',
       type: 'E Private Account',
-      balance: cardBalances.eprivateAccount || wallet.eprivateAccount || 0,
+      balance: wallet.eprivateAccount || 0,
       currency: 'USD',
       isPrimary: true,
       theme: 'orange',
@@ -430,7 +514,7 @@ export const transformWalletData = (
     {
       id: (wallet.id || 'temp') + '-temp',
       type: 'Temporary Virtual Account',
-      balance: cardBalances.temporyAccount || wallet.temporyAccount || 0,
+      balance: wallet.temporyAccount || 0,
       currency: 'USD',
       isPrimary: false,
       theme: 'dark',

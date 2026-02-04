@@ -33,7 +33,7 @@ const Hero: React.FC = () => {
                   Swiss Made Banking
                 </span>
               </div>
-              <h1 className="text-black text-5xl font-black leading-[1.1] tracking-tight md:text-6xl">
+              <h1 className="text-5xl font-black leading-[1.1] tracking-tight text-black md:text-6xl">
                 The Swiss Leader in{' '}
                 <span className="text-primary">Online Banking</span>
               </h1>

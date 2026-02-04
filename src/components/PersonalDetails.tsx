@@ -1,4 +1,4 @@
-// PersonalDetails.tsx
+/* eslint-disable */
 import React from 'react';
 import {
   User,
@@ -56,7 +56,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
             </div>
           </div>
 
-          <div className="bg-white dark:bg-surface-dark border-gray-100 dark:border-gray-800 rounded-3xl border p-8 shadow-xl lg:p-12">
+          <div className="dark:bg-surface-dark border-gray-100 dark:border-gray-800 rounded-3xl border bg-white p-8 shadow-xl lg:p-12">
             <div className="mx-auto mb-12 max-w-2xl text-center">
               <h1 className="mb-4 text-3xl font-bold text-black dark:text-white">
                 Let's get started

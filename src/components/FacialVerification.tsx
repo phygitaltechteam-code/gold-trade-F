@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React from 'react';
 
 import {ArrowLeft, Sun, EyeOff, Camera, User, Lock} from 'lucide-react';
