@@ -16,6 +16,7 @@ type props = StepProps & {
   paymentData: PaymentData;
   setPaymentData: SetPaymentData;
   walletAmmount: walletAmmount;
+  onPinSubmit: (pin: string) => void;
 };
 
 const SecurityPinPage: React.FC<props> = ({
@@ -24,6 +25,7 @@ const SecurityPinPage: React.FC<props> = ({
   setPaymentData,
   walletAmmount,
   prevStep,
+  onPinSubmit,
 }) => {
   const navigate = useNavigate();
   const [pin, setPin] = useState<string>('');
@@ -38,14 +40,14 @@ const SecurityPinPage: React.FC<props> = ({
     setPin((prev) => prev.slice(0, -1));
   };
 
-  const handleSubmit = () => {
-    if (pin.length === PIN_LENGTH) {
-      console.log('PIN Submitted:', pin);
-      // Here you would typically trigger an API call or navigation
-      alert(`PIN ${pin} submitted!`);
-      setPin('');
-    }
-  };
+  // const handleSubmit = () => {
+  //   if (pin.length === PIN_LENGTH) {
+  //     console.log('PIN Submitted:', pin);
+  //     // Here you would typically trigger an API call or navigation
+  //     alert(`PIN ${pin} submitted!`);
+  //     setPin('');
+  //   }
+  // };
 
   // Optional: Add keyboard support for desktop testing
   useEffect(() => {
@@ -55,7 +57,7 @@ const SecurityPinPage: React.FC<props> = ({
       } else if (e.key === 'Backspace') {
         handleDelete();
       } else if (e.key === 'Enter') {
-        handleSubmit();
+        onPinSubmit(pin);
       }
     };
 
@@ -70,7 +72,7 @@ const SecurityPinPage: React.FC<props> = ({
           <button
             aria-label="Go back"
             className="text-navy -ml-2 flex h-10 w-10 items-center justify-center rounded-full outline-none transition-colors hover:bg-slate-50 focus:ring-2 focus:ring-primary/20 active:bg-slate-100"
-            onClick={() => navigate({to: '/transactionreview'})}
+            onClick={() => prevStep}
           >
             <MdArrowBack size={24} />
           </button>
@@ -105,8 +107,10 @@ const SecurityPinPage: React.FC<props> = ({
           <Numpad
             onNumPress={handleNumPress}
             onDelete={handleDelete}
-            onSubmit={handleSubmit}
+            onSubmit={() => onPinSubmit(pin)}
             canSubmit={pin.length === PIN_LENGTH}
+            nextStep={nextStep}
+            prevStep={prevStep}
           />
         </div>
 

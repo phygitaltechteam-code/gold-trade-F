@@ -45,7 +45,7 @@ const QuickSend: React.FC = () => {
             className="group relative flex min-w-[64px] cursor-pointer flex-col items-center gap-2"
             onClick={() => {
               if (contact?.isVerified) {
-                navigate({to: `/payment/send/${contact?.customerId}`});
+                navigate({to: `/payment/send/${contact?.id}`});
               } else {
                 navigate({to: `/beneficiary/statuspending`});
               }
