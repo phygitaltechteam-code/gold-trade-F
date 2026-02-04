@@ -133,6 +133,7 @@ const PaymentSend: React.FC<props> = ({
               className="text-swiss-navy block w-full rounded-xl border-0 bg-white/70 py-3 pl-10 pr-4 shadow-sm outline-none backdrop-blur-sm transition-all placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
               placeholder="Add a note (optional)"
               type="text"
+              onChange={(e) => setPaymentData({note: e.target.value})}
             />
           </div>
         </main>

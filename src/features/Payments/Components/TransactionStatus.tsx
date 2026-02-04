@@ -8,6 +8,7 @@ import {
   StepProps,
   walletAmmount,
 } from '../Pages/PaymentWrapper';
+import {useGetBeneficiaryById} from '@/lib/react-query/beneficiary';
 
 type props = StepProps & {
   paymentData: PaymentData;
@@ -21,6 +22,9 @@ export const TransferStatusScreen: React.FC<props> = ({
   walletAmmount,
   prevStep,
 }) => {
+  const {data: benefiaciaryDetails} = useGetBeneficiaryById(
+    paymentData?.beneficiaryId,
+  );
   return (
     <div className="bg-gray-50 flex min-h-screen justify-center">
       <div className="flex min-h-screen w-full max-w-md flex-col bg-white shadow-sm">
@@ -43,10 +47,10 @@ export const TransferStatusScreen: React.FC<props> = ({
             <div className="mb-6 w-full rounded-2xl border border-blue-50 bg-blue-50/40 p-6 text-center">
               <div className="flex flex-col items-center">
                 <span className="text-gray-900 mb-1 text-2xl font-bold">
-                  $60.00
+                  {paymentData?.amount}
                 </span>
                 <span className="text-gray-500 mb-4 font-medium">
-                  to Rahul Sharma
+                  {benefiaciaryDetails?.fullName}
                 </span>
 
                 <div className="bg-gray-200/60 mb-3 h-px w-full"></div>
@@ -55,17 +59,17 @@ export const TransferStatusScreen: React.FC<props> = ({
                   Includes payment charges of $0.35 (0.59%)
                 </p>
 
-                <button className="flex items-center gap-2 text-sm font-semibold text-primary transition-opacity hover:opacity-80">
+                {/* <button className="flex items-center gap-2 text-sm font-semibold text-primary transition-opacity hover:opacity-80">
                   <FiPaperclip className="rotate-45 transform text-base" />
                   <span>View Attachment</span>
-                </button>
+                </button> */}
               </div>
             </div>
 
             {/* Description Text */}
             <p className="text-gray-500 mx-auto mb-8 max-w-xs text-center text-sm leading-relaxed">
-              We are securely processing your payment to Rahul Sharma. This
-              usually takes a few seconds. Please do not close the app.
+              {` We are securely processing your payment to ${benefiaciaryDetails?.fullName}. This
+              usually takes a few seconds. Please do not close the app.`}
             </p>
 
             {/* Small Horizontal Progress Indicator */}
