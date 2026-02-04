@@ -2,20 +2,44 @@ import React, {useState} from 'react';
 import {Header} from '../ui/Header';
 import {Keypad} from '../ui/Keypad';
 import {MdLockReset} from 'react-icons/md';
-import {useNavigate} from '@tanstack/react-router';
+import {useNavigate, useLocation} from '@tanstack/react-router';
 
 const SetNewPin: React.FC = () => {
   const navigate = useNavigate();
-  const [pin, setPin] = useState<string>('12');
+  const location = useLocation();
+  const [pin, setPin] = useState<string>('');
+  const [error, setError] = useState<string>('');
+
+  // Get currentPin from previous screen
+  const currentPin = location.state?.currentPin || '';
 
   const handleKeyPress = (key: string) => {
     if (pin.length < 6) {
-      setPin((prev) => prev + key);
+      const newPin = pin + key;
+      setPin(newPin);
+      setError('');
+
+      // Check if new PIN is same as current PIN
+      if (newPin.length === 6) {
+        if (newPin === currentPin) {
+          setError('New PIN cannot be same as current PIN');
+          setTimeout(() => {
+            setPin('');
+          }, 1000);
+        } else {
+          // Navigate to confirmation screen
+          navigate({
+            to: '/accounthub/confirm-pin',
+            state: {currentPin, newPin},
+          });
+        }
+      }
     }
   };
 
   const handleDelete = () => {
     setPin((prev) => prev.slice(0, -1));
+    setError('');
   };
 
   return (
@@ -33,6 +57,15 @@ const SetNewPin: React.FC = () => {
         <p className="max-w-[280px] text-center text-base font-medium text-slate-400 dark:text-slate-400">
           Please enter a new 6-digit security PIN for your transactions
         </p>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mt-4 rounded-lg bg-red-50 p-3 dark:bg-red-900/20">
+            <p className="text-sm font-medium text-red-600 dark:text-red-400">
+              {error}
+            </p>
+          </div>
+        )}
 
         {/* Dots */}
         <div className="mb-8 mt-12 flex items-center justify-center gap-4">
@@ -53,7 +86,6 @@ const SetNewPin: React.FC = () => {
         <Keypad
           onKeyPress={handleKeyPress}
           onDelete={handleDelete}
-          onSubmit={() => navigate({to: '/accounthub/confirm-pin'})}
           submitIcon="arrow"
         />
         <div className="flex h-6 w-full justify-center bg-white pt-2 dark:bg-[#1e1610]">

@@ -9,7 +9,6 @@ const AuthLayout = () => {
     if (isAuthenticated) {
       navigate({to: '/dashboard'});
     }
-  
   }, [isAuthenticated]);
 
   return <Outlet />;

@@ -39,10 +39,9 @@ const SignupStep2KYCUpload: FC<SignupStep2KYCUploadProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-950 flex min-h-screen w-full items-center justify-center font-['Inter'] antialiased md:p-6">
+    <div className="dark:bg-gray-950 flex min-h-screen w-full items-center justify-center bg-white font-['Inter'] antialiased md:p-6">
       {/* Main container */}
-      <div className="relative mx-auto w-full max-w-[min(390px,95vw,500px)] overflow-hidden bg-white rounded-2xl dark:bg-[#221610] md:max-w-[700px] md:min-h-[600px]">
-        
+      <div className="relative mx-auto w-full max-w-[min(390px,95vw,500px)] overflow-hidden rounded-2xl bg-white dark:bg-[#221610] md:min-h-[600px] md:max-w-[700px]">
         {/* Header */}
         <div className="sticky top-0 z-20 flex items-center justify-between bg-white p-4 dark:bg-[#221610] md:p-6">
           <button
@@ -87,7 +86,7 @@ const SignupStep2KYCUpload: FC<SignupStep2KYCUploadProps> = ({
                 Passport Number
               </span>
               <input
-                className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3.5 outline-none focus:border-[#F57F3D] focus:ring-2 focus:ring-[#F57F3D]/30 dark:border-slate-600 dark:bg-slate-800/80 md:py-4 md:text-lg"
+                className="border-gray-300 mt-2 w-full rounded-xl border bg-white px-4 py-3.5 outline-none focus:border-[#F57F3D] focus:ring-2 focus:ring-[#F57F3D]/30 dark:border-slate-600 dark:bg-slate-800/80 md:py-4 md:text-lg"
                 placeholder="Enter passport number (e.g. G12345678)"
                 value={docNumber}
                 onChange={(e) => setDocNumber(e.target.value)}
@@ -126,7 +125,7 @@ const SignupStep2KYCUpload: FC<SignupStep2KYCUploadProps> = ({
                 </button>
               </div>
             ) : (
-              <label className="mt-4 flex cursor-pointer flex-col items-center rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 p-6 text-center hover:border-[#F57F3D] hover:bg-gray-100 md:p-8">
+              <label className="border-gray-300 bg-gray-50 hover:bg-gray-100 mt-4 flex cursor-pointer flex-col items-center rounded-2xl border-2 border-dashed p-6 text-center hover:border-[#F57F3D] md:p-8">
                 <input
                   type="file"
                   hidden
@@ -153,13 +152,17 @@ const SignupStep2KYCUpload: FC<SignupStep2KYCUploadProps> = ({
                     <span className="material-symbols-outlined text-lg text-slate-400">
                       visibility
                     </span>
-                    <span className="text-xs text-slate-500">All details visible</span>
+                    <span className="text-xs text-slate-500">
+                      All details visible
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-lg text-slate-400">
                       light_mode
                     </span>
-                    <span className="text-xs text-slate-500">Good lighting</span>
+                    <span className="text-xs text-slate-500">
+                      Good lighting
+                    </span>
                   </div>
                 </div>
               </label>
@@ -168,15 +171,15 @@ const SignupStep2KYCUpload: FC<SignupStep2KYCUploadProps> = ({
         </div>
 
         {/* Bottom CTA */}
-        <div className="fixed bottom-0 left-0 right-0 mx-auto w-full max-w-[min(390px,95vw,500px)] border-t border-gray-200 bg-white/95 p-6 backdrop-blur md:relative md:mt-6 md:max-w-[700px] md:border-t-0 md:bg-transparent md:p-0 md:backdrop-blur-none">
+        <div className="border-gray-200 fixed bottom-0 left-0 right-0 mx-auto w-full max-w-[min(390px,95vw,500px)] border-t bg-white/95 p-6 backdrop-blur md:relative md:mt-6 md:max-w-[700px] md:border-t-0 md:bg-transparent md:p-0 md:backdrop-blur-none">
           <div className="md:px-8 md:pb-6">
             <button
               onClick={handleSubmit}
               disabled={!isFormValid()}
-              className={`h-14 w-full rounded-xl text-lg font-semibold transition-all md:h-16 md:text-xl md:max-w-[400px] md:mx-auto md:block ${
+              className={`h-14 w-full rounded-xl text-lg font-semibold transition-all md:mx-auto md:block md:h-16 md:max-w-[400px] md:text-xl ${
                 isFormValid()
-                  ? 'bg-[#F57F3D] text-white hover:bg-[#e06c2e] shadow-lg shadow-[#F57F3D]/20'
-                  : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                  ? 'bg-[#F57F3D] text-white shadow-lg shadow-[#F57F3D]/20 hover:bg-[#e06c2e]'
+                  : 'cursor-not-allowed bg-slate-200 text-slate-400'
               }`}
             >
               Continue
