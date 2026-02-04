@@ -183,7 +183,7 @@ const SignUp = () => {
       {/* Optional: show loading state during submission */}
       {signupMutation.isPending && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="rounded-lg bg-white p-6 shadow-lg">
+          <div className="rounded-lg bg-white">
             <p className="text-lg font-medium">Creating your account...</p>
             <div className="bg-gray-200 mt-4 h-2 w-64 overflow-hidden rounded">
               <div

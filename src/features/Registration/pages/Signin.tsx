@@ -2,10 +2,9 @@
 import {useAuthContext} from '@/context/AuthContext';
 import {api} from '@/utils/axios';
 import {useMutation} from '@tanstack/react-query';
-import React, {useEffect, useState} from 'react';
-import toast from 'react-hot-toast';
-import {AxiosError} from 'axios';
 import {useNavigate} from '@tanstack/react-router';
+import {AxiosError} from 'axios';
+import React, {useState} from 'react';
 
 const Signin: React.FC = () => {
   const {setIsAuthenticated} = useAuthContext();
@@ -53,59 +52,43 @@ const Signin: React.FC = () => {
   };
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-950 flex min-h-screen w-full items-center justify-center p-4 font-['Inter'] antialiased selection:bg-[#F57F3D]/30">
-      {/* Mobile frame simulation */}
-      <div className="border-gray-200/60 dark:border-gray-800/60 relative mx-auto min-h-[844px] w-full max-w-[390px] overflow-hidden bg-white shadow-2xl dark:bg-[#221610]">
+    <div className="dark:bg-gray-950 flex min-h-screen w-full items-center justify-center bg-white font-['Inter'] antialiased selection:bg-[#F57F3D]/30">
+      {/* Responsive container */}
+      <div className="border-gray-200/60 dark:border-gray-800/60 relative mx-auto min-h-[min(844px,90vh)] w-full max-w-[min(390px,95vw,480px)] overflow-hidden bg-white dark:bg-[#221610] md:min-h-[600px] md:max-w-[420px] md:rounded-2xl">
         {/* Background patterns */}
         <div className="bg-premium-pattern pointer-events-none absolute inset-0 z-0 opacity-100 dark:opacity-5" />
         <div className="from-gray-100/40 pointer-events-none absolute inset-0 z-0 bg-gradient-to-br via-transparent to-transparent dark:from-white/5" />
 
-        {/* Safe area top spacer */}
-        <div className="relative z-10 h-6 w-full" />
+        {/* Safe area top spacer - responsive */}
+        <div className="relative z-10 h-6 w-full md:h-8" />
 
         {/* Main content */}
-        <div className="relative z-10 flex flex-1 flex-col justify-between px-6 pb-6 pt-8">
+        <div className="relative z-10 flex flex-1 flex-col justify-between px-6 pb-6 pt-8 md:px-8 md:pb-8 md:pt-10">
           {/* Header */}
-          <div className="flex flex-col gap-2">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#F57F3D]/10 backdrop-blur-sm">
-              <span className="material-symbols-outlined text-2xl text-[#F57F3D]">
+          <div className="flex flex-col gap-2 md:gap-3">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#F57F3D]/10 backdrop-blur-sm md:h-14 md:w-14">
+              <span className="material-symbols-outlined text-2xl text-[#F57F3D] md:text-3xl">
                 account_balance_wallet
               </span>
             </div>
-            <h1 className="text-[32px] font-bold leading-tight tracking-tight text-[#0d131c] dark:text-white">
+            <h1 className="text-[32px] font-bold leading-tight tracking-tight text-[#0d131c] dark:text-white md:text-[36px]">
               Welcome back
             </h1>
-            <p className="text-gray-500 dark:text-gray-400 text-base font-normal leading-normal">
+            <p className="text-gray-500 dark:text-gray-400 text-base font-normal leading-normal md:text-lg">
               Enter your details to access your account.
             </p>
           </div>
 
           {/* Form */}
-          <div className="mt-8 flex flex-col gap-6">
+          <div className="mt-8 flex flex-col gap-6 md:mt-10 md:gap-7">
             {/* Mobile Number */}
-            <div className="flex flex-col gap-2">
-              <label className="dark:text-gray-200 text-sm font-medium leading-normal text-[#0d131c]">
+            <div className="flex flex-col gap-2 md:gap-3">
+              <label className="dark:text-gray-200 text-sm font-medium leading-normal text-[#0d131c] md:text-base">
                 Mobile Number
               </label>
               <div className="flex gap-3">
-                <div className="relative w-[88px] shrink-0">
-                  <div className="pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center pl-3">
-                    <span className="text-lg leading-none">🇮🇳</span>
-                  </div>
-                  <select className="bg-gray-50/80 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 h-14 w-full cursor-pointer appearance-none rounded-xl border pl-10 pr-8 text-base backdrop-blur-sm focus:border-[#F57F3D] focus:ring-[#F57F3D] dark:text-white">
-                    <option value="+91">+91</option>
-                    <option value="+1">+1</option>
-                    <option value="+44">+44</option>
-                  </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
-                    <span className="material-symbols-outlined text-gray-400 text-sm">
-                      expand_more
-                    </span>
-                  </div>
-                </div>
-
                 <input
-                  className="bg-gray-50/80 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 placeholder-gray-400 h-14 flex-1 rounded-xl border px-4 text-base backdrop-blur-sm transition-shadow focus:border-[#F57F3D] focus:ring-[#F57F3D] dark:text-white"
+                  className="bg-gray-50/80 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 placeholder-gray-400 h-14 flex-1 rounded-xl border px-4 text-base backdrop-blur-sm transition-shadow focus:border-[#F57F3D] focus:ring-[#F57F3D] dark:text-white md:h-16 md:text-lg"
                   placeholder="98765 43210"
                   type="tel"
                   value={username}
@@ -115,20 +98,20 @@ const Signin: React.FC = () => {
             </div>
 
             {/* Password */}
-            <div className="flex flex-col gap-2">
-              <label className="dark:text-gray-200 text-sm font-medium leading-normal text-[#0d131c]">
+            <div className="flex flex-col gap-2 md:gap-3">
+              <label className="dark:text-gray-200 text-sm font-medium leading-normal text-[#0d131c] md:text-base">
                 Password
               </label>
               <div className="relative">
                 <input
-                  className="bg-gray-50/80 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 placeholder-gray-400 h-14 w-full rounded-xl border pl-4 pr-12 text-base backdrop-blur-sm transition-shadow focus:border-[#F57F3D] focus:ring-[#F57F3D] dark:text-white"
+                  className="bg-gray-50/80 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 placeholder-gray-400 h-14 w-full rounded-xl border pl-4 pr-12 text-base backdrop-blur-sm transition-shadow focus:border-[#F57F3D] focus:ring-[#F57F3D] dark:text-white md:h-16 md:text-lg"
                   placeholder="••••••••••••"
                   type={passwordVisible ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
                 <button
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 absolute inset-y-0 right-0 flex items-center px-4 transition-colors"
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 absolute inset-y-0 right-0 flex items-center px-4 transition-colors md:px-5"
                   type="button"
                   onClick={() => setPasswordVisible(!passwordVisible)}
                   aria-label="Toggle password visibility"
@@ -144,7 +127,7 @@ const Signin: React.FC = () => {
               <div className="flex justify-end pt-1">
                 <a
                   href="#"
-                  className="text-sm font-medium text-[#F57F3D] hover:underline"
+                  className="text-sm font-medium text-[#F57F3D] hover:underline md:text-base"
                 >
                   Forgot Password?
                 </a>
@@ -155,34 +138,34 @@ const Signin: React.FC = () => {
             <button
               onClick={handleSignIn}
               disabled={isPending}
-              className="mt-2 flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-[#F57F3D] text-base font-semibold text-white"
+              className="mt-2 flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-[#F57F3D] text-base font-semibold text-white md:h-16 md:text-lg"
             >
               {isPending ? 'Logging in…' : 'Login'}
             </button>
 
             {/* Divider */}
-            <div className="relative flex items-center py-2">
+            <div className="relative flex items-center py-2 md:py-3">
               <div className="border-gray-100 dark:border-gray-800 flex-grow border-t" />
-              <span className="text-gray-400 mx-4 flex-shrink-0 text-xs font-medium uppercase tracking-wider">
+              <span className="text-gray-400 mx-4 flex-shrink-0 text-xs font-medium uppercase tracking-wider md:text-sm">
                 Or login with
               </span>
               <div className="border-gray-100 dark:border-gray-800 flex-grow border-t" />
             </div>
 
             {/* Touch ID Button */}
-            <button className="border-gray-200 dark:border-gray-700 dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 group flex h-14 w-full items-center justify-center gap-2 rounded-xl border bg-white/50 backdrop-blur-sm transition-colors">
-              <span className="material-symbols-outlined text-[28px] text-[#F57F3D] transition-transform group-hover:scale-110">
+            <button className="border-gray-200 dark:border-gray-700 dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 group flex h-14 w-full items-center justify-center gap-2 rounded-xl border bg-white/50 backdrop-blur-sm transition-colors md:h-16">
+              <span className="material-symbols-outlined text-[28px] text-[#F57F3D] transition-transform group-hover:scale-110 md:text-[32px]">
                 fingerprint
               </span>
-              <span className="text-gray-700 dark:text-gray-300 font-medium">
+              <span className="text-gray-700 dark:text-gray-300 font-medium md:text-lg">
                 Touch ID
               </span>
             </button>
           </div>
 
           {/* Footer */}
-          <div className="mt-auto flex flex-col items-center gap-6 pt-8">
-            <p className="text-gray-500 dark:text-gray-400 text-center text-sm">
+          <div className="mt-auto flex flex-col items-center gap-6 pt-8 md:gap-7 md:pt-10">
+            <p className="text-gray-500 dark:text-gray-400 text-center text-sm md:text-base">
               Don't have an account?{' '}
               <a
                 href="signup"
