@@ -1,5 +1,5 @@
 import {useNavigate} from '@tanstack/react-router';
-import React from 'react';
+import React, {useState} from 'react';
 import {
   MdArrowBackIosNew,
   MdEdit,
@@ -11,10 +11,33 @@ import {
   MdFace,
   MdLogout,
 } from 'react-icons/md';
+import {useGetProfile} from './profilemutation';
 
 const AccountHub: React.FC = () => {
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    accountNumber: '',
+  });
 
+  const {data: profiledata, isLoading} = useGetProfile();
+
+  React.useEffect(() => {
+    if (profiledata) {
+      const formatDateForInput = (dateString: string | null) => {
+        if (!dateString) return '';
+        try {
+          const date = new Date(dateString);
+          return date.toISOString().split('T')[0];
+        } catch (error) {
+          return '';
+        }
+      };
+
+      setFormData({
+        accountNumber: profiledata?.user?.accountNumber || '',
+      });
+    }
+  }, [profiledata]);
   const MenuItem: React.FC<{
     icon: React.ElementType;
     title: string;
@@ -63,7 +86,10 @@ const AccountHub: React.FC = () => {
     <div className="bg-background-light dark:bg-background-dark flex flex-1 flex-col">
       {/* Header */}
       <header className="sticky top-0 z-20 flex items-center justify-between border-b border-slate-100 bg-white/95 px-4 py-3 backdrop-blur-md dark:border-slate-800 dark:bg-[#0F1535]/95">
-        <button className="-ml-2 flex items-center justify-center rounded-full p-2 text-slate-900 transition-colors hover:bg-slate-50 dark:text-white dark:hover:bg-slate-800">
+        <button
+          onClick={() => navigate({to: '/dashboard'})}
+          className="-ml-2 flex items-center justify-center rounded-full p-2 text-slate-900 transition-colors hover:bg-slate-50 dark:text-white dark:hover:bg-slate-800"
+        >
           <MdArrowBackIosNew />
         </button>
         <h1 className="flex-1 pr-8 text-center text-base font-bold tracking-tight text-slate-900 dark:text-white">
@@ -89,14 +115,11 @@ const AccountHub: React.FC = () => {
             </button>
           </div>
           <h2 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">
-            Jane Doe
+            {profiledata?.user?.fullname}
           </h2>
           <div className="mt-1 flex flex-col gap-0.5">
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-              Member ID: 893-441-21
-            </p>
-            <p className="text-xs text-slate-500/80 dark:text-slate-500">
-              Member since 2021
+              {profiledata?.accountNumber || ''}
             </p>
           </div>
         </section>

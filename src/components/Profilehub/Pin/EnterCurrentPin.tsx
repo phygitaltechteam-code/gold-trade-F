@@ -4,22 +4,41 @@ import {Header} from '../ui/Header';
 import {Keypad} from '../ui/Keypad';
 import {MdLockReset} from 'react-icons/md';
 
-const EnterCurrentPin: React.FC = () => {
+interface EnterCurrentPinProps {
+  onCurrentPinVerified?: (pin: string) => void;
+}
+
+const EnterCurrentPin: React.FC<EnterCurrentPinProps> = ({
+  onCurrentPinVerified,
+}) => {
   const navigate = useNavigate();
-  const [pin, setPin] = useState<string>('12'); // Simulating some input already
+  const [pin, setPin] = useState<string>('');
+  const [error, setError] = useState<string>('');
 
   const handleKeyPress = (key: string) => {
     if (pin.length < 6) {
-      setPin((prev) => prev + key);
-      // Simulate auto-advance or validation
-      if (pin.length + 1 === 6) {
-        setTimeout(() => navigate({to: '/accounthub/setnew-pin'}), 500);
+      const newPin = pin + key;
+      setPin(newPin);
+      setError('');
+
+      if (newPin.length === 6) {
+        // Auto-submit when 6 digits entered
+        setTimeout(() => {
+          if (onCurrentPinVerified) {
+            onCurrentPinVerified(newPin);
+          }
+          navigate({
+            to: '/accounthub/setnew-pin',
+            state: {currentPin: newPin},
+          });
+        }, 500);
       }
     }
   };
 
   const handleDelete = () => {
     setPin((prev) => prev.slice(0, -1));
+    setError('');
   };
 
   return (
@@ -39,6 +58,15 @@ const EnterCurrentPin: React.FC = () => {
         <p className="text-gray-500 dark:text-gray-400 mb-12 max-w-[280px] text-center text-base leading-relaxed">
           Enter your current 6-digit PIN to continue.
         </p>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 rounded-lg bg-red-50 p-3 dark:bg-red-900/20">
+            <p className="text-sm font-medium text-red-600 dark:text-red-400">
+              {error}
+            </p>
+          </div>
+        )}
 
         {/* Dots */}
         <div className="mb-10 flex gap-4 md:gap-5">
@@ -65,7 +93,6 @@ const EnterCurrentPin: React.FC = () => {
           onDelete={handleDelete}
           showBiometric={true}
         />
-        {/* Safe area padding */}
         <div className="h-6 w-full bg-white dark:bg-[#1e1610]" />
       </div>
     </div>
