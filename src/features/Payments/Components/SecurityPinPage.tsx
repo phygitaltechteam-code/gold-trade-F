@@ -40,16 +40,6 @@ const SecurityPinPage: React.FC<props> = ({
     setPin((prev) => prev.slice(0, -1));
   };
 
-  // const handleSubmit = () => {
-  //   if (pin.length === PIN_LENGTH) {
-  //     console.log('PIN Submitted:', pin);
-  //     // Here you would typically trigger an API call or navigation
-  //     alert(`PIN ${pin} submitted!`);
-  //     setPin('');
-  //   }
-  // };
-
-  // Optional: Add keyboard support for desktop testing
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (/^[0-9]$/.test(e.key)) {
@@ -66,7 +56,7 @@ const SecurityPinPage: React.FC<props> = ({
   }, [pin]);
 
   return (
-    <div className="app-height text-navy font-sans flex flex-col overflow-hidden bg-white">
+    <div className="text-navy font-sans flex min-h-screen flex-col overflow-hidden bg-white">
       <header className="sticky left-0 right-0 top-0 z-50 bg-white/90 backdrop-blur-sm">
         <div className="flex h-16 items-center justify-between px-6">
           <button
@@ -110,7 +100,6 @@ const SecurityPinPage: React.FC<props> = ({
             onSubmit={() => onPinSubmit(pin)}
             canSubmit={pin.length === PIN_LENGTH}
             nextStep={nextStep}
-            prevStep={prevStep}
           />
         </div>
 

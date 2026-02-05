@@ -14,9 +14,17 @@ const AppLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const showFooterRoutes = ['/dashboard', '/projects', '/profile'];
+  const showFooterRoutes = [
+    '/dashboard',
+    '/projects',
+    '/profile',
+    '/payment/send/$id',
+    '/wallet/toupscreen',
+  ];
 
-  const showFooter = showFooterRoutes.includes(location.pathname);
+  const showFooter =
+    showFooterRoutes.includes(location.pathname) ||
+    location.pathname.startsWith('/payment/send/');
 
   useEffect(() => {
     !isAuthenticated && navigate({to: '/signin'});

@@ -11,6 +11,7 @@ import TransferReviewScreen from '../Components/TransactionReview';
 import SecurityPinPage from '../Components/SecurityPinPage';
 import {TransferStatusScreen} from '../Components/TransactionStatus';
 import TransactionSuccess from '../Components/TransactionSucces';
+import {useNavigate} from '@tanstack/react-router';
 
 export type PaymentData = {
   amount: string;
@@ -42,6 +43,7 @@ const PaymentWrapper: React.FC = () => {
   const {data: WalletData} = useGetWalletByCustomer();
   const {mutateAsync: Payment} = usePayment();
   const [selectedWalletType, setSelectedWalletType] = useState<WalletType>('');
+  const navigate = useNavigate();
 
   console.log('walllet data', WalletData);
   const [step, setStep] = useState(1);
@@ -76,6 +78,16 @@ const PaymentWrapper: React.FC = () => {
       }
     }
   }, [WalletData]);
+
+  useEffect(() => {
+    if (step === 4) {
+      const timer = setTimeout(() => {
+        navigate({to: '/dashboard'}); // ✅ your dashboard route
+      }, 1000); // ⏱️ 4 seconds (change to 3000 or 5000 if needed)
+
+      return () => clearTimeout(timer); // cleanup
+    }
+  }, [step, navigate]);
 
   const handlePinSubmit = async (pin: string) => {
     try {
@@ -126,6 +138,7 @@ const PaymentWrapper: React.FC = () => {
           paymentData={paymentData}
           setPaymentData={setPaymentData}
           nextStep={nextStep}
+          prevStep={prevStep}
           walletAmmount={walletAmmount}
           onPinSubmit={handlePinSubmit}
         />
