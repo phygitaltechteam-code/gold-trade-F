@@ -1,15 +1,16 @@
 import {useState, useRef, useEffect} from 'react';
-import {FaEllipsisV, FaThLarge, FaUsers, FaUser, FaCog} from 'react-icons/fa';
+import {
+  FaEllipsisV,
+  FaThLarge,
+  FaUsers,
+  FaUser,
+  FaCog,
+  FaCreditCard,
+} from 'react-icons/fa';
 import {motion, AnimatePresence} from 'framer-motion';
 import {useNavigate, useLocation} from '@tanstack/react-router';
 
 const navItems = [
-  {
-    label: 'Payments',
-    icon: FaUsers,
-    to: '/wallet/paymentdashbord',
-    iconSize: 'text-3xl',
-  },
   {
     label: 'Dashboard',
     icon: FaThLarge,
@@ -17,17 +18,24 @@ const navItems = [
     iconSize: 'text-xl',
   },
   {
+    label: 'Payments',
+    icon: FaCreditCard,
+    to: '/wallet/paymentdashbord',
+    iconSize: 'text-3xl',
+  },
+
+  {
     label: 'Accounts',
-    icon: FaThLarge,
+    icon: FaUser,
     to: '/eprivate/eprivatereports',
     iconSize: 'text-xl',
   },
-  {
-    label: 'Customers',
-    icon: FaThLarge,
-    to: '/wallet/paymentdashbord',
-    iconSize: 'text-xl',
-  },
+  // {
+  //   label: 'Customers',
+  //   icon: FaUsers,
+  //   to: '/wallet/paymentdashbord',
+  //   iconSize: 'text-xl',
+  // },
 
   {
     label: 'Settings',
