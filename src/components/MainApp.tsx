@@ -1,98 +1,268 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {Link, useNavigate} from '@tanstack/react-router';
 
 export default function MainApp() {
   const nevigate = useNavigate();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  // Close menu when clicking outside or pressing escape
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        setIsMenuOpen(false);
+        setIsSearchOpen(false);
+      }
+    };
+
+    const handleClickOutside = (e) => {
+      if (isMenuOpen && !e.target.closest('nav')) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    document.addEventListener('click', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [isMenuOpen]);
   return (
     <div className="bg-background-light min-h-screen text-black antialiased">
       {/* Header */}
       <header className="border-gray-200 bg-background-light/95 supports-[backdrop-filter]:bg-background-light/60 sticky top-0 z-50 w-full border-b backdrop-blur">
-        <div className="mx-auto flex h-20 max-w-[1280px] items-center justify-between px-6 lg:px-10">
-          <div className="flex items-center gap-10">
-            <Link
-              to="/landingpage"
-              className="flex items-center gap-3 text-black transition-opacity hover:opacity-80"
+        <div className="mx-auto flex h-16 max-w-[1280px] items-center justify-between px-4 md:h-20 md:px-6 lg:px-10">
+          {/* Logo */}
+          <Link
+            to="/"
+            className="flex items-center gap-2 text-black transition-opacity hover:opacity-80 md:gap-3"
+          >
+            <div className="size-5 text-primary md:size-6">
+              <svg
+                className="h-full w-full"
+                fill="none"
+                viewBox="0 0 48 48"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M24 4L4 12V36L24 44L44 36V12L24 4Z"
+                  stroke="currentColor"
+                  strokeLinejoin="round"
+                  strokeWidth="4"
+                ></path>
+                <path
+                  d="M24 14V34"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeWidth="4"
+                ></path>
+                <path
+                  d="M14 24H34"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeWidth="4"
+                ></path>
+              </svg>
+            </div>
+            <span className="font-body text-lg font-bold tracking-tight md:text-xl">
+              Swissquote
+            </span>
+          </Link>
+
+          {/* Desktop Navigation - Hidden on Mobile */}
+          <nav className="hidden items-center gap-8 md:flex">
+            <a
+              className="text-sm font-medium text-black transition-colors hover:text-primary"
+              href="#"
             >
-              <div className="size-6 text-primary">
-                <svg
-                  className="h-full w-full"
-                  fill="none"
-                  viewBox="0 0 48 48"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M24 4L4 12V36L24 44L44 36V12L24 4Z"
-                    stroke="currentColor"
-                    strokeLinejoin="round"
-                    strokeWidth="4"
-                  ></path>
-                  <path
-                    d="M24 14V34"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeWidth="4"
-                  ></path>
-                  <path
-                    d="M14 24H34"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeWidth="4"
-                  ></path>
-                </svg>
-              </div>
-              <span className="font-body text-xl font-bold tracking-tight">
-                Swissquote
-              </span>
-            </Link>
-            <nav className="hidden items-center gap-8 md:flex">
-              <a
-                className="text-sm font-medium text-black transition-colors hover:text-primary"
-                href="#"
-              >
-                Private Banking
-              </a>
-              <button
-                className="text-text-secondary text-sm font-medium transition-colors hover:text-primary"
-                onClick={() => {
-                  nevigate({to: '/landingpage'});
-                }}
-              >
-                Wealth Management
-              </button>
-              <a
-                className="text-text-secondary text-sm font-medium transition-colors hover:text-primary"
-                href="#advisory"
-              >
-                Advisory
-              </a>
-              <a
-                className="text-text-secondary text-sm font-medium transition-colors hover:text-primary"
-                href="#insights"
-              >
-                Insights
-              </a>
-            </nav>
-          </div>
-          <div className="flex items-center gap-4">
+              Private Banking
+            </a>
+            <button
+              className="text-text-secondary text-sm font-medium transition-colors hover:text-primary"
+              onClick={() => {
+                nevigate({to: '/landingpage'});
+              }}
+            >
+              Wealth Management
+            </button>
+            <a
+              className="text-text-secondary text-sm font-medium transition-colors hover:text-primary"
+              href="#advisory"
+            >
+              Advisory
+            </a>
+            <a
+              className="text-text-secondary text-sm font-medium transition-colors hover:text-primary"
+              href="#insights"
+            >
+              Insights
+            </a>
+          </nav>
+
+          {/* Desktop CTA Buttons - Hidden on Mobile */}
+          <div className="hidden items-center gap-4 md:flex">
             <button className="text-text-secondary hover:bg-background-subtle hidden size-10 items-center justify-center rounded-full transition-colors hover:text-primary lg:flex">
               <span className="material-symbols-outlined">search</span>
             </button>
             <div className="flex gap-3">
               <Link
                 to="/signin"
-                className="hover:bg-gray-100 hover:border-gray-200 hidden h-10 items-center justify-center rounded-lg border border-transparent px-5 text-sm font-bold text-black transition-colors sm:flex"
+                className="hover:bg-gray-100 hover:border-gray-200 h-10 items-center justify-center rounded-lg border border-transparent px-4 text-sm font-bold text-black transition-colors lg:px-5"
               >
                 Login
               </Link>
               <Link
                 to="/signup"
-                className="hover:bg-primary-dark flex h-10 items-center justify-center rounded-lg bg-primary px-5 text-sm font-bold text-white shadow-sm transition-all hover:shadow-md"
+                className="hover:bg-primary-dark flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-bold text-white shadow-sm transition-all hover:shadow-md lg:px-5"
               >
                 Open Account
               </Link>
             </div>
           </div>
+
+          {/* Mobile Buttons Container */}
+          <div className="flex items-center gap-2 md:hidden">
+            {/* Mobile Search Button */}
+            <button
+              className="text-text-secondary hover:bg-background-subtle flex size-10 items-center justify-center rounded-full transition-colors hover:text-primary"
+              onClick={() => setIsSearchOpen(true)}
+              aria-label="Search"
+            >
+              <span className="material-symbols-outlined text-xl">search</span>
+            </button>
+
+            {/* Hamburger Menu Button - Visible on Mobile Only */}
+            <button
+              className="text-text-secondary hover:bg-background-subtle flex size-10 items-center justify-center rounded-full transition-colors hover:text-primary"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Toggle menu"
+              aria-expanded={isMenuOpen}
+            >
+              <span className="material-symbols-outlined text-xl">
+                {isMenuOpen ? 'close' : 'menu'}
+              </span>
+            </button>
+          </div>
         </div>
+
+        {/* Mobile Search Overlay */}
+        {isSearchOpen && (
+          <div className="animate-in fade-in fixed inset-0 z-[60] bg-white duration-300 md:hidden">
+            <div className="flex h-16 items-center border-b px-4">
+              <div className="relative flex w-full items-center gap-2">
+                <button
+                  onClick={() => setIsSearchOpen(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <span className="material-symbols-outlined text-xl">
+                    arrow_back
+                  </span>
+                </button>
+                <div className="relative flex-1">
+                  <input
+                    type="text"
+                    placeholder="Search..."
+                    className="border-gray-300 w-full rounded-lg border py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-primary"
+                    autoFocus
+                  />
+                  <span className="material-symbols-outlined text-gray-400 absolute left-3 top-1/2 -translate-y-1/2">
+                    search
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="p-4">
+              <p className="text-gray-500 text-sm">
+                Recent searches will appear here...
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Mobile Menu Overlay */}
+        {isMenuOpen && (
+          <div className="animate-in slide-in-from-top fixed inset-0 top-16 z-40 bg-white duration-300 md:hidden">
+            <div className="h-full overflow-y-auto border-t">
+              {/* Mobile Navigation Links */}
+              <nav className="flex flex-col p-0">
+                <a
+                  className="text-text-secondary hover:bg-gray-50 border-gray-100 flex items-center justify-between border-b px-6 py-4 text-base font-medium transition-colors hover:text-primary"
+                  href="#"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <span>Private Banking</span>
+                  <span className="material-symbols-outlined text-lg">
+                    chevron_right
+                  </span>
+                </a>
+                <button
+                  className="text-text-secondary hover:bg-gray-50 border-gray-100 flex w-full items-center justify-between border-b px-6 py-4 text-left text-base font-medium transition-colors hover:text-primary"
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    nevigate({to: '/landingpage'});
+                  }}
+                >
+                  <span>Wealth Management</span>
+                  <span className="material-symbols-outlined text-lg">
+                    chevron_right
+                  </span>
+                </button>
+                <a
+                  className="text-text-secondary hover:bg-gray-50 border-gray-100 flex items-center justify-between border-b px-6 py-4 text-base font-medium transition-colors hover:text-primary"
+                  href="#advisory"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <span>Advisory</span>
+                  <span className="material-symbols-outlined text-lg">
+                    chevron_right
+                  </span>
+                </a>
+                <a
+                  className="text-text-secondary hover:bg-gray-50 border-gray-100 flex items-center justify-between border-b px-6 py-4 text-base font-medium transition-colors hover:text-primary"
+                  href="#insights"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <span>Insights</span>
+                  <span className="material-symbols-outlined text-lg">
+                    chevron_right
+                  </span>
+                </a>
+              </nav>
+
+              {/* Mobile CTA Buttons */}
+              <div className="border-gray-100 mt-auto border-t p-6">
+                <div className="flex flex-col gap-3">
+                  <Link
+                    to="/signin"
+                    className="hover:bg-gray-100 hover:border-gray-200 border-gray-300 flex h-12 items-center justify-center rounded-lg border text-base font-bold text-black transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className="hover:bg-primary-dark flex h-12 items-center justify-center rounded-lg bg-primary text-base font-bold text-white shadow-sm transition-all hover:shadow-md"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Open Account
+                  </Link>
+                </div>
+
+                {/* Contact Info */}
+                <div className="border-gray-100 mt-6 border-t pt-6">
+                  <p className="text-gray-600 mb-2 text-sm">Need help?</p>
+                  <a
+                    href="tel:+41123456789"
+                    className="font-medium text-primary"
+                  >
+                    +41 12 345 67 89
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Hero Section */}

@@ -7,6 +7,7 @@ import SignupStep1Personal from '../components/SignupStep1Personal';
 import SignupStep2KYCUpload from '../components/SignupStep2KYCUpload';
 import SignupStep3FacialVerification from '../components/SignupStep3FacialVerification';
 import {useNavigate} from '@tanstack/react-router';
+import {AxiosError} from 'axios';
 
 export interface PersonalData {
   accountHolderName: string;
@@ -94,14 +95,21 @@ const SignUp = () => {
       navigate({
         to: '/verification',
       });
-      // → redirect to login / dashboard / show success message
-      // e.g. navigate('/login') or set some success state
     },
 
-    onError: (error: any) => {
-      console.error('Registration failed:', error);
-      // → show toast / alert with error.message or error.response?.data?.message
-    },
+    onError: (error: AxiosError<any>) => {
+      const message = error.response?.data?.message || 'Login failed';
+      if (message === 'Pending') {
+        navigate({
+          to: '/verification',
+        });
+      }
+      if (message === 'Rejected') {
+        navigate({
+          to: '/rejected',
+        });
+      }
+    }, // Added missing comma and closing brace
   });
 
   const handleStep1Complete = (data: Partial<PersonalData>) => {
@@ -131,7 +139,7 @@ const SignUp = () => {
     formData.append('address', personalData.streetAddress.trim() || '');
     formData.append('city', personalData.city.trim() || '');
     formData.append('state', personalData.stateProvince.trim() || '');
-    // formData.append('country', personalData.country || 'India');
+    formData.append('country', personalData.country || 'India');
     formData.append('pincode', personalData.postalCode.trim() || '');
     formData.append('securityPin', personalData.securityPin.trim() || '');
     // formData.append('SWIFTBIC', personalData.swiftBicCode || '');
@@ -149,6 +157,7 @@ const SignUp = () => {
     }
     signupMutation.mutate(formData);
   };
+
   const goToStep = (step: 1 | 2 | 3) => {
     setCurrentStep(step);
   };
@@ -160,7 +169,7 @@ const SignUp = () => {
           initialData={personalData}
           onComplete={handleStep1Complete}
           onBack={() => {
-            /* Navigate to previous page or landing */
+
           }}
         />
       )}
