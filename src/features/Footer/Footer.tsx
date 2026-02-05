@@ -16,7 +16,12 @@ const navItems = [
     to: '/dashboard',
     iconSize: 'text-xl',
   },
-
+  {
+    label: 'Accounts',
+    icon: FaThLarge,
+    to: '/eprivate/eprivatereports',
+    iconSize: 'text-xl',
+  },
   {
     label: 'Customers',
     icon: FaThLarge,
