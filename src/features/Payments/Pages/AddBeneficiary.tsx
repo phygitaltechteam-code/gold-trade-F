@@ -93,7 +93,7 @@ const AddBeneficiary: React.FC = () => {
   ];
 
   return (
-    <div className="font-sans relative mx-auto flex h-full min-h-screen w-full max-w-md flex-col bg-white shadow-xl dark:bg-[#1e1e1e]">
+    <div className="font-sans relative mx-auto flex h-full min-h-screen w-full max-w-md flex-col bg-white shadow-xl dark:bg-[#1e1e1e] md:max-w-2xl">
       <div className="border-gray-100 dark:border-gray-800 sticky top-0 z-30 flex items-center justify-between border-b bg-white/95 px-4 pb-2 pt-4 backdrop-blur-sm dark:bg-[#1e1e1e]/95">
         <button
           className="text-text-main hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center rounded-full p-2 transition-colors dark:text-white"
@@ -109,7 +109,7 @@ const AddBeneficiary: React.FC = () => {
 
       <ProgressBar step={1} total={3} label="Beneficiary Details" />
 
-      <main className="flex-1 px-5 pb-10 pt-2">
+      <main className="flex-1 px-5 pb-10 pt-2 md:px-10">
         <FormProvider {...methods}>
           <form
             onSubmit={methods.handleSubmit(onSubmit, onError)}
@@ -141,7 +141,7 @@ const AddBeneficiary: React.FC = () => {
               />
 
               <div className="space-y-1.5">
-                <div className="flex gap-3">
+                <div className="flex gap-3 md:gap-5">
                   {/* Country Code */}
                   <div className="w-28 space-y-1.5">
                     <label className="mb-2 mt-1 block text-sm font-medium text-slate-700 dark:text-slate-400">
@@ -197,7 +197,7 @@ const AddBeneficiary: React.FC = () => {
                 required
               />
 
-              <div className="flex gap-4">
+              <div className="flex gap-4 md:gap-6">
                 <GenericInputField
                   name="state"
                   label="State"
@@ -295,7 +295,7 @@ const AddBeneficiary: React.FC = () => {
             </div>
 
             {/* Submit Button Inside Form */}
-            <div className="safe-area-bottom border-gray-100 dark:border-gray-800 z-20 mx-auto w-full max-w-md border-t bg-white/90 p-2 backdrop-blur-md dark:bg-[#1e1e1e]/90">
+            <div className="safe-area-bottom border-gray-100 dark:border-gray-800 z-20 mx-auto w-full max-w-md border-t bg-white/90 p-2 backdrop-blur-md dark:bg-[#1e1e1e]/90 md:max-w-2xl">
               <button
                 type="submit"
                 className="hover:bg-primary-800 group flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary/80 px-3 font-bold text-white shadow-lg shadow-primary/5 transition-all active:scale-[0.98]"

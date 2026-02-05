@@ -103,11 +103,11 @@ const PaymentSend: React.FC<props> = ({
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-[#f8f6f5] p-0 sm:p-4">
-      <div className="bg-premium-pattern relative mx-auto flex h-[100dvh] w-full max-w-md flex-col overflow-hidden bg-[#f8f6f5] shadow-2xl ring-1 ring-black/5 sm:h-[884px] sm:rounded-[40px] sm:bg-white">
+      <div className="bg-premium-pattern relative mx-auto flex h-[100dvh] w-full max-w-md flex-col overflow-hidden bg-[#f8f6f5] shadow-2xl ring-1 ring-black/5 sm:h-[884px] sm:rounded-[40px] sm:bg-white md:max-w-2xl">
         <header className="relative z-10 mt-2 flex shrink-0 items-center justify-between px-4 py-4">
           <button
             className="flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-white/50 active:scale-95"
-            onClick={prevStep}
+            onClick={() => navigate({to: '/wallet/paymentdashbord'})}
           >
             <MdArrowBack className="text-swiss-navy text-2xl" />
           </button>
@@ -115,7 +115,7 @@ const PaymentSend: React.FC<props> = ({
             Send Money
           </h2>
         </header>
-        <main className="no-scrollbar relative z-0 flex flex-1 flex-col items-center overflow-y-auto px-4 pb-4 pt-4">
+        <main className="no-scrollbar relative z-0 flex flex-1 flex-col items-center overflow-y-auto px-4 pb-4 pt-4 md:px-8">
           <AccountSelector
             selectedWalletType={selectedWalletType}
             setSelectedWalletType={setSelectedWalletType}
@@ -125,7 +125,7 @@ const PaymentSend: React.FC<props> = ({
           <AmountDisplay amount={paymentData?.amount} />
 
           <div className="mb-8"></div>
-          <div className="group relative mb-auto w-full max-w-xs">
+          <div className="group relative mb-auto w-full max-w-xs md:max-w-md">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
               <MdEditNote className="text-xl text-slate-400 transition-colors group-focus-within:text-primary" />
             </div>
@@ -138,7 +138,7 @@ const PaymentSend: React.FC<props> = ({
           </div>
         </main>
 
-        <section className="z-20 rounded-t-[2.5rem] border-t border-white/50 bg-white/90 px-6 pb-8 pt-6 shadow-[0_-10px_40px_-10px_rgba(13,30,58,0.05)] backdrop-blur-md">
+        <section className="z-20 rounded-t-[2.5rem] border-t border-white/50 bg-white/90 px-6 pb-8 pt-6 shadow-[0_-10px_40px_-10px_rgba(13,30,58,0.05)] backdrop-blur-md md:px-10">
           <Keypad onKeyPress={handleKeyPress} onBackspace={handleBackspace} />
 
           <button
