@@ -72,7 +72,7 @@ const SecurityPinPage: React.FC<props> = ({
           <button
             aria-label="Go back"
             className="text-navy -ml-2 flex h-10 w-10 items-center justify-center rounded-full outline-none transition-colors hover:bg-slate-50 focus:ring-2 focus:ring-primary/20 active:bg-slate-100"
-            onClick={() => prevStep}
+            onClick={prevStep}
           >
             <MdArrowBack size={24} />
           </button>

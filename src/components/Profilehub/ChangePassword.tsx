@@ -129,18 +129,27 @@ const ChangePassword: React.FC = () => {
     passwordRequirements.hasNumber;
 
   return (
-    <div className="bg-white dark:bg-gray-950 flex min-h-screen w-full items-center justify-center">
+    <div className="dark:bg-gray-950 flex min-h-screen w-full items-center justify-center bg-white">
       {/* Main container */}
-      <div className="relative mx-auto w-full max-w-[min(390px,95vw,500px)] overflow-hidden bg-white  dark:bg-[#221610] md:max-w-[600px]">
-        
+      <div className="relative mx-auto w-full max-w-[min(390px,95vw,500px)] overflow-hidden bg-white dark:bg-[#221610] md:max-w-[600px]">
         {/* Header */}
         <div className="sticky top-0 z-20 flex items-center justify-between bg-white/95 px-4 py-3 backdrop-blur-md dark:bg-[#221610]/95 md:px-6 md:py-4">
           <button
             onClick={() => window.history.back()}
             className="-ml-2 flex items-center justify-center rounded-full p-2 text-slate-900 transition-colors hover:bg-slate-50 dark:text-white dark:hover:bg-slate-800 md:p-2.5"
           >
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            <svg
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
             </svg>
           </button>
           <h1 className="flex-1 pr-8 text-center text-base font-bold tracking-tight text-slate-900 dark:text-white md:text-lg">
@@ -149,7 +158,7 @@ const ChangePassword: React.FC = () => {
         </div>
 
         <main className="no-scrollbar flex flex-1 flex-col overflow-y-auto px-4 py-2 md:px-6 md:py-4">
-          <p className="pb-6 pt-2 text-base font-normal leading-normal text-slate-900/70 dark:text-white/70 md:text-lg md:pb-8">
+          <p className="pb-6 pt-2 text-base font-normal leading-normal text-slate-900/70 dark:text-white/70 md:pb-8 md:text-lg">
             Your new password must be different from previous used passwords.
           </p>
 
@@ -398,7 +407,7 @@ const ChangePassword: React.FC = () => {
               <button
                 type="submit"
                 disabled={isLoading || !allRequirementsMet}
-                className={`flex h-14 w-full items-center justify-center rounded-xl px-6 text-base font-bold text-white shadow-lg transition-transform hover:bg-primary/90 active:scale-[0.98] disabled:cursor-not-allowed md:h-16 md:text-lg md:max-w-[400px] md:mx-auto ${
+                className={`flex h-14 w-full items-center justify-center rounded-xl px-6 text-base font-bold text-white shadow-lg transition-transform hover:bg-primary/90 active:scale-[0.98] disabled:cursor-not-allowed md:mx-auto md:h-16 md:max-w-[400px] md:text-lg ${
                   isLoading || !allRequirementsMet
                     ? 'bg-primary shadow-primary/20'
                     : 'bg-primary shadow-primary/20'
@@ -406,7 +415,10 @@ const ChangePassword: React.FC = () => {
               >
                 {isLoading ? (
                   <span className="flex items-center gap-2">
-                    <svg className="h-5 w-5 animate-spin md:h-6 md:w-6" viewBox="0 0 24 24">
+                    <svg
+                      className="h-5 w-5 animate-spin md:h-6 md:w-6"
+                      viewBox="0 0 24 24"
+                    >
                       <circle
                         className="opacity-25"
                         cx="12"

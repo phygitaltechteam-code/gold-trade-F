@@ -1,7 +1,7 @@
 /*eslint-disable*/
 
 import {useNavigate} from '@tanstack/react-router';
-import React from 'react';
+import React, {useState} from 'react';
 import {
   MdArrowBack,
   MdAccountBalance,
@@ -17,8 +17,12 @@ import {
   StepProps,
   walletAmmount,
 } from '../Pages/PaymentWrapper';
-import {useGetBeneficiaryById} from '@/lib/react-query/beneficiary';
+import {
+  useGetBeneficiary,
+  useGetBeneficiaryById,
+} from '@/lib/react-query/beneficiary';
 import {Route} from '@/routes/_app/payment/send.$id';
+import toast from 'react-hot-toast';
 
 export type WalletType = 'E_PRIVATEACCOUNT' | 'E_TEMPORYACCOUNT';
 
@@ -38,16 +42,27 @@ const TransferReviewScreen: React.FC<props> = ({
   selectedWalletType,
   setSelectedWalletType,
 }) => {
-  const navigate = useNavigate();
   const {data: benefiaciaryDetails} = useGetBeneficiaryById(
     paymentData?.beneficiaryId,
   );
+  const {data: allBeneficiary} = useGetBeneficiary();
+  const [openModal, setOpenModal] = useState(false);
   console.log('benefeciary det', benefiaciaryDetails);
-  const [showWalletDropdown, setShowWalletDropdown] = React.useState(false);
-
+  const [showWalletDropdown, setShowWalletDropdown] = useState(false);
+  const selectedWalletBalance = walletAmmount?.[selectedWalletType] ?? 0;
+  const enteredAmount = Number(paymentData.amount || 0);
+  const isInsufficientBalance = enteredAmount > selectedWalletBalance;
   const walletLabelMap: Record<WalletType, string> = {
     E_PRIVATEACCOUNT: 'E Private Account',
     E_TEMPORYACCOUNT: 'E Temporary Account',
+  };
+  const getInitials = (name: string) => {
+    if (!name) return '';
+    const parts = name.trim().split(' ');
+    if (parts.length === 1) {
+      return parts[0][0].toUpperCase();
+    }
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   };
 
   return (
@@ -60,7 +75,7 @@ const TransferReviewScreen: React.FC<props> = ({
                 type="button"
                 className="-ml-2 flex h-10 w-10 items-center justify-center rounded-full text-slate-900 transition-colors hover:bg-slate-100"
                 aria-label="Go back"
-                onClick={() => prevStep}
+                onClick={prevStep}
               >
                 <MdArrowBack size={24} />
               </button>
@@ -90,19 +105,30 @@ const TransferReviewScreen: React.FC<props> = ({
                   <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
                     To
                   </span>
-                  <button className="rounded px-2 py-1 text-xs font-semibold text-primary transition-colors hover:bg-primary/10">
+                  <button
+                    className="rounded px-2 py-1 text-xs font-semibold text-primary transition-colors hover:bg-primary/10"
+                    onClick={() => setOpenModal(true)}
+                  >
                     Edit
                   </button>
                 </div>
                 <div className="flex items-center gap-4">
-                  <div
-                    className="h-12 w-12 flex-shrink-0 rounded-full border border-slate-200 bg-slate-100 bg-cover bg-center"
-                    style={{
-                      backgroundImage:
-                        benefiaciaryDetails?.photo
-                    }}
-                    aria-label="Profile picture of Rahul Sharma"
-                  />
+                  {benefiaciaryDetails?.photo ? (
+                    <div
+                      className="h-12 w-12 flex-shrink-0 rounded-full border border-slate-200 bg-slate-100 bg-cover bg-center"
+                      style={{
+                        backgroundImage: `url(${benefiaciaryDetails?.photo})`,
+                      }}
+                      aria-label={`Profile picture of ${benefiaciaryDetails?.fullName}`}
+                    />
+                  ) : (
+                    <div className="relative">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-600">
+                        {getInitials(benefiaciaryDetails?.fullName)}
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex flex-col">
                     <p className="text-base font-semibold text-slate-900">
                       {benefiaciaryDetails?.fullName}
@@ -114,8 +140,6 @@ const TransferReviewScreen: React.FC<props> = ({
                 </div>
               </div>
 
-              {/* FROM Section */}
-              {/* FROM Section */}
               <div className="group relative cursor-pointer border-b border-slate-100 p-4 transition-colors hover:bg-slate-50">
                 <div className="mb-2 flex items-center justify-between">
                   <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
@@ -214,7 +238,14 @@ const TransferReviewScreen: React.FC<props> = ({
 
               <button
                 className="group relative flex h-14 w-full transform items-center justify-center rounded-xl bg-primary font-semibold text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary/50 active:scale-[0.98] active:bg-primary/75"
-                onClick={() => nextStep()}
+                onClick={() => {
+                  if (isInsufficientBalance || enteredAmount <= 0) {
+                    toast.error('Insufficient wallet balance');
+                    return;
+                  }
+
+                  nextStep();
+                }}
               >
                 <div className="flex items-center gap-2">
                   <span className="text-lg">Confirm & Send</span>
@@ -231,6 +262,59 @@ const TransferReviewScreen: React.FC<props> = ({
           </footer>
         </div>
       </div>
+
+      {openModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-4">
+          <div className="w-[80vh] max-w-md rounded-2xl bg-white shadow-xl">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-stroke bg-primary/10 p-4">
+              <h2 className="text-lg font-semibold">Select Beneficiary</h2>
+              <button
+                className="text-sm text-primary"
+                onClick={() => setOpenModal(false)}
+              >
+                Close
+              </button>
+            </div>
+
+            {/* Beneficiary List */}
+            <div className="max-h-[60vh] overflow-y-auto">
+              {allBeneficiary?.map((b: any) => (
+                <div
+                  key={b.id}
+                  className="flex cursor-pointer items-center gap-4 border-b border-stroke p-4 hover:bg-slate-50"
+                  onClick={() => {
+                    if (b?.isVerified === true) {
+                      setPaymentData((prev) => ({
+                        ...prev,
+                        beneficiaryId: b?.id,
+                      }));
+                      setOpenModal(false);
+                    } else {
+                      toast.error('Beneficiary Under Review');
+                    }
+                  }}
+                >
+                  <div
+                    className="h-10 w-10 rounded-full bg-slate-200 bg-cover bg-center"
+                    style={{backgroundImage: b?.photo}}
+                  />
+                  <div>
+                    <p className="font-medium text-slate-900">{b?.fullName}</p>
+                    <p className="text-sm text-slate-500">{b?.accountNumber}</p>
+                  </div>
+                </div>
+              ))}
+
+              {!allBeneficiary?.length && (
+                <p className="p-4 text-center text-sm text-slate-500">
+                  No beneficiaries found
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

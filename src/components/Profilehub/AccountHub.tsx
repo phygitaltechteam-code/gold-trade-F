@@ -39,7 +39,7 @@ const AccountHub: React.FC = () => {
   }> = ({icon: Icon, title, subtitle, onClick, hasToggle, toggleValue}) => (
     <div
       onClick={onClick}
-      className={`group flex cursor-pointer items-center justify-between border-b p-4 border-slate-100 transition-colors last:border-0 hover:bg-slate-50 dark:border-slate-700/50 dark:hover:bg-slate-700/30 md:p-5 md:hover:bg-slate-100/50`}
+      className={`group flex cursor-pointer items-center justify-between border-b border-slate-100 p-4 transition-colors last:border-0 hover:bg-slate-50 dark:border-slate-700/50 dark:hover:bg-slate-700/30 md:p-5 md:hover:bg-slate-100/50`}
     >
       <div className="flex items-center gap-4 md:gap-5">
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-50 text-primary dark:bg-white/5 md:h-12 md:w-12">

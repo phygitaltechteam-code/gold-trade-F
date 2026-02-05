@@ -125,8 +125,8 @@ const EditPersonalInfo: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="bg-white dark:bg-gray-950 flex min-h-screen w-full items-center justify-center p-4 md:p-6">
-        <div className="relative mx-auto w-full max-w-[min(390px,95vw,500px)] overflow-hidden bg-white rounded-2xl shadow-xl dark:bg-[#221610] md:max-w-[600px]">
+      <div className="dark:bg-gray-950 flex min-h-screen w-full items-center justify-center bg-white p-4 md:p-6">
+        <div className="relative mx-auto w-full max-w-[min(390px,95vw,500px)] overflow-hidden rounded-2xl bg-white shadow-xl dark:bg-[#221610] md:max-w-[600px]">
           <div className="flex flex-1 items-center justify-center p-8">
             <div className="text-gray-500">Loading profile data...</div>
           </div>
@@ -136,18 +136,27 @@ const EditPersonalInfo: React.FC = () => {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-950 flex min-h-screen w-full items-center justify-center ">
+    <div className="dark:bg-gray-950 flex min-h-screen w-full items-center justify-center bg-white">
       {/* Main container */}
-      <div className="relative mx-auto w-full max-w-[min(390px,95vw,500px)] overflow-hidden bg-white  dark:bg-[#221610] md:max-w-[600px]">
-        
+      <div className="relative mx-auto w-full max-w-[min(390px,95vw,500px)] overflow-hidden bg-white dark:bg-[#221610] md:max-w-[600px]">
         {/* Header */}
         <div className="sticky top-0 z-20 flex items-center justify-between bg-white/95 px-4 py-3 backdrop-blur-md dark:bg-[#221610]/95 md:px-6 md:py-4">
           <button
             onClick={() => window.history.back()}
             className="-ml-2 flex items-center justify-center rounded-full p-2 text-slate-900 transition-colors hover:bg-slate-50 dark:text-white dark:hover:bg-slate-800 md:p-2.5"
           >
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            <svg
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
             </svg>
           </button>
           <h1 className="flex-1 pr-8 text-center text-base font-bold tracking-tight text-slate-900 dark:text-white md:text-lg">
@@ -199,7 +208,7 @@ const EditPersonalInfo: React.FC = () => {
 
           {/* Form Section */}
           <form
-            className="flex w-full flex-1 flex-col gap-6 px-6 md:px-8 md:gap-8"
+            className="flex w-full flex-1 flex-col gap-6 px-6 md:gap-8 md:px-8"
             onSubmit={handleSubmit}
           >
             {/* Full Name Input */}
@@ -286,7 +295,8 @@ const EditPersonalInfo: React.FC = () => {
                 </button>
               </div>
               <p className="px-1 text-xs text-slate-500 dark:text-slate-400 md:text-sm">
-                Your Account Number is encrypted for your security. Click the eye icon to reveal.
+                Your Account Number is encrypted for your security. Click the
+                eye icon to reveal.
               </p>
             </div>
 
@@ -295,7 +305,7 @@ const EditPersonalInfo: React.FC = () => {
               <button
                 type="submit"
                 disabled={isPending}
-                className="flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-primary text-lg font-bold text-white shadow-lg shadow-orange-500/20 transition-all hover:bg-orange-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70 md:h-16 md:text-xl md:max-w-[400px] md:mx-auto"
+                className="flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-primary text-lg font-bold text-white shadow-lg shadow-orange-500/20 transition-all hover:bg-orange-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70 md:mx-auto md:h-16 md:max-w-[400px] md:text-xl"
               >
                 {isPending ? (
                   <>
