@@ -78,7 +78,7 @@ const EnterCurrentPin: React.FC<EnterCurrentPinProps> = ({
             Change Transaction PIN
           </h1>
 
-          <p className="text-gray-500 dark:text-gray-400 mb-12 max-w-[280px] text-center text-base leading-relaxed md:mb-14 md:max-w-[320px] md:text-lg">
+          <p className="text-gray-500 dark:text-gray-400 mb-3 max-w-[280px] text-center text-base leading-relaxed md:mb-3 md:max-w-[320px] md:text-lg">
             Enter your current 6-digit PIN to continue.
           </p>
 
@@ -92,7 +92,7 @@ const EnterCurrentPin: React.FC<EnterCurrentPinProps> = ({
           )}
 
           {/* Dots */}
-          <div className="mb-10 flex gap-4 md:mb-12 md:gap-5">
+          <div className=" flex gap-4  md:gap-5">
             {[...Array(6)].map((_, i) => (
               <div
                 key={i}
