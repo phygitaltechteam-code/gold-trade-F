@@ -86,7 +86,7 @@ const SignupStep3FacialVerification: FC<SignupStep3FacialVerificationProps> = ({
   };
 
   return (
-    <div className="dark:bg-gray-950 flex min-h-screen w-full items-center justify-center bg-white font-['Inter'] antialiased selection:bg-[#F57F3D]/30 md:p-6">
+    <div className="dark:bg-gray-950 flex min-h-screen w-full justify-center bg-white font-['Inter'] antialiased selection:bg-[#F57F3D]/30 md:p-6">
       <div className="relative mx-auto w-full max-w-[min(390px,95vw,500px)] overflow-hidden rounded-2xl bg-white dark:bg-[#221610] md:min-h-[700px] md:max-w-[800px]">
         {/* Hidden file input for photo upload */}
         <input

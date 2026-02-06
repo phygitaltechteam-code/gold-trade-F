@@ -1,7 +1,9 @@
+import {useNavigate} from '@tanstack/react-router';
 import React, {useEffect, useState} from 'react';
 
 export const Verification: React.FC = () => {
   const [statusText, setStatusText] = useState('SCANNING DOCUMENTS');
+  const navigate = useNavigate();
   const statuses = [
     'SCANNING DOCUMENTS',
     'VERIFYING BIOMETRICS',
@@ -75,7 +77,9 @@ export const Verification: React.FC = () => {
       <div className="relative z-20 mx-auto w-full max-w-md bg-transparent p-6 pb-12">
         <div className="flex flex-col gap-4">
           <button
-            onClick={() => {}}
+            onClick={() => {
+              navigate({to: '/signin'});
+            }}
             className="hover:bg-primary-dark flex h-14 w-full cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-primary px-5 text-base font-bold leading-normal tracking-[0.015em] text-white shadow-lg shadow-primary/25 transition-all duration-300 active:scale-[0.98]"
           >
             <span className="truncate">Back to Dashboard</span>

@@ -1,4 +1,4 @@
-import {useState, type FC} from 'react';
+import {useState, type FC, useEffect} from 'react';
 
 type KYCPassportData = {
   type: 'Passport';
@@ -12,23 +12,180 @@ interface SignupStep2KYCUploadProps {
   onBack: () => void;
 }
 
+// Validation functions
+const validatePassportNumber = (
+  passportNumber: string,
+): {
+  isValid: boolean;
+  error: string;
+  formattedNumber: string;
+} => {
+  // Trim and normalize
+  const trimmed = passportNumber.trim().toUpperCase();
+  const formattedNumber = trimmed;
+
+  // Check if empty
+  if (!trimmed) {
+    return {
+      isValid: false,
+      error: 'Passport number is required',
+      formattedNumber: trimmed,
+    };
+  }
+
+  // Remove spaces for validation
+  const normalized = trimmed.replace(/\s/g, '');
+
+  // Common passport number patterns by country
+  const patterns = {
+    // US: 9 digits
+    US: /^[0-9]{9}$/,
+    // UK: Starts with letter, followed by 7 numbers
+    UK: /^[0-9]{9}$|^[A-Z][0-9]{7}$|^[A-Z]{2}[0-9]{6}$/,
+    // Canada: Starts with 2 letters, followed by 6 numbers
+    CA: /^[A-Z]{2}[0-9]{6}$/,
+    // Australia: Starts with letter, followed by 7 numbers
+    AU: /^[A-Z][0-9]{7}$/,
+    // New Zealand: Starts with 2 letters, followed by 4 numbers, then 3 letters
+    NZ: /^[A-Z]{2}[0-9]{4}[A-Z]{3}$/,
+    // India: Starts with letter, followed by 7 numbers
+    IN: /^[A-Z][0-9]{7}$/,
+    // Generic: 6-9 alphanumeric characters, starting with a letter
+    GENERIC: /^[A-Z][A-Z0-9]{5,8}$/,
+  };
+
+  // Check against patterns
+  let isValid = false;
+  let error = '';
+
+  // First check specific patterns
+  if (patterns.US.test(normalized)) {
+    isValid = true;
+    error = '';
+  } else if (patterns.UK.test(normalized)) {
+    isValid = true;
+    error = '';
+  } else if (patterns.CA.test(normalized)) {
+    isValid = true;
+    error = '';
+  } else if (patterns.AU.test(normalized)) {
+    isValid = true;
+    error = '';
+  } else if (patterns.NZ.test(normalized)) {
+    isValid = true;
+    error = '';
+  } else if (patterns.IN.test(normalized)) {
+    isValid = true;
+    error = '';
+  } else if (patterns.GENERIC.test(normalized)) {
+    // Generic check - length between 6-9 characters
+    if (normalized.length >= 6 && normalized.length <= 9) {
+      isValid = true;
+      error = '';
+    } else {
+      isValid = false;
+      error = 'Passport number must be 6-9 characters';
+    }
+  } else {
+    isValid = false;
+    error = 'Invalid passport number format';
+  }
+
+  // Additional validation checks
+  if (isValid) {
+    // Check for obviously invalid patterns
+    if (/^0+$/.test(normalized)) {
+      isValid = false;
+      error = 'Invalid passport number';
+    }
+
+    // Check for repeated characters (e.g., AAAAAAAA)
+    if (/([A-Z0-9])\1{7,}/.test(normalized)) {
+      isValid = false;
+      error = 'Invalid passport number pattern';
+    }
+  }
+
+  return {
+    isValid,
+    error,
+    formattedNumber,
+  };
+};
+
+// Format input as user types
+const formatPassportInput = (value: string): string => {
+  // Remove all non-alphanumeric characters and convert to uppercase
+  let cleaned = value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+
+  // Limit length to 12 characters for display
+  if (cleaned.length > 12) {
+    cleaned = cleaned.substring(0, 12);
+  }
+
+  // Add space after every 3 characters for readability (but not for storage)
+  return cleaned.replace(/(.{3})/g, '$1 ').trim();
+};
+
 const SignupStep2KYCUpload: FC<SignupStep2KYCUploadProps> = ({
   initialData,
   onComplete,
   onBack,
 }) => {
   const [docNumber, setDocNumber] = useState(initialData.number);
+  const [formattedDisplay, setFormattedDisplay] = useState(
+    formatPassportInput(initialData.number),
+  );
   const [file, setFile] = useState<File | null>(initialData.file);
+  const [validation, setValidation] = useState({
+    error: '',
+    isValid: false,
+  });
+  const [isTouched, setIsTouched] = useState(false);
+
+  // Validate passport number when it changes
+  useEffect(() => {
+    if (docNumber.trim() || isTouched) {
+      const result = validatePassportNumber(docNumber);
+      setValidation({
+        error: result.error,
+        isValid: result.isValid,
+      });
+    }
+  }, [docNumber, isTouched]);
+
+  const handlePassportChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+
+    // Store raw value (without formatting) for validation
+    const rawValue = inputValue.replace(/\s/g, '').toUpperCase();
+    setDocNumber(rawValue);
+
+    // Set formatted value for display
+    setFormattedDisplay(formatPassportInput(inputValue));
+
+    if (!isTouched) {
+      setIsTouched(true);
+    }
+  };
 
   const handleSubmit = () => {
+    if (!validation.isValid || !file) {
+      // If form is invalid, mark as touched to show errors
+      if (!isTouched) setIsTouched(true);
+      return;
+    }
+
+    const validationResult = validatePassportNumber(docNumber);
+
     onComplete({
       type: 'Passport',
-      number: docNumber,
+      number: validationResult.formattedNumber, // Store formatted (without spaces)
       file,
     });
   };
 
-  const isFormValid = () => docNumber.trim().length > 0 && file !== null;
+  const isFormValid = () => validation.isValid && file !== null;
 
   const formatFileSize = (bytes: number) => {
     if (!bytes) return '0 Bytes';
@@ -38,8 +195,17 @@ const SignupStep2KYCUpload: FC<SignupStep2KYCUploadProps> = ({
     return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
   };
 
+  // Example passport numbers for help text
+  const examplePassports = [
+    'US: 123456789',
+    'UK: 123456789 or A1234567',
+    'CA: AB123456',
+    'AU: A1234567',
+    'NZ: AB1234XYZ',
+  ];
+
   return (
-    <div className="dark:bg-gray-950 flex min-h-screen w-full items-center justify-center bg-white font-['Inter'] antialiased md:p-6">
+    <div className="dark:bg-gray-950 flex min-h-screen w-full justify-center bg-white font-['Inter'] antialiased">
       {/* Main container */}
       <div className="relative mx-auto w-full max-w-[min(390px,95vw,500px)] overflow-hidden rounded-2xl bg-white dark:bg-[#221610] md:min-h-[600px] md:max-w-[700px]">
         {/* Header */}
@@ -86,21 +252,46 @@ const SignupStep2KYCUpload: FC<SignupStep2KYCUploadProps> = ({
                 Passport Number
               </span>
               <input
-                className="border-gray-300 mt-2 w-full rounded-xl border bg-white px-4 py-3.5 outline-none focus:border-[#F57F3D] focus:ring-2 focus:ring-[#F57F3D]/30 dark:border-slate-600 dark:bg-slate-800/80 md:py-4 md:text-lg"
+                className={`border-gray-300 mt-2 w-full rounded-md border bg-white px-4 py-1.5 outline-none transition-all focus:ring-2 dark:border-slate-600 dark:bg-slate-800/80 md:py-2 md:text-lg ${
+                  isTouched && !validation.isValid
+                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500/30'
+                    : validation.isValid
+                      ? 'border-green-500 focus:border-green-500 focus:ring-green-500/30'
+                      : 'focus:border-[#F57F3D] focus:ring-[#F57F3D]/30'
+                }`}
                 placeholder="Enter passport number (e.g. G12345678)"
-                value={docNumber}
-                onChange={(e) => setDocNumber(e.target.value)}
+                value={formattedDisplay}
+                onChange={handlePassportChange}
+                onBlur={() => setIsTouched(true)}
                 maxLength={20}
                 required
               />
-              <p className="mt-1 text-xs text-slate-500 md:text-sm">
-                As shown on your passport (usually 8–9 characters)
-              </p>
+
+              {/* Help text */}
+              <div className="mt-1 flex flex-col gap-1">
+                {isTouched && validation.error && (
+                  <p className="text-xs text-red-600 md:text-sm">
+                    {validation.error}
+                  </p>
+                )}
+
+                {validation.isValid && (
+                  <p className="text-xs text-green-600 md:text-sm">
+                    ✓ Valid passport number format
+                  </p>
+                )}
+
+                {!isTouched && (
+                  <p className="text-xs text-slate-500 md:text-sm">
+                    Enter your passport number exactly as shown on your document
+                  </p>
+                )}
+              </div>
             </label>
           </div>
 
           {/* Upload Section */}
-          <div className="mt-8 md:mt-10">
+          <div className="mt-4">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400 md:text-base">
               Upload Passport
             </h3>
@@ -125,7 +316,13 @@ const SignupStep2KYCUpload: FC<SignupStep2KYCUploadProps> = ({
                 </button>
               </div>
             ) : (
-              <label className="border-gray-300 bg-gray-50 hover:bg-gray-100 mt-4 flex cursor-pointer flex-col items-center rounded-2xl border-2 border-dashed p-6 text-center hover:border-[#F57F3D] md:p-8">
+              <label
+                className={`border-gray-300 bg-gray-50 hover:bg-gray-100 mt-4 flex cursor-pointer flex-col items-center rounded-2xl border-2 border-dashed p-6 text-center md:p-8 ${
+                  isTouched && !file
+                    ? 'hover:border-red-500'
+                    : 'hover:border-[#F57F3D]'
+                }`}
+              >
                 <input
                   type="file"
                   hidden
@@ -141,30 +338,11 @@ const SignupStep2KYCUpload: FC<SignupStep2KYCUploadProps> = ({
                 <p className="text-xs text-slate-500 md:text-sm">
                   JPG, PNG or PDF • Max 10MB
                 </p>
-                <div className="mt-4 flex flex-col items-center gap-2 md:flex-row md:gap-4">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-lg text-slate-400">
-                      photo_camera
-                    </span>
-                    <span className="text-xs text-slate-500">Clear photo</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-lg text-slate-400">
-                      visibility
-                    </span>
-                    <span className="text-xs text-slate-500">
-                      All details visible
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-lg text-slate-400">
-                      light_mode
-                    </span>
-                    <span className="text-xs text-slate-500">
-                      Good lighting
-                    </span>
-                  </div>
-                </div>
+                {isTouched && !file && (
+                  <p className="mt-2 text-xs text-red-600 md:text-sm">
+                    Please upload your passport document
+                  </p>
+                )}
               </label>
             )}
           </div>

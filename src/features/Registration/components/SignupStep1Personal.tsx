@@ -137,7 +137,7 @@ const SignupStep1Personal: FC<SignupStep1PersonalProps> = ({
         } else {
           const dob = new Date(value);
           const today = new Date();
-          const age = today.getFullYear() - dob.getFullYear();
+          let age = today.getFullYear() - dob.getFullYear();
           const monthDiff = today.getMonth() - dob.getMonth();
 
           if (
