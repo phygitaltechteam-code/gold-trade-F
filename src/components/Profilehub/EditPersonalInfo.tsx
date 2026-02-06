@@ -163,7 +163,7 @@ const EditPersonalInfo: React.FC = () => {
           </h1>
         </div>
 
-        <div className="no-scrollbar flex flex-1 flex-col items-center overflow-y-auto pb-6">
+        <div className="flex flex-1 flex-col items-center overflow-hidden">
           {/* Profile Photo Section */}
           <section className="flex flex-col items-center px-6 pb-8 pt-4 md:px-8 md:pt-6">
             <div
@@ -207,7 +207,7 @@ const EditPersonalInfo: React.FC = () => {
 
           {/* Form Section */}
           <form
-            className="flex w-full flex-1 flex-col gap-6 px-6 md:gap-8 md:px-8"
+            className="flex w-full flex-1 flex-col gap-6 overflow-y-auto px-6 pb-32 md:gap-8 md:px-8"
             onSubmit={handleSubmit}
           >
             {/* Full Name Input */}
