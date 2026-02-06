@@ -41,6 +41,7 @@ export interface BeneficiaryFormData {
   relationship: string;
   email: string;
   phoneNumber: string;
+  countryCode: string;
   address: string;
   city: string;
   state: string;
