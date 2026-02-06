@@ -131,8 +131,7 @@ const ChangePassword: React.FC = () => {
   return (
     <div className="dark:bg-gray-950 flex min-h-screen w-full items-center justify-center bg-white">
       {/* Main container */}
-     <div className="relative mx-auto flex h-screen w-full max-w-[min(390px,95vw,500px)] flex-col bg-white dark:bg-[#221610] md:max-w-[600px]">
-
+      <div className="relative mx-auto flex h-screen w-full max-w-[min(390px,95vw,500px)] flex-col bg-white dark:bg-[#221610] md:max-w-[600px]">
         {/* Header */}
         <div className="sticky top-0 z-20 flex items-center justify-between bg-white/95 px-4 py-3 backdrop-blur-md dark:bg-[#221610]/95 md:px-6 md:py-4">
           <button
@@ -404,7 +403,7 @@ const ChangePassword: React.FC = () => {
             </div>
 
             {/* Action Button */}
-            <div className="p-4  mb-15">
+            <div className="mb-15 p-4">
               <button
                 type="submit"
                 disabled={isLoading || !allRequirementsMet}

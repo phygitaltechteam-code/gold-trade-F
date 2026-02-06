@@ -92,7 +92,7 @@ const EnterCurrentPin: React.FC<EnterCurrentPinProps> = ({
           )}
 
           {/* Dots */}
-          <div className=" flex gap-4  md:gap-5">
+          <div className="flex gap-4 md:gap-5">
             {[...Array(6)].map((_, i) => (
               <div
                 key={i}
