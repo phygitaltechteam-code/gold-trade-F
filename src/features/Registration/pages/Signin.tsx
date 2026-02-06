@@ -39,6 +39,7 @@ const Signin: React.FC = () => {
       const newData = JSON.stringify(data, null, 2);
       if (newData) {
         localStorage.setItem('token', newData);
+        console.log('Token saved:', newData);
         setIsAuthenticated(true);
         navigate({
           to: '/dashboard',

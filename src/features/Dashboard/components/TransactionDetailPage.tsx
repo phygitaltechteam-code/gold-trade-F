@@ -125,7 +125,8 @@ export const TransactionDetailPage: React.FC = () => {
   const handleBackToHome = () => {
     navigate({to: '/dashboard'});
   };
-  // NEW: PDF Generation Function with auto-print
+
+  // PDF Generation Function with auto-print
   const handleGeneratePDF = () => {
     if (!originalTransaction) return;
 
@@ -150,7 +151,6 @@ export const TransactionDetailPage: React.FC = () => {
       hour12: true,
     });
 
-    // Get current user/caterer info from localStorage or context
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const catererName = user?.fullname || 'Your Company Name';
     const catererEmail = user?.email || 'support@example.com';
@@ -160,137 +160,173 @@ export const TransactionDetailPage: React.FC = () => {
 <html>
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>Transaction Receipt</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         
         body {
-            padding: 20px;
+            padding: 16px;
             background: white;
             color: #333;
-            font-size: 12px;
+            font-size: 14px;
             line-height: 1.4;
+            -webkit-text-size-adjust: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
         }
         
         .receipt {
-            max-width: 80mm;
+            width: 100%;
+            max-width: 100%;
             margin: 0 auto;
-            padding: 10px;
-            border: 1px solid #ccc;
+            padding: 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        @media (min-width: 640px) {
+            .receipt {
+                max-width: 400px;
+                padding: 20px;
+            }
         }
         
         .header {
             text-align: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px dashed #ccc;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px dashed #cbd5e0;
         }
         
         .company-name {
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 5px;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
             color: #F97316;
+            word-wrap: break-word;
         }
         
         .receipt-title {
-            font-size: 14px;
-            font-weight: bold;
-            margin: 10px 0;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 12px 0;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
         .amount-section {
             text-align: center;
-            margin: 15px 0;
-            padding: 10px;
-            background: #f8f8f8;
-            border-radius: 4px;
+            margin: 20px 0;
+            padding: 20px 16px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
         }
         
         .amount {
-            font-size: 24px;
-            font-weight: bold;
-            margin: 5px 0;
-            color: ${isCredit ? '#10B981' : '#EF4444'};
+            font-size: 28px;
+            font-weight: 800;
+            margin: 8px 0;
+            color: ${isCredit ? '#059669' : '#dc2626'};
+            line-height: 1.2;
+        }
+        
+        @media (min-width: 640px) {
+            .amount {
+                font-size: 32px;
+            }
         }
         
         .status-badge {
             display: inline-block;
-            padding: 4px 10px;
-            background: #10B981;
+            padding: 6px 16px;
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
             color: white;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: bold;
-            margin-top: 5px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 12px;
+            letter-spacing: 0.3px;
         }
         
         .details-section {
-            margin: 15px 0;
+            margin: 20px 0;
         }
         
         .detail-row {
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
-            margin: 8px 0;
-            padding-bottom: 8px;
-            border-bottom: 1px dotted #eee;
+            margin: 12px 0;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f1f5f9;
         }
         
         .detail-label {
-            font-weight: 600;
-            color: #666;
+            font-weight: 500;
+            color: #64748b;
             min-width: 120px;
+            margin-bottom: 4px;
         }
         
         .detail-value {
             text-align: right;
             font-weight: 500;
+            color: #1e293b;
+            flex: 1;
+            min-width: 0;
+            overflow-wrap: break-word;
+            word-break: break-word;
         }
         
         .transaction-id {
-            margin: 15px 0;
-            padding: 10px;
-            background: #f0f0f0;
-            border-radius: 4px;
+            margin: 20px 0;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
             text-align: center;
-            font-family: monospace;
-            font-weight: bold;
-            letter-spacing: 1px;
         }
         
         .footer {
-            margin-top: 20px;
-            padding-top: 10px;
-            border-top: 2px dashed #ccc;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 2px dashed #cbd5e0;
             text-align: center;
-            font-size: 10px;
-            color: #666;
+            font-size: 12px;
+            color: #64748b;
         }
         
         .contact-info {
-            margin-top: 10px;
-            font-size: 10px;
-            color: #888;
+            margin-top: 12px;
+            font-size: 11px;
+            color: #94a3b8;
+            line-height: 1.5;
         }
         
         @media print {
+            @page {
+                size: auto;
+                margin: 5mm;
+            }
             body {
                 padding: 0;
                 margin: 0;
+                font-size: 12px;
             }
-            
             .receipt {
                 border: none;
+                box-shadow: none;
                 max-width: 100%;
+                padding: 0;
             }
-            
             .no-print {
                 display: none !important;
             }
@@ -302,15 +338,15 @@ export const TransactionDetailPage: React.FC = () => {
         <!-- Header -->
         <div class="header">
             <div class="company-name">${catererName}</div>
-            <div style="font-size: 11px; margin-bottom: 5px;">Transaction Receipt</div>
-            <div style="font-size: 10px; color: #666;">Secure Digital Receipt</div>
+            <div style="font-size: 13px; margin-bottom: 4px; color: #475569;">Transaction Receipt</div>
+            <div style="font-size: 11px; color: #94a3b8;">Secure Digital Receipt</div>
         </div>
         
         <!-- Amount -->
         <div class="amount-section">
-            <div style="font-size: 12px; color: #666; margin-bottom: 5px;">Transaction Amount</div>
+            <div style="font-size: 13px; color: #64748b; margin-bottom: 8px;">Transaction Amount</div>
             <div class="amount">${amountSign}$${originalTransaction.amount.toFixed(2)}</div>
-            <div style="font-size: 12px; margin: 5px 0; color: ${isCredit ? '#10B981' : '#EF4444'}; font-weight: bold;">
+            <div style="font-size: 14px; margin: 8px 0; color: ${isCredit ? '#059669' : '#dc2626'}; font-weight: 600;">
                 ${transactionType} • ${originalTransaction.amountType}
             </div>
             <div class="status-badge">COMPLETED</div>
@@ -383,16 +419,17 @@ export const TransactionDetailPage: React.FC = () => {
         
         <!-- Transaction ID -->
         <div class="transaction-id">
-            <div style="font-size: 10px; margin-bottom: 5px; color: #666;">Transaction ID</div>
-            <div style="font-size: 14px;">${originalTransaction.id.toUpperCase()}</div>
+            <div style="font-size: 11px; margin-bottom: 8px; color: #64748b;">Transaction ID</div>
+            <div style="font-size: 16px; font-weight: 700; letter-spacing: 0.5px; word-break: break-all;">${originalTransaction.id.toUpperCase()}</div>
         </div>
         
         <!-- Footer -->
         <div class="footer">
-            <div>Thank you for your transaction</div>
-            <div>This is an official digital receipt</div>
+            <div style="margin-bottom: 8px;">Thank you for your transaction</div>
+            <div style="margin-bottom: 12px;">This is an official digital receipt</div>
             <div class="contact-info">
-                ${catererEmail} • ${catererPhone}<br>
+                ${catererEmail}<br>
+                ${catererPhone}<br>
                 Generated on ${new Date().toLocaleDateString('en-GB', {
                   day: '2-digit',
                   month: 'short',
@@ -407,33 +444,33 @@ export const TransactionDetailPage: React.FC = () => {
     
     <!-- Auto-print script -->
     <script>
-        // Wait for content to load, then auto-print
-        window.onload = function() {
+        (function() {
+            // Wait for content to load, then auto-print
             setTimeout(function() {
-                window.print();
+                try {
+                    window.print();
+                } catch (e) {
+                    console.log('Print failed:', e);
+                }
+                
                 // Close window after printing (optional)
                 setTimeout(function() {
-                    window.close();
+                    try {
+                        window.close();
+                    } catch (e) {
+                        // Window might not be allowed to close
+                    }
                 }, 1000);
-            }, 500);
-        }
-        
-        // Fallback for browsers that block auto-print
-        document.onkeydown = function(e) {
-            if (e.ctrlKey && e.key === 'p') {
-                e.preventDefault();
-                window.print();
-            }
-        }
+            }, 300);
+        })();
     </script>
 </body>
 </html>`;
 
-    // Open in new window
     const printWindow = window.open(
       '',
       '_blank',
-      'width=400,height=600,scrollbars=no,resizable=no',
+      'width=500,height=700,scrollbars=no,resizable=no',
     );
 
     if (!printWindow) {
@@ -447,141 +484,39 @@ export const TransactionDetailPage: React.FC = () => {
     printWindow.document.title = `Receipt_${originalTransaction.id.slice(0, 8)}`;
     printWindow.document.close();
 
-    // Focus the window
-    setTimeout(() => {
-      try {
-        printWindow.focus();
-      } catch (e) {}
-      setIsPDFLoading(false);
-    }, 300);
-  };
-
-  // Also add a direct print button without PDF view
-  const handleDirectPrint = () => {
-    if (!originalTransaction) return;
-
-    setIsPDFLoading(true);
-
-    const isCredit = originalTransaction.type === 'CREDIT';
-    const amountSign = isCredit ? '' : '';
-    const userName = originalTransaction?.user?.fullname || 'Unknown User';
-
-    const transactionDate = new Date(originalTransaction.createdAt);
-    const formattedDate = transactionDate.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-    const formattedTime = transactionDate.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
-    });
-
-    // Get user/caterer info
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const catererName = user?.fullname || 'Your Company';
-
-    // Create a simple print template
-    const printContent = `
-    <html>
-      <head>
-        <title>Transaction Receipt</title>
-        <style>
-          body { font-family: Arial, sans-serif; padding: 20px; }
-          .receipt { max-width: 300px; margin: 0 auto; }
-          .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #F97316; padding-bottom: 10px; }
-          .company-name { font-size: 18px; font-weight: bold; color: #F97316; }
-          .amount { font-size: 28px; font-weight: bold; text-align: center; margin: 20px 0; color: ${isCredit ? '#10B981' : '#EF4444'}; }
-          .details { margin: 20px 0; }
-          .detail-row { display: flex; justify-content: space-between; margin: 8px 0; padding-bottom: 8px; border-bottom: 1px dotted #ddd; }
-          .label { font-weight: bold; color: #666; }
-          .value { text-align: right; }
-          .footer { margin-top: 30px; text-align: center; font-size: 11px; color: #888; border-top: 1px solid #ddd; padding-top: 10px; }
-          @media print {
-            body { padding: 0; margin: 0; }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="receipt">
-          <div class="header">
-            <div class="company-name">${catererName}</div>
-            <div style="font-size: 14px; margin-top: 5px;">TRANSACTION RECEIPT</div>
-          </div>
-          
-          <div class="amount">${amountSign}$${originalTransaction.amount.toFixed(2)}</div>
-          
-          <div class="details">
-            <div class="detail-row">
-              <span class="label">Type:</span>
-              <span class="value">${originalTransaction.type}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">${isCredit ? 'From' : 'To'}:</span>
-              <span class="value">${userName}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">Description:</span>
-              <span class="value">${originalTransaction.particular}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">Date:</span>
-              <span class="value">${formattedDate}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">Time:</span>
-              <span class="value">${formattedTime}</span>
-            </div>
-          </div>
-        </div>
-        
-        <script>
-          window.onload = function() {
-            window.print();
-            setTimeout(() => {
-              window.close();
-            }, 500);
-          };
-        <\/script>
-      </body>
-    </html>
-  `;
-
-    const printWindow = window.open('', '_blank', 'width=1000,height=900');
-    if (printWindow) {
-      printWindow.document.write(printContent);
-      printWindow.document.close();
-    }
     setIsPDFLoading(false);
   };
 
+  // Loading State
   if (isLoading) {
     return (
-      <div className="bg-background-light dark:bg-background-dark flex min-h-screen flex-col items-center justify-center">
-        <div className="h-16 w-16 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-        <p className="mt-4 text-slate-600 dark:text-slate-300">
-          Loading transaction details...
-        </p>
+      <div className="bg-background-light dark:bg-background-dark flex min-h-screen w-full items-center justify-center p-4">
+        <div className="flex flex-col items-center justify-center">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent sm:h-16 sm:w-16"></div>
+          <p className="mt-4 text-base text-slate-600 dark:text-slate-300">
+            Loading transaction details...
+          </p>
+        </div>
       </div>
     );
   }
 
+  // Error State
   if (isError) {
     return (
-      <div className="bg-background-light dark:bg-background-dark flex min-h-screen flex-col items-center justify-center px-6">
-        <div className="rounded-lg bg-red-50 p-6 dark:bg-red-900/20">
+      <div className="bg-background-light dark:bg-background-dark flex min-h-screen w-full items-center justify-center p-4">
+        <div className="w-full max-w-md rounded-lg bg-red-50 p-6 dark:bg-red-900/20">
           <MdError className="mx-auto mb-3 h-12 w-12 text-red-600 dark:text-red-400" />
-          <p className="mb-2 text-red-600 dark:text-red-400">
+          <p className="mb-2 text-center text-red-600 dark:text-red-400">
             Failed to load transaction
           </p>
-          <p className="mb-4 text-sm text-red-500 dark:text-red-300">
+          <p className="mb-4 text-center text-sm text-red-500 dark:text-red-300">
             {error?.message ||
               'An error occurred while loading transaction details'}
           </p>
           <button
             onClick={handleBackToHome}
-            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-white hover:bg-orange-600"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-white hover:bg-orange-600"
           >
             <MdArrowBack />
             Back to Dashboard
@@ -591,9 +526,10 @@ export const TransactionDetailPage: React.FC = () => {
     );
   }
 
+  // Not Found State
   if (!apiTransactionData || !transaction) {
     return (
-      <div className="bg-background-light dark:bg-background-dark flex min-h-screen flex-col items-center justify-center px-6">
+      <div className="bg-background-light dark:bg-background-dark flex min-h-screen w-full items-center justify-center p-4">
         <div className="text-center">
           <div className="mb-4 inline-block rounded-full bg-slate-100 p-6 dark:bg-slate-800">
             <MdHourglassEmpty className="h-12 w-12 text-slate-400 dark:text-slate-500" />
@@ -604,7 +540,7 @@ export const TransactionDetailPage: React.FC = () => {
           </p>
           <button
             onClick={handleBackToHome}
-            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-white hover:bg-orange-600"
+            className="flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-white hover:bg-orange-600"
           >
             <MdArrowBack />
             Back to Dashboard
@@ -622,35 +558,38 @@ export const TransactionDetailPage: React.FC = () => {
   // ========== PENDING STATUS DESIGN ==========
   if (transaction?.status === 'Pending') {
     return (
-      <div className="font-display bg-background-light dark:bg-background-dark flex min-h-screen flex-col overflow-hidden text-slate-900 dark:text-white">
+      <div className="bg-background-light dark:bg-background-dark flex min-h-screen w-full flex-col text-slate-900 dark:text-white">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4">
+        <div className="flex w-full items-center justify-between p-4 sm:p-6">
           <button
             onClick={handleBackToHome}
-            className="flex size-10 items-center justify-center rounded-full bg-slate-100 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 sm:h-12 sm:w-12"
           >
-            <MdArrowBack className="text-2xl" />
+            <MdArrowBack className="text-xl sm:text-2xl" />
           </button>
-          <h2 className="text-lg font-bold">Transfer Under Process</h2>
-          <div className="w-10"></div>
+          <h2 className="text-lg font-bold sm:text-xl">
+            Transfer Under Process
+          </h2>
+          <div className="w-10 sm:w-12"></div>
         </div>
 
-        <main className="flex flex-1 flex-col items-center justify-center px-6 text-center">
+        {/* Main Content */}
+        <main className="flex flex-1 flex-col items-center justify-center px-4 text-center sm:px-6">
           {/* Animated Spinner */}
-          <div className="relative mb-10 flex items-center justify-center">
-            <div className="h-32 w-32 animate-spin rounded-full border-4 border-primary/10 border-t-primary"></div>
-            <div className="absolute flex h-20 w-20 items-center justify-center rounded-full border border-slate-100 bg-white shadow-lg dark:border-slate-800 dark:bg-slate-900">
-              <MdAccountBalance className="text-[40px] text-primary" />
+          <div className="relative mb-8 flex items-center justify-center sm:mb-10">
+            <div className="h-24 w-24 animate-spin rounded-full border-4 border-primary/10 border-t-primary sm:h-32 sm:w-32"></div>
+            <div className="absolute flex h-16 w-16 items-center justify-center rounded-full border border-slate-100 bg-white shadow-lg dark:border-slate-800 dark:bg-slate-900 sm:h-20 sm:w-20">
+              <MdAccountBalance className="text-[32px] text-primary sm:text-[40px]" />
             </div>
           </div>
 
-          <div className="space-y-4">
-            <h2 className="text-2xl font-extrabold tracking-tight">
+          <div className="w-full max-w-md space-y-4">
+            <h2 className="text-xl font-extrabold tracking-tight sm:text-2xl">
               Transfer in Progress
             </h2>
 
-            <div className="rounded-2xl border border-blue-100/50 bg-blue-50/50 px-6 py-4 dark:border-blue-800/50 dark:bg-blue-900/10">
-              <p className="mb-1 text-lg font-semibold">
+            <div className="w-full rounded-2xl border border-blue-100/50 bg-blue-50/50 p-4 dark:border-blue-800/50 dark:bg-blue-900/10 sm:p-6">
+              <p className="mb-1 text-lg font-semibold sm:text-xl">
                 ${transaction.amount.toFixed(2)}
               </p>
               <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -662,36 +601,40 @@ export const TransactionDetailPage: React.FC = () => {
               </p>
             </div>
 
-            <div className="inline-flex items-center gap-2 rounded-full bg-yellow-100 px-3 py-1 text-sm font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
+            <div className="inline-flex items-center gap-2 rounded-full bg-yellow-100 px-3 py-1.5 text-sm font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
               <div className="h-2 w-2 animate-pulse rounded-full bg-yellow-500"></div>
-              Awaiting Admin Approval
+              Awaiting For Approval
             </div>
 
-            <p className="mx-auto max-w-xs text-base leading-relaxed text-slate-600 dark:text-slate-400">
+            <p className="mx-auto max-w-xs text-sm leading-relaxed text-slate-600 dark:text-slate-400 sm:text-base">
               We are securely processing your{' '}
               {apiTransactionData.type === 'CREDIT' ? 'top-up' : 'transfer'}
               {apiTransactionData.type === 'CREDIT'
                 ? ' to your account'
                 : ` to ${userName}`}
-              . This usually takes 2-5 minutes. Please do not close the app.
             </p>
           </div>
 
           {/* Progress Bar */}
-          <div className="mt-8 h-1 w-full max-w-[200px] overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+          <div className="mt-6 h-1 w-full max-w-[200px] overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800 sm:mt-8">
             <div className="h-full w-2/3 animate-pulse rounded-full bg-primary"></div>
           </div>
         </main>
 
-        <footer className="bg-transparent p-6">
+        {/* Footer */}
+        <footer className="w-full p-4 sm:p-6">
           <div className="mx-auto max-w-md">
-            <button className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-primary/10 py-4 font-semibold text-primary transition-colors hover:bg-primary/5 active:bg-primary/10">
-              <MdCall className="text-xl" />
-              <span>Need help? Call Support</span>
+            <button className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-primary/10 py-3.5 font-semibold text-primary transition-colors hover:bg-primary/5 active:bg-primary/10 sm:py-4">
+              <MdCall className="text-lg sm:text-xl" />
+              <span className="text-sm sm:text-base">
+                Need help? Call Support
+              </span>
             </button>
-            <div className="mt-6 flex items-center justify-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-              <MdLock className="text-[14px]" />
-              <span>Secure End-to-End Encryption</span>
+            <div className="mt-4 flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 sm:mt-6">
+              <MdLock className="text-sm sm:text-[14px]" />
+              <span className="text-xs sm:text-[11px]">
+                Secure End-to-End Encryption
+              </span>
             </div>
           </div>
         </footer>
@@ -707,50 +650,50 @@ export const TransactionDetailPage: React.FC = () => {
       : 'Transfer Successful';
 
     return (
-      <div className="bg-background-light dark:bg-background-dark font-display relative flex min-h-screen flex-col overflow-hidden text-slate-900 dark:text-white">
+      <div className="bg-background-light dark:bg-background-dark relative flex min-h-screen w-full flex-col text-slate-900 dark:text-white">
         {/* Background Effects */}
         <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-          <div className="absolute -right-[10%] -top-[10%] h-[50%] w-[80%] rounded-full bg-blue-100/40 blur-[80px] dark:bg-blue-900/10"></div>
-          <div className="absolute -left-[10%] top-[20%] h-[40%] w-[60%] rounded-full bg-orange-100/50 blur-[70px] dark:bg-orange-900/10"></div>
-          <div className="dark:from-background-dark absolute bottom-0 left-0 h-[20%] w-full bg-gradient-to-t from-white/90 to-transparent dark:to-transparent"></div>
+          <div className="absolute -right-[10%] -top-[10%] h-[40%] w-[80%] rounded-full bg-blue-100/40 blur-[80px] dark:bg-blue-900/10"></div>
+          <div className="absolute -left-[10%] top-[20%] h-[30%] w-[60%] rounded-full bg-orange-100/50 blur-[70px] dark:bg-orange-900/10"></div>
         </div>
 
         {/* Header */}
-        <div className="relative z-10 flex items-center justify-between px-6 py-4">
+        <div className="relative z-10 flex w-full items-center justify-between p-4 sm:p-6">
           <button
             onClick={handleBackToHome}
-            className="flex size-10 items-center justify-center rounded-full bg-slate-100 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 sm:h-12 sm:w-12"
           >
-            <MdArrowBack className="text-2xl" />
+            <MdArrowBack className="text-xl sm:text-2xl" />
           </button>
-          <h2 className="text-lg font-bold">Transaction Details</h2>
-          <div className="w-10"></div>
+          <h2 className="text-lg font-bold sm:text-xl">Transaction Details</h2>
+          <div className="w-10 sm:w-12"></div>
         </div>
 
-        <main className="relative z-10 mx-auto flex w-full max-w-md flex-1 flex-col items-center px-6 pb-8 pt-8">
+        {/* Main Content */}
+        <main className="relative z-10 flex flex-1 flex-col items-center px-4 pb-4 pt-4 sm:px-6 sm:pb-8 sm:pt-8">
           {/* Success Icon */}
-          <div className="group relative mb-6">
+          <div className="group relative mb-4 sm:mb-6">
             <div className="absolute inset-0 scale-125 transform rounded-full bg-primary/20 blur-xl transition-transform duration-700 group-hover:scale-150"></div>
             <div className="relative rounded-full bg-white p-2 shadow-sm ring-1 ring-slate-100 dark:bg-slate-800 dark:ring-slate-700">
-              <MdCheckCircle className="block text-[72px] text-primary" />
+              <MdCheckCircle className="block text-[56px] text-primary sm:text-[72px]" />
             </div>
           </div>
 
-          <h1 className="mb-2 text-2xl font-bold tracking-tight">
+          <h1 className="mb-2 text-xl font-bold tracking-tight sm:text-2xl">
             {transactionTitle}
           </h1>
 
-          <div className="mb-10 mt-2 text-center">
-            <span className="text-4xl font-extrabold tracking-tight">
-              {isCredit}${transaction.amount.toFixed(2)}
+          <div className="mb-6 mt-2 text-center sm:mb-10">
+            <span className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+              {isCredit ? '+' : '-'}${transaction.amount.toFixed(2)}
             </span>
           </div>
 
           {/* Transaction Details Card */}
-          <div className="mb-auto w-full rounded-2xl border border-white/60 bg-white/80 p-6 shadow-sm backdrop-blur-md dark:border-slate-700 dark:bg-slate-800/80">
-            <div className="space-y-4">
-              {/* Destination Account */}
-              <div className="group flex items-center justify-between text-sm">
+          <div className="mb-auto w-full max-w-md rounded-2xl border border-white/60 bg-white/80 p-4 shadow-sm backdrop-blur-md dark:border-slate-700 dark:bg-slate-800/80 sm:p-6">
+            <div className="space-y-3 sm:space-y-4">
+              {/* Account Type */}
+              <div className="flex items-center justify-between text-sm">
                 <span className="font-medium text-slate-500 dark:text-slate-400">
                   Account Type
                 </span>
@@ -792,14 +735,14 @@ export const TransactionDetailPage: React.FC = () => {
                   Transaction ID
                 </span>
                 <div className="flex items-center gap-1.5">
-                  <span className="font-mono font-bold tracking-tight">
+                  <span className="font-mono text-xs font-bold tracking-tight sm:text-sm">
                     {apiTransactionData.id.slice(0, 8).toUpperCase()}
                   </span>
                   <button
                     onClick={handleCopyId}
                     className="relative text-slate-400 transition-colors hover:text-primary"
                   >
-                    <MdContentCopy className="text-[16px]" />
+                    <MdContentCopy className="text-[14px] sm:text-[16px]" />
                     {copied && (
                       <span className="absolute -top-8 right-0 rounded bg-green-500 px-2 py-1 text-xs text-white">
                         Copied!
@@ -810,15 +753,15 @@ export const TransactionDetailPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Receipt Section with Eye Icon for PDF View */}
+            {/* Receipt Section */}
             <div
               onClick={handleGeneratePDF}
-              className="group mt-6 flex cursor-pointer items-center gap-3 rounded-xl border border-slate-100 bg-slate-50/80 p-3 transition-colors hover:bg-slate-100 dark:border-slate-700 dark:bg-black/20 dark:hover:bg-slate-800/30"
+              className="group mt-4 flex cursor-pointer items-center gap-3 rounded-xl border border-slate-100 bg-slate-50/80 p-3 transition-colors hover:bg-slate-100 dark:border-slate-700 dark:bg-black/20 dark:hover:bg-slate-800/30 sm:mt-6"
             >
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-white text-primary shadow-sm transition-transform group-hover:scale-105 dark:bg-slate-800">
-                <MdReceiptLong />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-primary shadow-sm transition-transform group-hover:scale-105 dark:bg-slate-800">
+                <MdReceiptLong className="text-lg" />
               </div>
-              <div className="flex-1 overflow-hidden">
+              <div className="min-w-0 flex-1 overflow-hidden">
                 <p className="truncate text-sm font-bold">
                   Transaction_Receipt_{apiTransactionData.id.slice(0, 8)}.pdf
                 </p>
@@ -826,37 +769,35 @@ export const TransactionDetailPage: React.FC = () => {
                   PDF • Click to view receipt
                 </p>
               </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleGeneratePDF();
-                  }}
-                  className="p-2 text-slate-400 transition-colors hover:text-primary"
-                  disabled={isPDFLoading}
-                >
-                  {isPDFLoading ? (
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
-                  ) : (
-                    <MdVisibility className="text-[16px]" />
-                  )}
-                </button>
-              </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleGeneratePDF();
+                }}
+                className="p-2 text-slate-400 transition-colors hover:text-primary"
+                disabled={isPDFLoading}
+              >
+                {isPDFLoading ? (
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+                ) : (
+                  <MdVisibility className="text-[16px]" />
+                )}
+              </button>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="mt-8 w-full space-y-3">
+          <div className="mt-6 w-full max-w-md space-y-3 sm:mt-8">
             <button
               onClick={handleShareReceipt}
-              className="flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-primary text-lg font-bold text-white shadow-lg shadow-primary/30 transition-all hover:bg-orange-600 active:scale-[0.98]"
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-base font-bold text-white shadow-lg shadow-primary/30 transition-all hover:bg-orange-600 active:scale-[0.98] sm:h-14 sm:text-lg"
             >
-              Share Receipt
-              <MdShare className="text-[20px]" />
+              <span>Share Receipt</span>
+              <MdShare className="text-lg sm:text-[20px]" />
             </button>
             <button
               onClick={handleBackToHome}
-              className="flex h-14 w-full items-center justify-center rounded-xl bg-transparent text-lg font-semibold text-slate-500 transition-all hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+              className="flex h-12 w-full items-center justify-center rounded-xl bg-transparent text-base font-semibold text-slate-500 transition-all hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white sm:h-14 sm:text-lg"
             >
               Back to Dashboard
             </button>
@@ -871,38 +812,39 @@ export const TransactionDetailPage: React.FC = () => {
     const isCredit = apiTransactionData.type === 'CREDIT';
 
     return (
-      <div className="font-display bg-background-light dark:bg-background-dark flex min-h-screen flex-col">
+      <div className="bg-background-light dark:bg-background-dark flex min-h-screen w-full flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4">
+        <div className="flex w-full items-center justify-between p-4 sm:p-6">
           <button
             onClick={handleBackToHome}
-            className="flex size-10 items-center justify-center rounded-full bg-slate-100 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 sm:h-12 sm:w-12"
           >
-            <MdArrowBack className="text-2xl" />
+            <MdArrowBack className="text-xl sm:text-2xl" />
           </button>
-          <h2 className="text-lg font-bold">Transaction Failed</h2>
-          <div className="w-10"></div>
+          <h2 className="text-lg font-bold sm:text-xl">Transaction Failed</h2>
+          <div className="w-10 sm:w-12"></div>
         </div>
 
-        <main className="flex flex-1 flex-col items-center justify-center px-6 text-center">
+        {/* Main Content */}
+        <main className="flex flex-1 flex-col items-center justify-center px-4 text-center sm:px-6">
           {/* Error Icon */}
-          <div className="relative mb-8">
-            <div className="h-28 w-28 rounded-full border-4 border-red-500/10"></div>
+          <div className="relative mb-6 sm:mb-8">
+            <div className="h-20 w-20 rounded-full border-4 border-red-500/10 sm:h-28 sm:w-28"></div>
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="rounded-full bg-white p-4 shadow-lg dark:bg-slate-800">
-                <MdCancel className="text-[48px] text-red-600" />
+              <div className="rounded-full bg-white p-3 shadow-lg dark:bg-slate-800 sm:p-4">
+                <MdCancel className="text-[36px] text-red-600 sm:text-[48px]" />
               </div>
             </div>
           </div>
 
-          <div className="space-y-4">
-            <h2 className="text-2xl font-extrabold tracking-tight">
+          <div className="w-full max-w-md space-y-4">
+            <h2 className="text-xl font-extrabold tracking-tight sm:text-2xl">
               Transaction Rejected
             </h2>
 
-            <div className="rounded-2xl border border-red-100/50 bg-red-50/50 px-6 py-4 dark:border-red-800/50 dark:bg-red-900/10">
-              <p className="mb-1 text-lg font-semibold text-red-600 dark:text-red-400">
-                {isCredit}${transaction.amount.toFixed(2)}
+            <div className="w-full rounded-2xl border border-red-100/50 bg-red-50/50 p-4 dark:border-red-800/50 dark:bg-red-900/10 sm:p-6">
+              <p className="mb-1 text-lg font-semibold text-red-600 dark:text-red-400 sm:text-xl">
+                {isCredit ? '+' : '-'}${transaction.amount.toFixed(2)}
               </p>
               <p className="text-sm text-slate-500 dark:text-slate-400">
                 {transaction.title || apiTransactionData.particular}
@@ -913,14 +855,14 @@ export const TransactionDetailPage: React.FC = () => {
             </div>
 
             {/* Rejection Reason */}
-            <div className="mt-4 rounded-xl border border-red-100 bg-red-50 p-4 dark:border-red-800/30 dark:bg-red-900/20">
+            <div className="mt-4 w-full rounded-xl border border-red-100 bg-red-50 p-4 dark:border-red-800/30 dark:bg-red-900/20 sm:mt-6">
               <div className="flex items-start gap-3">
-                <MdError className="mt-0.5 flex-shrink-0 text-xl text-red-600 dark:text-red-400" />
+                <MdError className="mt-0.5 flex-shrink-0 text-lg text-red-600 dark:text-red-400 sm:text-xl" />
                 <div className="text-left">
-                  <p className="mb-1 font-medium text-red-800 dark:text-red-300">
+                  <p className="mb-1 text-sm font-medium text-red-800 dark:text-red-300 sm:text-base">
                     Transaction Declined
                   </p>
-                  <p className="text-sm text-red-600 dark:text-red-400">
+                  <p className="text-xs text-red-600 dark:text-red-400 sm:text-sm">
                     {rejectReason ||
                       'Your transaction was rejected. This could be due to insufficient funds, security concerns, or account restrictions.'}
                   </p>
@@ -928,33 +870,38 @@ export const TransactionDetailPage: React.FC = () => {
               </div>
             </div>
 
-            <p className="mx-auto max-w-xs text-base leading-relaxed text-slate-600 dark:text-slate-400">
+            <p className="mx-auto text-sm leading-relaxed text-slate-600 dark:text-slate-400 sm:text-base">
               Please check your account details and try again, or contact
               support for assistance.
             </p>
           </div>
 
           {/* Action Buttons */}
-          <div className="mt-8 w-full max-w-xs space-y-3">
+          <div className="mt-6 w-full max-w-md space-y-3 sm:mt-8">
             <button
               onClick={handleBackToHome}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 font-semibold text-white transition-colors hover:bg-orange-600"
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 font-semibold text-white transition-colors hover:bg-orange-600 sm:h-14"
             >
               <MdRefresh />
-              Try Another Transaction
+              <span className="text-sm sm:text-base">
+                Try Another Transaction
+              </span>
             </button>
-            <button className="flex w-full items-center justify-center gap-2 rounded-xl bg-transparent py-3 font-semibold text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white">
+            <button className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-transparent py-3 font-semibold text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white sm:h-14">
               <MdCall />
-              Contact Support
+              <span className="text-sm sm:text-base">Contact Support</span>
             </button>
           </div>
         </main>
 
-        <footer className="bg-transparent p-6">
+        {/* Footer */}
+        <footer className="w-full p-4 sm:p-6">
           <div className="mx-auto max-w-md">
-            <div className="flex items-center justify-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-              <MdLock className="text-[14px]" />
-              <span>Secure End-to-End Encryption</span>
+            <div className="flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+              <MdLock className="text-sm sm:text-[14px]" />
+              <span className="text-xs sm:text-[11px]">
+                Secure End-to-End Encryption
+              </span>
             </div>
           </div>
         </footer>
@@ -964,8 +911,8 @@ export const TransactionDetailPage: React.FC = () => {
 
   // ========== DEFAULT/OTHER STATUS ==========
   return (
-    <div className="bg-background-light dark:bg-background-dark flex min-h-screen flex-col items-center justify-center px-6">
-      <div className="text-center">
+    <div className="bg-background-light dark:bg-background-dark flex min-h-screen w-full flex-col items-center justify-center p-4">
+      <div className="w-full max-w-md text-center">
         <div className="mb-4 inline-block rounded-full bg-slate-100 p-6 dark:bg-slate-800">
           <MdHourglassEmpty className="h-12 w-12 text-slate-400 dark:text-slate-500" />
         </div>
@@ -985,7 +932,7 @@ export const TransactionDetailPage: React.FC = () => {
         </div>
         <button
           onClick={handleBackToHome}
-          className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-white hover:bg-orange-600"
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-white hover:bg-orange-600"
         >
           <MdArrowBack />
           Back to Dashboard
