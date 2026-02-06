@@ -22,6 +22,9 @@ const TopUpScreen: React.FC<TopUpScreenProps> = ({onBack, onContinue}) => {
   const [isInputActive, setIsInputActive] = useState<boolean>(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Maximum amount: 10 crores (100,000,000)
+  const MAX_AMOUNT = 100000000;
 
   // Handle keypad button press
   const handleKeyPress = (key: string) => {
@@ -40,7 +43,9 @@ const TopUpScreen: React.FC<TopUpScreenProps> = ({onBack, onContinue}) => {
     }
 
     const parts = currentValue.split('.');
-    if (parts[0].length >= 9 && key !== '.' && key !== '0') {
+    
+    // Allow up to 9 digits (for 10 crores: 100,000,000 has 9 digits)
+    if (parts[0].length >= 9 && key !== '.' && !parts[1]) {
       return;
     }
 
@@ -95,7 +100,7 @@ const TopUpScreen: React.FC<TopUpScreenProps> = ({onBack, onContinue}) => {
     const amount = formattedValue();
     const numericValue = getNumericValue();
 
-    if (numericValue > 0 && onContinue) {
+    if (numericValue > 0 && numericValue <= MAX_AMOUNT && onContinue) {
       onContinue(amount, accountType, selectedFile || undefined);
     }
   };

@@ -500,7 +500,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
   return (
     <div className="flex h-screen flex-col bg-white">
       {/* Header - Mobile Optimized */}
-      {/* <header className="sticky top-0 z-50 flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3">
+      <header className="sticky top-0 z-50 flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3">
         <button
           onClick={() => navigate({to: '/dashboard'})}
           className="flex h-10 w-10 items-center justify-center rounded-full text-slate-700 hover:bg-slate-100"
@@ -516,7 +516,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
         <button className="flex h-10 w-10 items-center justify-center rounded-full text-slate-700 hover:bg-slate-100">
           <MdSettings size={22} />
         </button>
-      </header> */}
+      </header>
 
       {/* Balance Section - Mobile Optimized */}
       <section className="px-4 py-4">
