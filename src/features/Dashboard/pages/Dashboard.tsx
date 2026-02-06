@@ -88,14 +88,16 @@ const Dashboard: React.FC = () => {
 
   return (
     <>
-      <div className="bg-background-light dark:bg-background-dark relative mx-auto flex h-full w-full max-w-md flex-col overflow-x-hidden shadow-2xl">
-        <div className="h-2 w-full bg-transparent" />
-        <Header />
-        <main className="flex flex-1 flex-col">
-          <CardCarousel cards={walletCards} />
-          <QuickActions />
-          <TransactionList transactions={transactions} />
-        </main>
+      <div className="bg-gray-50 flex min-h-screen items-start justify-center pt-0">
+        <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-white shadow-2xl md:rounded-3xl">
+          <div className="h-2 w-full bg-transparent" />
+          <Header />
+          <main className="flex flex-1 flex-col">
+            <CardCarousel cards={walletCards} />
+            <QuickActions />
+            <TransactionList transactions={transactions} />
+          </main>
+        </div>
       </div>
       <Footer />
     </>

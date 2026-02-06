@@ -93,7 +93,7 @@ const AddBeneficiary: React.FC = () => {
   ];
 
   return (
-    <div className="font-sans relative mx-auto flex h-full min-h-screen w-full max-w-md flex-col bg-white shadow-xl dark:bg-[#1e1e1e] md:max-w-2xl">
+    <div className="relative mx-auto flex h-screen w-full flex-col bg-white shadow-xl dark:bg-[#1e1e1e]">
       <div className="border-gray-100 dark:border-gray-800 sticky top-0 z-30 flex items-center justify-between border-b bg-white/95 px-4 pb-2 pt-4 backdrop-blur-sm dark:bg-[#1e1e1e]/95">
         <button
           className="text-text-main hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center rounded-full p-2 transition-colors dark:text-white"
@@ -109,7 +109,7 @@ const AddBeneficiary: React.FC = () => {
 
       <ProgressBar step={1} total={3} label="Beneficiary Details" />
 
-      <main className="flex-1 px-5 pb-10 pt-2 md:px-10">
+      <main className="flex-1 overflow-y-auto px-5 pb-24 pt-2 md:px-10">
         <FormProvider {...methods}>
           <form
             onSubmit={methods.handleSubmit(onSubmit, onError)}

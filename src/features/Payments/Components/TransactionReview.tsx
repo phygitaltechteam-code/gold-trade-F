@@ -389,8 +389,8 @@ const TransferReviewScreen: React.FC<props> = ({
 
   return (
     <div className="bg-background-light font-sans flex min-h-screen justify-center text-slate-900">
-      <div className="bg-background-light w-full sm:px-6 lg:px-8 xl:max-w-6xl">
-        <div className="min-h-[calc(100vh-3rem)] rounded-3xl bg-white shadow-2xl">
+      <div className="bg-background-light w-full">
+        <div className="min-h-screen rounded-3xl bg-white shadow-2xl">
           <header className="rounded-t-3xl border-b border-slate-200 px-6 py-4 lg:px-8">
             <div className="flex items-center justify-between">
               <button
