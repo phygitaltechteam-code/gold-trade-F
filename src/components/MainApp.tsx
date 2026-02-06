@@ -1,31 +1,36 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Link, useNavigate} from '@tanstack/react-router';
 
 export default function MainApp() {
   const nevigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  // Close menu when clicking outside or pressing escape
+  const menuRef = useRef<HTMLDivElement>(null); // ← add this
+
   useEffect(() => {
-    const handleEscape = (e) => {
+    const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setIsMenuOpen(false);
         setIsSearchOpen(false);
       }
     };
 
-    const handleClickOutside = (e) => {
-      if (isMenuOpen && !e.target.closest('nav')) {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        isMenuOpen &&
+        menuRef.current &&
+        !menuRef.current.contains(e.target as Node)
+      ) {
         setIsMenuOpen(false);
       }
     };
 
     document.addEventListener('keydown', handleEscape);
-    document.addEventListener('click', handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside); // mousedown is often better
 
     return () => {
       document.removeEventListener('keydown', handleEscape);
-      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isMenuOpen]);
   return (
@@ -102,13 +107,10 @@ export default function MainApp() {
 
           {/* Desktop CTA Buttons - Hidden on Mobile */}
           <div className="hidden items-center gap-4 md:flex">
-            <button className="text-text-secondary hover:bg-background-subtle hidden size-10 items-center justify-center rounded-full transition-colors hover:text-primary lg:flex">
-              <span className="material-symbols-outlined">search</span>
-            </button>
             <div className="flex gap-3">
               <Link
                 to="/signin"
-                className="hover:bg-gray-100 hover:border-gray-200 h-10 items-center justify-center rounded-lg border border-transparent px-4 text-sm font-bold text-black transition-colors lg:px-5"
+                className="hover:bg-primary-dark flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-bold text-white shadow-sm transition-all hover:shadow-md lg:px-5"
               >
                 Login
               </Link>
@@ -123,146 +125,18 @@ export default function MainApp() {
 
           {/* Mobile Buttons Container */}
           <div className="flex items-center gap-2 md:hidden">
-            {/* Mobile Search Button */}
-            <button
-              className="text-text-secondary hover:bg-background-subtle flex size-10 items-center justify-center rounded-full transition-colors hover:text-primary"
-              onClick={() => setIsSearchOpen(true)}
-              aria-label="Search"
-            >
-              <span className="material-symbols-outlined text-xl">search</span>
-            </button>
-
             {/* Hamburger Menu Button - Visible on Mobile Only */}
-            <button
-              className="text-text-secondary hover:bg-background-subtle flex size-10 items-center justify-center rounded-full transition-colors hover:text-primary"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label="Toggle menu"
-              aria-expanded={isMenuOpen}
+            <Link
+              to="/signin"
+              className="hover:bg-primary-dark flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-bold text-white shadow-sm transition-all hover:shadow-md lg:px-5"
+              onClick={() => setIsMenuOpen(false)}
             >
-              <span className="material-symbols-outlined text-xl">
-                {isMenuOpen ? 'close' : 'menu'}
-              </span>
-            </button>
+              Login
+            </Link>
           </div>
         </div>
 
-        {/* Mobile Search Overlay */}
-        {isSearchOpen && (
-          <div className="animate-in fade-in fixed inset-0 z-[60] bg-white duration-300 md:hidden">
-            <div className="flex h-16 items-center border-b px-4">
-              <div className="relative flex w-full items-center gap-2">
-                <button
-                  onClick={() => setIsSearchOpen(false)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <span className="material-symbols-outlined text-xl">
-                    arrow_back
-                  </span>
-                </button>
-                <div className="relative flex-1">
-                  <input
-                    type="text"
-                    placeholder="Search..."
-                    className="border-gray-300 w-full rounded-lg border py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-primary"
-                    autoFocus
-                  />
-                  <span className="material-symbols-outlined text-gray-400 absolute left-3 top-1/2 -translate-y-1/2">
-                    search
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div className="p-4">
-              <p className="text-gray-500 text-sm">
-                Recent searches will appear here...
-              </p>
-            </div>
-          </div>
-        )}
-
         {/* Mobile Menu Overlay */}
-        {isMenuOpen && (
-          <div className="animate-in slide-in-from-top fixed inset-0 top-16 z-40 bg-white duration-300 md:hidden">
-            <div className="h-full overflow-y-auto border-t">
-              {/* Mobile Navigation Links */}
-              <nav className="flex flex-col p-0">
-                <a
-                  className="text-text-secondary hover:bg-gray-50 border-gray-100 flex items-center justify-between border-b px-6 py-4 text-base font-medium transition-colors hover:text-primary"
-                  href="#"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <span>Private Banking</span>
-                  <span className="material-symbols-outlined text-lg">
-                    chevron_right
-                  </span>
-                </a>
-                <button
-                  className="text-text-secondary hover:bg-gray-50 border-gray-100 flex w-full items-center justify-between border-b px-6 py-4 text-left text-base font-medium transition-colors hover:text-primary"
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    nevigate({to: '/landingpage'});
-                  }}
-                >
-                  <span>Wealth Management</span>
-                  <span className="material-symbols-outlined text-lg">
-                    chevron_right
-                  </span>
-                </button>
-                <a
-                  className="text-text-secondary hover:bg-gray-50 border-gray-100 flex items-center justify-between border-b px-6 py-4 text-base font-medium transition-colors hover:text-primary"
-                  href="#advisory"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <span>Advisory</span>
-                  <span className="material-symbols-outlined text-lg">
-                    chevron_right
-                  </span>
-                </a>
-                <a
-                  className="text-text-secondary hover:bg-gray-50 border-gray-100 flex items-center justify-between border-b px-6 py-4 text-base font-medium transition-colors hover:text-primary"
-                  href="#insights"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <span>Insights</span>
-                  <span className="material-symbols-outlined text-lg">
-                    chevron_right
-                  </span>
-                </a>
-              </nav>
-
-              {/* Mobile CTA Buttons */}
-              <div className="border-gray-100 mt-auto border-t p-6">
-                <div className="flex flex-col gap-3">
-                  <Link
-                    to="/signin"
-                    className="hover:bg-gray-100 hover:border-gray-200 border-gray-300 flex h-12 items-center justify-center rounded-lg border text-base font-bold text-black transition-colors"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    to="/signup"
-                    className="hover:bg-primary-dark flex h-12 items-center justify-center rounded-lg bg-primary text-base font-bold text-white shadow-sm transition-all hover:shadow-md"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Open Account
-                  </Link>
-                </div>
-
-                {/* Contact Info */}
-                <div className="border-gray-100 mt-6 border-t pt-6">
-                  <p className="text-gray-600 mb-2 text-sm">Need help?</p>
-                  <a
-                    href="tel:+41123456789"
-                    className="font-medium text-primary"
-                  >
-                    +41 12 345 67 89
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </header>
 
       {/* Hero Section */}

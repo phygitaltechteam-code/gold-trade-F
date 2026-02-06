@@ -106,7 +106,12 @@ const Navbar: React.FC = () => {
               </li>
             ))}
             <li className="pt-2">
-              <button className="text-navy border-gray-200 mb-3 w-full rounded-lg border py-3 text-center font-semibold">
+              <button
+                onClick={() => {
+                  navigate({to: '/signin'});
+                }}
+                className="text-navy border-gray-200 mb-3 w-full rounded-lg border py-3 text-center font-semibold"
+              >
                 Login
               </button>
             </li>
