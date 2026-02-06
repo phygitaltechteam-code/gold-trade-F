@@ -192,7 +192,7 @@ export const COUNTRIES = [
   {code: 'VN', name: 'Vietnam'},
   {code: 'YE', name: 'Yemen'},
   {code: 'ZM', name: 'Zambia'},
-  {code: 'ZW', name: 'Zimbabwe'}
+  {code: 'ZW', name: 'Zimbabwe'},
 ];
 
 export const DIAL_CODES = [
