@@ -68,8 +68,10 @@ export const useChangePin = () => {
 
 export const getProfile = async () => {
   try {
-    const res = await api.get('/customer/profile');
-    return res.data;
+    if (localStorage.getItem('token')) {
+      const res = await api.get('/customer/profile');
+      return res.data;
+    }
   } catch (error: any) {
     toast.error(error?.response?.data?.message || 'Failed to get profile');
     throw error;

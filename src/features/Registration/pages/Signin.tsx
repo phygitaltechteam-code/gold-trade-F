@@ -32,18 +32,14 @@ const Signin: React.FC = () => {
   const {mutate, isPending} = useMutation({
     mutationFn: async (data: SignInPayload) => {
       const response = await api.post('/users/login', data);
-      console.log(response);
       return response.data;
     },
     onSuccess: (data) => {
       const newData = JSON.stringify(data, null, 2);
       if (newData) {
         localStorage.setItem('token', newData);
-        console.log('Token saved:', newData);
         setIsAuthenticated(true);
-        navigate({
-          to: '/dashboard',
-        });
+        window.location.href = '/dashboard';
       }
     },
     onError: (error: AxiosError<any>) => {
