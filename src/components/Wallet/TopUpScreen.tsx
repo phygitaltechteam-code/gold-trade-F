@@ -1,6 +1,5 @@
 import React, {useState, useRef} from 'react';
 import {ArrowLeft, Lock, Camera} from 'lucide-react';
-import {MdBackspace} from 'react-icons/md';
 import {useNavigate} from '@tanstack/react-router';
 import {Keypad} from '../Profilehub/ui/Keypad';
 
@@ -22,8 +21,7 @@ const TopUpScreen: React.FC<TopUpScreenProps> = ({onBack, onContinue}) => {
   const [isInputActive, setIsInputActive] = useState<boolean>(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  // Maximum amount: 10 crores (100,000,000)
+
   const MAX_AMOUNT = 100000000;
 
   // Handle keypad button press
@@ -43,16 +41,27 @@ const TopUpScreen: React.FC<TopUpScreenProps> = ({onBack, onContinue}) => {
     }
 
     const parts = currentValue.split('.');
-    
-    // Allow up to 9 digits (for 10 crores: 100,000,000 has 9 digits)
+
+    // Allow up to 9 digits for integer part (for 10 crores: 100,000,000 has 9 digits)
     if (parts[0].length >= 9 && key !== '.' && !parts[1]) {
+      return;
+    }
+
+    // Prevent entering more than 2 decimal places
+    if (parts[1] && parts[1].length >= 2) {
       return;
     }
 
     if (currentValue === '0' && key !== '.') {
       setInputValue(key);
     } else {
-      setInputValue(currentValue + key);
+      const newValue = currentValue + key;
+      const numericValue = parseFloat(newValue);
+
+      // Check if new value exceeds max amount
+      if (numericValue <= MAX_AMOUNT) {
+        setInputValue(newValue);
+      }
     }
   };
 
@@ -69,25 +78,33 @@ const TopUpScreen: React.FC<TopUpScreenProps> = ({onBack, onContinue}) => {
     }
   };
 
-  // Format the display value with commas
+  // Format the display value with commas and show complete amount
   const formattedValue = () => {
     const value = inputValue.replace(/,/g, '');
     if (value === '' || value === '0') return '0';
 
     if (value.endsWith('.')) {
       const integerPart = parseInt(value.slice(0, -1) || '0', 10);
-      return integerPart.toLocaleString() + '.';
+      return integerPart.toLocaleString('en-IN') + '.';
     }
 
     const parts = value.split('.');
-    const integerPart = parseInt(parts[0] || '0', 10).toLocaleString();
+    const integerPart = parseInt(parts[0] || '0', 10);
+
+    // Check if exceeds max amount
+    if (integerPart > MAX_AMOUNT) {
+      const cappedValue = MAX_AMOUNT.toString();
+      return parseInt(cappedValue).toLocaleString('en-IN');
+    }
+
+    const formattedInteger = integerPart.toLocaleString('en-IN');
 
     if (parts.length > 1) {
       const decimalPart = parts[1].slice(0, 2);
-      return `${integerPart}.${decimalPart}`;
+      return `${formattedInteger}.${decimalPart}`;
     }
 
-    return integerPart;
+    return formattedInteger;
   };
 
   // Get numeric value for validation
@@ -182,27 +199,31 @@ const TopUpScreen: React.FC<TopUpScreenProps> = ({onBack, onContinue}) => {
               <p className="mb-2 text-center text-sm font-medium text-slate-500 dark:text-slate-400 md:mb-3 md:text-base">
                 Enter Amount
               </p>
-              <div className="relative mb-4 flex items-center justify-center md:mb-6">
-                <span className="mr-1 text-2xl font-bold text-[#0d131c] dark:text-white md:text-3xl">
-                  ₹
-                </span>
-                <div className="relative">
-                  <input
-                    readOnly
-                    className="w-36 border-none bg-transparent p-0 text-center text-3xl font-bold text-[#0d131c] caret-[#F57F3d] focus:ring-0 dark:text-white md:w-40 md:text-4xl"
-                    type="text"
-                    value={formattedValue()}
-                    onFocus={() => setIsInputActive(true)}
-                    onBlur={() => setIsInputActive(false)}
-                  />
-                  <div
-                    className={`absolute bottom-[-4px] left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#F57F3d] to-transparent transition-all duration-300 ${
-                      isInputActive
-                        ? 'scale-x-100 opacity-100'
-                        : 'scale-x-0 opacity-0'
-                    }`}
-                  />
-                  <div className="absolute bottom-[-6px] left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-slate-300 to-transparent dark:via-slate-600" />
+              <div className="mb-4 flex flex-col items-center justify-center md:mb-6">
+                <div className="relative flex items-center justify-center">
+                  <span className="mr-1 text-2xl font-bold text-[#0d131c] dark:text-white md:text-3xl">
+                    ₹
+                  </span>
+                  <div className="relative min-w-0 max-w-full overflow-visible">
+                    {/* Amount display as a div, not input - shows full amount */}
+                    <div
+                      className={`min-w-0 max-w-full overflow-visible border-none bg-transparent p-0 text-center font-bold text-[#0d131c] dark:text-white ${
+                        formattedValue().length > 12
+                          ? 'text-2xl md:text-3xl'
+                          : 'text-3xl md:text-4xl'
+                      }`}
+                    >
+                      {formattedValue()}
+                    </div>
+                    <div
+                      className={`absolute bottom-[-4px] left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#F57F3d] to-transparent transition-all duration-300 ${
+                        isInputActive
+                          ? 'scale-x-100 opacity-100'
+                          : 'scale-x-0 opacity-0'
+                      }`}
+                    />
+                    <div className="absolute bottom-[-6px] left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-slate-300 to-transparent dark:via-slate-600" />
+                  </div>
                 </div>
               </div>
 
