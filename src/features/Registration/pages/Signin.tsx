@@ -80,7 +80,7 @@ const Signin: React.FC = () => {
           </div>
 
           {/* Form */}
-          <div className="mt-8 flex flex-col gap-6 md:mt-10 md:gap-7">
+          <div className="mt-2 flex flex-col gap-2">
             {/* Mobile Number */}
             <div className="flex flex-col gap-2 md:gap-3">
               <label className="dark:text-gray-200 text-sm font-medium leading-normal text-[#0d131c] md:text-base">
@@ -88,7 +88,7 @@ const Signin: React.FC = () => {
               </label>
               <div className="flex gap-3">
                 <input
-                  className="bg-gray-50/80 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 placeholder-gray-400 h-14 flex-1 rounded-xl border px-4 text-base backdrop-blur-sm transition-shadow focus:border-[#F57F3D] focus:ring-[#F57F3D] dark:text-white md:h-16 md:text-lg"
+                  className="bg-gray-50/80 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 placeholder-gray-400 h-12 flex-1 rounded-md border px-4 text-base backdrop-blur-sm transition-shadow focus:border-[#F57F3D] focus:ring-[#F57F3D] dark:text-white md:h-12 md:text-lg"
                   placeholder="98765 43210"
                   type="tel"
                   value={username}
@@ -104,7 +104,7 @@ const Signin: React.FC = () => {
               </label>
               <div className="relative">
                 <input
-                  className="bg-gray-50/80 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 placeholder-gray-400 h-14 w-full rounded-xl border pl-4 pr-12 text-base backdrop-blur-sm transition-shadow focus:border-[#F57F3D] focus:ring-[#F57F3D] dark:text-white md:h-16 md:text-lg"
+                  className="bg-gray-50/80 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 placeholder-gray-400 h-12 w-full rounded-md border pl-4 pr-12 text-base backdrop-blur-sm transition-shadow focus:border-[#F57F3D] focus:ring-[#F57F3D] dark:text-white md:h-12 md:text-lg"
                   placeholder="••••••••••••"
                   type={passwordVisible ? 'text' : 'password'}
                   value={password}
@@ -124,47 +124,20 @@ const Signin: React.FC = () => {
                   </span>
                 </button>
               </div>
-              <div className="flex justify-end pt-1">
-                <a
-                  href="#"
-                  className="text-sm font-medium text-[#F57F3D] hover:underline md:text-base"
-                >
-                  Forgot Password?
-                </a>
-              </div>
             </div>
 
             {/* Login Button */}
             <button
               onClick={handleSignIn}
               disabled={isPending}
-              className="mt-2 flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-[#F57F3D] text-base font-semibold text-white md:h-16 md:text-lg"
+              className="flex h-14 w-full mt-4 items-center justify-center gap-2 rounded-xl bg-[#F57F3D] text-base font-semibold text-white md:text-lg"
             >
               {isPending ? 'Logging in…' : 'Login'}
-            </button>
-
-            {/* Divider */}
-            <div className="relative flex items-center py-2 md:py-3">
-              <div className="border-gray-100 dark:border-gray-800 flex-grow border-t" />
-              <span className="text-gray-400 mx-4 flex-shrink-0 text-xs font-medium uppercase tracking-wider md:text-sm">
-                Or login with
-              </span>
-              <div className="border-gray-100 dark:border-gray-800 flex-grow border-t" />
-            </div>
-
-            {/* Touch ID Button */}
-            <button className="border-gray-200 dark:border-gray-700 dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 group flex h-14 w-full items-center justify-center gap-2 rounded-xl border bg-white/50 backdrop-blur-sm transition-colors md:h-16">
-              <span className="material-symbols-outlined text-[28px] text-[#F57F3D] transition-transform group-hover:scale-110 md:text-[32px]">
-                fingerprint
-              </span>
-              <span className="text-gray-700 dark:text-gray-300 font-medium md:text-lg">
-                Touch ID
-              </span>
             </button>
           </div>
 
           {/* Footer */}
-          <div className="mt-auto flex flex-col items-center gap-6 pt-8 md:gap-7 md:pt-10">
+          <div className="mt-auto flex flex-col items-center gap-6 pt-4 md:gap-7 ">
             <p className="text-gray-500 dark:text-gray-400 text-center text-sm md:text-base">
               Don't have an account?{' '}
               <a
