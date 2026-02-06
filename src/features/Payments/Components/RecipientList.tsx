@@ -281,21 +281,21 @@ const RecipientList: React.FC<RecipientListProps> = ({searchQuery}) => {
     switch (status) {
       case 'approved':
       case 'verified':
-        statusColor = 'bg-green-100 text-green-800 border-green-200';
-        statusText = 'Approved';
-        icon = <CheckCircle className="h-3 w-3 text-green-600" />;
+        // statusColor = 'bg-green-100 text-green-800 border-green-200';
+        // statusText = 'Approved';
+        // icon = <CheckCircle className="h-3 w-3 text-green-600" />;
         break;
       case 'rejected':
       case 'declined':
-        statusColor = 'bg-red-100 text-red-800 border-red-200';
-        statusText = 'Rejected';
-        icon = <XCircle className="h-3 w-3 text-red-600" />;
+        // statusColor = 'bg-red-100 text-red-800 border-red-200';
+        // statusText = 'Rejected';
+        // icon = <XCircle className="h-3 w-3 text-red-600" />;
         break;
       case 'pending':
       default:
-        statusColor = 'bg-amber-100 text-amber-800 border-amber-200';
-        statusText = 'Pending';
-        icon = <Clock className="h-3 w-3 text-amber-600" />;
+        // statusColor = 'bg-amber-100 text-amber-800 border-amber-200';
+        // statusText = 'Pending';
+        // icon = <Clock className="h-3 w-3 text-amber-600" />;
         break;
     }
 
@@ -401,12 +401,15 @@ const RecipientList: React.FC<RecipientListProps> = ({searchQuery}) => {
             return (
               <div
                 key={recipient?.id}
+                // In RecipientList component, update the onClick handler
                 onClick={() => {
                   const {status} = getStatusInfo(recipient);
                   if (status === 'approved' || status === 'verified') {
-                    navigate({to: `/payment/send/${recipient?.id}`});
+                    // Navigate to payment send for approved recipients
+                    navigate({to: `/beneficiary/statuspending/`});
                   } else {
-                    navigate({to: `/beneficiary/statuspending`});
+                    // Navigate to update beneficiary for pending/rejected recipients
+                    navigate({to: `/updatebeneficiary/${recipient?.id}`});
                   }
                 }}
                 className="hover:bg-gray-50 active:bg-gray-100 flex cursor-pointer items-center justify-between border-b border-stroke p-4 transition-colors last:border-0 lg:p-5"

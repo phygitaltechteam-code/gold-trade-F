@@ -9,6 +9,7 @@ import {
   getWalletByCustomer,
   payment,
   TransactionPayload,
+  updateBeneficiary,
 } from '../beneficiary/beneficiary';
 import {BeneficiaryFormData} from '@/features/Payments/types';
 import axios from 'axios';
@@ -27,6 +28,31 @@ export const useAddBeneficiary = () => {
   });
 };
 
+// UPDATE BENEFICIARY MUTATION
+export const useUpdateBeneficiary = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({id, data}: {id: string; data: BeneficiaryFormData}) =>
+      updateBeneficiary(id, data),
+
+    onSuccess: () => {
+      toast.success('Beneficiary updated successfully');
+
+      // refresh beneficiary list + single beneficiary cache
+      queryClient.invalidateQueries({queryKey: ['beneficiary']});
+    },
+
+    onError: (error: any) => {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || 'Update failed'
+        : 'Update failed';
+
+      toast.error(message);
+    },
+  });
+};
+
 export const useGetBeneficiary = () =>
   useQuery({
     queryKey: ['beneficiary'],
@@ -39,11 +65,14 @@ export const useGetWalletByCustomer = () =>
     queryFn: () => getWalletByCustomer(),
   });
 
-export const useGetBeneficiaryById = (id: string) =>
-  useQuery({
+// Add this to your existing beneficiary query hooks
+export const useGetBeneficiaryById = (id: string) => {
+  return useQuery({
     queryKey: ['beneficiary', id],
     queryFn: () => getBeneficiaryById(id),
+    enabled: !!id, // Only run query if id exists
   });
+};
 
 export const usePayment = () => {
   const queryClient = useQueryClient();
