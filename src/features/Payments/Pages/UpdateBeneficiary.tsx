@@ -247,7 +247,7 @@ const UpdateBeneficiary: React.FC = () => {
         </h1>
       </div>
 
-      <ProgressBar step={1} total={3} label="Update Beneficiary Details" />
+      {/* <ProgressBar step={1} total={3} label="Update Beneficiary Details" /> */}
 
       <main className="flex-1 px-5 pb-10 pt-2 md:px-10">
         <FormProvider {...methods}>
@@ -255,22 +255,6 @@ const UpdateBeneficiary: React.FC = () => {
             onSubmit={methods.handleSubmit(onSubmit, onError)}
             className="space-y-6"
           >
-            <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
-                  <span className="text-lg font-bold text-blue-600">
-                    {beneficiary.fullName?.charAt(0) || 'B'}
-                  </span>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-blue-800">
-                    {beneficiary.fullName}
-                  </h3>
-                  <p className="text-sm text-blue-600">ID: {beneficiary.id}</p>
-                </div>
-              </div>
-            </div>
-
             <SectionHeader title="Identity Details" />
 
             <div className="space-y-5">

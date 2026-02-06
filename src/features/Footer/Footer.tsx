@@ -18,7 +18,7 @@ const navItems = [
     iconSize: 'text-xl',
   },
   {
-    label: 'Payments',
+    label: 'Transactions',
     icon: FaCreditCard,
 
     to: '/eprivate/eprivatereports',

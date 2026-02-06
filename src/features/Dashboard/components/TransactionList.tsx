@@ -69,17 +69,17 @@ export const TransactionList: React.FC<TransactionListProps> = ({
         {transactions.length > initialLimit && (
           <button
             onClick={() => setShowAll(!showAll)}
-            className="flex items-center gap-1.5 rounded-full bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-all hover:bg-primary hover:text-white dark:bg-primary/20 dark:hover:bg-primary"
+            className="flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary transition-all hover:bg-primary hover:text-white dark:bg-primary/20 dark:hover:bg-primary sm:px-3 sm:py-1.5 sm:text-sm"
           >
             {showAll ? (
               <>
-                <MdExpandLess className="h-4 w-4" />
-                Show Less
+                <MdExpandLess className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span>Show Less</span>
               </>
             ) : (
               <>
-                <MdExpandMore className="h-4 w-4" />
-                See All
+                <MdExpandMore className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span>See All</span>
               </>
             )}
           </button>
@@ -139,16 +139,19 @@ export const TransactionList: React.FC<TransactionListProps> = ({
 
               <div className="flex flex-col items-end">
                 <div className="text-right">
-                  <p className={`text-base font-bold ${amountColor}`}>
+                  <p
+                    className={`text-sm font-semibold sm:text-base ${amountColor}`}
+                  >
                     {amountSign}${tx.amount.toFixed(2)}
                   </p>
-                  <p className="text-xs text-slate-400 dark:text-slate-500">
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500 sm:text-xs">
                     {tx.category || (tx.type === 'CREDIT' ? 'Credit' : 'Debit')}
                   </p>
                 </div>
-                <div className="mt-2 flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
-                  <span>View details</span>
-                  <MdChevronRight className="h-4 w-4" />
+
+                <div className="mt-1 flex items-center gap-0.5 text-[10px] text-slate-500 dark:text-slate-400 sm:mt-2 sm:gap-1 sm:text-xs">
+                  <span>View</span>
+                  <MdChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
                 </div>
               </div>
             </div>

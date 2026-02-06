@@ -107,7 +107,7 @@ const AddBeneficiary: React.FC = () => {
         </h1>
       </div>
 
-      <ProgressBar step={1} total={3} label="Beneficiary Details" />
+      {/* <ProgressBar step={1} total={3} label="Beneficiary Details" /> */}
 
       <main className="flex-1 px-5 pb-10 pt-2 md:px-10">
         <FormProvider {...methods}>
