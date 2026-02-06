@@ -82,10 +82,10 @@ const PaymentWrapper: React.FC = () => {
   useEffect(() => {
     if (step === 4) {
       const timer = setTimeout(() => {
-        navigate({to: '/dashboard'}); // ✅ your dashboard route
-      }, 1000); // ⏱️ 4 seconds (change to 3000 or 5000 if needed)
+        navigate({to: '/dashboard'});
+      }, 1000);
 
-      return () => clearTimeout(timer); // cleanup
+      return () => clearTimeout(timer);
     }
   }, [step, navigate]);
 
@@ -153,14 +153,14 @@ const PaymentWrapper: React.FC = () => {
         />
       )}
 
-      {step === 5 && (
+      {/* {step === 5 && (
         <TransactionSuccess
           paymentData={paymentData}
           setPaymentData={setPaymentData}
           nextStep={nextStep}
           walletAmmount={walletAmmount}
         />
-      )}
+      )} */}
     </>
   );
 };

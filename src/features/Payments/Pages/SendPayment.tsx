@@ -103,7 +103,7 @@ const PaymentSend: React.FC<props> = ({
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-[#f8f6f5] p-0 sm:p-4">
-      <div className="bg-premium-pattern relative mx-auto flex h-[100dvh] w-full max-w-md flex-col overflow-hidden bg-[#f8f6f5] shadow-2xl ring-1 ring-black/5 sm:h-[884px] sm:rounded-[40px] sm:bg-white md:max-w-2xl">
+      <div className="bg-premium-pattern relative mx-auto flex h-[100dvh] w-full flex-col overflow-hidden bg-[#f8f6f5] shadow-2xl ring-1 ring-black/5 sm:h-[884px] sm:rounded-[40px] sm:bg-white">
         <header className="relative z-10 mt-2 flex shrink-0 items-center justify-between px-4 py-4">
           <button
             className="flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-white/50 active:scale-95"
