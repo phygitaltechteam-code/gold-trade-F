@@ -1,4 +1,4 @@
-import React, {useState, useMemo, useRef} from 'react';
+import React, {useState, useMemo} from 'react';
 import {
   MdArrowBack,
   MdCalendarToday,
@@ -6,17 +6,10 @@ import {
   MdPictureAsPdf,
   MdDownload,
   MdFilterList,
-  MdRemoveRedEye,
   MdClose,
-  MdPrint,
-  MdFileCopy,
 } from 'react-icons/md';
 import {useNavigate} from '@tanstack/react-router';
-import {
-  useCustomReport,
-  generateCSV,
-  generatePDFPreview,
-} from './accountmutation';
+import {useCustomReport, generateCSV} from './accountmutation';
 import {ReportData, Transaction} from './type';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
@@ -35,14 +28,10 @@ const StatementsScreen: React.FC<StatementsScreenProps> = ({transactions}) => {
   const [selectedAccountType, setSelectedAccountType] = useState<
     'E_PRIVATEACCOUNT' | 'E_TEMPORYACCOUNT'
   >('E_PRIVATEACCOUNT');
-  const [showPreview, setShowPreview] = useState<boolean>(false);
-  const [previewMode, setPreviewMode] = useState<
-    'pdf' | 'csv' | 'excel' | null
-  >(null);
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const getreport = useCustomReport();
-  const previewRef = useRef<HTMLDivElement>(null);
 
   // ADD SAFETY CHECK HERE
   const safeTransactions = Array.isArray(transactions) ? transactions : [];
@@ -86,6 +75,10 @@ const StatementsScreen: React.FC<StatementsScreenProps> = ({transactions}) => {
   }, [filteredTransactions]);
 
   const handleGenerateReport = () => {
+    if (filteredTransactions.length === 0) return;
+
+    setIsGenerating(true);
+
     // Format dates to match the backend requirement
     const fromDate = new Date(startDate);
     const toDate = new Date(endDate);
@@ -105,12 +98,79 @@ const StatementsScreen: React.FC<StatementsScreenProps> = ({transactions}) => {
     };
 
     console.log('Sending report data:', reportData);
-
     getreport.mutate(reportData);
+
+    // Generate the selected format
+    switch (reportFormat) {
+      case 'pdf':
+        generatePDF();
+        break;
+      case 'csv':
+        generateCSVFile();
+        break;
+      case 'excel':
+        generateExcel();
+        break;
+    }
+
+    setIsGenerating(false);
   };
 
-  // Generate CSV download
-  const handleDownloadCSV = () => {
+  // Generate PDF
+  const generatePDF = () => {
+    const doc = new jsPDF();
+
+    // Add title
+    doc.setFontSize(20);
+    doc.text('Transaction Report', 14, 22);
+
+    // Add report details
+    doc.setFontSize(10);
+    doc.text(
+      `Date Range: ${formatDateForDisplay(startDate)} to ${formatDateForDisplay(endDate)}`,
+      14,
+      32,
+    );
+    doc.text(
+      `Account Type: ${selectedAccountType === 'E_PRIVATEACCOUNT' ? 'E-Private Account' : 'Temporary Account'}`,
+      14,
+      38,
+    );
+    doc.text(`Total Transactions: ${totals.totalTransactions}`, 14, 44);
+    doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 50);
+
+    // Prepare transaction data
+    const tableData = filteredTransactions.map((t) => [
+      new Date(t.createdAt).toLocaleDateString('en-US'),
+      t.type,
+      t.particular.length > 30
+        ? t.particular.substring(0, 30) + '...'
+        : t.particular,
+      `$${t.amount.toFixed(2)}`,
+      t.isPending ? 'Pending' : t.isRejected ? 'Rejected' : 'Completed',
+    ]);
+
+    // Add transactions table
+    autoTable(doc, {
+      startY: 60,
+      head: [['Date', 'Type', 'Description', 'Amount', 'Status']],
+      body: tableData,
+      theme: 'grid',
+      headStyles: {fillColor: [59, 130, 246]},
+      columnStyles: {
+        3: {halign: 'right'},
+      },
+      styles: {fontSize: 8},
+      margin: {top: 10},
+      pageBreak: 'auto',
+    });
+
+    // Save PDF
+    doc.save(`Transaction_Report_${startDate}_to_${endDate}.pdf`);
+  };
+
+  // Generate CSV
+  const generateCSVFile = () => {
     const csvContent = generateCSV(filteredTransactions);
     const blob = new Blob([csvContent], {type: 'text/csv;charset=utf-8;'});
     const url = URL.createObjectURL(blob);
@@ -126,8 +186,8 @@ const StatementsScreen: React.FC<StatementsScreenProps> = ({transactions}) => {
     document.body.removeChild(link);
   };
 
-  // Generate Excel download
-  const handleDownloadExcel = () => {
+  // Generate Excel
+  const generateExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(
       filteredTransactions.map((t) => ({
         Date: new Date(t.createdAt).toLocaleDateString('en-US'),
@@ -158,93 +218,6 @@ const StatementsScreen: React.FC<StatementsScreenProps> = ({transactions}) => {
     );
   };
 
-  // Generate PDF download
-  const handleDownloadPDF = () => {
-    const doc = new jsPDF();
-
-    // Add title
-    doc.setFontSize(20);
-    doc.text('Transaction Report', 14, 22);
-
-    // Add report details
-    doc.setFontSize(10);
-    doc.text(
-      `Date Range: ${formatDateForDisplay(startDate)} to ${formatDateForDisplay(endDate)}`,
-      14,
-      32,
-    );
-    doc.text(
-      `Account Type: ${selectedAccountType === 'E_PRIVATEACCOUNT' ? 'E-Private Account' : 'Temporary Account'}`,
-      14,
-      38,
-    );
-    doc.text(`Total Transactions: ${totals.totalTransactions}`, 14, 44);
-    doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 50);
-
-    // Prepare transaction data
-    const tableData = filteredTransactions.map((t) => [
-      new Date(t.createdAt).toLocaleDateString('en-US'),
-      t.type,
-      t.particular.length > 30
-        ? t.particular.substring(0, 30) + '...'
-        : t.particular,
-      t.amount,
-      t.isPending ? 'Pending' : t.isRejected ? 'Rejected' : 'Completed',
-    ]);
-
-    // Add transactions table
-    autoTable(doc, {
-      startY: doc.lastAutoTable.finalY + 20,
-      head: [['Date', 'Type', 'Description', 'Amount', 'Status']],
-      body: tableData,
-      theme: 'grid',
-      headStyles: {fillColor: [59, 130, 246]},
-      columnStyles: {
-        3: {halign: 'right'},
-      },
-      styles: {fontSize: 8},
-      margin: {top: 10},
-      pageBreak: 'auto',
-    });
-
-    // Save PDF
-    doc.save(`Transaction_Report_${startDate}_to_${endDate}.pdf`);
-  };
-
-  // Show preview
-  const handlePreview = (format: 'pdf' | 'csv' | 'excel') => {
-    setPreviewMode(format);
-    setShowPreview(true);
-
-    if (format === 'csv') {
-      const csvContent = generateCSV(filteredTransactions);
-      if (previewRef.current) {
-        previewRef.current.innerHTML = `<pre style="background: #f9fafb; padding: 20px; border-radius: 8px; overflow-x: auto;">${csvContent}</pre>`;
-      }
-    } else if (format === 'pdf') {
-      const previewData = generatePDFPreview(filteredTransactions, totals, {
-        from: formatDateForDisplay(startDate),
-        to: formatDateForDisplay(endDate),
-      });
-      if (previewRef.current) {
-        previewRef.current.innerHTML = previewData.html;
-      }
-    }
-  };
-
-  // Copy CSV to clipboard
-  const handleCopyCSV = () => {
-    const csvContent = generateCSV(filteredTransactions);
-    navigator.clipboard
-      .writeText(csvContent)
-      .then(() => {
-        toast.success('CSV copied to clipboard!');
-      })
-      .catch(() => {
-        toast.error('Failed to copy to clipboard');
-      });
-  };
-
   // Format date for display
   const formatDateForDisplay = (dateString: string): string => {
     const date = new Date(dateString);
@@ -263,39 +236,28 @@ const StatementsScreen: React.FC<StatementsScreenProps> = ({transactions}) => {
     setEndDate(e.target.value);
   };
 
-  const getTodayDate = (): string => {
-    const today = new Date();
-    return today.toISOString().split('T')[0];
-  };
-
   const getMaxDate = (): string => {
     const date = new Date();
     date.setFullYear(date.getFullYear() + 1);
     return date.toISOString().split('T')[0];
   };
 
-  // Download functions based on format
-  const handleDownload = () => {
-    switch (reportFormat) {
-      case 'csv':
-        handleDownloadCSV();
-        break;
-      case 'excel':
-        handleDownloadExcel();
-        break;
-      case 'pdf':
-        handleDownloadPDF();
-        break;
-    }
-  };
-
-  // Preview based on format
-  const handlePreviewReport = () => {
-    handlePreview(reportFormat);
-  };
-
   return (
     <div className="bg-background-light font-sans flex h-full min-h-screen flex-col">
+      {/* Header */}
+      <header className="bg-background-light/95 sticky top-0 z-50 flex items-center justify-between border-b border-slate-200/50 px-4 py-4 backdrop-blur-sm">
+        <button
+          onClick={() => navigate({to: '/eprivate/eprivatereports'})}
+          className="text-navy flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-slate-200 active:scale-95"
+        >
+          <MdArrowBack size={24} />
+        </button>
+        <h1 className="text-navy flex-1 text-center text-lg font-bold">
+          Statements & Reports
+        </h1>
+        <div className="w-10"></div>
+      </header>
+
       <main className="flex w-full flex-1 flex-col gap-6 px-4 py-6">
         {/* Account Selector Tabs */}
         <div className="flex items-center rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm">
@@ -397,71 +359,29 @@ const StatementsScreen: React.FC<StatementsScreenProps> = ({transactions}) => {
             {/* Action Buttons */}
             <div className="flex gap-3">
               <button
-                onClick={handlePreviewReport}
-                disabled={filteredTransactions.length === 0}
+                onClick={handleGenerateReport}
+                disabled={filteredTransactions.length === 0 || isGenerating}
                 className={`group flex h-12 flex-1 items-center justify-center gap-2.5 rounded-xl font-bold text-white transition-all active:scale-[0.98] ${
-                  filteredTransactions.length === 0
+                  filteredTransactions.length === 0 || isGenerating
                     ? 'bg-gray-400 cursor-not-allowed'
                     : 'bg-primary'
                 }`}
               >
-                {/* <MdRemoveRedEye size={22} /> */}
-                Generate Report
+                {isGenerating ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="h-5 w-5 animate-spin rounded-full border-b-2 border-white"></div>
+                    Downloading...
+                  </div>
+                ) : (
+                  <>
+                    <MdDownload size={22} />
+                    Download {reportFormat.toUpperCase()} Report
+                  </>
+                )}
               </button>
             </div>
           </div>
         </section>
-
-        {/* Preview Modal */}
-        {showPreview && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="relative w-full max-w-4xl rounded-2xl bg-white shadow-2xl">
-              {/* Header */}
-              <div className="sticky top-0 flex items-center justify-between rounded-t-2xl border-b border-slate-200 bg-white p-4">
-                <div>
-                  <h2 className="text-lg font-bold text-slate-900">
-                    {previewMode?.toUpperCase()} Preview
-                  </h2>
-                  <p className="text-sm text-slate-500">
-                    {formatDateForDisplay(startDate)} to{' '}
-                    {formatDateForDisplay(endDate)}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setShowPreview(false)}
-                    className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
-                  >
-                    <MdClose size={20} />
-                  </button>
-                </div>
-              </div>
-
-              {/* Preview Content */}
-              <div className="max-h-[70vh] overflow-y-auto p-6">
-                <div ref={previewRef} className="preview-content"></div>
-              </div>
-
-              {/* Footer */}
-              <div className="sticky bottom-0 rounded-b-2xl border-t border-slate-200 bg-white p-4">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-slate-500">
-                    {filteredTransactions.length} transactions • Generated on{' '}
-                    {new Date().toLocaleString()}
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={handleDownload}
-                      className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-orange-600"
-                    >
-                      Download {previewMode?.toUpperCase()}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Transaction History Preview */}
         <section className="flex flex-col gap-4 pb-8">
@@ -484,20 +404,13 @@ const StatementsScreen: React.FC<StatementsScreenProps> = ({transactions}) => {
               </p>
             </div>
           ) : (
-            <div className="flex max-h-96 flex-col gap-3 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-4">
-              {filteredTransactions.slice(0, 20).map((transaction) => (
+            <div className="flex flex-col gap-3 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-4">
+              {filteredTransactions.map((transaction) => (
                 <TransactionItem
                   key={transaction.id}
                   transaction={transaction}
                 />
               ))}
-              {filteredTransactions.length > 20 && (
-                <div className="py-3 text-center">
-                  <p className="text-sm text-slate-500">
-                    ... and {filteredTransactions.length - 20} more transactions
-                  </p>
-                </div>
-              )}
             </div>
           )}
         </section>
