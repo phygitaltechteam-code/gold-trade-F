@@ -6,9 +6,11 @@ import {
   FaUser,
   FaCog,
   FaCreditCard,
+  FaUserCircle,
 } from 'react-icons/fa';
 import {motion, AnimatePresence} from 'framer-motion';
 import {useNavigate, useLocation} from '@tanstack/react-router';
+import {User2} from 'lucide-react';
 
 const navItems = [
   {
@@ -22,7 +24,7 @@ const navItems = [
     icon: FaCreditCard,
 
     to: '/eprivate/eprivatereports',
-    iconSize: 'text-3xl',
+    iconSize: 'text-xl',
   },
 
   {
@@ -33,14 +35,10 @@ const navItems = [
   },
 
   {
-    label: 'Settings',
-    icon: FaEllipsisV,
-    to: '/settings',
+    label: 'Profile',
+    icon: FaUserCircle,
+    to: '/accounthub/acounthub',
     iconSize: 'text-xl',
-    subroute: [
-      {label: 'Profile', to: '/accounthub/acounthub'},
-      {label: 'Account', to: '/accounthub/acounthub'},
-    ],
   },
 ];
 
@@ -83,7 +81,7 @@ const Footer = () => {
   const isSettingsRoute = location.pathname.startsWith('/settings');
 
   return (
-    <footer className="border-gray-100 fixed bottom-0 left-0 right-0 z-50 border-t bg-white/95 shadow-lg backdrop-blur-sm dark:border-strokedark dark:bg-boxdark">
+    <footer className="fixed bottom-0 mx-auto max-w-[768px] left-0 right-0 z-50 bg-white/95 shadow-lg backdrop-blur-sm dark:border-strokedark dark:bg-boxdark">
       <div className="flex items-center justify-around px-4 py-3">
         {navItems.map(({label, icon: Icon, to, iconSize, subroute}) => {
           const isActive = subroute
