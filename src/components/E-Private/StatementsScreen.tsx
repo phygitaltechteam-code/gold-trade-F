@@ -296,20 +296,6 @@ const StatementsScreen: React.FC<StatementsScreenProps> = ({transactions}) => {
 
   return (
     <div className="bg-background-light font-sans flex h-full min-h-screen flex-col">
-      {/* Header */}
-      <header className="bg-background-light/95 sticky top-0 z-50 flex items-center justify-between border-b border-slate-200/50 px-4 py-4 backdrop-blur-sm">
-        <button
-          onClick={() => navigate({to: '/eprivate/eprivatereports'})}
-          className="text-navy flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-slate-200 active:scale-95"
-        >
-          <MdArrowBack size={24} />
-        </button>
-        <h1 className="text-navy flex-1 text-center text-lg font-bold">
-          Statements & Reports
-        </h1>
-        <div className="w-10"></div>
-      </header>
-
       <main className="flex w-full flex-1 flex-col gap-6 px-4 py-6">
         {/* Account Selector Tabs */}
         <div className="flex items-center rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm">

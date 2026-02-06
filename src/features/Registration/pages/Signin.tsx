@@ -27,6 +27,7 @@ const Signin: React.FC = () => {
       const newData = JSON.stringify(data, null, 2);
       if (newData) {
         localStorage.setItem('token', newData);
+        console.log('Token saved:', newData);
         setIsAuthenticated(true);
         navigate({
           to: '/dashboard',
@@ -130,14 +131,14 @@ const Signin: React.FC = () => {
             <button
               onClick={handleSignIn}
               disabled={isPending}
-              className="flex h-14 w-full mt-4 items-center justify-center gap-2 rounded-xl bg-[#F57F3D] text-base font-semibold text-white md:text-lg"
+              className="mt-4 flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-[#F57F3D] text-base font-semibold text-white md:text-lg"
             >
               {isPending ? 'Logging in…' : 'Login'}
             </button>
           </div>
 
           {/* Footer */}
-          <div className="mt-auto flex flex-col items-center gap-6 pt-4 md:gap-7 ">
+          <div className="mt-auto flex flex-col items-center gap-6 pt-4 md:gap-7">
             <p className="text-gray-500 dark:text-gray-400 text-center text-sm md:text-base">
               Don't have an account?{' '}
               <a

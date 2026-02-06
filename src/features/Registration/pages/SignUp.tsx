@@ -168,9 +168,7 @@ const SignUp = () => {
         <SignupStep1Personal
           initialData={personalData}
           onComplete={handleStep1Complete}
-          onBack={() => {
-
-          }}
+          onBack={() => {}}
         />
       )}
 

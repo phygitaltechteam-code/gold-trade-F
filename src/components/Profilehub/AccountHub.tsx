@@ -160,12 +160,6 @@ const AccountHub: React.FC = () => {
                 title="Change Transaction PIN"
                 onClick={() => navigate({to: '/accounthub/enter-currentpin'})}
               />
-              <MenuItem
-                icon={MdFace}
-                title="Biometric Login"
-                hasToggle={true}
-                toggleValue={true}
-              />
             </div>
           </section>
 

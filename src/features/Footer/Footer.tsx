@@ -20,22 +20,17 @@ const navItems = [
   {
     label: 'Payments',
     icon: FaCreditCard,
-    to: '/wallet/paymentdashbord',
+
+    to: '/eprivate/eprivatereports',
     iconSize: 'text-3xl',
   },
 
   {
     label: 'Accounts',
     icon: FaUser,
-    to: '/eprivate/eprivatereports',
+    to: '/wallet/paymentdashbord',
     iconSize: 'text-xl',
   },
-  // {
-  //   label: 'Customers',
-  //   icon: FaUsers,
-  //   to: '/wallet/paymentdashbord',
-  //   iconSize: 'text-xl',
-  // },
 
   {
     label: 'Settings',
@@ -43,7 +38,7 @@ const navItems = [
     to: '/settings',
     iconSize: 'text-xl',
     subroute: [
-      {label: 'Profile', to: '/settings/profile'},
+      {label: 'Profile', to: '/accounthub/acounthub'},
       {label: 'Account', to: '/accounthub/acounthub'},
     ],
   },

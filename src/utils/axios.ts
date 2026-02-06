@@ -8,9 +8,8 @@ export const unAuthenticatedApi: AxiosInstance = axios.create({
 });
 
 // Get the token from localStorage
-let token: Token | null = JSON.parse(
-  localStorage.getItem(QUERY_KEYS.TOKEN) || 'null',
-);
+let token: Token = JSON.parse(localStorage.getItem(QUERY_KEYS.TOKEN) || 'null');
+console.log('local storage token', token);
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_SERVER_URL,
