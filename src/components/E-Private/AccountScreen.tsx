@@ -27,6 +27,7 @@ import {AccountScreenProps} from './type';
 import {jsPDF} from 'jspdf';
 import 'jspdf-autotable';
 import {FaChevronDown, FaChevronUp} from 'react-icons/fa';
+import {useNavigate} from '@tanstack/react-router';
 
 // Define filter types
 type TransactionTypeFilter = 'ALL' | 'CREDIT' | 'DEBIT';
@@ -51,6 +52,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
   isLoading = false,
   error = null,
 }) => {
+  const navigate = useNavigate();
   // Filter state
   const [filterState, setFilterState] = useState<FilterState>({
     searchQuery: '',
@@ -71,9 +73,9 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
   useEffect(() => {
     const checkScreenSize = () => {
       const width = window.innerWidth;
-      if (width < 640) {
+      if (width < 768) {
         setScreenSize('mobile');
-      } else if (width >= 640 && width < 1024) {
+      } else if (width >= 768 && width < 1024) {
         setScreenSize('tablet');
       } else {
         setScreenSize('desktop');
@@ -187,10 +189,16 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
 
   // Determine how many transactions to show initially
   const getInitialTransactionCount = () => {
-    if (screenSize === 'mobile') return 3;
-    if (screenSize === 'tablet') return 5;
-    return 7;
+    if (screenSize === 'mobile') return 5; // Increased from 3 to 5 for better UX
+    if (screenSize === 'tablet') return 8; // Increased from 5 to 8
+    return 10; // Increased from 7 to 10
   };
+
+  // Check if we should show "See More" button
+  const shouldShowSeeMore = useMemo(() => {
+    const initialCount = getInitialTransactionCount();
+    return filteredTransactions.length > initialCount;
+  }, [filteredTransactions.length, screenSize]);
 
   // Get limited transactions for initial view
   const limitedTransactions = useMemo(() => {
@@ -310,7 +318,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
       return (
         <span className="inline-flex items-center gap-1 rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800">
           <MdSchedule size={10} />
-          <span className={screenSize === 'mobile' ? 'xs:inline hidden' : ''}>
+          <span className={screenSize === 'mobile' ? 'hidden sm:inline' : ''}>
             Pending
           </span>
         </span>
@@ -321,7 +329,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
       return (
         <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-800">
           <MdCancel size={10} />
-          <span className={screenSize === 'mobile' ? 'xs:inline hidden' : ''}>
+          <span className={screenSize === 'mobile' ? 'hidden sm:inline' : ''}>
             Rejected
           </span>
         </span>
@@ -331,7 +339,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
         <MdCheckCircle size={10} />
-        <span className={screenSize === 'mobile' ? 'xs:inline hidden' : ''}>
+        <span className={screenSize === 'mobile' ? 'hidden sm:inline' : ''}>
           Completed
         </span>
       </span>
@@ -361,7 +369,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
     const timeString = date.toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit',
-      hour12: false,
+      hour12: true,
     });
 
     if (transaction.beneficiary) {
@@ -469,7 +477,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-white">
         <div className="mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
         <p className="text-slate-600">Loading transactions...</p>
       </div>
@@ -479,7 +487,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
   // Error state
   if (error) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center p-6">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-white p-6">
         <MdCancel size={48} className="mb-4 text-red-500" />
         <p className="font-medium text-red-600">Error loading transactions</p>
         <p className="mt-2 text-center text-sm text-slate-500">
@@ -490,58 +498,59 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
   }
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-white">
-      {/* Header - Compact */}
-      <header className="sticky top-0 z-50 flex items-center justify-between bg-white px-4 py-3 shadow-sm">
-        <button className="flex h-10 w-10 items-center justify-center rounded-full text-slate-700 transition-colors hover:bg-slate-100">
+    <div className="flex h-screen flex-col bg-white">
+      {/* Header - Mobile Optimized */}
+      {/* <header className="sticky top-0 z-50 flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3">
+        <button
+          onClick={() => navigate({to: '/dashboard'})}
+          className="flex h-10 w-10 items-center justify-center rounded-full text-slate-700 hover:bg-slate-100"
+        >
           <MdArrowBack size={22} />
         </button>
         <div className="flex flex-col items-center">
-          <h2 className="text-base font-bold leading-tight text-slate-900">
+          <h2 className="text-base font-bold text-slate-900">
             E Private Account
           </h2>
+          <p className="text-xs text-slate-500">Available Balance</p>
         </div>
-        <button className="flex h-10 w-10 items-center justify-center rounded-full text-slate-700 transition-colors hover:bg-slate-100">
+        <button className="flex h-10 w-10 items-center justify-center rounded-full text-slate-700 hover:bg-slate-100">
           <MdSettings size={22} />
         </button>
-      </header>
+      </header> */}
 
-      {/* Balance Section - Compact */}
-      <section className="flex flex-col items-center justify-center px-4 py-4">
-        <p className="mb-1 text-xs font-medium uppercase tracking-wide text-slate-500">
-          Available Balance
-        </p>
-        <h1 className="mb-2 text-center text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+      {/* Balance Section - Mobile Optimized */}
+      <section className="px-4 py-4">
+        <h1 className="text-center text-2xl font-bold text-slate-900">
           {formatCurrency(totalBalance)}
         </h1>
-        <div className="flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1">
-          <MdTrendingUp className="text-emerald-600" size={14} />
-          <span className="text-xs font-medium text-emerald-700">
-            {filteredTransactions.length} of {transactions.length} transactions
-          </span>
+        <div className="mt-2 flex justify-center">
+          <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1.5">
+            <MdTrendingUp className="text-blue-600" size={14} />
+            <span className="text-xs font-medium text-blue-700">
+              {filteredTransactions.length} transactions
+            </span>
+          </div>
         </div>
       </section>
 
-      {/* Quick Actions - Responsive */}
-      <section className="mb-6 px-4">
-        <div className="grid grid-cols-3 gap-3">
+      {/* Quick Actions - Mobile Optimized */}
+      <section className="mb-4 px-4">
+        <div className="grid grid-cols-3 gap-2">
           <button className="group flex flex-col items-center gap-1">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-white shadow-md transition-transform group-active:scale-95">
-              <MdSwapHoriz size={22} />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white shadow-sm">
+              <MdSwapHoriz size={20} />
             </div>
-            <span className="text-xs font-semibold text-slate-700">
-              Transfer
-            </span>
+            <span className="text-xs font-medium text-slate-700">Transfer</span>
           </button>
 
           <button
             onClick={() => onNavigate('statements')}
             className="group flex flex-col items-center gap-1"
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200 bg-white text-primary shadow-sm transition-transform group-active:scale-95">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-white text-primary">
               <MdDescription size={20} />
             </div>
-            <span className="text-xs font-semibold text-slate-700">
+            <span className="text-xs font-medium text-slate-700">
               Statement
             </span>
           </button>
@@ -550,262 +559,233 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
             onClick={() => setShowFilterModal(true)}
             className="group flex flex-col items-center gap-1"
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition-transform group-active:scale-95">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600">
               <MdFilterList size={20} />
             </div>
-            <span className="text-xs font-semibold text-slate-700">Filter</span>
+            <span className="text-xs font-medium text-slate-700">Filter</span>
           </button>
         </div>
       </section>
 
-      {/* Transactions Container - Main Content Area */}
-      <div className="flex-1 overflow-hidden">
-        <div className="h-full overflow-y-auto">
-          <div className="px-4 pb-4">
-            {/* Transactions Header */}
-            <div className="sticky top-0 z-10 mb-4 bg-white pb-3 pt-2">
-              {!showSearchBar ? (
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-base font-bold text-slate-900">
-                      Transactions
-                    </h3>
-                    {hasActiveFilters() && (
-                      <span className="rounded-full bg-primary px-2 py-1 text-xs font-medium text-white">
-                        {filteredTransactions.length}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex gap-1">
-                    <button
-                      onClick={handleSearchToggle}
-                      className="rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100"
-                    >
-                      <MdSearch size={20} />
-                    </button>
-                    {hasActiveFilters() && (
-                      <button
-                        onClick={clearAllFilters}
-                        className="rounded-full bg-red-100 px-3 py-1.5 text-xs font-medium text-red-700 transition-colors hover:bg-red-200"
-                      >
-                        Clear
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <div className="relative flex-1">
-                    <MdSearch
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                      size={18}
-                    />
-                    <input
-                      ref={searchInputRef}
-                      type="text"
-                      value={filterState.searchQuery}
-                      onChange={(e) =>
-                        setFilterState((prev) => ({
-                          ...prev,
-                          searchQuery: e.target.value,
-                        }))
-                      }
-                      placeholder="Search transactions..."
-                      className="w-full rounded-full border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-10 text-sm focus:border-primary focus:outline-none"
-                    />
-                    {filterState.searchQuery && (
-                      <button
-                        onClick={() =>
-                          setFilterState((prev) => ({...prev, searchQuery: ''}))
-                        }
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                      >
-                        <MdClose size={18} />
-                      </button>
-                    )}
-                  </div>
+      {/* Transactions Section - Mobile Optimized */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="px-4 pb-20">
+          {/* Search and Filter Bar */}
+          <div className="sticky top-0 z-10 mb-4 bg-white pb-3 pt-2">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-slate-900">Transactions</h3>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleSearchToggle}
+                  className="rounded-full p-2 text-slate-500 hover:bg-slate-100"
+                >
+                  <MdSearch size={20} />
+                </button>
+                {hasActiveFilters() && (
                   <button
-                    onClick={handleSearchToggle}
-                    className="rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100"
+                    onClick={clearAllFilters}
+                    className="rounded-full bg-red-100 px-3 py-1.5 text-xs font-medium text-red-700"
                   >
-                    <MdClose size={20} />
+                    Clear
                   </button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
-            {/* Active Filters Display */}
-            {hasActiveFilters() && (
-              <div className="mb-3 flex flex-wrap gap-2">
-                {filterState.searchQuery && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800">
-                    "{filterState.searchQuery}"
+            {showSearchBar && (
+              <div className="mt-3">
+                <div className="relative">
+                  <MdSearch
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                    size={18}
+                  />
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    value={filterState.searchQuery}
+                    onChange={(e) =>
+                      setFilterState((prev) => ({
+                        ...prev,
+                        searchQuery: e.target.value,
+                      }))
+                    }
+                    placeholder="Search transactions..."
+                    className="w-full rounded-full border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-10 text-sm"
+                  />
+                  {filterState.searchQuery && (
                     <button
                       onClick={() =>
                         setFilterState((prev) => ({...prev, searchQuery: ''}))
                       }
-                      className="ml-1 hover:text-blue-600"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
                     >
-                      <MdClose size={10} />
+                      <MdClose size={18} />
                     </button>
-                  </span>
-                )}
-                {filterState.transactionType !== 'ALL' && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-3 py-1 text-xs font-medium text-purple-800">
-                    {filterState.transactionType}
-                    <button
-                      onClick={() =>
-                        setFilterState((prev) => ({
-                          ...prev,
-                          transactionType: 'ALL',
-                        }))
-                      }
-                      className="ml-1 hover:text-purple-600"
-                    >
-                      <MdClose size={10} />
-                    </button>
-                  </span>
-                )}
-                {filterState.status !== 'ALL' && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800">
-                    {filterState.status === 'COMPLETED'
-                      ? 'Completed'
-                      : filterState.status === 'PENDING'
-                        ? 'Pending'
-                        : 'Rejected'}
-                    <button
-                      onClick={() =>
-                        setFilterState((prev) => ({...prev, status: 'ALL'}))
-                      }
-                      className="ml-1 hover:text-amber-600"
-                    >
-                      <MdClose size={10} />
-                    </button>
-                  </span>
-                )}
-              </div>
-            )}
-
-            {/* Transactions List */}
-            {filteredTransactions.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12">
-                <MdDescIcon size={40} className="mb-3 text-slate-300" />
-                <p className="text-sm text-slate-500">No transactions found</p>
-                {hasActiveFilters() && (
-                  <button
-                    onClick={clearAllFilters}
-                    className="mt-3 rounded-lg bg-primary px-4 py-2 text-xs font-medium text-white hover:bg-primary/90"
-                  >
-                    Clear All Filters
-                  </button>
-                )}
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {Object.entries(groupedTransactions).map(
-                  ([dateLabel, dateTransactions]) => (
-                    <div key={dateLabel} className="space-y-2">
-                      <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                        {dateLabel}
-                      </h4>
-                      <div className="space-y-2">
-                        {dateTransactions.map((transaction) => {
-                          const title = getTransactionTitle(transaction);
-                          const subtitle = getTransactionSubtitle(transaction);
-                          const amount =
-                            transaction.type === 'CREDIT'
-                              ? `+ ${formatCurrency(transaction.amount)}`
-                              : `- ${formatCurrency(transaction.amount)}`;
-                          const isPositive = transaction.type === 'CREDIT';
-                          const icon = getTransactionIcon(transaction);
-                          const bgClass = getTransactionBgClass(transaction);
-                          const statusBadge = getStatusBadge(transaction);
-
-                          return (
-                            <div
-                              key={transaction.id}
-                              className="flex items-center justify-between rounded-lg border border-slate-100 bg-white p-3 hover:bg-slate-50"
-                            >
-                              <div className="flex min-w-0 items-center gap-3">
-                                <div
-                                  className={`flex h-10 w-10 items-center justify-center rounded-lg ${bgClass}`}
-                                >
-                                  {icon}
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                  <div className="flex items-center gap-2">
-                                    <p className="truncate text-sm font-semibold text-slate-900">
-                                      {title}
-                                    </p>
-                                    {statusBadge}
-                                  </div>
-                                  <p className="truncate text-xs text-slate-500">
-                                    {subtitle}
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="flex-shrink-0 pl-2">
-                                <span
-                                  className={`whitespace-nowrap text-sm font-bold ${
-                                    isPositive
-                                      ? 'text-emerald-600'
-                                      : 'text-red-600'
-                                  }`}
-                                >
-                                  {screenSize === 'mobile' && amount.length > 12
-                                    ? isPositive
-                                      ? `+${formatCurrency(transaction.amount).replace('$', '')}`
-                                      : `-${formatCurrency(transaction.amount).replace('$', '')}`
-                                    : amount}
-                                </span>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ),
-                )}
-
-                {/* See More/Less Button */}
-                {filteredTransactions.length > getInitialTransactionCount() && (
-                  <div className="pt-4">
-                    <button
-                      onClick={() =>
-                        setShowAllTransactions(!showAllTransactions)
-                      }
-                      className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white py-3 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
-                    >
-                      {showAllTransactions ? (
-                        <>
-                          <FaChevronUp size={14} />
-                          Show Less
-                        </>
-                      ) : (
-                        <>
-                          <FaChevronDown size={14} />
-                          See More Transactions
-                        </>
-                      )}
-                    </button>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             )}
           </div>
+
+          {/* Active Filters */}
+          {hasActiveFilters() && (
+            <div className="mb-4 flex flex-wrap gap-2">
+              {filterState.searchQuery && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800">
+                  "{filterState.searchQuery}"
+                  <button
+                    onClick={() =>
+                      setFilterState((prev) => ({...prev, searchQuery: ''}))
+                    }
+                    className="ml-1"
+                  >
+                    <MdClose size={10} />
+                  </button>
+                </span>
+              )}
+              {filterState.transactionType !== 'ALL' && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-3 py-1 text-xs font-medium text-purple-800">
+                  {filterState.transactionType}
+                  <button
+                    onClick={() =>
+                      setFilterState((prev) => ({
+                        ...prev,
+                        transactionType: 'ALL',
+                      }))
+                    }
+                    className="ml-1"
+                  >
+                    <MdClose size={10} />
+                  </button>
+                </span>
+              )}
+              {filterState.status !== 'ALL' && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800">
+                  {filterState.status === 'COMPLETED'
+                    ? 'Completed'
+                    : filterState.status === 'PENDING'
+                      ? 'Pending'
+                      : 'Rejected'}
+                  <button
+                    onClick={() =>
+                      setFilterState((prev) => ({...prev, status: 'ALL'}))
+                    }
+                    className="ml-1"
+                  >
+                    <MdClose size={10} />
+                  </button>
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Transactions List */}
+          {filteredTransactions.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <MdDescIcon size={48} className="mb-4 text-slate-300" />
+              <p className="text-sm text-slate-500">No transactions found</p>
+              {hasActiveFilters() && (
+                <button
+                  onClick={clearAllFilters}
+                  className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white"
+                >
+                  Clear All Filters
+                </button>
+              )}
+            </div>
+          ) : (
+            <>
+              {Object.entries(groupedTransactions).map(
+                ([dateLabel, dateTransactions]) => (
+                  <div key={dateLabel} className="mb-6">
+                    <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      {dateLabel}
+                    </h4>
+                    <div className="space-y-2">
+                      {dateTransactions.map((transaction) => {
+                        const title = getTransactionTitle(transaction);
+                        const subtitle = getTransactionSubtitle(transaction);
+                        const amount =
+                          transaction.type === 'CREDIT'
+                            ? `+${formatCurrency(transaction.amount)}`
+                            : `-${formatCurrency(transaction.amount)}`;
+                        const isPositive = transaction.type === 'CREDIT';
+                        const icon = getTransactionIcon(transaction);
+                        const bgClass = getTransactionBgClass(transaction);
+                        const statusBadge = getStatusBadge(transaction);
+
+                        return (
+                          <div
+                            key={transaction.id}
+                            className="flex items-center justify-between rounded-xl border border-slate-100 bg-white p-3"
+                          >
+                            <div className="flex min-w-0 flex-1 items-center gap-3">
+                              <div
+                                className={`flex h-10 w-10 items-center justify-center rounded-lg ${bgClass}`}
+                              >
+                                {icon}
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2">
+                                  <p className="truncate text-sm font-semibold text-slate-900">
+                                    {title}
+                                  </p>
+                                  {statusBadge}
+                                </div>
+                                <p className="truncate text-xs text-slate-500">
+                                  {subtitle}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex-shrink-0 pl-2">
+                              <span
+                                className={`whitespace-nowrap text-sm font-bold ${
+                                  isPositive
+                                    ? 'text-emerald-600'
+                                    : 'text-red-600'
+                                }`}
+                              >
+                                {amount}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ),
+              )}
+
+              {/* Show More/Less Button - ALWAYS SHOW IF CONDITION MET */}
+              {shouldShowSeeMore && (
+                <div className="sticky bottom-4 mt-6">
+                  <button
+                    onClick={() => setShowAllTransactions(!showAllTransactions)}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-3 text-sm font-semibold text-slate-700 shadow-lg"
+                  >
+                    {showAllTransactions ? (
+                      <>
+                        <FaChevronUp size={14} />
+                        Show Less
+                      </>
+                    ) : (
+                      <>
+                        <FaChevronDown size={14} />
+                        Show More Transactions
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
 
-      {/* Filter Modal - Responsive */}
+      {/* Filter Modal - Mobile Optimized */}
       {showFilterModal && (
-        <div className="fixed inset-0 z-50 flex items-end bg-black/50 backdrop-blur-sm sm:items-center sm:justify-center">
-          <div
-            className={`max-h-[85vh] w-full overflow-hidden bg-white ${
-              screenSize === 'mobile'
-                ? 'rounded-t-2xl'
-                : 'sm:max-w-md sm:rounded-2xl'
-            }`}
-          >
+        <div className="fixed inset-0 z-50 flex items-end bg-black/50 backdrop-blur-sm">
+          <div className="max-h-[85vh] w-full overflow-hidden rounded-t-2xl bg-white">
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white p-4">
               <div className="flex items-center gap-3">
                 <MdFilterList size={20} className="text-primary" />
@@ -841,7 +821,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
                         className={`rounded-lg px-3 py-2.5 text-sm font-medium ${
                           filterState.transactionType === type
                             ? 'bg-primary text-white'
-                            : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                            : 'bg-slate-100 text-slate-700'
                         }`}
                       >
                         {type === 'ALL' ? 'All' : type}
@@ -872,7 +852,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
                         className={`rounded-lg px-3 py-2.5 text-sm font-medium ${
                           filterState.status === status
                             ? 'bg-primary text-white'
-                            : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                            : 'bg-slate-100 text-slate-700'
                         }`}
                       >
                         {status === 'ALL'
@@ -906,7 +886,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
                           className={`rounded-lg px-3 py-2.5 text-sm font-medium ${
                             filterState.dateRange === range
                               ? 'bg-primary text-white'
-                              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                              : 'bg-slate-100 text-slate-700'
                           }`}
                         >
                           {range === 'ALL'
@@ -921,57 +901,6 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
                     )}
                   </div>
                 </div>
-
-                {/* Amount Range Filter */}
-                <div>
-                  <h4 className="mb-3 text-sm font-semibold text-slate-700">
-                    Amount Range
-                  </h4>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                          $
-                        </span>
-                        <input
-                          type="number"
-                          value={filterState.minAmount || ''}
-                          onChange={(e) =>
-                            setFilterState((prev) => ({
-                              ...prev,
-                              minAmount: e.target.value
-                                ? Number(e.target.value)
-                                : undefined,
-                            }))
-                          }
-                          placeholder="Min"
-                          className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2.5 pl-8 pr-3 text-sm"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                          $
-                        </span>
-                        <input
-                          type="number"
-                          value={filterState.maxAmount || ''}
-                          onChange={(e) =>
-                            setFilterState((prev) => ({
-                              ...prev,
-                              maxAmount: e.target.value
-                                ? Number(e.target.value)
-                                : undefined,
-                            }))
-                          }
-                          placeholder="Max"
-                          className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2.5 pl-8 pr-3 text-sm"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -980,13 +909,13 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={clearAllFilters}
-                  className="rounded-lg border-2 border-slate-300 bg-white py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                  className="rounded-lg border border-slate-300 bg-white py-3 text-sm font-semibold text-slate-700"
                 >
                   Reset
                 </button>
                 <button
                   onClick={() => setShowFilterModal(false)}
-                  className="rounded-lg bg-primary py-3 text-sm font-semibold text-white hover:bg-primary/90"
+                  className="rounded-lg bg-primary py-3 text-sm font-semibold text-white"
                 >
                   Apply Filters
                 </button>
