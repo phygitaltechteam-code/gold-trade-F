@@ -17,8 +17,8 @@ const EPrivateMain: React.FC = () => {
   const wallet = transactionData?.wallet;
 
   return (
-    <div className="font-sans flex min-h-screen justify-center bg-slate-100">
-      <div className="bg-background-light relative h-full min-h-screen w-full max-w-md overflow-hidden shadow-2xl">
+    <div className="bg-gray-50 flex min-h-screen items-start justify-center pt-0">
+      <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-white shadow-2xl md:rounded-3xl">
         {currentView === 'account' ? (
           <AccountScreen
             onNavigate={setCurrentView}

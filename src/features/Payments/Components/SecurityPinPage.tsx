@@ -102,16 +102,6 @@ const SecurityPinPage: React.FC<props> = ({
             nextStep={nextStep}
           />
         </div>
-
-        {/* Footer Action */}
-        <div className="safe-area-bottom mb-6 flex justify-center">
-          <button
-            type="button"
-            className="hover:text-navy active:text-navy rounded-full px-6 py-2 text-sm font-medium text-slate-400 outline-none transition-colors focus:ring-2 focus:ring-primary/20"
-          >
-            Forgot PIN?
-          </button>
-        </div>
       </main>
     </div>
   );

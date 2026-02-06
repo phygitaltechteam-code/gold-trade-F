@@ -79,9 +79,8 @@ const AccountHub: React.FC = () => {
   );
 
   return (
-    <div className="bg-background-light dark:bg-background-dark flex min-h-screen w-full items-center justify-center bg-white">
-      {/* Main container with fixed height to prevent scrolling */}
-      <div className="relative mx-auto h-[calc(100vh-2rem)] w-full max-w-[min(390px,95vw,500px)] overflow-hidden bg-white dark:bg-[#0F1535] md:h-[calc(100vh-3rem)] md:max-w-[600px]">
+    <div className="bg-gray-50 flex min-h-screen items-start justify-center pt-0">
+      <div className="relative flex h-screen w-full flex-col overflow-hidden bg-white shadow-2xl md:rounded-3xl">
         {/* Header */}
         <header className="sticky top-0 z-20 flex items-center justify-between border-b border-slate-100 bg-white/95 px-4 py-3 backdrop-blur-md dark:border-slate-800 dark:bg-[#0F1535]/95 md:px-6 md:py-4">
           <button
@@ -95,36 +94,8 @@ const AccountHub: React.FC = () => {
           </h1>
         </header>
 
-        {/* Content container with fixed height and overflow hidden */}
-        <div className="flex h-[calc(100%-64px)] flex-col overflow-hidden">
-          {/* Scrollable content area - will not cause page scroll */}
+        <div className="flex flex-1 flex-col overflow-hidden">
           <div className="flex-1 overflow-y-auto">
-            {/* Profile Section - compact */}
-            {/* <section className="flex flex-col items-center justify-center px-4 py-4 text-center md:py-5">
-              <div
-                className="group relative cursor-pointer"
-                onClick={() => navigate({to: '/accounthub/personal-info'})}
-              >
-                <div
-                  className="h-20 w-20 rounded-full border-4 border-white bg-slate-100 bg-cover bg-center shadow-md dark:border-slate-700 dark:bg-slate-800 md:h-24 md:w-24"
-                  style={{
-                    backgroundImage: `url('https://images.unsplash.com/photo-1501973801540-537f08ccae7b?auto=format&fit=crop&w=400&q=80')`,
-                  }}
-                />
-                <button className="absolute bottom-0 right-0 flex items-center justify-center rounded-full border-2 border-white bg-primary p-1.5 text-white shadow-lg transition-transform active:scale-95 dark:border-slate-800 md:p-2">
-                  <MdEdit className="text-[16px] md:text-[18px]" />
-                </button>
-              </div>
-              <h2 className="mt-3 text-lg font-bold text-slate-900 dark:text-white md:text-xl">
-                {profiledata?.user?.fullname}
-              </h2>
-              <div className="mt-1 flex flex-col gap-0.5">
-                <p className="text-sm text-slate-500 dark:text-slate-400 md:text-base">
-                  {profiledata?.accountNumber || ''}
-                </p>
-              </div>
-            </section> */}
-
             {/* Personal Details Group - compact */}
             <section className="space-y-2 px-4 py-6 md:px-6">
               <div className="overflow-hidden rounded-xl border border-slate-100 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] dark:border-slate-700 dark:bg-slate-800/50">
@@ -172,7 +143,7 @@ const AccountHub: React.FC = () => {
             </section>
 
             {/* Logout Button & Version */}
-            <div className="mt-6 flex flex-col gap-4 px-4 pb-6 md:px-6 md:pb-8">
+            <div className="flex flex-1 flex-col items-center overflow-hidden">
               <button
                 onClick={handleLogout}
                 className="group flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-3 font-bold text-primary shadow-sm transition-all hover:bg-orange-50 active:scale-[0.99] dark:border-slate-700 dark:bg-slate-800/50 dark:hover:bg-slate-800 md:py-3.5 md:text-base"

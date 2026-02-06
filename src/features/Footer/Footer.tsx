@@ -20,7 +20,7 @@ const navItems = [
     iconSize: 'text-xl',
   },
   {
-    label: 'Payments',
+    label: 'Transactions',
     icon: FaCreditCard,
 
     to: '/eprivate/eprivatereports',
@@ -81,7 +81,7 @@ const Footer = () => {
   const isSettingsRoute = location.pathname.startsWith('/settings');
 
   return (
-    <footer className="fixed bottom-0 mx-auto max-w-[768px] left-0 right-0 z-50 bg-white/95 shadow-lg backdrop-blur-sm dark:border-strokedark dark:bg-boxdark">
+    <footer className="fixed bottom-0 left-0 right-0 z-50 mx-auto max-w-[768px] bg-white/95 shadow-lg backdrop-blur-sm dark:border-strokedark dark:bg-boxdark">
       <div className="flex items-center justify-around px-4 py-3">
         {navItems.map(({label, icon: Icon, to, iconSize, subroute}) => {
           const isActive = subroute

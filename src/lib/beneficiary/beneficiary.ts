@@ -29,6 +29,15 @@ export const getBenefishiary = async () => {
   }
 };
 
+// UPDATE BENEFICIARY
+export const updateBeneficiary = async (
+  id: string,
+  data: BeneficiaryFormData,
+) => {
+  const response = await api.put(`/customer/wallet/beneficiary/${id}`, data);
+  return response.data;
+};
+
 export const getWalletByCustomer = async () => {
   try {
     const response = await api.get(`/customer/wallet/wallet`);

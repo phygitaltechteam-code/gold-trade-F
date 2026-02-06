@@ -125,8 +125,8 @@ const EditPersonalInfo: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="dark:bg-gray-950 flex min-h-screen w-full items-center justify-center bg-white p-4 md:p-6">
-        <div className="relative mx-auto w-full max-w-[min(390px,95vw,500px)] overflow-hidden rounded-2xl bg-white shadow-xl dark:bg-[#221610] md:max-w-[600px]">
+      <div className="bg-gray-50 flex min-h-screen items-start justify-center pt-0">
+        <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-white shadow-2xl md:rounded-3xl">
           <div className="flex flex-1 items-center justify-center p-8">
             <div className="text-gray-500">Loading profile data...</div>
           </div>
@@ -136,9 +136,8 @@ const EditPersonalInfo: React.FC = () => {
   }
 
   return (
-    <div className="dark:bg-gray-950 flex min-h-screen w-full items-center justify-center bg-white">
-      {/* Main container */}
-      <div className="relative mx-auto w-full max-w-[min(390px,95vw,500px)] overflow-hidden bg-white dark:bg-[#221610] md:max-w-[600px]">
+    <div className="bg-gray-50 flex min-h-screen items-start justify-center pt-0">
+      <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-white shadow-2xl md:rounded-3xl">
         {/* Header */}
         <div className="sticky top-0 z-20 flex items-center justify-between bg-white/95 px-4 py-3 backdrop-blur-md dark:bg-[#221610]/95 md:px-6 md:py-4">
           <button
@@ -164,7 +163,7 @@ const EditPersonalInfo: React.FC = () => {
           </h1>
         </div>
 
-        <div className="no-scrollbar flex flex-1 flex-col items-center overflow-y-auto pb-6">
+        <div className="flex flex-1 flex-col items-center overflow-hidden">
           {/* Profile Photo Section */}
           <section className="flex flex-col items-center px-6 pb-8 pt-4 md:px-8 md:pt-6">
             <div
@@ -208,7 +207,7 @@ const EditPersonalInfo: React.FC = () => {
 
           {/* Form Section */}
           <form
-            className="flex w-full flex-1 flex-col gap-6 px-6 md:gap-8 md:px-8"
+            className="flex w-full flex-1 flex-col gap-6 overflow-y-auto px-6 pb-32 md:gap-8 md:px-8"
             onSubmit={handleSubmit}
           >
             {/* Full Name Input */}

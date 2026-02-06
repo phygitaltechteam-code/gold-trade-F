@@ -500,7 +500,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
   return (
     <div className="flex h-screen flex-col bg-white">
       {/* Header - Mobile Optimized */}
-      {/* <header className="sticky top-0 z-50 flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3">
+      <header className="sticky top-0 z-50 flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3">
         <button
           onClick={() => navigate({to: '/dashboard'})}
           className="flex h-10 w-10 items-center justify-center rounded-full text-slate-700 hover:bg-slate-100"
@@ -516,7 +516,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
         <button className="flex h-10 w-10 items-center justify-center rounded-full text-slate-700 hover:bg-slate-100">
           <MdSettings size={22} />
         </button>
-      </header> */}
+      </header>
 
       {/* Balance Section - Mobile Optimized */}
       <section className="px-4 py-4">
@@ -535,22 +535,24 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
 
       {/* Quick Actions - Mobile Optimized */}
       <section className="mb-4 px-4">
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-3">
           <button className="group flex flex-col items-center gap-1">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white shadow-sm">
-              <MdSwapHoriz size={20} />
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-white shadow-sm">
+              <MdSwapHoriz className="h-5 w-5" />
             </div>
-            <span className="text-xs font-medium text-slate-700">Transfer</span>
+            <span className="text-[11px] font-medium text-slate-700 sm:text-xs">
+              Transfer
+            </span>
           </button>
 
           <button
             onClick={() => onNavigate('statements')}
             className="group flex flex-col items-center gap-1"
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-white text-primary">
-              <MdDescription size={20} />
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200 bg-white text-primary">
+              <MdDescription className="h-5 w-5" />
             </div>
-            <span className="text-xs font-medium text-slate-700">
+            <span className="text-[11px] font-medium text-slate-700 sm:text-xs">
               Statement
             </span>
           </button>
@@ -559,10 +561,12 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
             onClick={() => setShowFilterModal(true)}
             className="group flex flex-col items-center gap-1"
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600">
-              <MdFilterList size={20} />
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600">
+              <MdFilterList className="h-5 w-5" />
             </div>
-            <span className="text-xs font-medium text-slate-700">Filter</span>
+            <span className="text-[11px] font-medium text-slate-700 sm:text-xs">
+              Filter
+            </span>
           </button>
         </div>
       </section>
