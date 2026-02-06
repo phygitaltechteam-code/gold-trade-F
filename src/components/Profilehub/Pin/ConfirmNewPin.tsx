@@ -126,7 +126,7 @@ const ConfirmNewPin: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-start overflow-y-auto px-6 ">
+      <div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-start overflow-y-auto px-6">
         {/* Header Section */}
         <div className="mb-6 flex flex-shrink-0 flex-col items-center gap-2">
           <h1 className="text-navy text-center text-3xl font-bold tracking-tight dark:text-white">
@@ -187,7 +187,7 @@ const ConfirmNewPin: React.FC = () => {
       </div>
 
       {/* Numeric Keypad Section */}
-      <div className="safe-area-bottom mx-auto w-full max-w-[320px] flex-shrink-0 px-4 pb-10 mb-15">
+      <div className="safe-area-bottom mx-auto mb-15 w-full max-w-[320px] flex-shrink-0 px-4 pb-10">
         <div className="grid grid-cols-3 gap-x-6 gap-y-5">
           {/* Row 1 */}
           <button

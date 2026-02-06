@@ -121,7 +121,7 @@ const PaymentSend: React.FC<props> = ({
             setSelectedWalletType={setSelectedWalletType}
             walletAmmount={walletAmmount}
           />
-          <CurrencySelector />
+
           <AmountDisplay amount={paymentData?.amount} />
 
           <div className="mb-8"></div>
