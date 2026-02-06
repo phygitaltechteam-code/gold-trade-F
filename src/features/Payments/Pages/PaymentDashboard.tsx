@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {ArrowLeft, ScanLine, Search} from 'lucide-react';
+import {ArrowLeft, Plus, ScanLine, Search} from 'lucide-react';
 import QuickSend from '../Components/QuickSend';
 import RecipientList from '../Components/RecipientList';
 import {useNavigate} from '@tanstack/react-router';
@@ -26,27 +26,43 @@ const PaymentDashboard: React.FC = () => {
           </button>
         </header>
 
-        <div className="bg-white px-5 py-2">
-          <div className="relative">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-              <Search size={20} className="text-gray-400" />
+        <div className="bg-white px-5 py-4">
+          <div className="flex items-center gap-3">
+            {/* Search Bar - Takes remaining space */}
+            <div className="relative flex-1">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+                <Search size={20} className="text-gray-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="Search name, phone, or account..."
+                className="bg-gray-50 text-gray-900 placeholder-gray-400 block w-full rounded-2xl border-none py-3.5 pl-11 pr-4 text-sm font-medium shadow-inner transition-all focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/10"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
-            <input
-              type="text"
-              placeholder="Search name, phone, or account..."
-              className="bg-gray-50 text-gray-900 placeholder-gray-400 block w-full rounded-2xl border-none py-3.5 pl-11 pr-4 text-sm font-medium shadow-inner transition-all focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/10"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+
+            {/* Add New Button - Fixed width */}
+            <div className="flex flex-col items-center">
+              <button
+                className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-dashed border-primary/20 bg-primary/5 text-primary transition-colors hover:bg-primary/10"
+                onClick={() => navigate({to: '/beneficiary/addbeneficiaryy'})}
+              >
+                <Plus size={18} strokeWidth={2.5} />
+              </button>
+              <span className="text-gray-600 mt-1 text-[10px] font-medium">
+                Add New
+              </span>
+            </div>
           </div>
         </div>
 
         {/* Scrollable Content Area */}
         <main className="no-scrollbar flex-1 overflow-y-auto bg-white">
-          <div className="pt-2">
+          {/* <div className="pt-2">
             <QuickSend />
-          </div>
-          <div className="bg-gray-50 pt-2">
+          </div> */}
+          <div className="bg-gray-50">
             <RecipientList searchQuery={searchQuery} />
           </div>
         </main>
