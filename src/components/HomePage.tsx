@@ -53,9 +53,9 @@ const Hero: React.FC = () => {
                 <span>Open an Account</span>
                 <ArrowRight className="h-4 w-4" />
               </button>
-              <button className="border-gray-200 hover:bg-gray-50 text-navy flex h-12 items-center gap-2 rounded-lg border bg-white px-8 text-base font-bold transition-colors">
+              {/* <button className="border-gray-200 hover:bg-gray-50 text-navy flex h-12 items-center gap-2 rounded-lg border bg-white px-8 text-base font-bold transition-colors">
                 <span>Try Demo</span>
-              </button>
+              </button> */}
             </div>
 
             <div className="text-slate-body flex items-center gap-6 pt-4 text-sm">

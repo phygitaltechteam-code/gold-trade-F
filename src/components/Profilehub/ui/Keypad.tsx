@@ -36,8 +36,8 @@ export const Keypad: React.FC<KeypadProps> = ({
         {/* Bottom Row */}
         <div className="flex items-center justify-center">
           {showBiometric ? (
-            <button className="flex h-16 w-full items-center justify-center rounded-2xl text-primary transition-transform active:scale-95 sm:h-[72px]">
-              <MdFace className="text-3xl" />
+            <button className="flex h-16 w-full items-center justify-center rounded-2xl font-bold text-black transition-transform active:scale-95 sm:h-[72px]">
+              .
             </button>
           ) : (
             <button

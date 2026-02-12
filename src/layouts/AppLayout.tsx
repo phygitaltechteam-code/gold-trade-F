@@ -46,7 +46,7 @@ const AppLayout = () => {
         <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
           <main>
             <Outlet />
-            <div className="block md:hidden">{!showFooter && <Footer />}</div>
+            <div className="">{!showFooter && <Footer />}</div>
           </main>
         </div>
       </div>

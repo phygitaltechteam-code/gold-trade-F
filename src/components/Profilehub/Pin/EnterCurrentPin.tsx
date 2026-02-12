@@ -42,7 +42,7 @@ const EnterCurrentPin: React.FC<EnterCurrentPinProps> = ({
   return (
     <div className="dark:bg-gray-950 flex min-h-screen w-full items-center justify-center bg-white">
       {/* Main container */}
-      <div className="relative mx-auto w-full max-w-[min(390px,95vw,500px)] overflow-hidden bg-white dark:bg-[#221610] md:max-w-[600px]">
+      <div className="relative mx-auto flex min-h-screen w-full max-w-[min(390px,95vw,500px)] flex-col overflow-y-auto bg-white dark:bg-[#221610] md:max-w-[600px]">
         {/* Header */}
         <div className="sticky top-0 z-20 flex items-center justify-between bg-white/95 px-4 py-3 backdrop-blur-md dark:bg-[#221610]/95 md:px-6 md:py-4">
           <button
@@ -78,7 +78,7 @@ const EnterCurrentPin: React.FC<EnterCurrentPinProps> = ({
             Change Transaction PIN
           </h1>
 
-          <p className="text-gray-500 dark:text-gray-400 mb-12 max-w-[280px] text-center text-base leading-relaxed md:mb-14 md:max-w-[320px] md:text-lg">
+          <p className="text-gray-500 dark:text-gray-400 mb-3 max-w-[280px] text-center text-base leading-relaxed md:mb-3 md:max-w-[320px] md:text-lg">
             Enter your current 6-digit PIN to continue.
           </p>
 
@@ -92,7 +92,7 @@ const EnterCurrentPin: React.FC<EnterCurrentPinProps> = ({
           )}
 
           {/* Dots */}
-          <div className="mb-10 flex gap-4 md:mb-12 md:gap-5">
+          <div className="flex gap-4 md:gap-5">
             {[...Array(6)].map((_, i) => (
               <div
                 key={i}
