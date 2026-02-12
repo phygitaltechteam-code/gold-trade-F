@@ -16,6 +16,10 @@ import {
   MdHome,
   MdCreditCard,
   MdMoney,
+  MdArrowUpward,
+  MdArrowDownward,
+  MdShoppingCart,
+  MdRestaurant,
 } from 'react-icons/md';
 
 // Helper function to format date
