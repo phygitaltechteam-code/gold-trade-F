@@ -67,7 +67,7 @@ const SuccessScreen: React.FC<SuccessScreenProps> = ({
         {/* Success Message */}
         <div className="mb-8 text-center">
           <h1 className="text-gray-900 mb-2 text-3xl font-bold dark:text-white">
-            Payment Successful!
+            Payment Successful!fdsfdsfds
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
             Your wallet has been topped up successfully
@@ -98,7 +98,7 @@ const SuccessScreen: React.FC<SuccessScreenProps> = ({
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-gray-600 dark:text-gray-400">
-                  Transaction ID
+                  Transaction IDdddd
                 </span>
                 <span className="text-gray-900 font-medium dark:text-white">
                   {transactionData.transactionId}

@@ -20,6 +20,7 @@ const AppLayout = () => {
     '/profile',
     '/payment/send/$id',
     '/wallet/toupscreen',
+    '/topupwithdrawl/walletwithdrawl',
   ];
 
   const showFooter =

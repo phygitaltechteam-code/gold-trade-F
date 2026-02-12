@@ -24,8 +24,9 @@ export const QuickActions: React.FC = () => {
         navigate({to: '/wallet/toupscreen'});
         break;
       case 'send':
-        // Handle send navigation
+        navigate({to: '/topupwithdrawl/walletwithdrawl'});
         break;
+
       case 'bills':
         // Handle bills navigation
         break;
