@@ -21,12 +21,20 @@ const AppLayout = () => {
     '/payment/send/$id',
     '/wallet/toupscreen',
     '/topupwithdrawl/walletwithdrawl',
+    '/beneficiary/statuspending',
+    '/updatebeneficiary/$id',
+    '/wallet/transaction/$id',
+    '/accounthub/enter-currentpin',
+    '/accounthub/setnew-pin',
+    '/accounthub/confirm-pin',
   ];
 
   const showFooter =
     showFooterRoutes.includes(location.pathname) ||
-    location.pathname.startsWith('/payment/send/');
+    location.pathname.startsWith('/payment/send/') ||
+    location.pathname.startsWith('/wallet/transaction/');
 
+  console.log(showFooter);
   useEffect(() => {
     !isAuthenticated && navigate({to: '/signin'});
   }, [isAuthenticated]);

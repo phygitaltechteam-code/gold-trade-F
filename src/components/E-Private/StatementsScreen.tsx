@@ -2,15 +2,12 @@ import React, {useState, useMemo} from 'react';
 import {
   MdArrowBack,
   MdCalendarToday,
-  MdDescription,
-  MdPictureAsPdf,
   MdDownload,
   MdFilterList,
-  MdClose,
 } from 'react-icons/md';
 import {useNavigate} from '@tanstack/react-router';
-import {useCustomReport, generateCSV} from './accountmutation';
-import {ReportData, Transaction} from './type';
+import {generateCSV} from './accountmutation';
+import {Transaction} from './type';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -31,9 +28,7 @@ const StatementsScreen: React.FC<StatementsScreenProps> = ({transactions}) => {
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  const getreport = useCustomReport();
-
-  // ADD SAFETY CHECK HERE
+  // Safety check for transactions prop
   const safeTransactions = Array.isArray(transactions) ? transactions : [];
 
   // Filter transactions by date range and account type
@@ -43,7 +38,6 @@ const StatementsScreen: React.FC<StatementsScreenProps> = ({transactions}) => {
       const fromDate = new Date(startDate);
       const toDate = new Date(endDate);
 
-      // Set time for proper comparison
       fromDate.setHours(0, 0, 0, 0);
       toDate.setHours(23, 59, 59, 999);
 
@@ -79,28 +73,7 @@ const StatementsScreen: React.FC<StatementsScreenProps> = ({transactions}) => {
 
     setIsGenerating(true);
 
-    // Format dates to match the backend requirement
-    const fromDate = new Date(startDate);
-    const toDate = new Date(endDate);
-
-    // Set time to start of day for from date
-    fromDate.setHours(0, 0, 0, 0);
-
-    // Set time to end of day for to date
-    toDate.setHours(23, 59, 59, 999);
-
-    // Create report data object matching the JSON structure from Postman
-    const reportData: ReportData = {
-      from: fromDate.toISOString(),
-      to: toDate.toISOString(),
-      format: reportFormat,
-      accountType: selectedAccountType,
-    };
-
-    console.log('Sending report data:', reportData);
-    getreport.mutate(reportData);
-
-    // Generate the selected format
+    // Generate the selected format directly (no backend call)
     switch (reportFormat) {
       case 'pdf':
         generatePDF();
@@ -120,11 +93,9 @@ const StatementsScreen: React.FC<StatementsScreenProps> = ({transactions}) => {
   const generatePDF = () => {
     const doc = new jsPDF();
 
-    // Add title
     doc.setFontSize(20);
     doc.text('Transaction Report', 14, 22);
 
-    // Add report details
     doc.setFontSize(10);
     doc.text(
       `Date Range: ${formatDateForDisplay(startDate)} to ${formatDateForDisplay(endDate)}`,
@@ -139,7 +110,6 @@ const StatementsScreen: React.FC<StatementsScreenProps> = ({transactions}) => {
     doc.text(`Total Transactions: ${totals.totalTransactions}`, 14, 44);
     doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 50);
 
-    // Prepare transaction data
     const tableData = filteredTransactions.map((t) => [
       new Date(t.createdAt).toLocaleDateString('en-US'),
       t.type,
@@ -150,22 +120,18 @@ const StatementsScreen: React.FC<StatementsScreenProps> = ({transactions}) => {
       t.isPending ? 'Pending' : t.isRejected ? 'Rejected' : 'Completed',
     ]);
 
-    // Add transactions table
     autoTable(doc, {
       startY: 60,
       head: [['Date', 'Type', 'Description', 'Amount', 'Status']],
       body: tableData,
       theme: 'grid',
       headStyles: {fillColor: [59, 130, 246]},
-      columnStyles: {
-        3: {halign: 'right'},
-      },
+      columnStyles: {3: {halign: 'right'}},
       styles: {fontSize: 8},
       margin: {top: 10},
       pageBreak: 'auto',
     });
 
-    // Save PDF
     doc.save(`Transaction_Report_${startDate}_to_${endDate}.pdf`);
   };
 
@@ -211,14 +177,12 @@ const StatementsScreen: React.FC<StatementsScreenProps> = ({transactions}) => {
 
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Transactions');
-
     XLSX.writeFile(
       workbook,
       `Transaction_Report_${startDate}_to_${endDate}.xlsx`,
     );
   };
 
-  // Format date for display
   const formatDateForDisplay = (dateString: string): string => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
@@ -439,7 +403,11 @@ const TransactionItem: React.FC<{transaction: Transaction}> = ({
     <div className="group flex items-center justify-between rounded-xl border border-slate-100 p-3 transition-all hover:border-primary/20 hover:bg-slate-50">
       <div className="flex items-center gap-3">
         <div
-          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${transaction.type === 'CREDIT' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${
+            transaction.type === 'CREDIT'
+              ? 'bg-green-50 text-green-600'
+              : 'bg-red-50 text-red-600'
+          }`}
         >
           <span className="text-sm font-bold">
             {transaction.type === 'CREDIT' ? '+' : '-'}
@@ -462,7 +430,9 @@ const TransactionItem: React.FC<{transaction: Transaction}> = ({
       </div>
       <div className="flex flex-col items-end gap-1">
         <span
-          className={`text-sm font-bold ${transaction.type === 'CREDIT' ? 'text-green-600' : 'text-red-600'}`}
+          className={`text-sm font-bold ${
+            transaction.type === 'CREDIT' ? 'text-green-600' : 'text-red-600'
+          }`}
         >
           {transaction.type === 'CREDIT' ? '+' : '-'}$
           {transaction.amount.toLocaleString()}
