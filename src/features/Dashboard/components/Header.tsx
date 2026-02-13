@@ -32,12 +32,8 @@ export const Header: React.FC = () => {
   const {data: notificationData, refetch} = useQuery({
     queryKey: ['notificationdata'],
     queryFn: async () => {
-      try {
-        const response = await api.get('/customer/profile/notifications');
-        return response.data;
-      } catch (error) {
-        throw error;
-      }
+      const response = await api.get('/customer/profile/notifications');
+      return response.data;
     },
     refetchInterval: 30000, // Refetch every 30 seconds
   });

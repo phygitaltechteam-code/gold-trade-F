@@ -65,7 +65,7 @@ export const useWithdrawMutation = () => {
   return useMutation<TopupResponse, Error, TopupPayload>({
     mutationFn: submitWithdraw,
     onSuccess: (data) => {
-      toast.success('Topup Payment submitted successfully!');
+      toast.success('Withdraw Payment submitted successfully!');
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to submit topup');

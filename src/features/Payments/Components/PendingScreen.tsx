@@ -1,4 +1,4 @@
-import {useNavigate} from '@tanstack/react-router';
+import {useNavigate, useLocation} from '@tanstack/react-router';
 import React from 'react';
 import {
   MdClose,
@@ -10,6 +10,17 @@ import {
 
 const StatusScreen: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const recipient = location.state?.recipient;
+
+  if (!recipient) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <p className="text-gray-500">No recipient information available.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
@@ -54,10 +65,12 @@ const StatusScreen: React.FC = () => {
           <h1 className="text-navy mb-4 text-2xl font-bold tracking-tight">
             Beneficiary Under Review
           </h1>
+
           <p className="mx-auto max-w-xs text-[15px] leading-relaxed text-slate-500">
             For your security, there is a mandatory{' '}
             <span className="text-navy font-bold">24-hour waiting period</span>{' '}
-            before you can transfer funds to this new international beneficiary.
+            before you can transfer funds to{' '}
+            <span className="text-navy font-bold">{recipient.fullName}</span>.
             We will notify you once the verification is complete.
           </p>
         </div>

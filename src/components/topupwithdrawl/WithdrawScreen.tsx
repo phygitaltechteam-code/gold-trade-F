@@ -107,7 +107,7 @@ const WithdrawScreen: React.FC<Props> = ({
             <MdArrowBack className="text-swiss-navy text-2xl" />
           </button>
           <h2 className="text-swiss-navy flex-1 pr-10 text-center text-lg font-bold leading-tight">
-            Top Up Wallet
+            Withdraw Wallet
           </h2>
           <div className="w-10" /> {/* spacer */}
         </header>

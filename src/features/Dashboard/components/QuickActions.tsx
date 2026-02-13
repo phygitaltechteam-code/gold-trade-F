@@ -4,12 +4,13 @@ import {
   MdReceiptLong,
   MdQrCodeScanner,
   MdAddCircle,
+  MdWallet,
 } from 'react-icons/md';
 import {useNavigate} from '@tanstack/react-router';
 import {ActionItem} from '../types';
 
 const actions: ActionItem[] = [
-  {id: 'send', label: 'Send', icon: MdSend},
+  {id: 'withdraw', label: 'Withdraw', icon: MdWallet},
   {id: 'bills', label: 'Bills', icon: MdReceiptLong},
   {id: 'scan', label: 'Scan', icon: MdQrCodeScanner},
   {id: 'topup', label: 'Top Up', icon: MdAddCircle},
@@ -23,7 +24,7 @@ export const QuickActions: React.FC = () => {
       case 'topup':
         navigate({to: '/wallet/toupscreen'});
         break;
-      case 'send':
+      case 'withdraw':
         navigate({to: '/topupwithdrawl/walletwithdrawl'});
         break;
 
