@@ -175,9 +175,10 @@ const Signin: React.FC = () => {
           {/* Header */}
           <div className="flex flex-col gap-2 md:gap-3">
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#F57F3D]/10 backdrop-blur-sm md:h-14 md:w-14">
-              <span className="material-symbols-outlined text-2xl text-[#F57F3D] md:text-3xl">
+              <div className="material-symbols-outlined text-2xl text-[#F57F3D] md:text-3xl">
                 account_balance_wallet
-              </span>
+              </div>
+              <span className=''>Swiss-Quote</span>
             </div>
             <h1 className="text-[32px] font-bold leading-tight tracking-tight text-[#0d131c] dark:text-white md:text-[36px]">
               Welcome back
