@@ -59,3 +59,45 @@ export const submittopup = async (
     throw error;
   }
 };
+
+export const useWithdrawMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation<TopupResponse, Error, TopupPayload>({
+    mutationFn: submitWithdraw,
+    onSuccess: (data) => {
+      toast.success('Withdraw Payment submitted successfully!');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to submit topup');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['wallet'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['transactions'],
+      });
+    },
+  });
+};
+
+export const submitWithdraw = async (
+  data: TopupPayload,
+): Promise<TopupResponse> => {
+  try {
+    const response = await api.post<TopupResponse>(
+      `/customer/wallet/withdraw`,
+      data,
+    );
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      throw new Error(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          'Failed to submit topup',
+      );
+    }
+    throw error;
+  }
+};
