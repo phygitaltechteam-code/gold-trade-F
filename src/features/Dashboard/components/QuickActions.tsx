@@ -5,15 +5,16 @@ import {
   MdQrCodeScanner,
   MdAddCircle,
   MdWallet,
+  MdOutlineCurrencyExchange,
 } from 'react-icons/md';
 import {useNavigate} from '@tanstack/react-router';
 import {ActionItem} from '../types';
 
 const actions: ActionItem[] = [
-  {id: 'withdraw', label: 'Withdraw', icon: MdWallet},
-  {id: 'bills', label: 'Bills', icon: MdReceiptLong},
-  {id: 'scan', label: 'Scan', icon: MdQrCodeScanner},
   {id: 'topup', label: 'Top Up', icon: MdAddCircle},
+  {id: 'currency', label: 'Currency Converter', icon: MdOutlineCurrencyExchange},
+  {id: 'withdraw', label: 'Withdraw', icon: MdWallet},
+  {id: 'transactions', label: 'Transactions', icon: MdReceiptLong},
 ];
 
 export const QuickActions: React.FC = () => {
@@ -25,13 +26,16 @@ export const QuickActions: React.FC = () => {
         navigate({to: '/wallet/toupscreen'});
         break;
       case 'withdraw':
-        navigate({to: '/topupwithdrawl/walletwithdrawl'});
+        navigate({to: '/topupwithdrawl/walletwithdraw'});
         break;
 
-      case 'bills':
+      case 'transactions':
+        navigate({to: '/eprivate/eprivatereports'});
         // Handle bills navigation
         break;
-      case 'scan':
+      case 'currency':
+        navigate({to: '/currencyconverter'});
+
         // Handle scan navigation
         break;
       default:

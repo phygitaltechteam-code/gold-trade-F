@@ -6,7 +6,7 @@ import TopUpScreen from '@/components/Wallet/TopUpScreen';
 import AdminApprovedScreen from '@/components/Wallet/AdminApprovedScreen';
 import React, {useState} from 'react';
 import {useTopupMutation} from './topupmutate';
-import {useNavigate} from '@tanstack/react-router'; // ADD THIS IMPORT
+import {useNavigate} from '@tanstack/react-router';
 
 interface WalletFlowProps {
   onComplete?: (transactionData: TransactionData) => void;
@@ -36,8 +36,9 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
   });
   const [isAdminApproved, setIsAdminApproved] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [isSubmittingPin, setIsSubmittingPin] = useState(false); // Add this state
 
-  const navigate = useNavigate(); // ADD THIS
+  const navigate = useNavigate();
 
   const {mutate: saveTransactionData, isPending: isSubmitting} =
     useTopupMutation();
@@ -66,11 +67,14 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
 
   // Handle PIN submission
   const handlePinSubmit = (pin: string) => {
+    // Set submitting state to show loading in PIN screen
+    setIsSubmittingPin(true);
+    
     // Update transaction data
     setTransactionData((prev) => ({
       ...prev,
       pin,
-      status: 'processing',
+      // Don't set status to processing yet
     }));
 
     // Format payload
@@ -88,10 +92,7 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
 
     console.log('Transaction Payload:', payload);
 
-    // Go to processing screen
-    setCurrentStep('processing');
-
-    // Submit to API
+    // Submit to API FIRST, then handle response
     submitTransaction(payload);
   };
 
@@ -103,30 +104,44 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
       saveTransactionData(payload, {
         onSuccess: (response) => {
           console.log('API Response:', response);
+          
+          // Reset submitting state
+          setIsSubmittingPin(false);
 
-          // Check API response structure - FIXED THIS
+          // Check API response structure
           if (response.statusCode === 200 || response.status === true) {
-            // Direct approval - go to success
-            setIsAdminApproved(true);
+            // Direct approval - go to processing then success
             setTransactionData((prev) => ({
               ...prev,
-              status: 'success',
+              status: 'processing',
             }));
-
-            // Show success screen for 2 seconds then redirect to dashboard
-            setCurrentStep('success');
-
-            // Redirect to dashboard after 2 seconds
+            
+            // Now show processing screen
+            setCurrentStep('processing');
+            
+            setIsAdminApproved(true);
+            
+            // Simulate processing time then show success
             setTimeout(() => {
-              navigate({to: '/dashboard'});
-
-              if (onComplete) {
-                onComplete({
-                  ...transactionData,
-                  status: 'success',
-                });
-              }
+              setTransactionData((prev) => ({
+                ...prev,
+                status: 'success',
+              }));
+              setCurrentStep('success');
+              
+              // Redirect to dashboard after success screen
+              setTimeout(() => {
+                navigate({to: '/dashboard'});
+                
+                if (onComplete) {
+                  onComplete({
+                    ...transactionData,
+                    status: 'success',
+                  });
+                }
+              }, 2000);
             }, 2000);
+            
           } else if (
             response.status === 'pending' ||
             response.data?.isPending
@@ -136,47 +151,58 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
               ...prev,
               status: 'pending',
             }));
-
-            // Show admin approval screen
-            setCurrentStep('adminApproved');
-
-            // After admin approval, show success and redirect
+            
+            // Go to processing screen first
+            setCurrentStep('processing');
+            
+            // Then after a short delay, show admin approval screen
             setTimeout(() => {
-              setIsAdminApproved(true);
-              setTransactionData((prev) => ({
-                ...prev,
-                status: 'success',
-              }));
-              setCurrentStep('success');
-
-              // Redirect to dashboard after success screen
+              setCurrentStep('adminApproved');
+              
+              // After admin approval, show success and redirect
               setTimeout(() => {
-                navigate({to: '/dashboard'});
-
-                if (onComplete) {
-                  onComplete({
-                    ...transactionData,
-                    status: 'success',
-                  });
-                }
-              }, 2000);
-            }, 5000);
+                setIsAdminApproved(true);
+                setTransactionData((prev) => ({
+                  ...prev,
+                  status: 'success',
+                }));
+                setCurrentStep('success');
+                
+                // Redirect to dashboard after success screen
+                setTimeout(() => {
+                  navigate({to: '/dashboard'});
+                  
+                  if (onComplete) {
+                    onComplete({
+                      ...transactionData,
+                      status: 'success',
+                    });
+                  }
+                }, 2000);
+              }, 5000);
+            }, 1000);
+            
           } else {
             // Rejected or failed
+            setIsSubmittingPin(false);
             setErrorMessage(response.message || 'Transaction was rejected');
             setTransactionData((prev) => ({
               ...prev,
               status: 'failed',
             }));
 
-            // Show error and redirect after 3 seconds
-            setTimeout(() => {
-              navigate({to: '/dashboard'});
-            }, 3000);
+            // Show error on PIN screen and stay there
+            // The error will be passed back to PinScreen component
+            
+            // Optionally, show error message and stay on PIN screen
+            // You might want to add a prop to PinScreen to display this error
           }
         },
         onError: (error: any) => {
           console.error('Transaction submission failed:', error);
+          
+          // Reset submitting state
+          setIsSubmittingPin(false);
 
           // Check if it's a PIN error
           const errorMsg =
@@ -191,11 +217,11 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
             errorMsg.toLowerCase().includes('invalid')
           ) {
             setErrorMessage('Invalid PIN. Please try again.');
-            // Go back to PIN screen for retry
-            setCurrentStep('pin');
+            // Stay on PIN screen - don't change currentStep
+            // The error message will be displayed on the PIN screen
           } else {
             setErrorMessage(errorMsg);
-            // Show error and redirect to dashboard after 3 seconds
+            // For other errors, maybe show error and redirect
             setTimeout(() => {
               navigate({to: '/dashboard'});
             }, 3000);
@@ -209,6 +235,7 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
       });
     } catch (error) {
       console.error('Transaction submission failed:', error);
+      setIsSubmittingPin(false);
       setErrorMessage('An unexpected error occurred. Please try again.');
 
       setTransactionData((prev) => ({
@@ -216,10 +243,7 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
         status: 'failed',
       }));
 
-      // Redirect to dashboard after error
-      setTimeout(() => {
-        navigate({to: '/dashboard'});
-      }, 3000);
+      // Stay on PIN screen
     }
   };
 
@@ -236,7 +260,6 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
         setCurrentStep('processing');
         break;
       case 'success':
-        // Instead of going to topup, go to dashboard
         navigate({to: '/dashboard'});
         resetTransaction();
         break;
@@ -254,6 +277,7 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
     });
     setIsAdminApproved(false);
     setErrorMessage('');
+    setIsSubmittingPin(false);
   };
 
   return (
@@ -272,6 +296,8 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
           onPinSubmit={handlePinSubmit}
           onBack={handleBack}
           transactionAmount={transactionData.amount}
+          isSubmitting={isSubmittingPin} // Pass loading state to PIN screen
+          errorMessage={errorMessage} // Pass error message to PIN screen
         />
       )}
 
@@ -291,7 +317,6 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
           onBack={handleBack}
           onContinue={() => {
             setCurrentStep('success');
-            // Redirect after showing success
             setTimeout(() => {
               navigate({to: '/dashboard'});
             }, 2000);
@@ -304,7 +329,6 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
           transactionData={transactionData}
           onBack={handleBack}
           onComplete={() => {
-            // Go directly to dashboard
             navigate({to: '/dashboard'});
             resetTransaction();
           }}

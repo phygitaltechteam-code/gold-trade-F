@@ -66,11 +66,49 @@ const SignupStep1Personal: FC<SignupStep1PersonalProps> = ({
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [isValidating, setIsValidating] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFormValid, setIsFormValid] = useState(false);
   const navigate = useNavigate();
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   const toggleVisibility = () => {
     setIsPasswordVisible((prev) => !prev);
+  };
+
+  // Check form validity whenever formData or errors change
+  useEffect(() => {
+    checkFormValidity();
+  }, [formData, errors]);
+
+  const checkFormValidity = () => {
+    // If validation hasn't started yet, form is not valid
+    if (!isValidating) {
+      setIsFormValid(false);
+      return;
+    }
+
+    // Check if all required fields have values
+    const requiredFields: (keyof typeof formData)[] = [
+      'accountHolderName',
+      'dateOfBirth',
+      'contactEmail',
+      'password',
+      'securityPin',
+      'contactPhone',
+      'streetAddress',
+      'city',
+      'stateProvince',
+      'postalCode',
+      'country',
+    ];
+
+    const allFieldsFilled = requiredFields.every(field => 
+      formData[field] && formData[field].toString().trim() !== ''
+    );
+
+    // Check if there are any error messages
+    const noErrors = Object.values(errors).every(error => !error || error === '');
+
+    setIsFormValid(allFieldsFilled && noErrors);
   };
 
   // Validate form on input change
@@ -317,7 +355,7 @@ const SignupStep1Personal: FC<SignupStep1PersonalProps> = ({
     // Check if there are any errors
     const hasErrors = Object.values(errors).some((error) => error !== '');
 
-    if (!hasErrors) {
+    if (!hasErrors && isFormValid) {
       onComplete(formData);
     }
   };
@@ -409,11 +447,13 @@ const SignupStep1Personal: FC<SignupStep1PersonalProps> = ({
                       }
                       required
                     />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500">
-                      <span className="material-symbols-outlined text-[16px] md:text-[18px]">
-                        check_circle
+                    {formData.accountHolderName && !errors.accountHolderName && (
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500">
+                        <span className="material-symbols-outlined text-[16px] md:text-[18px]">
+                          check_circle
+                        </span>
                       </span>
-                    </span>
+                    )}
                   </div>
                   <ErrorMessage message={errors.accountHolderName} />
                 </label>
@@ -731,9 +771,13 @@ const SignupStep1Personal: FC<SignupStep1PersonalProps> = ({
           <div className="flex flex-col items-center gap-3 md:px-8 md:pb-6">
             <button
               type="submit"
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-md bg-[#F57F3D] text-base font-semibold text-white shadow-md shadow-[#F57F3D]/20 transition-all hover:bg-[#e06c2e] active:scale-[0.98] md:h-14 md:max-w-[400px] md:text-lg"
+              className={`flex h-12 w-full items-center justify-center gap-2 rounded-md text-base font-semibold text-white shadow-md transition-all md:h-14 md:max-w-[400px] md:text-lg ${
+                isFormValid && !isLoading
+                  ? 'bg-[#F57F3D] hover:bg-[#e06c2e] active:scale-[0.98] shadow-[#F57F3D]/20' 
+                  : 'bg-orange-400 cursor-not-allowed opacity-50'
+              }`}
               onClick={handleSubmit}
-              disabled={isLoading}
+              disabled={!isFormValid || isLoading}
             >
               {isLoading ? (
                 <>
@@ -751,6 +795,13 @@ const SignupStep1Personal: FC<SignupStep1PersonalProps> = ({
                 </>
               )}
             </button>
+            
+            {/* Show validation summary when button is disabled after validation started */}
+            {!isFormValid && isValidating && (
+              <p className="text-xs text-red-500 dark:text-red-400">
+                Please fill all required fields correctly
+              </p>
+            )}
           </div>
         </div>
       </div>

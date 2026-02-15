@@ -22,7 +22,7 @@ const TopUpScreen: React.FC<TopUpScreenProps> = ({onBack, onContinue}) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const MAX_AMOUNT = 100000000;
+  const MAX_AMOUNT = 999999999999.99;
 
   // Handle keypad button press
   const handleKeyPress = (key: string) => {
@@ -43,7 +43,7 @@ const TopUpScreen: React.FC<TopUpScreenProps> = ({onBack, onContinue}) => {
     const parts = currentValue.split('.');
 
     // Allow up to 9 digits for integer part (for 10 crores: 100,000,000 has 9 digits)
-    if (parts[0].length >= 9 && key !== '.' && !parts[1]) {
+    if (parts[0].length >= 12 && key !== '.' && !parts[1]) {
       return;
     }
 

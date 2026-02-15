@@ -19,13 +19,13 @@ const navItems = [
     to: '/dashboard',
     iconSize: 'text-xl',
   },
-  {
-    label: 'Transactions',
-    icon: FaCreditCard,
+  // {
+  //   label: 'Transactions',
+  //   icon: FaCreditCard,
 
-    to: '/eprivate/eprivatereports',
-    iconSize: 'text-xl',
-  },
+  //   to: '/eprivate/eprivatereports',
+  //   iconSize: 'text-xl',
+  // },
 
   {
     label: 'Accounts',
