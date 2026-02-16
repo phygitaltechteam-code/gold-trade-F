@@ -69,7 +69,7 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
   const handlePinSubmit = (pin: string) => {
     // Set submitting state to show loading in PIN screen
     setIsSubmittingPin(true);
-    
+
     // Update transaction data
     setTransactionData((prev) => ({
       ...prev,
@@ -96,7 +96,7 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
     submitTransaction(payload);
   };
 
-  // Submit transaction to API
+  // ---------- API Submission ----------
   const submitTransaction = async (payload: any) => {
     try {
       setErrorMessage('');
@@ -104,146 +104,71 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
       saveTransactionData(payload, {
         onSuccess: (response) => {
           console.log('API Response:', response);
-          
-          // Reset submitting state
-          setIsSubmittingPin(false);
 
-          // Check API response structure
           if (response.statusCode === 200 || response.status === true) {
-            // Direct approval - go to processing then success
-            setTransactionData((prev) => ({
-              ...prev,
-              status: 'processing',
-            }));
-            
-            // Now show processing screen
-            setCurrentStep('processing');
-            
+            // Direct success
             setIsAdminApproved(true);
-            
-            // Simulate processing time then show success
+            setTransactionData((prev) => ({...prev, status: 'success'}));
+            setCurrentStep('success');
+
             setTimeout(() => {
-              setTransactionData((prev) => ({
-                ...prev,
+              navigate({to: '/dashboard'});
+              onComplete?.({
+                ...transactionData,
                 status: 'success',
-              }));
-              setCurrentStep('success');
-              
-              // Redirect to dashboard after success screen
-              setTimeout(() => {
-                navigate({to: '/dashboard'});
-                
-                if (onComplete) {
-                  onComplete({
-                    ...transactionData,
-                    status: 'success',
-                  });
-                }
-              }, 2000);
+              });
             }, 2000);
-            
           } else if (
             response.status === 'pending' ||
             response.data?.isPending
           ) {
             // Needs admin approval
-            setTransactionData((prev) => ({
-              ...prev,
-              status: 'pending',
-            }));
-            
-            // Go to processing screen first
-            setCurrentStep('processing');
-            
-            // Then after a short delay, show admin approval screen
-            setTimeout(() => {
-              setCurrentStep('adminApproved');
-              
-              // After admin approval, show success and redirect
-              setTimeout(() => {
-                setIsAdminApproved(true);
-                setTransactionData((prev) => ({
-                  ...prev,
-                  status: 'success',
-                }));
-                setCurrentStep('success');
-                
-                // Redirect to dashboard after success screen
-                setTimeout(() => {
-                  navigate({to: '/dashboard'});
-                  
-                  if (onComplete) {
-                    onComplete({
-                      ...transactionData,
-                      status: 'success',
-                    });
-                  }
-                }, 2000);
-              }, 5000);
-            }, 1000);
-            
-          } else {
-            // Rejected or failed
-            setIsSubmittingPin(false);
-            setErrorMessage(response.message || 'Transaction was rejected');
-            setTransactionData((prev) => ({
-              ...prev,
-              status: 'failed',
-            }));
+            setTransactionData((prev) => ({...prev, status: 'pending'}));
+            setCurrentStep('adminApproved');
 
-            // Show error on PIN screen and stay there
-            // The error will be passed back to PinScreen component
-            
-            // Optionally, show error message and stay on PIN screen
-            // You might want to add a prop to PinScreen to display this error
+            // Simulate admin approval after 5 seconds (replace with real logic)
+            setTimeout(() => {
+              setIsAdminApproved(true);
+              setTransactionData((prev) => ({...prev, status: 'success'}));
+              setCurrentStep('success');
+
+              setTimeout(() => {
+                navigate({to: '/dashboard'});
+                onComplete?.({
+                  ...transactionData,
+                  status: 'success',
+                });
+              }, 2000);
+            }, 5000);
+          } else {
+            // Rejected
+            setErrorMessage(response.message || 'Transaction was rejected');
+            setTransactionData((prev) => ({...prev, status: 'failed'}));
+            setTimeout(() => navigate({to: '/dashboard'}), 3000);
           }
         },
         onError: (error: any) => {
-          console.error('Transaction submission failed:', error);
-          
-          // Reset submitting state
-          setIsSubmittingPin(false);
-
-          // Check if it's a PIN error
+          console.error('Submission error:', error);
           const errorMsg =
             error?.response?.data?.message ||
             error?.message ||
-            'Transaction failed. Please try again.';
+            'Transaction failed';
 
-          if (
-            errorMsg.toLowerCase().includes('pin') ||
-            errorMsg.toLowerCase().includes('security') ||
-            errorMsg.toLowerCase().includes('password') ||
-            errorMsg.toLowerCase().includes('invalid')
-          ) {
+          if (/pin|security|password|invalid/i.test(errorMsg)) {
             setErrorMessage('Invalid PIN. Please try again.');
-            // Stay on PIN screen - don't change currentStep
-            // The error message will be displayed on the PIN screen
+            setCurrentStep('pin');
           } else {
             setErrorMessage(errorMsg);
-            // For other errors, maybe show error and redirect
-            setTimeout(() => {
-              navigate({to: '/dashboard'});
-            }, 3000);
+            setTimeout(() => navigate({to: '/dashboard'}), 3000);
           }
-
-          setTransactionData((prev) => ({
-            ...prev,
-            status: 'failed',
-          }));
+          setTransactionData((prev) => ({...prev, status: 'failed'}));
         },
       });
     } catch (error) {
-      console.error('Transaction submission failed:', error);
-      setIsSubmittingPin(false);
-      setErrorMessage('An unexpected error occurred. Please try again.');
-
-      setTransactionData((prev) => ({
-        ...prev,
-        status: 'failed',
-      }));
-
-      // Stay on PIN screen
+      console.error('Unexpected error:', error);
+      setErrorMessage('An unexpected error occurred');
+      setTimeout(() => navigate({to: '/dashboard'}), 3000);
+      setTransactionData((prev) => ({...prev, status: 'failed'}));
     }
   };
 

@@ -178,7 +178,7 @@ const Signin: React.FC = () => {
               <div className="material-symbols-outlined text-2xl text-[#F57F3D] md:text-3xl">
                 account_balance_wallet
               </div>
-              <span className=''>Swiss-Quote</span>
+              <span className="">Swiss-Quote</span>
             </div>
             <h1 className="text-[32px] font-bold leading-tight tracking-tight text-[#0d131c] dark:text-white md:text-[36px]">
               Welcome back

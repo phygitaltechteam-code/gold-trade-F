@@ -20,11 +20,11 @@ const SignupStep3FacialVerification: FC<SignupStep3FacialVerificationProps> = ({
     const file = event.target.files?.[0];
     if (file) {
       setIsUploading(true);
-      
+
       // Create preview URL
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
-      
+
       // Simulate upload/processing
       setTimeout(() => {
         setUploadedImage(file);
@@ -110,7 +110,7 @@ const SignupStep3FacialVerification: FC<SignupStep3FacialVerificationProps> = ({
               Facial Verification
             </h2>
             <p className="pb-6 text-base font-normal leading-normal text-slate-600 dark:text-slate-300 md:pb-8 md:text-lg">
-              Upload a clear photo of your face. This helps prevent fraud and 
+              Upload a clear photo of your face. This helps prevent fraud and
               keep your account secure.
             </p>
           </div>
@@ -140,7 +140,7 @@ const SignupStep3FacialVerification: FC<SignupStep3FacialVerificationProps> = ({
                     </div>
                   </div>
                 ) : (
-                  <div 
+                  <div
                     onClick={handleUploadClick}
                     className="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-4 p-6 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
                   >

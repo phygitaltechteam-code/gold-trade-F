@@ -13,7 +13,9 @@ type Props = {
   setPaymentData: React.Dispatch<React.SetStateAction<PaymentData>>;
   nextStep: () => void;
   prevStep: () => void;
-  walletAmmount?: WalletAmount; // optional with default
+  walletAmmount?: WalletAmount;
+  accountType: 'E_PRIVATEACCOUNT' | 'E_TEMPORYACCOUNT';
+  setAccountType: (type: 'E_PRIVATEACCOUNT' | 'E_TEMPORYACCOUNT') => void;
 };
 
 const WithdrawScreen: React.FC<Props> = ({
@@ -21,6 +23,8 @@ const WithdrawScreen: React.FC<Props> = ({
   setPaymentData,
   nextStep,
   prevStep,
+  accountType,
+  setAccountType,
   walletAmmount = {E_PRIVATEACCOUNT: 0, E_TEMPORYACCOUNT: 0},
 }) => {
   const navigate = useNavigate();
@@ -28,8 +32,13 @@ const WithdrawScreen: React.FC<Props> = ({
   // Only private account is used for top‑up withdrawals
   const privateBalance = walletAmmount.E_PRIVATEACCOUNT ?? 0;
 
+  const selectedBalance =
+    accountType === 'E_PRIVATEACCOUNT'
+      ? walletAmmount.E_PRIVATEACCOUNT
+      : walletAmmount.E_TEMPORYACCOUNT;
+
   const enteredAmount = Number(paymentData.amount || 0);
-  const isInsufficientBalance = enteredAmount > privateBalance;
+  const isInsufficientBalance = enteredAmount > selectedBalance;
 
   // ----- Keypad handlers -----
   const handleKeyPress = useCallback(
@@ -65,7 +74,7 @@ const WithdrawScreen: React.FC<Props> = ({
         if (value.replace('.', '').length >= 9) return prev;
 
         const nextAmount = value + key;
-        if (Number(nextAmount) > privateBalance) {
+        if (Number(nextAmount) > selectedBalance) {
           toast.error('Insufficient wallet balance');
           return prev;
         }
@@ -117,32 +126,22 @@ const WithdrawScreen: React.FC<Props> = ({
           {/* Private Account Balance Card */}
           <div className="mb-6 w-full max-w-xs rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 p-4 text-center shadow-sm md:max-w-md">
             <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
-              Private Account Balance
+              {accountType === 'E_PRIVATEACCOUNT'
+                ? 'Private Account Balance'
+                : 'Temporary Account Balance'}
             </p>
             <p className="text-2xl font-bold text-slate-900">
-              ₹{privateBalance.toLocaleString('en-IN')}
+              ₹{selectedBalance.toLocaleString('en-IN')}
             </p>
           </div>
 
-          <CurrencySelector />
+          <CurrencySelector
+            accountType={accountType}
+            setAccountType={setAccountType}
+          />
           <AmountDisplay amount={paymentData?.amount} />
 
           <div className="mb-8" />
-
-          {/* Optional note input */}
-          {/* <div className="group relative mb-auto w-full max-w-xs md:max-w-md">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <MdEditNote className="text-xl text-slate-400 transition-colors group-focus-within:text-primary" />
-            </div>
-            <input
-              className="text-swiss-navy block w-full rounded-xl border-0 bg-white/70 py-3 pl-10 pr-4 shadow-sm outline-none backdrop-blur-sm transition-all placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
-              placeholder="Add a note (optional)"
-              type="text"
-              onChange={(e) =>
-                setPaymentData((prev) => ({ ...prev, note: e.target.value }))
-              }
-            />
-          </div> */}
         </main>
 
         {/* Keypad & Continue button */}

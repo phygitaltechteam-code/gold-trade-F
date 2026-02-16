@@ -60,6 +60,7 @@ export const getBeneficiaryById = async (id: string) => {
 
 export const payment = async (data: TransactionPayload) => {
   try {
+    console.log('sdegwergfwsf', data);
     const response = await api.post(`/customer/wallet/transfer`, data);
     return response.data;
   } catch (error) {

@@ -12,7 +12,11 @@ import {ActionItem} from '../types';
 
 const actions: ActionItem[] = [
   {id: 'topup', label: 'Top Up', icon: MdAddCircle},
-  {id: 'currency', label: 'Currency Converter', icon: MdOutlineCurrencyExchange},
+  {
+    id: 'currency',
+    label: 'Currency Converter',
+    icon: MdOutlineCurrencyExchange,
+  },
   {id: 'withdraw', label: 'Withdraw', icon: MdWallet},
   {id: 'transactions', label: 'Transactions', icon: MdReceiptLong},
 ];
@@ -26,7 +30,7 @@ export const QuickActions: React.FC = () => {
         navigate({to: '/wallet/toupscreen'});
         break;
       case 'withdraw':
-        navigate({to: '/topupwithdrawl/walletwithdraw'});
+        navigate({to: '/topupwithdrawl/walletwithdrawl'});
         break;
 
       case 'transactions':

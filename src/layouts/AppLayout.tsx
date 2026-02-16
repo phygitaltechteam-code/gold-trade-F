@@ -27,12 +27,14 @@ const AppLayout = () => {
     '/accounthub/enter-currentpin',
     '/accounthub/setnew-pin',
     '/accounthub/confirm-pin',
+    // '/updatebeneficiary/$id',
   ];
 
   const showFooter =
     showFooterRoutes.includes(location.pathname) ||
     location.pathname.startsWith('/payment/send/') ||
-    location.pathname.startsWith('/wallet/transaction/');
+    location.pathname.startsWith('/wallet/transaction/') ||
+    location.pathname.startsWith('/updatebeneficiary/');
 
   console.log(showFooter);
   useEffect(() => {

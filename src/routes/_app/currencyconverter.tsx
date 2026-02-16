@@ -1,7 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router'
-import React, { useState, useEffect } from 'react';
-import { MdArrowBack, MdSwapHoriz, MdInfoOutline } from 'react-icons/md';
-import { ImSpinner8 } from 'react-icons/im';
+import {createFileRoute} from '@tanstack/react-router';
+import React, {useState, useEffect} from 'react';
+import {MdArrowBack, MdSwapHoriz, MdInfoOutline} from 'react-icons/md';
+import {ImSpinner8} from 'react-icons/im';
 
 export const Route = createFileRoute('/_app/currencyconverter')({
   component: CurrencyConverter,
@@ -27,7 +27,9 @@ function CurrencyConverter() {
     const fetchRates = async () => {
       try {
         setLoading(true);
-        const response = await fetch('https://cdn.moneyconvert.net/api/latest.json');
+        const response = await fetch(
+          'https://cdn.moneyconvert.net/api/latest.json',
+        );
         if (!response.ok) throw new Error('Failed to fetch exchange rates');
         const data = await response.json();
         setRates(data);
@@ -70,10 +72,9 @@ function CurrencyConverter() {
     }
 
     // Format with 2 decimal places for INR, 4 for USD
-    const formatted = toCurrency === 'INR' 
-      ? result.toFixed(2) 
-      : result.toFixed(4);
-    
+    const formatted =
+      toCurrency === 'INR' ? result.toFixed(2) : result.toFixed(4);
+
     setConvertedAmount(formatted);
   }, [amount, fromCurrency, toCurrency, rates]);
 
@@ -121,23 +122,25 @@ function CurrencyConverter() {
         </div>
       </header>
 
-      <main className="relative z-10 mx-auto flex w-full max-w-md flex-1 flex-col px-4 pt-20 pb-6 sm:px-6">
+      <main className="relative z-10 mx-auto flex w-full max-w-md flex-1 flex-col px-4 pb-6 pt-20 sm:px-6">
         {/* Loading State */}
         {loading && (
           <div className="flex flex-1 flex-col items-center justify-center">
-            <ImSpinner8 className="text-orange-500 text-4xl animate-spin mb-4" />
-            <p className="text-gray-600 dark:text-gray-400">Loading exchange rates...</p>
+            <ImSpinner8 className="mb-4 animate-spin text-4xl text-orange-500" />
+            <p className="text-gray-600 dark:text-gray-400">
+              Loading exchange rates...
+            </p>
           </div>
         )}
 
         {/* Error State */}
         {error && !loading && (
           <div className="flex flex-1 flex-col items-center justify-center">
-            <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 text-center">
-              <p className="text-red-600 dark:text-red-400 mb-2">{error}</p>
+            <div className="rounded-lg bg-red-50 p-4 text-center dark:bg-red-900/20">
+              <p className="mb-2 text-red-600 dark:text-red-400">{error}</p>
               <button
                 onClick={() => window.location.reload()}
-                className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors"
+                className="rounded-lg bg-orange-500 px-4 py-2 text-white transition-colors hover:bg-orange-600"
               >
                 Retry
               </button>
@@ -147,16 +150,16 @@ function CurrencyConverter() {
 
         {/* Converter */}
         {!loading && !error && rates && (
-          <div className="flex-1 flex flex-col">
+          <div className="flex flex-1 flex-col">
             {/* Rate Info Card */}
-            <div className="bg-orange-50 dark:bg-orange-900/20 rounded-xl p-4 mb-6">
+            <div className="mb-6 rounded-xl bg-orange-50 p-4 dark:bg-orange-900/20">
               <div className="flex items-start gap-2">
-                <MdInfoOutline className="text-orange-500 text-xl shrink-0 mt-0.5" />
-                <div className="text-sm text-gray-700 dark:text-gray-300">
-                  <p className="font-medium mb-1">Exchange Rate</p>
+                <MdInfoOutline className="mt-0.5 shrink-0 text-xl text-orange-500" />
+                <div className="text-gray-700 dark:text-gray-300 text-sm">
+                  <p className="mb-1 font-medium">Exchange Rate</p>
                   <p>1 USD = {rates.rates.INR.toFixed(2)} INR</p>
                   <p>1 INR = {(1 / rates.rates.INR).toFixed(4)} USD</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                  <p className="text-gray-500 dark:text-gray-400 mt-2 text-xs">
                     Last updated: {getLastUpdated()}
                   </p>
                 </div>
@@ -164,8 +167,8 @@ function CurrencyConverter() {
             </div>
 
             {/* Amount Input Card */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-4">
-              <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+            <div className="dark:bg-gray-800 mb-4 rounded-xl bg-white p-6 shadow-lg">
+              <label className="text-gray-600 dark:text-gray-400 mb-2 block text-sm font-medium">
                 Amount
               </label>
               <div className="flex items-center gap-3">
@@ -173,19 +176,21 @@ function CurrencyConverter() {
                   type="text"
                   value={amount}
                   onChange={handleAmountChange}
-                  className="flex-1 h-12 px-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                  className="border-gray-200 dark:border-gray-700 dark:bg-gray-800 h-12 flex-1 rounded-lg border bg-white px-4 text-lg focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                   placeholder="Enter amount"
                 />
                 <div className="relative">
                   <select
                     value={fromCurrency}
-                    onChange={(e) => setFromCurrency(e.target.value as 'USD' | 'INR')}
-                    className="h-12 px-4 pr-8 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                    onChange={(e) =>
+                      setFromCurrency(e.target.value as 'USD' | 'INR')
+                    }
+                    className="border-gray-200 dark:border-gray-700 dark:bg-gray-800 h-12 cursor-pointer appearance-none rounded-lg border bg-white px-4 pr-8 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                   >
                     <option value="USD">USD</option>
                     <option value="INR">INR</option>
                   </select>
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
                     <span className="text-gray-500">▼</span>
                   </div>
                 </div>
@@ -193,34 +198,36 @@ function CurrencyConverter() {
             </div>
 
             {/* Swap Button */}
-            <div className="flex justify-center my-2">
+            <div className="my-2 flex justify-center">
               <button
                 onClick={handleSwapCurrencies}
-                className="bg-orange-100 dark:bg-orange-900/30 hover:bg-orange-200 dark:hover:bg-orange-900/50 text-orange-600 dark:text-orange-400 w-12 h-12 rounded-full flex items-center justify-center transition-all active:scale-95"
+                className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-100 text-orange-600 transition-all hover:bg-orange-200 active:scale-95 dark:bg-orange-900/30 dark:text-orange-400 dark:hover:bg-orange-900/50"
               >
                 <MdSwapHoriz className="text-2xl" />
               </button>
             </div>
 
             {/* Result Card */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mt-2">
-              <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+            <div className="dark:bg-gray-800 mt-2 rounded-xl bg-white p-6 shadow-lg">
+              <label className="text-gray-600 dark:text-gray-400 mb-2 block text-sm font-medium">
                 Converted Amount
               </label>
               <div className="flex items-center gap-3">
-                <div className="flex-1 h-12 px-4 rounded-lg bg-gray-50 dark:bg-gray-700 flex items-center text-lg font-medium text-gray-900 dark:text-white">
+                <div className="bg-gray-50 dark:bg-gray-700 text-gray-900 flex h-12 flex-1 items-center rounded-lg px-4 text-lg font-medium dark:text-white">
                   {convertedAmount || '0'}
                 </div>
                 <div className="relative">
                   <select
                     value={toCurrency}
-                    onChange={(e) => setToCurrency(e.target.value as 'USD' | 'INR')}
-                    className="h-12 px-4 pr-8 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                    onChange={(e) =>
+                      setToCurrency(e.target.value as 'USD' | 'INR')
+                    }
+                    className="border-gray-200 dark:border-gray-700 dark:bg-gray-800 h-12 cursor-pointer appearance-none rounded-lg border bg-white px-4 pr-8 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                   >
                     <option value="USD">USD</option>
                     <option value="INR">INR</option>
                   </select>
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
                     <span className="text-gray-500">▼</span>
                   </div>
                 </div>
@@ -229,13 +236,15 @@ function CurrencyConverter() {
 
             {/* Quick Amount Buttons */}
             <div className="mt-6">
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Quick amounts</p>
+              <p className="text-gray-600 dark:text-gray-400 mb-3 text-sm">
+                Quick amounts
+              </p>
               <div className="grid grid-cols-4 gap-2">
                 {[10, 50, 100, 500].map((value) => (
                   <button
                     key={value}
                     onClick={() => setAmount(value.toString())}
-                    className="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 py-2 px-3 rounded-lg text-sm font-medium transition-colors"
+                    className="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
                   >
                     {value}
                   </button>
@@ -244,7 +253,7 @@ function CurrencyConverter() {
             </div>
 
             {/* Disclaimer */}
-            <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-6">
+            <p className="text-gray-500 dark:text-gray-400 mt-6 text-center text-xs">
               Rates provided by moneyconvert.net • Updated every 10 minutes
             </p>
           </div>

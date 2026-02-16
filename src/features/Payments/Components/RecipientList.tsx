@@ -13,32 +13,28 @@ const RecipientList: React.FC<RecipientListProps> = ({searchQuery}) => {
   const navigate = useNavigate();
   const [selectedStatus, setSelectedStatus] = useState<string>('approved');
 
-  // Get status information for a recipient
   const getStatusInfo = (recipient: any) => {
-    let status = '';
+    let status = 'pending';
     let statusColor = '';
     let statusText = '';
     let icon = null;
 
-    // Determine status based on available fields
-    if (recipient.status) {
-      status = recipient.status.toLowerCase();
-    } else if (recipient.isVerified) {
+    // Determine status based on the flags returned by the API
+    if (recipient.isRejected === true) {
+      status = 'rejected';
+    } else if (recipient.isVerified === true) {
       status = 'approved';
     } else {
       status = 'pending';
     }
 
-    // Set status properties
     switch (status) {
       case 'approved':
-      case 'verified':
         statusColor = 'bg-green-100 text-green-800 border-green-200';
         statusText = 'Approved';
         icon = <CheckCircle className="h-3 w-3 text-green-600" />;
         break;
       case 'rejected':
-      case 'declined':
         statusColor = 'bg-red-100 text-red-800 border-red-200';
         statusText = 'Rejected';
         icon = <XCircle className="h-3 w-3 text-red-600" />;
@@ -171,7 +167,12 @@ const RecipientList: React.FC<RecipientListProps> = ({searchQuery}) => {
                 key={recipient?.id}
                 onClick={() => {
                   const {status} = getStatusInfo(recipient);
-                  if (status === 'approved' || status === 'verified') {
+                  if (status === 'approved') {
+                    navigate({
+                      to: `/payment/send/${recipient.id}`,
+                      state: {recipient},
+                    });
+                  } else if (status === 'pending') {
                     navigate({
                       to: '/beneficiary/statuspending',
                       state: {recipient},
