@@ -114,7 +114,7 @@ const UpdateBeneficiary: React.FC = () => {
       },
       {
         onSuccess: () => {
-          navigate({to: '/wallet/paymentdashboard'});
+          navigate({to: '/wallet/paymentdashbord'});
         },
       },
     );

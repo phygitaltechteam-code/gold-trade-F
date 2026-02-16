@@ -40,6 +40,7 @@ export type StepProps = {
 export type WalletType = 'E_PRIVATEACCOUNT' | 'E_TEMPORYACCOUNT';
 const PaymentWrapper: React.FC = () => {
   const {id: beneficiaryId} = Route.useParams();
+  console.log('beneficiaryId', beneficiaryId);
   const {data: WalletData} = useGetWalletByCustomer();
   const {mutateAsync: Payment} = usePayment();
   const [selectedWalletType, setSelectedWalletType] = useState<WalletType>('');
@@ -94,13 +95,10 @@ const PaymentWrapper: React.FC = () => {
       await Payment({
         accountType: selectedWalletType,
         amount: Number(paymentData?.amount),
-        beneficiaryId: paymentData?.beneficiaryId,
+        beneficiaryId: beneficiaryId,
         currency: 'USD',
         securityCode: pin,
       });
-
-      console.log('pin in wrapper', pin);
-      console.log('Transaction Payload');
     } catch (error) {
       // VERY IMPORTANT → rethrow
       throw error;

@@ -44,6 +44,10 @@ const TopupWithdrawlFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
     'topup' | 'pin' | 'processing' | 'adminApproved' | 'success'
   >('topup');
 
+  const [accountType, setAccountType] = useState<
+    'E_PRIVATEACCOUNT' | 'E_TEMPORYACCOUNT'
+  >('E_PRIVATEACCOUNT');
+
   // ---------- Form State (TopUpScreen) ----------
   const [paymentData, setPaymentData] = useState<PaymentData>({
     amount: '',
@@ -139,7 +143,7 @@ const TopupWithdrawlFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
       amount: cleanAmount,
       currency: 'INR',
       securityCode: pin,
-      accountType: 'E_PRIVATEACCOUNT',
+      accountType: accountType,
     };
 
     setCurrentStep('processing');
@@ -248,6 +252,8 @@ const TopupWithdrawlFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
           nextStep={nextStep}
           prevStep={() => navigate({to: '/dashboard'})}
           walletAmmount={walletAmmount}
+          accountType={accountType}
+          setAccountType={setAccountType}
         />
       )}
       {currentStep === 'pin' && (

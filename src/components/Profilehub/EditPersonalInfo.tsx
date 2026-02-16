@@ -9,12 +9,14 @@ import {
 import {Header} from './ui/Header';
 import {useGetProfile, useUpdateProfile} from './profilemutation';
 import toast from 'react-hot-toast';
+import {useNavigate} from '@tanstack/react-router';
 
 const EditPersonalInfo: React.FC = () => {
   const {data: profiledata, isLoading} = useGetProfile();
   const {mutate: updateProfile, isPending} = useUpdateProfile();
-
+  const nevigate = useNavigate();
   const [showAccountNumber, setShowAccountNumber] = useState(false);
+  const [dobError, setDobError] = useState('');
   const [formData, setFormData] = useState<{
     fullname: string;
     dob: string;
@@ -51,6 +53,22 @@ const EditPersonalInfo: React.FC = () => {
     }
   }, [profiledata]);
 
+  // Helper function to validate age (must be at least 18)
+  const validateAge = (dob: string): boolean => {
+    if (!dob) return false; // or true if optional – adjust as needed
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+    return age >= 18;
+  };
+
   const maskAccountNumber = (accountNumber: string) => {
     if (!accountNumber) return '';
     if (showAccountNumber) return accountNumber;
@@ -67,6 +85,18 @@ const EditPersonalInfo: React.FC = () => {
       ...prev,
       [id]: value,
     }));
+  };
+
+  const handleDobChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setFormData((prev) => ({...prev, dob: value}));
+
+    // Validate age and set error message
+    if (value && !validateAge(value)) {
+      setDobError('You must be at least 18 years old');
+    } else {
+      setDobError('');
+    }
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -101,6 +131,12 @@ const EditPersonalInfo: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validate age before submitting
+    if (formData.dob && !validateAge(formData.dob)) {
+      setDobError('You must be at least 18 years old');
+      return;
+    }
+
     try {
       const formDataToSend = new FormData();
 
@@ -117,6 +153,7 @@ const EditPersonalInfo: React.FC = () => {
       }
 
       updateProfile(formDataToSend);
+      nevigate({to: '/accounthub/acounthub'});
     } catch (error) {
       toast.error('Failed to update profile');
       console.error('Update error:', error);
@@ -233,7 +270,7 @@ const EditPersonalInfo: React.FC = () => {
               </div>
             </div>
 
-            {/* Date of Birth Input */}
+            {/* Date of Birth Input with Age Validation */}
             <div className="flex flex-col gap-2 md:gap-3">
               <label
                 className="text-navy text-sm font-bold uppercase tracking-wider dark:text-slate-200 md:text-base"
@@ -243,17 +280,26 @@ const EditPersonalInfo: React.FC = () => {
               </label>
               <div className="relative">
                 <input
-                  className="text-navy w-full rounded-xl border border-slate-200 bg-white px-4 py-4 text-base font-medium shadow-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/50 dark:border-[#443629] dark:bg-[#2c241b] dark:text-white md:py-5 md:text-lg"
+                  className={`text-navy w-full rounded-xl border ${
+                    dobError ? 'border-red-500' : 'border-slate-200'
+                  } bg-white px-4 py-4 text-base font-medium shadow-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/50 dark:border-[#443629] dark:bg-[#2c241b] dark:text-white md:py-5 md:text-lg`}
                   id="dob"
                   type="date"
                   value={formData.dob}
-                  onChange={handleInputChange}
+                  onChange={handleDobChange}
                   max={new Date().toISOString().split('T')[0]}
                 />
               </div>
-              <p className="px-1 text-xs text-slate-500 dark:text-slate-400 md:text-sm">
-                Select your date of birth
-              </p>
+              {dobError && (
+                <p className="px-1 text-xs text-red-500 md:text-sm">
+                  {dobError}
+                </p>
+              )}
+              {!dobError && (
+                <p className="px-1 text-xs text-slate-500 dark:text-slate-400 md:text-sm">
+                  You must be at least 18 years old
+                </p>
+              )}
             </div>
 
             {/* Account Number (Read-only with eye toggle) */}

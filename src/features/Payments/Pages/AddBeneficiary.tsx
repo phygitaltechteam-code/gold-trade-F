@@ -36,7 +36,7 @@ const AddBeneficiary: React.FC = () => {
 
     addBeneficiary(payload, {
       onSuccess: () => {
-        navigate({to: '/beneficiary/statuspending'});
+        navigate({to: '/wallet/paymentdashbord'});
       },
     });
   };
@@ -46,7 +46,7 @@ const AddBeneficiary: React.FC = () => {
   };
 
   const relationshipOptions = [
-    {value: '', label: 'Select relationship...'},
+    // {value: '', label: 'Select relationship...'},
     {value: 'family', label: 'Family Member'},
     {value: 'friend', label: 'Friend'},
     {value: 'vendor', label: 'Vendor / Supplier'},
@@ -144,24 +144,29 @@ const AddBeneficiary: React.FC = () => {
                 <div className="flex gap-3 md:gap-5">
                   {/* Country Code */}
                   <div className="w-28 space-y-1.5">
-                    <label className="mb-2 mt-1 block text-sm font-medium text-slate-700 dark:text-slate-400">
+                    {/* <label className="mb-2 mt-1 block text-sm font-medium text-slate-700 dark:text-slate-400">
                       Country code <span className="text-red-500">*</span>
-                    </label>
-
+                    </label> */}
+                    {/* 
                     <select
                       id="countryCode"
                       className="h-[42px] w-full rounded-md border border-stroke bg-transparent px-3 text-sm text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                       value={countryCode}
                       onChange={(e) => setContryCode(e.target.value)}
                     >
-                      <option value="">Code</option>
 
                       {contryCode.map((option) => (
                         <option key={option.value} value={option.value}>
                           {option.label}
                         </option>
                       ))}
-                    </select>
+                    </select> */}
+                    <GenericDropdown
+                      name="countryCode"
+                      label=" Country code"
+                      options={contryCode}
+                      required
+                    />
                   </div>
 
                   {/* Phone Number */}
