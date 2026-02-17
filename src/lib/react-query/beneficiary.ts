@@ -77,7 +77,7 @@ export const useGetBeneficiaryById = (id: string) => {
 export const usePayment = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn:  payment,
+    mutationFn: payment,
     onSuccess: () => {
       toast.success('Payment successfully');
       queryClient.invalidateQueries({queryKey: ['payment']});

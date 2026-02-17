@@ -1,3 +1,4 @@
+/*eslint-disable*/
 import {BeneficiaryFormData} from '@/features/Payments/types';
 import {api} from '@/utils/axios';
 function formatToFormData(data: any): FormData {

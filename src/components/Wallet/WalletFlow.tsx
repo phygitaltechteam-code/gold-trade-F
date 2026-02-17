@@ -20,7 +20,7 @@ export interface TransactionData {
   transactionId: string;
   status: 'pending' | 'processing' | 'success' | 'failed';
   pin: string;
-  proof?: File ;
+  proof?: File;
 }
 
 const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
@@ -50,7 +50,7 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
     accountType: 'private' | 'virtual',
     receipt?: File,
   ) => {
-    console.log('TopUp Submitted:',  receipt);
+    console.log('TopUp Submitted:', receipt);
     const transactionId =
       'TX' + Date.now() + Math.random().toString(36).substr(2, 9);
 
@@ -62,9 +62,8 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
       timestamp: new Date().toISOString(),
       transactionId,
       status: 'pending',
-      ...(receipt && {proof: receipt}) // Store receipt as proof
+      ...(receipt && {proof: receipt}), // Store receipt as proof
     }));
-    
 
     setCurrentStep('pin');
   };

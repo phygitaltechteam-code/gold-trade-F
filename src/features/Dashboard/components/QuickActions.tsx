@@ -34,7 +34,7 @@ export const QuickActions: React.FC = () => {
         break;
 
       case 'transactions':
-        navigate({to: '/eprivate/eprivatereports'});
+        navigate({to: '/wallet/paymentdashbord'});
         // Handle bills navigation
         break;
       case 'currency':

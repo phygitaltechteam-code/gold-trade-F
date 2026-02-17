@@ -3,9 +3,7 @@ import React, {useState, useEffect} from 'react';
 import {MdMail, MdArrowBack, MdExpandMore} from 'react-icons/md';
 import {useGetProfile, useUpdateProfile} from './profilemutation';
 import toast from 'react-hot-toast';
-import { COUNTRIES } from '@/features/Registration/constants/countries';
-
-
+import {COUNTRIES} from '@/features/Registration/constants/countries';
 
 const EditContactInfo: React.FC = () => {
   const {data: profiledata, isLoading} = useGetProfile();
@@ -39,7 +37,7 @@ const EditContactInfo: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const {id, value} = e.target;
-    setFormData(prev => ({...prev, [id]: value}));
+    setFormData((prev) => ({...prev, [id]: value}));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -84,8 +82,8 @@ const EditContactInfo: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900">
-        <div className="rounded-2xl bg-white/70 p-8 shadow-xl backdrop-blur-xl dark:bg-gray-800/60">
+      <div className="from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900 flex min-h-screen items-center justify-center bg-gradient-to-br">
+        <div className="dark:bg-gray-800/60 rounded-2xl bg-white/70 p-8 shadow-xl backdrop-blur-xl">
           <p className="text-gray-600 dark:text-gray-300">
             Loading contact information...
           </p>
@@ -95,19 +93,18 @@ const EditContactInfo: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8f7f5] dark:bg-[#221910] flex flex-col overflow-x-hidden transition-colors duration-200">
-      <div className="mx-auto flex min-h-screen max-w-lg flex-col w-full">
-
+    <div className="flex min-h-screen flex-col overflow-x-hidden bg-[#f8f7f5] transition-colors duration-200 dark:bg-[#221910]">
+      <div className="mx-auto flex min-h-screen w-full max-w-lg flex-col">
         {/* Header */}
-        <div className="sticky top-0 z-50 bg-[#f8f7f5]/95 dark:bg-[#221910]/95 backdrop-blur-sm px-4 py-3 flex items-center justify-between border-b border-slate-200/50 dark:border-white/5">
+        <div className="sticky top-0 z-50 flex items-center justify-between border-b border-slate-200/50 bg-[#f8f7f5]/95 px-4 py-3 backdrop-blur-sm dark:border-white/5 dark:bg-[#221910]/95">
           <button
             onClick={() => window.history.back()}
-            className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-slate-200/50 dark:hover:bg-white/10 transition-colors text-slate-900 dark:text-white"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-slate-900 transition-colors hover:bg-slate-200/50 dark:text-white dark:hover:bg-white/10"
           >
             <MdArrowBack className="text-[24px]" />
           </button>
 
-          <h1 className="text-lg font-bold leading-tight tracking-tight text-center flex-1 pr-10 text-slate-900 dark:text-white">
+          <h1 className="flex-1 pr-10 text-center text-lg font-bold leading-tight tracking-tight text-slate-900 dark:text-white">
             Edit Contact Info
           </h1>
         </div>
@@ -115,29 +112,24 @@ const EditContactInfo: React.FC = () => {
         {/* Form Container */}
         <form
           onSubmit={handleSubmit}
-          className="flex flex-col flex-1 px-5 py-6 gap-6"
+          className="flex flex-1 flex-col gap-6 px-5 py-6"
         >
           <div className="flex flex-col gap-6">
             {/* Phone */}
             <div className="flex flex-col gap-2">
-              <div className="flex justify-between items-center">
-                <label htmlFor="phoneNumber" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              <div className="flex items-center justify-between">
+                <label
+                  htmlFor="phoneNumber"
+                  className="text-sm font-medium text-slate-700 dark:text-slate-300"
+                >
                   Mobile Number
                 </label>
               </div>
-              <div className="relative flex items-center w-full rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 focus-within:border-orange-500 dark:focus-within:border-orange-500 focus-within:ring-1 focus-within:ring-orange-500 transition-all shadow-sm">
-                <button
-                  type="button"
-                  className="flex items-center gap-2 pl-4 pr-3 py-3.5 border-r border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors rounded-l-xl group"
-                >
-                  <span className="text-xl">🇮🇳</span>
-                  <span className="text-sm font-medium text-slate-700 dark:text-slate-200">+91</span>
-                  <MdExpandMore className="text-[18px] text-slate-400 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-300" />
-                </button>
+              <div className="relative flex w-full items-center rounded-xl border border-slate-200 bg-white shadow-sm transition-all focus-within:border-orange-500 focus-within:ring-1 focus-within:ring-orange-500 dark:border-white/10 dark:bg-white/5 dark:focus-within:border-orange-500">
                 <input
                   id="phoneNumber"
                   type="tel"
-                  className="flex-1 w-full border-none bg-transparent py-3.5 px-4 text-base text-slate-900 dark:text-white placeholder-slate-400 focus:ring-0 focus:outline-none"
+                  className="w-full flex-1 border-none bg-transparent px-4 py-3.5 text-base text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-0 dark:text-white"
                   value={formData.phoneNumber}
                   onChange={handleInputChange}
                   placeholder="Enter mobile number"
@@ -147,19 +139,22 @@ const EditContactInfo: React.FC = () => {
 
             {/* Email */}
             <div className="flex flex-col gap-2">
-              <div className="flex justify-between items-center">
-                <label htmlFor="email" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              <div className="flex items-center justify-between">
+                <label
+                  htmlFor="email"
+                  className="text-sm font-medium text-slate-700 dark:text-slate-300"
+                >
                   Personal Email
                 </label>
               </div>
-              <div className="relative flex items-center w-full rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 focus-within:border-orange-500 dark:focus-within:border-orange-500 focus-within:ring-1 focus-within:ring-orange-500 transition-all shadow-sm">
-                <div className="pl-4 text-slate-400 dark:text-slate-500 flex items-center h-full">
+              <div className="relative flex w-full items-center rounded-xl border border-slate-200 bg-white shadow-sm transition-all focus-within:border-orange-500 focus-within:ring-1 focus-within:ring-orange-500 dark:border-white/10 dark:bg-white/5 dark:focus-within:border-orange-500">
+                <div className="flex h-full items-center pl-4 text-slate-400 dark:text-slate-500">
                   <MdMail className="text-[20px]" />
                 </div>
                 <input
                   id="email"
                   type="email"
-                  className="flex-1 w-full border-none bg-transparent py-3.5 px-3 text-base text-slate-900 dark:text-white placeholder-slate-400 focus:ring-0 focus:outline-none"
+                  className="w-full flex-1 border-none bg-transparent px-3 py-3.5 text-base text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-0 dark:text-white"
                   value={formData.email}
                   onChange={handleInputChange}
                   placeholder="Enter email"
@@ -169,53 +164,71 @@ const EditContactInfo: React.FC = () => {
 
             {/* Address Section */}
             <div className="flex flex-col gap-2">
-              <label htmlFor="streetAddress" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              <label
+                htmlFor="streetAddress"
+                className="text-sm font-medium text-slate-700 dark:text-slate-300"
+              >
                 Residential Address
               </label>
-              <div className="relative w-full rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 focus-within:border-orange-500 dark:focus-within:border-orange-500 focus-within:ring-1 focus-within:ring-orange-500 transition-all shadow-sm">
+              <div className="relative w-full rounded-xl border border-slate-200 bg-white shadow-sm transition-all focus-within:border-orange-500 focus-within:ring-1 focus-within:ring-orange-500 dark:border-white/10 dark:bg-white/5 dark:focus-within:border-orange-500">
                 <textarea
                   id="streetAddress"
-                  className="w-full min-h-[120px] resize-none rounded-xl border-none bg-transparent p-4 text-base text-slate-900 dark:text-white placeholder-slate-400 focus:ring-0 focus:outline-none leading-relaxed"
+                  className="min-h-[120px] w-full resize-none rounded-xl border-none bg-transparent p-4 text-base leading-relaxed text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-0 dark:text-white"
                   placeholder="Street, House no, Area"
                   value={formData.streetAddress}
                   onChange={handleInputChange}
                   rows={3}
                 />
               </div>
-<label htmlFor="pincode" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              <label
+                htmlFor="pincode"
+                className="text-sm font-medium text-slate-700 dark:text-slate-300"
+              >
                 Pin Code
               </label>
               <input
                 id="pincode"
-                className=" h-12 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 focus:border-orange-500 dark:focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all shadow-sm pb- text-base text-slate-900 dark:text-white placeholder-slate-400"
+                className="pb- h-12 rounded-xl border border-slate-200 bg-white text-base text-slate-900 placeholder-slate-400 shadow-sm transition-all focus:border-orange-500 focus:ring-1 focus:ring-orange-500 dark:border-white/10 dark:bg-white/5 dark:text-white dark:focus:border-orange-500"
                 placeholder="Pincode"
                 value={formData.pincode}
                 onChange={handleInputChange}
               />
 
-              <div className="grid grid-cols-2 gap-4 mt-4">
-               <div><label htmlFor="city" className="text-sm font-medium text-slate-700 dark:text-slate-300">
-             City
-              </label>
-                
-                <input
-                  id="city"
-                  className="h-12 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 focus:border-orange-500 dark:focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all shadow-sm px-4 text-base text-slate-900 dark:text-white placeholder-slate-400"
-                  placeholder="City"
-                  value={formData.city}
-                  onChange={handleInputChange}
-                /></div> <div>
-                <label htmlFor="state"  className="text-sm font-medium text-slate-700 dark:text-slate-300">State</label>
-                <input
-                  id="state"
-                  className="h-12 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 focus:border-orange-500 dark:focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all shadow-sm px-4 text-base text-slate-900 dark:text-white placeholder-slate-400"
-                  placeholder="State"
-                  value={formData.state}
-                  onChange={handleInputChange}
-                /></div>
+              <div className="mt-4 grid grid-cols-2 gap-4">
+                <div>
+                  <label
+                    htmlFor="city"
+                    className="text-sm font-medium text-slate-700 dark:text-slate-300"
+                  >
+                    City
+                  </label>
+
+                  <input
+                    id="city"
+                    className="h-12 rounded-xl border border-slate-200 bg-white px-4 text-base text-slate-900 placeholder-slate-400 shadow-sm transition-all focus:border-orange-500 focus:ring-1 focus:ring-orange-500 dark:border-white/10 dark:bg-white/5 dark:text-white dark:focus:border-orange-500"
+                    placeholder="City"
+                    value={formData.city}
+                    onChange={handleInputChange}
+                  />
+                </div>{' '}
+                <div>
+                  <label
+                    htmlFor="state"
+                    className="text-sm font-medium text-slate-700 dark:text-slate-300"
+                  >
+                    State
+                  </label>
+                  <input
+                    id="state"
+                    className="h-12 rounded-xl border border-slate-200 bg-white px-4 text-base text-slate-900 placeholder-slate-400 shadow-sm transition-all focus:border-orange-500 focus:ring-1 focus:ring-orange-500 dark:border-white/10 dark:bg-white/5 dark:text-white dark:focus:border-orange-500"
+                    placeholder="State"
+                    value={formData.state}
+                    onChange={handleInputChange}
+                  />
+                </div>
               </div>
 
-             {/* <label className="flex flex-col gap-1">
+              {/* <label className="flex flex-col gap-1">
                                <span className="text-sm font-medium text-[#0d131c] dark:text-white md:text-base">
                                  Country
                                </span>
@@ -235,7 +248,7 @@ const EditContactInfo: React.FC = () => {
                                </select>
                               
                              </label> */}
-              <p className="text-xs text-slate-500 dark:text-slate-400 px-1 mt-2">
+              <p className="mt-2 px-1 text-xs text-slate-500 dark:text-slate-400">
                 Please use your physical street address for regulatory purposes.
               </p>
             </div>
@@ -243,17 +256,17 @@ const EditContactInfo: React.FC = () => {
 
           {/* Bottom Section */}
           <div className="mt-auto p-5 pb-8">
-            <div className="w-full max-w-lg mx-auto flex flex-col gap-4">
+            <div className="mx-auto flex w-full max-w-lg flex-col gap-4">
               <button
                 type="submit"
                 disabled={isPending}
-                className="w-full bg-orange-500 hover:bg-orange-500/90 active:scale-[0.98] transition-all text-white font-semibold text-base py-4 rounded-xl shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2 disabled:opacity-70"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-orange-500 py-4 text-base font-semibold text-white shadow-lg shadow-orange-500/20 transition-all hover:bg-orange-500/90 active:scale-[0.98] disabled:opacity-70"
               >
                 {isPending ? 'Saving...' : 'Update Contact Info'}
               </button>
               <button
                 type="button"
-                className="text-sm text-slate-500 hover:text-orange-500 dark:text-slate-400 dark:hover:text-orange-500 transition-colors text-center font-medium"
+                className="text-center text-sm font-medium text-slate-500 transition-colors hover:text-orange-500 dark:text-slate-400 dark:hover:text-orange-500"
               >
                 Having trouble updating your address?
               </button>
@@ -266,4 +279,3 @@ const EditContactInfo: React.FC = () => {
 };
 
 export default EditContactInfo;
-

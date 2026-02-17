@@ -143,7 +143,7 @@ const AccountHub: React.FC = () => {
             </section>
 
             {/* Logout Button & Version */}
-            <div className="flex flex-1 flex-col items-center overflow-hidden">
+            <div className="mt-6 flex flex-1 flex-col items-center overflow-hidden">
               <button
                 onClick={handleLogout}
                 className="group flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-3 font-bold text-primary shadow-sm transition-all hover:bg-orange-50 active:scale-[0.99] dark:border-slate-700 dark:bg-slate-800/50 dark:hover:bg-slate-800 md:py-3.5 md:text-base"
@@ -151,9 +151,6 @@ const AccountHub: React.FC = () => {
                 <MdLogout className="text-[20px] transition-transform group-hover:scale-110 md:text-[22px]" />
                 Log Out
               </button>
-              <p className="text-center text-xs font-medium text-slate-400/50 md:text-sm">
-                Version 2.4.1
-              </p>
             </div>
           </div>
         </div>

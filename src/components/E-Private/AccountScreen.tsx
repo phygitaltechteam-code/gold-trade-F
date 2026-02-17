@@ -546,7 +546,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
           </button>
 
           <button
-            onClick={() => onNavigate('statements')}
+            onClick={() => navigate({to: '/eprivate/statement'})}
             className="group flex flex-col items-center gap-1"
           >
             <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200 bg-white text-primary">
