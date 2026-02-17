@@ -1,7 +1,9 @@
+/* eslint-disable prettier/prettier */
 import {createFileRoute} from '@tanstack/react-router';
 import React, {useState, useEffect} from 'react';
 import {MdArrowBack, MdSwapHoriz, MdInfoOutline} from 'react-icons/md';
 import {ImSpinner8} from 'react-icons/im';
+import { unAuthenticatedApi } from '@/utils/axios';
 
 export const Route = createFileRoute('/_app/currencyconverter')({
   component: CurrencyConverter,
@@ -9,8 +11,10 @@ export const Route = createFileRoute('/_app/currencyconverter')({
 
 interface ExchangeRates {
   base: string;
-  rates: Record<string, number>;
-  ts: string;
+  rates: {
+    INR: number;
+  };
+  ts: number;
 }
 
 function CurrencyConverter() {
@@ -21,28 +25,64 @@ function CurrencyConverter() {
   const [fromCurrency, setFromCurrency] = useState<'USD' | 'INR'>('USD');
   const [toCurrency, setToCurrency] = useState<'USD' | 'INR'>('INR');
   const [convertedAmount, setConvertedAmount] = useState<string>('');
+  const [lastUpdated, setLastUpdated] = useState<string>('');
 
   // Fetch exchange rates
-  useEffect(() => {
-    const fetchRates = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(
-          'https://cdn.moneyconvert.net/api/latest.json',
-        );
-        if (!response.ok) throw new Error('Failed to fetch exchange rates');
-        const data = await response.json();
-        setRates(data);
-        setError(null);
-      } catch (err) {
-        setError('Unable to load exchange rates. Please try again.');
-        console.error('Error fetching rates:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+ const fetchRates = async () => {
+  try {
+    setLoading(true);
 
+    const res = await unAuthenticatedApi.get('https://api.exchangerate-api.com/v4/latest/USD');
+
+    setRates(res.data);
+
+    // Set last updated time
+    const now = new Date();
+    setLastUpdated(
+      now.toLocaleTimeString('en-IN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      })
+    );
+
+    setError('');
+  } catch (err) {
+    setError('Failed to load exchange rates');
+  } finally {
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  fetchRates();
+
+  const interval = setInterval(() => {
     fetchRates();
+  }, 30000);
+
+  return () => clearInterval(interval);
+}, []);
+
+  // Update last updated timestamp
+  const updateLastUpdated = (timestamp: number) => {
+    const date = new Date(timestamp);
+    setLastUpdated(
+      date.toLocaleString('en-IN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        day: '2-digit',
+        month: 'short',
+      }),
+    );
+  };
+
+  // Initial fetch and interval setup
+  useEffect(() => {
+    fetchRates();
+    const interval = setInterval(fetchRates, 30000); // Update every 30 seconds
+    return () => clearInterval(interval);
   }, []);
 
   // Calculate conversion when inputs change
@@ -76,7 +116,7 @@ function CurrencyConverter() {
       toCurrency === 'INR' ? result.toFixed(2) : result.toFixed(4);
 
     setConvertedAmount(formatted);
-  }, [amount, fromCurrency, toCurrency, rates]);
+  }, [amount, fromCurrency, toCurrency, rates,lastUpdated]);
 
   const handleSwapCurrencies = () => {
     setFromCurrency(toCurrency);
@@ -91,174 +131,169 @@ function CurrencyConverter() {
     }
   };
 
-  const getLastUpdated = () => {
-    if (!rates?.ts) return '';
-    const date = new Date(rates.ts);
-    return date.toLocaleString('en-IN', {
-      hour: '2-digit',
-      minute: '2-digit',
-      day: '2-digit',
-      month: 'short',
-    });
-  };
-
   const handleBack = () => {
     window.history.back();
   };
 
-  return (
-    <div className="font-display text-gray-900 dark:bg-gray-900 flex min-h-screen w-screen flex-col overflow-hidden bg-white antialiased dark:text-white">
-      {/* Header */}
-      <header className="dark:bg-gray-900/80 fixed left-0 right-0 top-0 z-50 bg-white/80 backdrop-blur-sm">
-        <div className="flex h-16 items-center justify-between px-4 sm:px-6">
-          <button
-            onClick={handleBack}
-            className="hover:bg-gray-100 dark:hover:bg-gray-800 -ml-2 flex h-10 w-10 items-center justify-center rounded-full transition-colors"
-          >
-            <MdArrowBack className="text-2xl" />
-          </button>
-          <h1 className="text-lg font-semibold">Currency Converter</h1>
-          <div className="w-10"></div>
+  return  (
+  <div className="font-display min-h-screen w-full bg-gradient-to-br from-gray-50 via-white to-orange-50 text-gray-900 antialiased dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 dark:text-white">
+
+    {/* Header */}
+    <header className="sticky top-0 z-50 border-b border-gray-200/60 bg-white/70 backdrop-blur-xl dark:border-gray-800 dark:bg-gray-900/70">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
+        <button
+          onClick={handleBack}
+          className="flex h-10 w-10 items-center justify-center rounded-full transition-all hover:scale-105 hover:bg-gray-100 dark:hover:bg-gray-800"
+          aria-label="Go back"
+        >
+          <MdArrowBack className="text-2xl" />
+        </button>
+
+        <h1 className="text-lg font-semibold tracking-tight sm:text-xl">
+          Currency Converter
+        </h1>
+
+        <div className="w-10" />
+      </div>
+    </header>
+
+    {/* Main */}
+    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 py-6 sm:px-6 sm:py-10">
+
+      {/* Loading */}
+      {loading && (
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <div className="rounded-2xl bg-white/70 p-10 shadow-xl backdrop-blur-xl dark:bg-gray-800/70">
+            <ImSpinner8 className="mx-auto mb-4 animate-spin text-5xl text-orange-500" />
+            <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+              Fetching latest exchange rates...
+            </p>
+          </div>
         </div>
-      </header>
+      )}
 
-      <main className="relative z-10 mx-auto flex w-full max-w-md flex-1 flex-col px-4 pb-6 pt-20 sm:px-6">
-        {/* Loading State */}
-        {loading && (
-          <div className="flex flex-1 flex-col items-center justify-center">
-            <ImSpinner8 className="mb-4 animate-spin text-4xl text-orange-500" />
-            <p className="text-gray-600 dark:text-gray-400">
-              Loading exchange rates...
-            </p>
+      {/* Error */}
+      {error && !loading && (
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <div className="rounded-2xl bg-red-50/80 p-8 text-center shadow-lg backdrop-blur-xl dark:bg-red-900/20">
+            <p className="mb-4 text-red-600 dark:text-red-400">{error}</p>
+            <button
+              onClick={fetchRates}
+              className="rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-3 font-medium text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
+            >
+              Retry
+            </button>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Error State */}
-        {error && !loading && (
-          <div className="flex flex-1 flex-col items-center justify-center">
-            <div className="rounded-lg bg-red-50 p-4 text-center dark:bg-red-900/20">
-              <p className="mb-2 text-red-600 dark:text-red-400">{error}</p>
-              <button
-                onClick={() => window.location.reload()}
-                className="rounded-lg bg-orange-500 px-4 py-2 text-white transition-colors hover:bg-orange-600"
-              >
-                Retry
-              </button>
-            </div>
-          </div>
-        )}
+      {/* Converter */}
+      {!loading && !error && rates && (
+        <div className="mx-auto w-full max-w-2xl space-y-6">
 
-        {/* Converter */}
-        {!loading && !error && rates && (
-          <div className="flex flex-1 flex-col">
-            {/* Rate Info Card */}
-            <div className="mb-6 rounded-xl bg-orange-50 p-4 dark:bg-orange-900/20">
-              <div className="flex items-start gap-2">
-                <MdInfoOutline className="mt-0.5 shrink-0 text-xl text-orange-500" />
-                <div className="text-gray-700 dark:text-gray-300 text-sm">
-                  <p className="mb-1 font-medium">Exchange Rate</p>
-                  <p>1 USD = {rates.rates.INR.toFixed(2)} INR</p>
-                  <p>1 INR = {(1 / rates.rates.INR).toFixed(4)} USD</p>
-                  <p className="text-gray-500 dark:text-gray-400 mt-2 text-xs">
-                    Last updated: {getLastUpdated()}
-                  </p>
+          {/* Rate Card */}
+          <div className="rounded-3xl bg-gradient-to-br from-orange-100/60 to-white p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-2xl dark:from-orange-900/20 dark:to-gray-900">
+            <div className="flex items-start gap-3">
+              <MdInfoOutline className="mt-1 text-2xl text-orange-500" />
+
+              <div className="flex-1">
+                <div className="mb-3 flex items-center gap-2">
+                  <p className="text-sm font-semibold">Live Exchange Rate</p>
+                  <span className="h-2 w-2 animate-pulse rounded-full bg-green-500"></span>
                 </div>
-              </div>
-            </div>
 
-            {/* Amount Input Card */}
-            <div className="dark:bg-gray-800 mb-4 rounded-xl bg-white p-6 shadow-lg">
-              <label className="text-gray-600 dark:text-gray-400 mb-2 block text-sm font-medium">
-                Amount
-              </label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="text"
-                  value={amount}
-                  onChange={handleAmountChange}
-                  className="border-gray-200 dark:border-gray-700 dark:bg-gray-800 h-12 flex-1 rounded-lg border bg-white px-4 text-lg focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                  placeholder="Enter amount"
-                />
-                <div className="relative">
-                  <select
-                    value={fromCurrency}
-                    onChange={(e) =>
-                      setFromCurrency(e.target.value as 'USD' | 'INR')
-                    }
-                    className="border-gray-200 dark:border-gray-700 dark:bg-gray-800 h-12 cursor-pointer appearance-none rounded-lg border bg-white px-4 pr-8 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                  >
-                    <option value="USD">USD</option>
-                    <option value="INR">INR</option>
-                  </select>
-                  <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
-                    <span className="text-gray-500">▼</span>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="rounded-xl bg-white/70 p-3 text-center shadow-inner dark:bg-gray-800/60">
+                    <span className="block text-xs text-gray-500">1 USD</span>
+                    <span className="text-lg font-bold">
+                      {rates.rates.INR.toFixed(2)} INR
+                    </span>
+                  </div>
+
+                  <div className="rounded-xl bg-white/70 p-3 text-center shadow-inner dark:bg-gray-800/60">
+                    <span className="block text-xs text-gray-500">1 INR</span>
+                    <span className="text-lg font-bold">
+                      {(1 / rates.rates.INR).toFixed(4)} USD
+                    </span>
                   </div>
                 </div>
+
+                <p className="mt-3 text-xs text-gray-500">
+                  Updated: {lastUpdated}
+                </p>
               </div>
             </div>
-
-            {/* Swap Button */}
-            <div className="my-2 flex justify-center">
-              <button
-                onClick={handleSwapCurrencies}
-                className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-100 text-orange-600 transition-all hover:bg-orange-200 active:scale-95 dark:bg-orange-900/30 dark:text-orange-400 dark:hover:bg-orange-900/50"
-              >
-                <MdSwapHoriz className="text-2xl" />
-              </button>
-            </div>
-
-            {/* Result Card */}
-            <div className="dark:bg-gray-800 mt-2 rounded-xl bg-white p-6 shadow-lg">
-              <label className="text-gray-600 dark:text-gray-400 mb-2 block text-sm font-medium">
-                Converted Amount
-              </label>
-              <div className="flex items-center gap-3">
-                <div className="bg-gray-50 dark:bg-gray-700 text-gray-900 flex h-12 flex-1 items-center rounded-lg px-4 text-lg font-medium dark:text-white">
-                  {convertedAmount || '0'}
-                </div>
-                <div className="relative">
-                  <select
-                    value={toCurrency}
-                    onChange={(e) =>
-                      setToCurrency(e.target.value as 'USD' | 'INR')
-                    }
-                    className="border-gray-200 dark:border-gray-700 dark:bg-gray-800 h-12 cursor-pointer appearance-none rounded-lg border bg-white px-4 pr-8 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                  >
-                    <option value="USD">USD</option>
-                    <option value="INR">INR</option>
-                  </select>
-                  <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
-                    <span className="text-gray-500">▼</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Amount Buttons */}
-            <div className="mt-6">
-              <p className="text-gray-600 dark:text-gray-400 mb-3 text-sm">
-                Quick amounts
-              </p>
-              <div className="grid grid-cols-4 gap-2">
-                {[10, 50, 100, 500].map((value) => (
-                  <button
-                    key={value}
-                    onClick={() => setAmount(value.toString())}
-                    className="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
-                  >
-                    {value}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Disclaimer */}
-            <p className="text-gray-500 dark:text-gray-400 mt-6 text-center text-xs">
-              Rates provided by moneyconvert.net • Updated every 10 minutes
-            </p>
           </div>
-        )}
-      </main>
-    </div>
-  );
+
+          {/* Input Card */}
+          <div className="rounded-3xl bg-white/70 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-2xl dark:bg-gray-800/70">
+            <label className="mb-2 block text-sm font-medium">Amount</label>
+
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <input
+                type="text"
+                value={amount}
+                onChange={handleAmountChange}
+                placeholder="Enter amount"
+                className="h-14 flex-1 rounded-xl border border-gray-200 bg-white/80 px-4 text-lg shadow-inner transition-all focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 dark:border-gray-700 dark:bg-gray-900/60"
+              />
+
+              <select
+                value={fromCurrency}
+                onChange={(e) =>
+                  setFromCurrency(e.target.value as 'USD' | 'INR')
+                }
+                className="h-14 rounded-xl border border-gray-200 bg-white/80 px-4 shadow-inner sm:w-40 dark:border-gray-700 dark:bg-gray-900/60"
+              >
+                <option value="USD">USD</option>
+                <option value="INR">INR</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Swap */}
+          <div className="flex justify-center">
+            <button
+              onClick={handleSwapCurrencies}
+              className="group flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg transition-all hover:scale-110 hover:shadow-xl"
+            >
+              <MdSwapHoriz className="text-2xl transition-transform group-hover:rotate-180" />
+            </button>
+          </div>
+
+          {/* Result Card */}
+          <div className="rounded-3xl bg-white/70 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-2xl dark:bg-gray-800/70">
+            <label className="mb-2 block text-sm font-medium">
+              Converted Amount
+            </label>
+
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <div className="flex h-14 flex-1 items-center rounded-xl bg-gray-100/80 px-4 text-lg font-semibold shadow-inner dark:bg-gray-900/60">
+                {convertedAmount || '0'}
+              </div>
+
+              <select
+                value={toCurrency}
+                onChange={(e) =>
+                  setToCurrency(e.target.value as 'USD' | 'INR')
+                }
+                className="h-14 rounded-xl border border-gray-200 bg-white/80 px-4 shadow-inner sm:w-40 dark:border-gray-700 dark:bg-gray-900/60"
+              >
+                <option value="USD">USD</option>
+                <option value="INR">INR</option>
+              </select>
+            </div>
+          </div>
+
+          {/* <p className="text-center text-xs text-gray-500">
+            Rates by moneyconvert.net • Auto refresh 30s
+          </p> */}
+        </div>
+      )}
+    </main>
+  </div>
+);
+
 }
+
+export default CurrencyConverter;

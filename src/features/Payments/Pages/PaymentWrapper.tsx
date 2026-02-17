@@ -17,6 +17,7 @@ export type PaymentData = {
   amount: string;
   note: string;
   sender: string;
+  proof?:File,
   receiver: string;
   pin: string;
   beneficiaryId: string;
@@ -98,6 +99,7 @@ const PaymentWrapper: React.FC = () => {
         beneficiaryId: beneficiaryId,
         currency: 'USD',
         securityCode: pin,
+        ...(paymentData.proof ? {proof: paymentData.proof} : {}),
       });
     } catch (error) {
       // VERY IMPORTANT → rethrow

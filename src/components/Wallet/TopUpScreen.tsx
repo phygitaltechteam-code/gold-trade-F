@@ -225,6 +225,15 @@ const TopUpScreen: React.FC<TopUpScreenProps> = ({onBack, onContinue}) => {
                     <div className="absolute bottom-[-6px] left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-slate-300 to-transparent dark:via-slate-600" />
                   </div>
                 </div>
+                {/* <button className="dark:bg-navy-light flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700">
+                  <span
+                    className="material-symbols-outlined text-sm text-primary md:text-base"
+                    // style="font-size: 18px;"
+                  >
+                    add_a_photo
+                  </span>
+                  Attach Receipt
+                </button> */}
               </div>
 
               {/* Attach Receipt Button - Reduced spacing */}

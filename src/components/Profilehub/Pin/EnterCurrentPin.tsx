@@ -104,10 +104,6 @@ const EnterCurrentPin: React.FC<EnterCurrentPinProps> = ({
               />
             ))}
           </div>
-
-          <button className="rounded-lg px-2 py-1 text-sm font-semibold text-primary underline decoration-2 underline-offset-4 transition-colors hover:text-primary/80 focus:outline-none md:text-base">
-            Forgot PIN?
-          </button>
         </main>
 
         <div className="mt-auto md:px-6 md:pb-6">

@@ -195,20 +195,10 @@ const PinScreen: React.FC<PinScreenProps> = ({
         </div>
 
         {/* Forgot PIN Button - Adjusted spacing */}
-        <div className="mb-2 mt-4 flex justify-center sm:mb-2 sm:mt-4">
-          <button
-            disabled={isSubmitting}
-            className={`text-gray-600 dark:text-gray-400 hover:text-gray-900 rounded-full px-4 py-1 text-sm font-medium transition-colors dark:hover:text-white ${
-              isSubmitting ? 'cursor-not-allowed opacity-50' : ''
-            }`}
-          >
-            Forgot PIN?
-          </button>
-        </div>
       </main>
 
       {/* Add shake animation to your global CSS or add it here */}
-      <style jsx>{`
+      <style>{`
         @keyframes shake {
           0%,
           100% {

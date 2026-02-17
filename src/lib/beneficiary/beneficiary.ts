@@ -1,10 +1,21 @@
 import {BeneficiaryFormData} from '@/features/Payments/types';
 import {api} from '@/utils/axios';
-
+function formatToFormData(data: any): FormData {
+  const formData = new FormData();
+  Object.entries(data).forEach(([key, value]) => {
+    if (key === 'proof' && value instanceof File) {
+      formData.append(key, value);
+    } else if (key !== 'proof') {
+      formData.append(key, String(value));
+    }
+  });
+  return formData;
+}
 export type TransactionPayload = {
   amount: number;
   currency: string;
   securityCode: string;
+  proof?: File;
   accountType: 'E_PRIVATEACCOUNT' | 'E_TEMPORYACCOUNT';
   beneficiaryId: string;
 };
@@ -60,8 +71,8 @@ export const getBeneficiaryById = async (id: string) => {
 
 export const payment = async (data: TransactionPayload) => {
   try {
-    console.log('sdegwergfwsf', data);
-    const response = await api.post(`/customer/wallet/transfer`, data);
+    const formData = formatToFormData(data);
+    const response = await api.post(`/customer/wallet/transfer`, formData);
     return response.data;
   } catch (error) {
     console.error('Error fetching beneficiary details:', error);

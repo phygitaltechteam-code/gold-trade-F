@@ -37,7 +37,9 @@ export const Header: React.FC = () => {
     },
     refetchInterval: 30000, // Refetch every 30 seconds
   });
-
+  const profile = localStorage.getItem('token');
+  const profileData = profile ? JSON.parse(profile) : null;
+  const photo = profileData?.user?.photo;
   // Initialize notifications and check for new ones
   useEffect(() => {
     if (notificationData) {
@@ -275,7 +277,10 @@ export const Header: React.FC = () => {
           <img
             alt="Profile"
             className="h-full w-full object-cover"
-            src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+            src={
+              photo ||
+              'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
+            }
           />
         </button>
       </div>

@@ -8,14 +8,26 @@ interface TopupPayload {
   currency: string;
   securityCode: string;
   accountType: string;
+  proof?: File; // URL or identifier for the uploaded receipt
 }
-
 interface TopupResponse {
   success: boolean;
   message: string;
   transactionId?: string;
   status: 'pending' | 'approved' | 'rejected';
   timestamp: string;
+  proof?: File; // URL or identifier for the uploaded receipt
+}
+function formatToFormData(data: any): FormData {
+  const formData = new FormData();
+  Object.entries(data).forEach(([key, value]) => {
+    if (key === 'proof' && value instanceof File) {
+      formData.append(key, value);
+    } else if (key !== 'proof') {
+      formData.append(key, String(value));
+    }
+  });
+  return formData;
 }
 
 export const useTopupMutation = () => {
@@ -45,7 +57,7 @@ export const submittopup = async (
   try {
     const response = await api.post<TopupResponse>(
       `/customer/wallet/topup`,
-      data,
+      formatToFormData(data),
     );
     return response.data;
   } catch (error) {

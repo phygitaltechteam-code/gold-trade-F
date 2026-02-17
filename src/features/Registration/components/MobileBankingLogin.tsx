@@ -87,14 +87,14 @@ const MobileBankingLogin: FC = () => {
                   </span>
                 </button>
               </div>
-              <div className="flex justify-end pt-1">
+              {/* <div className="flex justify-end pt-1">
                 <a
                   href="#"
                   className="text-sm font-medium text-[#F57F3D] hover:underline"
                 >
                   Forgot Password?
                 </a>
-              </div>
+              </div> */}
             </div>
 
             {/* Login Button */}

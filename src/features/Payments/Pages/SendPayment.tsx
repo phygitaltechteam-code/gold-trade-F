@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react';
+import React, {useState, useCallback, useRef} from 'react';
 import {MdArrowBack, MdArrowForward, MdEditNote} from 'react-icons/md';
 import AccountSelector from '../Components/AccountSelector';
 import CurrencySelector from '../Components/CurrencySelector';
@@ -13,6 +13,7 @@ import {
   walletAmmount,
 } from './PaymentWrapper';
 import toast from 'react-hot-toast';
+import {Camera} from 'lucide-react';
 
 export type WalletType = 'E_PRIVATEACCOUNT' | 'E_TEMPORYACCOUNT';
 type props = StepProps & {
@@ -32,7 +33,10 @@ const PaymentSend: React.FC<props> = ({
   selectedWalletType,
   setSelectedWalletType,
 }) => {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   console.log('wallet ammountt', walletAmmount);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   console.log(selectedWalletType);
   const navigate = useNavigate();
 
@@ -76,11 +80,12 @@ const PaymentSend: React.FC<props> = ({
 
         return {
           ...prev,
+          ...(selectedFile && {proof: selectedFile}), // Include proof if selected
           amount: nextAmount,
         };
       });
     },
-    [selectedWalletBalance],
+    [selectedWalletBalance, selectedFile],
   );
 
   const handleBackspace = useCallback(() => {
@@ -100,7 +105,28 @@ const PaymentSend: React.FC<props> = ({
       };
     });
   }, []);
+  const handleAttachReceipt = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
 
+  // Handle file selection
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      console.log('Selected file:', file.name, file.size);
+    }
+  };
+
+  // Remove selected file
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-[#f8f6f5] p-0">
       <div className="bg-premium-pattern relative mx-auto flex h-[100dvh] w-full flex-col overflow-hidden bg-[#f8f6f5] shadow-2xl ring-1 ring-black/5 sm:rounded-[40px] sm:bg-white">
@@ -125,15 +151,35 @@ const PaymentSend: React.FC<props> = ({
           <AmountDisplay amount={paymentData?.amount} />
 
           <div className="mb-8"></div>
-          <div className="group relative mb-auto w-full max-w-xs md:max-w-md">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <MdEditNote className="text-xl text-slate-400 transition-colors group-focus-within:text-primary" />
-            </div>
+          <div className="mb-4 flex w-full flex-col items-center md:mb-6">
+            {selectedFile ? (
+              <div className="flex w-full items-center justify-between gap-3 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm dark:border-slate-700 dark:bg-[#1a2533] dark:text-slate-300 md:py-2.5">
+                <div className="flex items-center gap-2 overflow-hidden">
+                  <Camera className="h-4 w-4 shrink-0 text-[#F57F3d]" />
+                  <span className="truncate">{selectedFile.name}</span>
+                </div>
+                <button
+                  onClick={handleRemoveFile}
+                  className="ml-2 shrink-0 text-sm text-red-500 hover:text-red-600"
+                >
+                  Remove
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={handleAttachReceipt}
+                className="flex w-full items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-[#1a2533] dark:text-slate-300 dark:hover:bg-slate-700 md:py-2.5"
+              >
+                <Camera className="h-4 w-4 text-[#F57F3d]" />
+                Attach Receipt (Optional)
+              </button>
+            )}
             <input
-              className="text-swiss-navy block w-full rounded-xl border-0 bg-white/70 py-3 pl-10 pr-4 shadow-sm outline-none backdrop-blur-sm transition-all placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
-              placeholder="Add a note (optional)"
-              type="text"
-              onChange={(e) => setPaymentData({note: e.target.value})}
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              accept="image/*,application/pdf,.doc,.docx"
+              onChange={handleFileSelect}
             />
           </div>
         </main>

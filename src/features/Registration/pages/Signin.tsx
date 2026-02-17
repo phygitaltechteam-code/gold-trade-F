@@ -35,6 +35,7 @@ const Signin: React.FC = () => {
       return response.data;
     },
     onSuccess: (data) => {
+      console.log('Login successful:', data);
       const newData = JSON.stringify(data, null, 2);
       if (newData) {
         localStorage.setItem('token', newData);

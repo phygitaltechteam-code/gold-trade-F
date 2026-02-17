@@ -19,6 +19,7 @@ export const useUpdateProfile = () => {
     onSuccess: () => {
       toast.success('Profile updated successfully!');
       queryClient.invalidateQueries({queryKey: ['get-data']});
+      window.history.back();
     },
     onError: (error: any) => {
       toast.error(error?.response?.data?.message || 'Failed to update profile');

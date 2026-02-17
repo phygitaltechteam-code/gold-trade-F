@@ -20,6 +20,7 @@ export interface TransactionData {
   transactionId: string;
   status: 'pending' | 'processing' | 'success' | 'failed';
   pin: string;
+  proof?: File ;
 }
 
 const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
@@ -49,6 +50,7 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
     accountType: 'private' | 'virtual',
     receipt?: File,
   ) => {
+    console.log('TopUp Submitted:',  receipt);
     const transactionId =
       'TX' + Date.now() + Math.random().toString(36).substr(2, 9);
 
@@ -60,7 +62,9 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
       timestamp: new Date().toISOString(),
       transactionId,
       status: 'pending',
+      ...(receipt && {proof: receipt}) // Store receipt as proof
     }));
+    
 
     setCurrentStep('pin');
   };
@@ -68,6 +72,7 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
   // Handle PIN submission
   const handlePinSubmit = (pin: string) => {
     // Set submitting state to show loading in PIN screen
+    console.log('Transaction Data Updated:', transactionData);
     setIsSubmittingPin(true);
 
     // Update transaction data
@@ -88,9 +93,10 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
         transactionData.accountType === 'private'
           ? 'E_PRIVATEACCOUNT'
           : 'E_TEMPORYACCOUNT',
+      ...(transactionData.proof && {proof: transactionData.proof}), // Include receipt if available
     };
 
-    console.log('Transaction Payload:', payload);
+    // console.log('Transaction Payload:', payload);
 
     // Submit to API FIRST, then handle response
     submitTransaction(payload);
@@ -117,7 +123,7 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
                 ...transactionData,
                 status: 'success',
               });
-            }, 2000);
+            }, 1000);
           } else if (
             response.status === 'pending' ||
             response.data?.isPending
