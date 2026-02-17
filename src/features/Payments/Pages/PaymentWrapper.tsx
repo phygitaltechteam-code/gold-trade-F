@@ -17,7 +17,7 @@ export type PaymentData = {
   amount: string;
   note: string;
   sender: string;
-  proof?:File,
+  proof?: File;
   receiver: string;
   pin: string;
   beneficiaryId: string;

@@ -1,3 +1,4 @@
+/*eslint-disable*/
 import {api} from '@/utils/axios';
 import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {AxiosError} from 'axios';

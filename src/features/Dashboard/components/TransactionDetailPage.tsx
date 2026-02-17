@@ -620,24 +620,6 @@ export const TransactionDetailPage: React.FC = () => {
             <div className="h-full w-2/3 animate-pulse rounded-full bg-primary"></div>
           </div>
         </main>
-
-        {/* Footer */}
-        <footer className="w-full p-4 sm:p-6">
-          <div className="mx-auto max-w-md">
-            <button className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-primary/10 py-3.5 font-semibold text-primary transition-colors hover:bg-primary/5 active:bg-primary/10 sm:py-4">
-              <MdCall className="text-lg sm:text-xl" />
-              <span className="text-sm sm:text-base">
-                Need help? Call Support
-              </span>
-            </button>
-            <div className="mt-4 flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 sm:mt-6">
-              <MdLock className="text-sm sm:text-[14px]" />
-              <span className="text-xs sm:text-[11px]">
-                Secure End-to-End Encryption
-              </span>
-            </div>
-          </div>
-        </footer>
       </div>
     );
   }

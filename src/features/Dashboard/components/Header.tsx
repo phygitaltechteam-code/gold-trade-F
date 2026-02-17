@@ -4,6 +4,7 @@ import {useNavigate} from '@tanstack/react-router';
 import {useQuery} from '@tanstack/react-query';
 import {api} from '@/utils/axios';
 import {FiChevronDown, FiChevronUp} from 'react-icons/fi';
+import {useGetProfile} from '@/components/Profilehub/profilemutation';
 
 interface Notification {
   id: string;
@@ -24,6 +25,9 @@ export const Header: React.FC = () => {
     new Set(),
   );
 
+  // Get profile data – this will update automatically after profile changes
+  const {data: profileData, isLoading: profileLoading} = useGetProfile();
+
   const tokenData = localStorage.getItem('token');
   const token = tokenData ? JSON.parse(tokenData) : null;
   const user = token ? token.user : null;
@@ -37,23 +41,18 @@ export const Header: React.FC = () => {
     },
     refetchInterval: 30000, // Refetch every 30 seconds
   });
-  const profile = localStorage.getItem('token');
-  const profileData = profile ? JSON.parse(profile) : null;
-  const photo = profileData?.user?.photo;
+
   // Initialize notifications and check for new ones
   useEffect(() => {
     if (notificationData) {
-      // Check localStorage for previously read notifications
       const storedRead = localStorage.getItem('readNotifications');
       const readSet = storedRead ? new Set(JSON.parse(storedRead)) : new Set();
 
-      // Sort notifications by date (newest first)
       const sortedNotifications = notificationData.sort(
         (a: Notification, b: Notification) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       );
 
-      // Mark notifications as read/unread
       const processedNotifications = sortedNotifications.map(
         (notification: Notification) => ({
           ...notification,
@@ -76,16 +75,12 @@ export const Header: React.FC = () => {
     const updatedReadNotifications = new Set(readNotifications);
     updatedReadNotifications.add(notificationId);
 
-    // Update state
     setReadNotifications(updatedReadNotifications);
-
-    // Update localStorage
     localStorage.setItem(
       'readNotifications',
       JSON.stringify([...updatedReadNotifications]),
     );
 
-    // Update notifications array
     setNotifications((prev) =>
       prev.map((n) => (n.id === notificationId ? {...n, isRead: true} : n)),
     );
@@ -127,7 +122,9 @@ export const Header: React.FC = () => {
   // Get notifications to display (limited or all)
   const displayedNotifications = isExpanded
     ? notifications
-    : notifications.slice(0, 5); // Show only 5 notifications when collapsed
+    : notifications.slice(0, 5);
+
+  const profilePhoto = profileData?.photo || '';
 
   return (
     <div className="sticky top-0 z-20 flex items-center justify-between bg-white px-6 py-4 dark:bg-[#101722]">
@@ -147,14 +144,13 @@ export const Header: React.FC = () => {
             onClick={() => {
               setIsNotificationOpen(!isNotificationOpen);
               if (!isNotificationOpen) {
-                setIsExpanded(false); // Reset to collapsed when opening
+                setIsExpanded(false);
               }
             }}
             className="relative flex items-center justify-center rounded-full p-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800"
           >
             <GrNotification size={20} />
 
-            {/* Notification Count Badge */}
             {unreadCount > 0 && (
               <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-xs font-semibold text-white">
                 {unreadCount > 99 ? '99+' : unreadCount}
@@ -162,7 +158,7 @@ export const Header: React.FC = () => {
             )}
           </button>
 
-          {/* Notification Dropdown */}
+          {/* Notification Dropdown (unchanged) */}
           {isNotificationOpen && (
             <div className="animate-in fade-in slide-in-from-top-2 absolute right-0 top-12 z-50 w-80 rounded-lg border border-slate-200 bg-white shadow-xl duration-200 dark:border-slate-800 dark:bg-[#1a2233]">
               <div className="border-b border-slate-100 p-4 dark:border-slate-800">
@@ -199,7 +195,6 @@ export const Header: React.FC = () => {
                             : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
                         }`}
                       >
-                        {/* Orange Dot for New Notifications */}
                         {!readNotifications.has(notification.id) && (
                           <div className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-orange-500"></div>
                         )}
@@ -232,7 +227,6 @@ export const Header: React.FC = () => {
                       </div>
                     ))}
 
-                    {/* Show "View All" or "Show Less" button if there are more notifications */}
                     {notifications.length > 5 && (
                       <div className="border-t border-slate-100 px-3 py-2 dark:border-slate-800">
                         <button
@@ -269,19 +263,23 @@ export const Header: React.FC = () => {
           )}
         </div>
 
-        {/* Profile Button */}
+        {/* Profile Button with Photo */}
         <button
           onClick={handleProfileClick}
           className="h-10 w-10 overflow-hidden rounded-full bg-slate-200 shadow-sm ring-2 ring-white transition-transform active:scale-95 dark:ring-[#101722]"
         >
-          <img
-            alt="Profile"
-            className="h-full w-full object-cover"
-            src={
-              photo ||
-              'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-            }
-          />
+          {profilePhoto ? (
+            <img
+              alt="Profile"
+              className="h-full w-full object-cover"
+              src={profilePhoto}
+            />
+          ) : (
+            // Fallback placeholder when no photo or still loading
+            <div className="flex h-full w-full items-center justify-center bg-primary text-white">
+              {user?.fullname?.charAt(0) || 'U'}
+            </div>
+          )}
         </button>
       </div>
 

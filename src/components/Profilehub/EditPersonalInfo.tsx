@@ -20,12 +20,11 @@ const EditPersonalInfo: React.FC = () => {
   const [formData, setFormData] = useState<{
     fullname: string;
     dob: string;
-    image?: File;
-    imagePreview: string;
+    image: string;
   }>({
     fullname: '',
     dob: '',
-    imagePreview: '',
+    image: '',
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -46,9 +45,7 @@ const EditPersonalInfo: React.FC = () => {
       setFormData({
         fullname: profiledata?.user?.fullname || '',
         dob: formatDateForInput(profiledata?.user?.dob),
-        imagePreview:
-          profiledata?.user?.profileImage ||
-          'https://images.unsplash.com/photo-1501973801540-537f08ccae7b?auto=format&fit=crop&w=400&q=80',
+        image: profiledata?.photo || '',
       });
     }
   }, [profiledata]);
@@ -116,8 +113,8 @@ const EditPersonalInfo: React.FC = () => {
       reader.onloadend = () => {
         setFormData((prev) => ({
           ...prev,
-          image: file,
-          imagePreview: reader.result as string,
+          // image: file,
+          image: reader.result as string,
         }));
       };
       reader.readAsDataURL(file);
@@ -210,7 +207,7 @@ const EditPersonalInfo: React.FC = () => {
               <div
                 className="h-32 w-32 rounded-full border-4 border-white bg-cover bg-center shadow-md dark:border-[#3a2e24] md:h-36 md:w-36"
                 style={{
-                  backgroundImage: `url('${formData.imagePreview}')`,
+                  backgroundImage: `url('${formData.image}')`,
                 }}
               />
               {/* Edit Badge */}
@@ -234,12 +231,6 @@ const EditPersonalInfo: React.FC = () => {
               accept="image/*"
               className="hidden"
             />
-
-            {formData.image && (
-              <p className="mt-2 text-xs text-green-600 md:text-sm">
-                New image selected: {formData.image.name}
-              </p>
-            )}
           </section>
 
           {/* Form Section */}

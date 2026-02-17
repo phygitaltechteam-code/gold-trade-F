@@ -6,5 +6,5 @@ export const Route = createFileRoute('/_app/eprivate/statement')({
 });
 
 function RouteComponent() {
-  return <StatementsScreen />;
+  return <StatementsScreen transactions={[]} />;
 }
