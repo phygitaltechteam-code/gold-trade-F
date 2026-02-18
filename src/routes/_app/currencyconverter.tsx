@@ -238,13 +238,6 @@ function CurrencyConverter() {
                         </span>
                       </div>
                     </div>
-
-                    <div className="mt-2 flex items-center justify-between border-t border-slate-100 pt-2 sm:mt-4 sm:pt-3">
-                      <p className="text-xs text-slate-400">{lastUpdated}</p>
-                      <p className="hidden text-xs text-slate-400 sm:block">
-                        ExchangeRate-API
-                      </p>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -267,26 +260,17 @@ function CurrencyConverter() {
                       className="h-12 w-full rounded-lg border border-slate-200 bg-white pl-12 pr-3 text-base text-slate-800 placeholder-slate-300 outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-100 sm:h-14 sm:rounded-xl sm:pl-16 sm:pr-4 sm:text-lg"
                     />
                   </div>
-                  <select
-                    value={fromCurrency}
-                    onChange={(e) =>
-                      setFromCurrency(e.target.value as 'USD' | 'INR')
-                    }
-                    className="h-12 cursor-pointer appearance-none rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 sm:h-14 sm:w-32 sm:rounded-xl sm:px-4 sm:text-base"
-                  >
-                    <option value="USD">USD</option>
-                    <option value="INR">INR</option>
-                  </select>
                 </div>
               </div>
 
-              {/* Swap */}
+              {/* Swap Button */}
               <div className="flex justify-center">
                 <button
                   onClick={handleSwapCurrencies}
-                  className="group flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg transition-all hover:scale-110 hover:shadow-xl"
+                  className="group flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg transition-all hover:scale-110 hover:shadow-xl sm:h-14 sm:w-14"
+                  aria-label="Swap currencies"
                 >
-                  <MdSwapHoriz className="text-2xl transition-transform group-hover:rotate-180" />
+                  <MdSwapHoriz className="text-xl transition-transform group-hover:rotate-180 sm:text-2xl" />
                 </button>
               </div>
 
@@ -304,16 +288,6 @@ function CurrencyConverter() {
                       {convertedAmount || '0.00'}
                     </div>
                   </div>
-                  <select
-                    value={toCurrency}
-                    onChange={(e) =>
-                      setToCurrency(e.target.value as 'USD' | 'INR')
-                    }
-                    className="h-12 cursor-pointer appearance-none rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 sm:h-14 sm:w-32 sm:rounded-xl sm:px-4 sm:text-base"
-                  >
-                    <option value="USD">USD</option>
-                    <option value="INR">INR</option>
-                  </select>
                 </div>
               </div>
 

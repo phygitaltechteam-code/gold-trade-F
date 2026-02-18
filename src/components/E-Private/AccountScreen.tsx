@@ -460,7 +460,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
           <p className="text-xs text-slate-500">Available Balance</p>
         </div>
         <button className="flex h-10 w-10 items-center justify-center rounded-full text-slate-700 hover:bg-slate-100">
-          <MdSettings size={22} />
+          {/* <MdSettings size={22} /> */}
         </button>
       </header>
 

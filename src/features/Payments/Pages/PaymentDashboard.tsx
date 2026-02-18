@@ -94,7 +94,7 @@ const PaymentDashboard: React.FC = () => {
             Select Recipient
           </h1>
           <button className="-mr-2 rounded-full p-2 text-primary transition-colors hover:bg-primary/10 md:p-3">
-            <ScanLine size={24} strokeWidth={2.5} className="md:h-6 md:w-6" />
+            {/* <ScanLine size={24} strokeWidth={2.5} className="md:h-6 md:w-6" /> */}
           </button>
         </header>
 
