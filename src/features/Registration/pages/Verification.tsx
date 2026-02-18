@@ -84,13 +84,6 @@ export const Verification: React.FC = () => {
           >
             <span className="truncate">Back to Dashboard</span>
           </button>
-
-          <button className="group flex h-10 w-full cursor-pointer items-center justify-center px-5 text-sm font-semibold leading-normal text-slate-500 transition-colors hover:text-primary">
-            <span className="material-symbols-outlined mr-2 text-[18px] opacity-0 transition-opacity group-hover:opacity-100">
-              support_agent
-            </span>
-            Need help? Contact Support
-          </button>
         </div>
       </div>
     </div>

@@ -139,6 +139,13 @@ const ProcessingScreen: React.FC<ProcessingScreenProps> = ({
             )}
           </div>
 
+          <button
+            onClick={() => navigate({to: '/dashboard'})}
+            className="flex h-12 w-full items-center justify-center rounded-xl bg-transparent text-center text-base font-semibold text-slate-500 transition-all hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white sm:h-14 sm:text-lg"
+          >
+            Back to Dashboard
+          </button>
+
           {/* Retry Button for Error State - Adjusted spacing */}
           {isPending && (
             <button
@@ -149,23 +156,6 @@ const ProcessingScreen: React.FC<ProcessingScreenProps> = ({
             </button>
           )}
         </div>
-
-        {/* Footer - Only show for non-error states - Fixed at bottom */}
-        {!isPending && (
-          <div className="border-gray-200 dark:border-gray-800 dark:bg-gray-900 shrink-0 border-t bg-white px-4 py-3 md:px-6 md:py-4">
-            <div className="mx-auto max-w-sm">
-              <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm font-semibold text-orange-600 transition-colors hover:bg-orange-100 dark:border-orange-900 dark:bg-orange-900/20 dark:text-orange-400 dark:hover:bg-orange-900/30 md:text-base">
-                <MdCall className="text-lg" />
-                <span>Need help? Call Support</span>
-              </button>
-
-              <div className="text-gray-500 dark:text-gray-400 mt-2 flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-widest md:mt-3">
-                <MdLock className="text-xs" />
-                <span>Secure End-to-End Encryption</span>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

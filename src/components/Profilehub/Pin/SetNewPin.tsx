@@ -43,7 +43,7 @@ const SetNewPin: React.FC = () => {
   };
 
   return (
-    <div className="bg-background-light dark:bg-background-dark flex flex-1 flex-col">
+    <div className="dark:bg-background-dark flex flex-1 flex-col bg-white">
       <Header subtitle="Step 2 of 3" />
 
       <main className="flex flex-1 flex-col items-center px-6 pt-8">
@@ -88,9 +88,6 @@ const SetNewPin: React.FC = () => {
           onDelete={handleDelete}
           submitIcon="arrow"
         />
-        <div className="flex h-6 w-full justify-center bg-white pt-2 dark:bg-[#1e1610]">
-          <div className="h-1 w-32 rounded-full bg-slate-200 dark:bg-slate-700"></div>
-        </div>
       </div>
     </div>
   );

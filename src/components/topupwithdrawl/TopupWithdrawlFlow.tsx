@@ -160,18 +160,9 @@ const TopupWithdrawlFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
           console.log('API Response:', response);
 
           if (response.statusCode === 200 || response.status === true) {
-            // Direct success
             setIsAdminApproved(true);
             setTransactionData((prev) => ({...prev, status: 'success'}));
             setCurrentStep('success');
-
-            setTimeout(() => {
-              navigate({to: '/dashboard'});
-              onComplete?.({
-                ...transactionData,
-                status: 'success',
-              });
-            }, 2000);
           } else if (
             response.status === 'pending' ||
             response.data?.isPending
@@ -185,20 +176,12 @@ const TopupWithdrawlFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
               setIsAdminApproved(true);
               setTransactionData((prev) => ({...prev, status: 'success'}));
               setCurrentStep('success');
-
-              setTimeout(() => {
-                navigate({to: '/dashboard'});
-                onComplete?.({
-                  ...transactionData,
-                  status: 'success',
-                });
-              }, 2000);
-            }, 5000);
+            });
           } else {
             // Rejected
             setErrorMessage(response.message || 'Transaction was rejected');
             setTransactionData((prev) => ({...prev, status: 'failed'}));
-            setTimeout(() => navigate({to: '/dashboard'}), 3000);
+            // setTimeout(() => navigate({to: '/dashboard'}), 3000);
           }
         },
         onError: (error: any) => {

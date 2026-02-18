@@ -5,11 +5,9 @@ import toast from 'react-hot-toast';
 import {ApiResponse, ReportData, Transaction} from './type';
 
 export const useGetAllTransaction = () => {
-  return useQuery<ApiResponse>({
+  return useQuery({
     queryKey: ['get-all-transactions'],
     queryFn: getallTransaction,
-    retry: 1,
-    refetchOnWindowFocus: false,
   });
 };
 

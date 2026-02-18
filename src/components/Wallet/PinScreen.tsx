@@ -1,62 +1,48 @@
 import React, {useState, useEffect} from 'react';
-import {
-  MdArrowBack,
-  MdLock,
-  MdBackspace,
-  MdCheck,
-  MdError,
-} from 'react-icons/md';
-import {ImSpinner8} from 'react-icons/im'; // You'll need to install react-icons if not already
+import {MdArrowBack, MdLock, MdBackspace, MdCheck} from 'react-icons/md';
 
 interface PinScreenProps {
   onPinSubmit: (pin: string) => void;
   onBack?: () => void;
   transactionAmount?: string;
-  isSubmitting?: boolean; // Add this
-  errorMessage?: string; // Add this
+  errorMessage?: string;
 }
 
 const PinScreen: React.FC<PinScreenProps> = ({
   onPinSubmit,
   onBack,
   transactionAmount,
-  isSubmitting = false, // Default to false
-  errorMessage = '', // Default to empty string
+  errorMessage = '',
 }) => {
   const [pin, setPin] = useState<string>('');
   const [shakeError, setShakeError] = useState<boolean>(false);
 
   const handleKeyPress = (key: string) => {
-    if (pin.length >= 6 || isSubmitting) return; // Disable input while submitting
+    if (pin.length >= 6) return;
     setPin((prev) => prev + key);
-    // Clear any error message when user starts typing again
-    if (errorMessage) {
-      // You might want to clear the error via parent component
-    }
   };
 
   const handleBackspace = () => {
-    if (isSubmitting) return; // Disable while submitting
     setPin((prev) => prev.slice(0, -1));
   };
 
   const handleSubmit = () => {
-    if (pin.length === 6 && !isSubmitting) {
+    if (pin.length === 6) {
       onPinSubmit(pin);
     }
   };
 
-  // Clear PIN when error occurs and trigger shake animation
+  // Clear PIN and shake when error occurs
   useEffect(() => {
     if (errorMessage) {
-      setPin(''); // Clear the PIN on error
+      setPin('');
       setShakeError(true);
       const timer = setTimeout(() => setShakeError(false), 500);
       return () => clearTimeout(timer);
     }
   }, [errorMessage]);
 
-  // Prevent scrolling on mount
+  // Prevent body scroll
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => {
@@ -70,10 +56,7 @@ const PinScreen: React.FC<PinScreenProps> = ({
         <div className="flex h-16 items-center justify-between px-4 sm:px-6">
           <button
             onClick={onBack}
-            disabled={isSubmitting} // Disable back button while submitting
-            className={`hover:bg-gray-100 dark:hover:bg-gray-800 -ml-2 flex h-10 w-10 items-center justify-center rounded-full transition-colors ${
-              isSubmitting ? 'cursor-not-allowed opacity-50' : ''
-            }`}
+            className="hover:bg-gray-100 dark:hover:bg-gray-800 -ml-2 flex h-10 w-10 items-center justify-center rounded-full transition-colors"
           >
             <MdArrowBack className="text-2xl" />
           </button>
@@ -82,7 +65,6 @@ const PinScreen: React.FC<PinScreenProps> = ({
       </header>
 
       <main className="relative z-10 mx-auto flex w-full max-w-md flex-1 flex-col px-4 pb-2 pt-16 sm:px-6 sm:pb-4">
-        {/* Top Content - Reduced margins for tablet */}
         <div className="mb-4 mt-4 flex flex-col items-center text-center sm:mb-6 sm:mt-6">
           <div className="mb-3 text-orange-500 sm:mb-4">
             <MdLock className="text-4xl font-light sm:text-5xl" />
@@ -100,20 +82,12 @@ const PinScreen: React.FC<PinScreenProps> = ({
           </p>
         </div>
 
-        {/* Error Message Display */}
-        {/* {errorMessage && (
-          <div className="animate-in fade-in slide-in-from-top-2 mx-auto mb-4 w-full max-w-[300px] duration-300 sm:max-w-[340px]">
-            <div className="flex items-center justify-center gap-2 rounded-lg bg-red-50 px-4 py-2 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
-              <MdError className="text-lg" />
-              <span>{errorMessage}</span>
-            </div>
-          </div>
-        )} */}
-
-        {/* PIN Indicators - Reduced spacing */}
+        {/* PIN Indicators */}
         <div className="mx-auto mb-6 w-full max-w-[300px] sm:mb-8 sm:max-w-[340px]">
           <div
-            className={`flex justify-between gap-2 sm:gap-3 ${shakeError ? 'animate-shake' : ''}`}
+            className={`flex justify-between gap-2 sm:gap-3 ${
+              shakeError ? 'animate-shake' : ''
+            }`}
           >
             {[0, 1, 2, 3, 4, 5].map((index) => {
               const isFilled = index < pin.length;
@@ -137,20 +111,16 @@ const PinScreen: React.FC<PinScreenProps> = ({
           </div>
         </div>
 
-        {/* Spacer - Much smaller for tablet */}
         <div className="min-h-[10px] flex-1 sm:min-h-[20px]"></div>
 
-        {/* Keypad - Adjusted for tablet view */}
+        {/* Keypad */}
         <div className="mx-auto w-full max-w-[300px] sm:max-w-[320px]">
           <div className="grid grid-cols-3 gap-x-4 gap-y-3 sm:gap-x-5 sm:gap-y-4">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
               <button
                 key={num}
                 onClick={() => handleKeyPress(num.toString())}
-                disabled={isSubmitting} // Disable while submitting
-                className={`hover:bg-gray-100 dark:hover:bg-gray-800 mx-auto flex h-14 w-14 items-center justify-center rounded-full text-2xl font-normal transition-all active:scale-95 sm:h-14 sm:w-14 sm:text-2xl ${
-                  isSubmitting ? 'cursor-not-allowed opacity-50' : ''
-                }`}
+                className="hover:bg-gray-100 dark:hover:bg-gray-800 mx-auto flex h-14 w-14 items-center justify-center rounded-full text-2xl font-normal transition-all active:scale-95 sm:h-14 sm:w-14 sm:text-2xl"
               >
                 {num}
               </button>
@@ -158,65 +128,38 @@ const PinScreen: React.FC<PinScreenProps> = ({
 
             <button
               onClick={handleBackspace}
-              disabled={isSubmitting} // Disable while submitting
-              className={`text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 mx-auto flex h-14 w-14 items-center justify-center rounded-full transition-all active:scale-95 sm:h-14 sm:w-14 ${
-                isSubmitting ? 'cursor-not-allowed opacity-50' : ''
-              }`}
+              className="text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 mx-auto flex h-14 w-14 items-center justify-center rounded-full transition-all active:scale-95 sm:h-14 sm:w-14"
             >
               <MdBackspace className="text-2xl" />
             </button>
 
             <button
               onClick={() => handleKeyPress('0')}
-              disabled={isSubmitting} // Disable while submitting
-              className={`hover:bg-gray-100 dark:hover:bg-gray-800 mx-auto flex h-14 w-14 items-center justify-center rounded-full text-2xl font-normal transition-all active:scale-95 sm:h-14 sm:w-14 sm:text-2xl ${
-                isSubmitting ? 'cursor-not-allowed opacity-50' : ''
-              }`}
+              className="hover:bg-gray-100 dark:hover:bg-gray-800 mx-auto flex h-14 w-14 items-center justify-center rounded-full text-2xl font-normal transition-all active:scale-95 sm:h-14 sm:w-14 sm:text-2xl"
             >
               0
             </button>
 
             <button
               onClick={handleSubmit}
-              disabled={pin.length < 6 || isSubmitting} // Disable if PIN incomplete OR submitting
+              disabled={pin.length < 6}
               className={`mx-auto flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-all active:scale-95 sm:h-14 sm:w-14 ${
-                pin.length >= 6 && !isSubmitting
+                pin.length >= 6
                   ? 'bg-orange-500 text-white shadow-orange-500/20 hover:bg-orange-600'
                   : 'bg-gray-200 text-gray-400 dark:bg-gray-800 cursor-not-allowed'
               }`}
             >
-              {isSubmitting ? (
-                <ImSpinner8 className="animate-spin text-2xl" />
-              ) : (
-                <MdCheck className="text-2xl" />
-              )}
+              <MdCheck className="text-2xl" />
             </button>
           </div>
         </div>
-
-        {/* Forgot PIN Button - Adjusted spacing */}
       </main>
 
-      {/* Add shake animation to your global CSS or add it here */}
       <style>{`
         @keyframes shake {
-          0%,
-          100% {
-            transform: translateX(0);
-          }
-          10%,
-          30%,
-          50%,
-          70%,
-          90% {
-            transform: translateX(-5px);
-          }
-          20%,
-          40%,
-          60%,
-          80% {
-            transform: translateX(5px);
-          }
+          0%, 100% { transform: translateX(0); }
+          10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+          20%, 40%, 60%, 80% { transform: translateX(5px); }
         }
         .animate-shake {
           animation: shake 0.5s ease-in-out;

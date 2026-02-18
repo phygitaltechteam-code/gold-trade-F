@@ -202,15 +202,14 @@ const EditContactInfo: React.FC = () => {
                   >
                     City
                   </label>
-
                   <input
                     id="city"
-                    className="h-12 rounded-xl border border-slate-200 bg-white px-4 text-base text-slate-900 placeholder-slate-400 shadow-sm transition-all focus:border-orange-500 focus:ring-1 focus:ring-orange-500 dark:border-white/10 dark:bg-white/5 dark:text-white dark:focus:border-orange-500"
+                    className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-base text-slate-900 placeholder-slate-400 shadow-sm transition-all focus:border-orange-500 focus:ring-1 focus:ring-orange-500 dark:border-white/10 dark:bg-white/5 dark:text-white dark:focus:border-orange-500"
                     placeholder="City"
                     value={formData.city}
                     onChange={handleInputChange}
                   />
-                </div>{' '}
+                </div>
                 <div>
                   <label
                     htmlFor="state"
@@ -220,14 +219,13 @@ const EditContactInfo: React.FC = () => {
                   </label>
                   <input
                     id="state"
-                    className="h-12 rounded-xl border border-slate-200 bg-white px-4 text-base text-slate-900 placeholder-slate-400 shadow-sm transition-all focus:border-orange-500 focus:ring-1 focus:ring-orange-500 dark:border-white/10 dark:bg-white/5 dark:text-white dark:focus:border-orange-500"
+                    className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-base text-slate-900 placeholder-slate-400 shadow-sm transition-all focus:border-orange-500 focus:ring-1 focus:ring-orange-500 dark:border-white/10 dark:bg-white/5 dark:text-white dark:focus:border-orange-500"
                     placeholder="State"
                     value={formData.state}
                     onChange={handleInputChange}
                   />
                 </div>
               </div>
-
               {/* <label className="flex flex-col gap-1">
                                <span className="text-sm font-medium text-[#0d131c] dark:text-white md:text-base">
                                  Country

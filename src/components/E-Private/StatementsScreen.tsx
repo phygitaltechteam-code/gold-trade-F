@@ -2,23 +2,47 @@ import React, {useState, useMemo} from 'react';
 import {
   MdArrowBack,
   MdCalendarToday,
+  MdDescription,
   MdDownload,
   MdFilterList,
+  MdRefresh,
 } from 'react-icons/md';
 import {useNavigate} from '@tanstack/react-router';
-import {generateCSV} from './accountmutation';
+import {generateCSV, useGetAllTransaction} from './accountmutation';
 import {Transaction} from './type';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-interface StatementsScreenProps {
-  transactions: Transaction[];
-}
+const StatementsScreen: React.FC = () => {
+  const navigate = useNavigate();
+  const {data, isLoading, error} = useGetAllTransaction();
 
-const StatementsScreen: React.FC<StatementsScreenProps> = ({transactions}) => {
-  const [startDate, setStartDate] = useState<string>('2026-01-01');
-  const [endDate, setEndDate] = useState<string>('2026-02-05');
+  // Extract transactions from the fetched data
+  const allTransactions = data?.transactions || [];
+
+  console.log('Fetched transactions:', allTransactions);
+
+  // Helper to get today's date in YYYY-MM-DD (UTC based)
+  const getTodayString = (): string => {
+    const d = new Date();
+    const year = d.getUTCFullYear();
+    const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(d.getUTCDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const getThirtyDaysAgoString = (): string => {
+    const d = new Date();
+    d.setUTCDate(d.getUTCDate() - 30);
+    const year = d.getUTCFullYear();
+    const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(d.getUTCDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const [startDate, setStartDate] = useState<string>(getThirtyDaysAgoString());
+  const [endDate, setEndDate] = useState<string>(getTodayString());
   const [reportFormat, setReportFormat] = useState<'pdf' | 'csv' | 'excel'>(
     'pdf',
   );
@@ -26,40 +50,37 @@ const StatementsScreen: React.FC<StatementsScreenProps> = ({transactions}) => {
     'E_PRIVATEACCOUNT' | 'E_TEMPORYACCOUNT'
   >('E_PRIVATEACCOUNT');
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
-  const navigate = useNavigate();
 
-  // Safety check for transactions prop
-  const safeTransactions = Array.isArray(transactions) ? transactions : [];
+  const resetDateRange = () => {
+    setStartDate(getThirtyDaysAgoString());
+    setEndDate(getTodayString());
+  };
 
-  // Filter transactions by date range and account type
+  // Filter transactions by date range (UTC) and account type
   const filteredTransactions = useMemo(() => {
-    return safeTransactions.filter((transaction) => {
-      const transactionDate = new Date(transaction.createdAt);
-      const fromDate = new Date(startDate);
-      const toDate = new Date(endDate);
+    const [startYear, startMonth, startDay] = startDate.split('-').map(Number);
+    const [endYear, endMonth, endDay] = endDate.split('-').map(Number);
 
-      fromDate.setHours(0, 0, 0, 0);
-      toDate.setHours(23, 59, 59, 999);
+    const fromUTC = Date.UTC(startYear, startMonth - 1, startDay, 0, 0, 0, 0);
+    const toUTC = Date.UTC(endYear, endMonth - 1, endDay, 23, 59, 59, 999);
 
-      const isDateInRange =
-        transactionDate >= fromDate && transactionDate <= toDate;
+    return allTransactions.filter((transaction) => {
+      const txTime = new Date(transaction.createdAt).getTime();
+      const isDateInRange = txTime >= fromUTC && txTime <= toUTC;
       const isAccountTypeMatch =
         transaction.accountType === selectedAccountType;
-
       return isDateInRange && isAccountTypeMatch;
     });
-  }, [safeTransactions, startDate, endDate, selectedAccountType]);
+  }, [allTransactions, startDate, endDate, selectedAccountType]);
 
   // Calculate totals
   const totals = useMemo(() => {
     const credits = filteredTransactions
       .filter((t) => t.type === 'CREDIT')
       .reduce((sum, t) => sum + t.amount, 0);
-
     const debits = filteredTransactions
       .filter((t) => t.type === 'DEBIT')
       .reduce((sum, t) => sum + t.amount, 0);
-
     return {
       totalCredits: credits,
       totalDebits: debits,
@@ -70,69 +91,62 @@ const StatementsScreen: React.FC<StatementsScreenProps> = ({transactions}) => {
 
   const handleGenerateReport = () => {
     if (filteredTransactions.length === 0) return;
-
     setIsGenerating(true);
-
-    // Generate the selected format directly (no backend call)
-    switch (reportFormat) {
-      case 'pdf':
-        generatePDF();
-        break;
-      case 'csv':
-        generateCSVFile();
-        break;
-      case 'excel':
-        generateExcel();
-        break;
-    }
-
-    setIsGenerating(false);
+    setTimeout(() => {
+      switch (reportFormat) {
+        case 'pdf':
+          generatePDF();
+          break;
+        case 'csv':
+          generateCSVFile();
+          break;
+        case 'excel':
+          generateExcel();
+          break;
+      }
+      setIsGenerating(false);
+    }, 100);
   };
 
   // Generate PDF
   const generatePDF = () => {
     const doc = new jsPDF();
-
-    doc.setFontSize(20);
-    doc.text('Transaction Report', 14, 22);
-
+    doc.setFontSize(18);
+    doc.text('Transaction Statement', 14, 20);
     doc.setFontSize(10);
     doc.text(
-      `Date Range: ${formatDateForDisplay(startDate)} to ${formatDateForDisplay(endDate)}`,
+      `Period: ${formatDateForDisplay(startDate)} – ${formatDateForDisplay(endDate)}`,
       14,
-      32,
+      30,
     );
     doc.text(
-      `Account Type: ${selectedAccountType === 'E_PRIVATEACCOUNT' ? 'E-Private Account' : 'Temporary Account'}`,
+      `Account: ${selectedAccountType === 'E_PRIVATEACCOUNT' ? 'E‑Private' : 'Temporary'}`,
       14,
-      38,
+      36,
     );
-    doc.text(`Total Transactions: ${totals.totalTransactions}`, 14, 44);
-    doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 50);
+    doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 42);
 
     const tableData = filteredTransactions.map((t) => [
       new Date(t.createdAt).toLocaleDateString('en-US'),
       t.type,
-      t.particular.length > 30
-        ? t.particular.substring(0, 30) + '...'
+      t.particular.length > 40
+        ? t.particular.substring(0, 40) + '…'
         : t.particular,
       `$${t.amount.toFixed(2)}`,
       t.isPending ? 'Pending' : t.isRejected ? 'Rejected' : 'Completed',
     ]);
 
     autoTable(doc, {
-      startY: 60,
+      startY: 50,
       head: [['Date', 'Type', 'Description', 'Amount', 'Status']],
       body: tableData,
-      theme: 'grid',
+      theme: 'striped',
       headStyles: {fillColor: [59, 130, 246]},
       columnStyles: {3: {halign: 'right'}},
-      styles: {fontSize: 8},
+      styles: {fontSize: 9},
       margin: {top: 10},
-      pageBreak: 'auto',
     });
-
-    doc.save(`Transaction_Report_${startDate}_to_${endDate}.pdf`);
+    doc.save(`statement_${startDate}_to_${endDate}.pdf`);
   };
 
   // Generate CSV
@@ -141,15 +155,10 @@ const StatementsScreen: React.FC<StatementsScreenProps> = ({transactions}) => {
     const blob = new Blob([csvContent], {type: 'text/csv;charset=utf-8;'});
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute(
-      'download',
-      `Transaction_Report_${startDate}_to_${endDate}.csv`,
-    );
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
+    link.href = url;
+    link.download = `statement_${startDate}_to_${endDate}.csv`;
     link.click();
-    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   // Generate Excel
@@ -163,217 +172,198 @@ const StatementsScreen: React.FC<StatementsScreenProps> = ({transactions}) => {
         }),
         Type: t.type,
         Particulars: t.particular,
-        'Beneficiary Name': t.beneficiary?.fullName || 'N/A',
-        'Account Number': t.beneficiary?.accountNumber || 'N/A',
+        'Beneficiary Name': t.beneficiary?.fullName || '—',
+        'Account Number': t.beneficiary?.accountNumber || '—',
         'Amount (USD)': t.amount,
         Status: t.isPending
           ? 'Pending'
           : t.isRejected
             ? 'Rejected'
             : 'Completed',
-        'Account Type': t.accountType,
+        'Account Type':
+          t.accountType === 'E_PRIVATEACCOUNT' ? 'E‑Private' : 'Temporary',
       })),
     );
-
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Transactions');
-    XLSX.writeFile(
-      workbook,
-      `Transaction_Report_${startDate}_to_${endDate}.xlsx`,
-    );
+    XLSX.writeFile(workbook, `statement_${startDate}_to_${endDate}.xlsx`);
   };
 
   const formatDateForDisplay = (dateString: string): string => {
-    const date = new Date(dateString);
+    const date = new Date(dateString + 'T00:00:00Z');
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
-      day: '2-digit',
+      day: 'numeric',
+      timeZone: 'UTC',
     });
   };
 
-  const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setStartDate(e.target.value);
-  };
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
-  const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEndDate(e.target.value);
-  };
-
-  const getMaxDate = (): string => {
-    const date = new Date();
-    date.setFullYear(date.getFullYear() + 1);
-    return date.toISOString().split('T')[0];
-  };
+  // Error state
+  if (error) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center p-6">
+        <MdFilterList size={48} className="mb-4 text-red-400" />
+        <p className="font-medium text-red-600">Failed to load transactions</p>
+        <p className="mt-2 text-sm text-slate-500">
+          {error.message || 'Please try again later'}
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-background-light font-sans flex h-full min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-slate-50">
       {/* Header */}
-      <header className="bg-background-light/95 sticky top-0 z-50 flex items-center justify-between border-b border-slate-200/50 px-4 py-4 backdrop-blur-sm">
+      <header className="sticky top-0 z-50 flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 shadow-sm">
         <button
           onClick={() => navigate({to: '/eprivate/eprivatereports'})}
-          className="text-navy flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-slate-200 active:scale-95"
+          className="flex h-10 w-10 items-center justify-center rounded-full text-slate-600 transition-colors hover:bg-slate-100"
         >
-          <MdArrowBack size={24} />
+          <MdArrowBack size={22} />
         </button>
-        <h1 className="text-navy flex-1 text-center text-lg font-bold">
-          Statements & Reports
-        </h1>
-        <div className="w-10"></div>
+        <h1 className="text-lg font-bold text-slate-800">Statements</h1>
+        <div className="w-10" />
       </header>
 
-      <main className="flex w-full flex-1 flex-col gap-6 px-4 py-6">
-        {/* Account Selector Tabs */}
-        <div className="flex items-center rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm">
-          <button
-            onClick={() => setSelectedAccountType('E_PRIVATEACCOUNT')}
-            className={`flex-1 rounded-lg px-2 py-2.5 text-center text-sm font-medium leading-tight transition-all ${
-              selectedAccountType === 'E_PRIVATEACCOUNT'
-                ? 'bg-primary text-white shadow-sm'
-                : 'hover:text-navy text-slate-500 hover:bg-slate-50'
-            }`}
-          >
-            E Private Account
-          </button>
-          <button
-            onClick={() => setSelectedAccountType('E_TEMPORYACCOUNT')}
-            className={`flex-1 rounded-lg px-2 py-2.5 text-center text-sm font-medium leading-tight transition-all ${
-              selectedAccountType === 'E_TEMPORYACCOUNT'
-                ? 'bg-primary text-white shadow-sm'
-                : 'hover:text-navy text-slate-500 hover:bg-slate-50'
-            }`}
-          >
-            Temporarily Virtual Account
-          </button>
+      <main className="flex-1 space-y-6 p-4 pb-8">
+        {/* Account Toggle */}
+        <div className="flex rounded-xl bg-white p-1 shadow-sm">
+          {(['E_PRIVATEACCOUNT', 'E_TEMPORYACCOUNT'] as const).map((type) => (
+            <button
+              key={type}
+              onClick={() => setSelectedAccountType(type)}
+              className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition ${
+                selectedAccountType === type
+                  ? 'bg-primary text-white shadow'
+                  : 'text-slate-600 hover:bg-slate-100'
+              }`}
+            >
+              {type === 'E_PRIVATEACCOUNT' ? 'E‑Private' : 'Temporary'}
+            </button>
+          ))}
         </div>
 
-        {/* Custom Report Form */}
-        <section className="flex flex-col gap-4">
-          <h2 className="text-navy px-1 text-lg font-bold">Custom Report</h2>
-          <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
-            {/* Date Inputs */}
-            <div className="mb-6 grid grid-cols-2 gap-4">
-              <label className="group flex flex-col gap-2">
-                <span className="text-sm font-semibold text-slate-700">
-                  Start Date
-                </span>
-                <div className="relative">
-                  <input
-                    className="text-navy h-12 w-full cursor-pointer rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-sm font-medium outline-none transition-all hover:border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary"
-                    type="date"
-                    value={startDate}
-                    onChange={handleStartDateChange}
-                    max={getMaxDate()}
-                  />
-                  <MdCalendarToday
-                    className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2"
-                    size={20}
-                  />
-                </div>
-                <span className="mt-1 text-xs text-slate-500">
-                  {formatDateForDisplay(startDate)}
-                </span>
-              </label>
-              <label className="group flex flex-col gap-2">
-                <span className="text-sm font-semibold text-slate-700">
-                  End Date
-                </span>
-                <div className="relative">
-                  <input
-                    className="text-navy h-12 w-full cursor-pointer rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-sm font-medium outline-none transition-all hover:border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary"
-                    type="date"
-                    value={endDate}
-                    onChange={handleEndDateChange}
-                    max={getMaxDate()}
-                    min={startDate}
-                  />
-                  <MdCalendarToday
-                    className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2"
-                    size={20}
-                  />
-                </div>
-                <span className="mt-1 text-xs text-slate-500">
-                  {formatDateForDisplay(endDate)}
-                </span>
-              </label>
-            </div>
-
-            {/* Format Selector */}
-            <div className="mb-8 flex flex-col gap-3">
-              <span className="text-sm font-semibold text-slate-700">
-                Format
-              </span>
-              <div className="flex w-full rounded-xl bg-slate-100 p-1">
-                {(['pdf', 'csv', 'excel'] as const).map((fmt) => (
-                  <button
-                    key={fmt}
-                    onClick={() => setReportFormat(fmt)}
-                    className={`flex flex-1 items-center justify-center rounded-lg py-2.5 text-sm font-semibold uppercase tracking-wide transition-all duration-200 ${
-                      reportFormat === fmt
-                        ? 'bg-primary text-white shadow-sm'
-                        : 'hover:text-navy text-slate-500 hover:bg-slate-200/50'
-                    }`}
-                  >
-                    {fmt}
-                  </button>
-                ))}
+        {/* Date Range Card */}
+        <section className="rounded-2xl bg-white p-5 shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="font-semibold text-slate-700">Date Range</h2>
+            <button
+              onClick={resetDateRange}
+              className="flex items-center gap-1 text-sm text-primary hover:underline"
+            ></button>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <label className="space-y-1.5">
+              <span className="text-sm font-medium text-slate-600">From</span>
+              <div className="relative">
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  max={endDate}
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 pr-10 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                />
               </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-3">
-              <button
-                onClick={handleGenerateReport}
-                disabled={filteredTransactions.length === 0 || isGenerating}
-                className={`group flex h-12 flex-1 items-center justify-center gap-2.5 rounded-xl font-bold text-white transition-all active:scale-[0.98] ${
-                  filteredTransactions.length === 0 || isGenerating
-                    ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-primary'
-                }`}
-              >
-                {isGenerating ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="h-5 w-5 animate-spin rounded-full border-b-2 border-white"></div>
-                    Downloading...
-                  </div>
-                ) : (
-                  <>
-                    <MdDownload size={22} />
-                    Download {reportFormat.toUpperCase()} Report
-                  </>
-                )}
-              </button>
-            </div>
+            </label>
+            <label className="space-y-1.5">
+              <span className="text-sm font-medium text-slate-600">To</span>
+              <div className="relative">
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  min={startDate}
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 pr-10 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                />
+              </div>
+            </label>
           </div>
         </section>
 
-        {/* Transaction History Preview */}
-        <section className="flex flex-col gap-4 pb-8">
-          <div className="flex items-center justify-between px-1">
-            <h2 className="text-navy text-lg font-bold">Transaction History</h2>
-            <span className="text-sm font-medium text-slate-500">
-              {filteredTransactions.length} transactions
+        {/* Format Selection & Download */}
+        <section className="rounded-2xl bg-white p-5 shadow-sm">
+          <h2 className="mb-4 font-semibold text-slate-700">Report Format</h2>
+          <div className="mb-6 flex rounded-lg bg-slate-100 p-1">
+            {(['pdf', 'csv', 'excel'] as const).map((fmt) => (
+              <button
+                key={fmt}
+                onClick={() => setReportFormat(fmt)}
+                className={`flex-1 rounded-md py-2.5 text-sm font-medium uppercase tracking-wide transition ${
+                  reportFormat === fmt
+                    ? 'bg-primary text-white shadow'
+                    : 'text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                {fmt}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={handleGenerateReport}
+            disabled={filteredTransactions.length === 0 || isGenerating}
+            className={`flex h-12 w-full items-center justify-center gap-2 rounded-xl font-bold text-white transition active:scale-[0.98] ${
+              filteredTransactions.length === 0 || isGenerating
+                ? 'cursor-not-allowed bg-slate-400'
+                : 'hover:bg-primary-dark bg-primary'
+            }`}
+          >
+            {isGenerating ? (
+              <>
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                Generating...
+              </>
+            ) : (
+              <>
+                <MdDownload size={20} />
+                Download {reportFormat.toUpperCase()}
+              </>
+            )}
+          </button>
+
+          {filteredTransactions.length > 0 && (
+            <p className="mt-3 text-center text-sm text-slate-500">
+              {filteredTransactions.length} transaction(s) in selected range
+            </p>
+          )}
+        </section>
+
+        {/* Transaction Preview */}
+        <section className="rounded-2xl bg-white p-5 shadow-sm">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="font-semibold text-slate-700">Preview</h2>
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+              {totals.totalTransactions} items
             </span>
           </div>
 
           {filteredTransactions.length === 0 ? (
-            <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center">
-              <MdFilterList className="mx-auto mb-4 text-slate-400" size={48} />
-              <h3 className="mb-2 text-lg font-bold text-slate-700">
-                No Transactions Found
-              </h3>
+            <div className="flex flex-col items-center py-12 text-center">
+              <MdFilterList size={48} className="mb-3 text-slate-300" />
               <p className="text-slate-500">
-                No transactions found for the selected account type and date
-                range.
+                No transactions match the selected filters.
               </p>
+              <button
+                onClick={resetDateRange}
+                className="mt-4 rounded-lg bg-primary/10 px-4 py-2 text-sm font-medium text-primary"
+              >
+                Reset to last 30 days
+              </button>
             </div>
           ) : (
-            <div className="flex flex-col gap-3 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-4">
-              {filteredTransactions.map((transaction) => (
-                <TransactionItem
-                  key={transaction.id}
-                  transaction={transaction}
-                />
+            <div className="max-h-96 space-y-2 overflow-y-auto pr-1">
+              {filteredTransactions.map((tx) => (
+                <TransactionItem key={tx.id} transaction={tx} />
               ))}
             </div>
           )}
@@ -383,69 +373,59 @@ const StatementsScreen: React.FC<StatementsScreenProps> = ({transactions}) => {
   );
 };
 
-// Helper Component for Transaction Items
+// TransactionItem component (unchanged)
 const TransactionItem: React.FC<{transaction: Transaction}> = ({
   transaction,
 }) => {
-  const getStatusColor = () => {
-    if (transaction.isPending) return 'bg-yellow-100 text-yellow-800';
-    if (transaction.isRejected) return 'bg-red-100 text-red-800';
-    return 'bg-green-100 text-green-800';
-  };
-
-  const getStatusText = () => {
-    if (transaction.isPending) return 'Pending';
-    if (transaction.isRejected) return 'Rejected';
-    return 'Completed';
-  };
+  const isCredit = transaction.type === 'CREDIT';
+  const statusColor = transaction.isPending
+    ? 'bg-yellow-100 text-yellow-800'
+    : transaction.isRejected
+      ? 'bg-red-100 text-red-800'
+      : 'bg-green-100 text-green-800';
+  const statusText = transaction.isPending
+    ? 'Pending'
+    : transaction.isRejected
+      ? 'Rejected'
+      : 'Completed';
 
   return (
-    <div className="group flex items-center justify-between rounded-xl border border-slate-100 p-3 transition-all hover:border-primary/20 hover:bg-slate-50">
-      <div className="flex items-center gap-3">
+    <div className="flex items-center justify-between rounded-xl border border-slate-100 p-3 transition hover:border-primary/20 hover:bg-slate-50">
+      <div className="flex min-w-0 flex-1 items-center gap-3">
         <div
           className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${
-            transaction.type === 'CREDIT'
-              ? 'bg-green-50 text-green-600'
-              : 'bg-red-50 text-red-600'
+            isCredit ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'
           }`}
         >
-          <span className="text-sm font-bold">
-            {transaction.type === 'CREDIT' ? '+' : '-'}
-          </span>
+          <span className="text-sm font-bold">{isCredit ? '+' : '-'}</span>
         </div>
-        <div className="flex flex-col gap-0.5">
-          <span className="text-sm font-bold text-slate-800">
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium text-slate-800">
             {transaction.particular}
-          </span>
+          </p>
           {transaction.beneficiary && (
-            <span className="text-xs text-slate-500">
-              To: {transaction.beneficiary.fullName} (
-              {transaction.beneficiary.accountNumber})
-            </span>
+            <p className="truncate text-xs text-slate-500">
+              {transaction.beneficiary.fullName} •{' '}
+              {transaction.beneficiary.accountNumber}
+            </p>
           )}
-          <span className="text-xs text-slate-500">
+          <p className="text-xs text-slate-400">
             {new Date(transaction.createdAt).toLocaleString()}
-          </span>
+          </p>
         </div>
       </div>
-      <div className="flex flex-col items-end gap-1">
+      <div className="ml-2 flex flex-col items-end gap-1">
         <span
-          className={`text-sm font-bold ${
-            transaction.type === 'CREDIT' ? 'text-green-600' : 'text-red-600'
+          className={`whitespace-nowrap text-sm font-bold ${
+            isCredit ? 'text-green-600' : 'text-red-600'
           }`}
         >
-          {transaction.type === 'CREDIT' ? '+' : '-'}$
-          {transaction.amount.toLocaleString()}
+          {isCredit ? '+' : '-'}${transaction.amount.toLocaleString()}
         </span>
         <span
-          className={`rounded-full px-2 py-0.5 text-xs font-medium ${getStatusColor()}`}
+          className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${statusColor}`}
         >
-          {getStatusText()}
-        </span>
-        <span className="text-xs text-slate-500">
-          {transaction.accountType === 'E_PRIVATEACCOUNT'
-            ? 'E-Private'
-            : 'Temporary'}
+          {statusText}
         </span>
       </div>
     </div>
