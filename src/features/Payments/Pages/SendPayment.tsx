@@ -1,10 +1,8 @@
 import React, {useState, useCallback, useRef} from 'react';
-import {MdArrowBack, MdArrowForward, MdEditNote} from 'react-icons/md';
-import AccountSelector from '../Components/AccountSelector';
-import CurrencySelector from '../Components/CurrencySelector';
-import AmountDisplay from '../Components/AccountDisplay';
-import Keypad from '../Components/KeyPad';
+import {ArrowLeft, Lock, Camera} from 'lucide-react';
 import {useNavigate} from '@tanstack/react-router';
+import toast from 'react-hot-toast';
+
 import {
   PaymentData,
   SetPaymentData,
@@ -12,11 +10,11 @@ import {
   StepProps,
   walletAmmount,
 } from './PaymentWrapper';
-import toast from 'react-hot-toast';
-import {Camera} from 'lucide-react';
+import {Keypad} from '@/components/Profilehub/ui/Keypad';
 
 export type WalletType = 'E_PRIVATEACCOUNT' | 'E_TEMPORYACCOUNT';
-type props = StepProps & {
+
+type Props = StepProps & {
   paymentData: PaymentData;
   setPaymentData: SetPaymentData;
   walletAmmount: walletAmmount;
@@ -24,7 +22,7 @@ type props = StepProps & {
   selectedWalletType: WalletType;
 };
 
-const PaymentSend: React.FC<props> = ({
+const PaymentSend: React.FC<Props> = ({
   paymentData,
   setPaymentData,
   nextStep,
@@ -33,21 +31,43 @@ const PaymentSend: React.FC<props> = ({
   selectedWalletType,
   setSelectedWalletType,
 }) => {
+  const navigate = useNavigate();
+  const [isInputActive, setIsInputActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  console.log('wallet ammountt', walletAmmount);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  console.log(selectedWalletType);
-  const navigate = useNavigate();
-
   const selectedWalletBalance = walletAmmount?.[selectedWalletType] ?? 0;
-
   const enteredAmount = Number(paymentData.amount || 0);
-
   const isInsufficientBalance = enteredAmount > selectedWalletBalance;
 
+  // Format amount with commas (same as TopUpScreen)
+  const formattedValue = () => {
+    const raw = paymentData.amount || '';
+    if (raw === '' || raw === '0') return '0';
+
+    if (raw.endsWith('.')) {
+      const integerPart = parseInt(raw.slice(0, -1) || '0', 10);
+      return integerPart.toLocaleString('en-IN') + '.';
+    }
+
+    const parts = raw.split('.');
+    const integerPart = parseInt(parts[0] || '0', 10);
+    const formattedInteger = integerPart.toLocaleString('en-IN');
+
+    if (parts.length > 1) {
+      const decimalPart = parts[1].slice(0, 2);
+      return `${formattedInteger}.${decimalPart}`;
+    }
+
+    return formattedInteger;
+  };
+
+  // Keypad handlers
   const handleKeyPress = useCallback(
     (key: string) => {
+      setIsInputActive(true);
+      setTimeout(() => setIsInputActive(false), 300);
+
       setPaymentData((prev) => {
         const value = prev.amount || '';
 
@@ -65,14 +85,15 @@ const PaymentSend: React.FC<props> = ({
         if (value === '' && key === '.') {
           return {...prev, amount: '0.'};
         }
+
         if (value.includes('.')) {
           const [, decimals] = value.split('.');
           if (decimals?.length >= 2) return prev;
         }
-        if (value.replace('.', '').length >= 7) return prev;
+
+        if (value.replace('.', '').length >= 7) return prev; // adjust digit limit as needed
 
         const nextAmount = value + key;
-
         if (Number(nextAmount) > selectedWalletBalance) {
           toast.error('Insufficient wallet balance');
           return prev;
@@ -80,129 +101,194 @@ const PaymentSend: React.FC<props> = ({
 
         return {
           ...prev,
-          ...(selectedFile && {proof: selectedFile}), // Include proof if selected
+          ...(selectedFile && {proof: selectedFile}), // include proof if attached
           amount: nextAmount,
         };
       });
     },
-    [selectedWalletBalance, selectedFile],
+    [selectedWalletBalance, selectedFile, setPaymentData],
   );
 
   const handleBackspace = useCallback(() => {
+    setIsInputActive(true);
+    setTimeout(() => setIsInputActive(false), 300);
+
     setPaymentData((prev) => {
-      const value = prev?.amount;
-
-      if (!value || value.length <= 1) {
-        return {
-          ...prev,
-          amount: '',
-        };
+      const value = prev.amount || '';
+      if (value.length <= 1) {
+        return {...prev, amount: ''};
       }
-
-      return {
-        ...prev,
-        amount: value.slice(0, -1),
-      };
+      return {...prev, amount: value.slice(0, -1)};
     });
-  }, []);
-  const handleAttachReceipt = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
+  }, [setPaymentData]);
+
+  const handleContinue = () => {
+    if (isInsufficientBalance || enteredAmount <= 0) {
+      toast.error('Insufficient wallet balance');
+      return;
     }
+    nextStep();
   };
 
-  // Handle file selection
+  // File handlers
+  const handleAttachReceipt = () => {
+    fileInputRef.current?.click();
+  };
+
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       setSelectedFile(file);
-      console.log('Selected file:', file.name, file.size);
+      setPaymentData((prev) => ({...prev, proof: file}));
     }
   };
 
-  // Remove selected file
   const handleRemoveFile = () => {
     setSelectedFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    setPaymentData((prev) => ({...prev, proof: undefined}));
   };
+
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-[#f8f6f5] p-0">
-      <div className="bg-premium-pattern relative mx-auto flex h-[100dvh] w-full flex-col overflow-hidden bg-[#f8f6f5] shadow-2xl ring-1 ring-black/5 sm:rounded-[40px] sm:bg-white">
-        <header className="relative z-10 mt-2 flex shrink-0 items-center justify-between px-4 py-4">
+    <div className="font-inter flex h-screen flex-col bg-[#f8f6f5] text-[#0d131c] dark:bg-[#221610] dark:text-white">
+      {/* Header */}
+      <div className="shrink-0 border-b border-slate-200/50 bg-[#f8f6f5] px-4 pb-2 pt-4 dark:border-slate-800/50 dark:bg-[#221610] md:pt-6">
+        <div className="flex items-center justify-between">
           <button
-            className="flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-white/50 active:scale-95"
             onClick={() => navigate({to: '/wallet/paymentdashbord'})}
+            className="flex size-10 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-slate-200 dark:hover:bg-slate-800"
           >
-            <MdArrowBack className="text-swiss-navy text-2xl" />
+            <ArrowLeft className="h-5 w-5 text-[#0d131c] dark:text-white" />
           </button>
-          <h2 className="text-swiss-navy flex-1 pr-10 text-center text-lg font-bold leading-tight">
+          <h2 className="text-center text-lg font-bold leading-tight md:text-xl">
             Send Money
           </h2>
-        </header>
-        <main className="no-scrollbar relative z-0 flex flex-1 flex-col items-center overflow-y-auto px-4 pb-4 pt-4 md:px-8">
-          <AccountSelector
-            selectedWalletType={selectedWalletType}
-            setSelectedWalletType={setSelectedWalletType}
-            walletAmmount={walletAmmount}
-          />
+          <div className="w-10" /> {/* spacer */}
+        </div>
+      </div>
 
-          <AmountDisplay amount={paymentData?.amount} />
-
-          <div className="mb-8"></div>
-          <div className="mb-4 flex w-full flex-col items-center md:mb-6">
-            {selectedFile ? (
-              <div className="flex w-full items-center justify-between gap-3 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm dark:border-slate-700 dark:bg-[#1a2533] dark:text-slate-300 md:py-2.5">
-                <div className="flex items-center gap-2 overflow-hidden">
-                  <Camera className="h-4 w-4 shrink-0 text-[#F57F3d]" />
-                  <span className="truncate">{selectedFile.name}</span>
-                </div>
-                <button
-                  onClick={handleRemoveFile}
-                  className="ml-2 shrink-0 text-sm text-red-500 hover:text-red-600"
-                >
-                  Remove
-                </button>
-              </div>
-            ) : (
+      {/* Main Content */}
+      <div className="flex-1 overflow-hidden">
+        <div className="flex h-full flex-col">
+          {/* Account Type Toggle (identical to TopUpScreen) */}
+          <div className="shrink-0 px-4 pt-3 md:pt-4">
+            <div className="flex w-full items-stretch rounded-xl bg-slate-200/50 p-1 dark:bg-[#1a2533]/50">
               <button
-                onClick={handleAttachReceipt}
-                className="flex w-full items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-[#1a2533] dark:text-slate-300 dark:hover:bg-slate-700 md:py-2.5"
+                onClick={() => setSelectedWalletType('E_PRIVATEACCOUNT')}
+                className={`flex-1 rounded-lg border py-2.5 text-xs font-bold leading-tight transition-all md:py-3 md:text-sm ${
+                  selectedWalletType === 'E_PRIVATEACCOUNT'
+                    ? 'border-slate-100 bg-white text-[#F57F3d] shadow-sm dark:border-slate-700 dark:bg-[#1a2533]'
+                    : 'border-transparent text-slate-500 hover:text-[#0d131c] dark:text-slate-400 dark:hover:text-white'
+                }`}
               >
-                <Camera className="h-4 w-4 text-[#F57F3d]" />
-                Attach Receipt (Optional)
+                E Private Account
               </button>
-            )}
-            <input
-              type="file"
-              ref={fileInputRef}
-              className="hidden"
-              accept="image/*,application/pdf,.doc,.docx"
-              onChange={handleFileSelect}
+              <button
+                onClick={() => setSelectedWalletType('E_TEMPORYACCOUNT')}
+                className={`flex-1 rounded-lg border py-2.5 text-xs font-bold leading-tight transition-all md:py-3 md:text-sm ${
+                  selectedWalletType === 'E_TEMPORYACCOUNT'
+                    ? 'border-slate-100 bg-white text-[#F57F3d] shadow-sm dark:border-slate-700 dark:bg-[#1a2533]'
+                    : 'border-transparent text-slate-500 hover:text-[#0d131c] dark:text-slate-400 dark:hover:text-white'
+                }`}
+              >
+                Temporarily Virtual Account
+              </button>
+            </div>
+          </div>
+
+          {/* Amount Display Section */}
+          <div className="flex flex-1 flex-col items-center justify-center px-4 md:px-8">
+            <div className="w-full max-w-xs md:max-w-sm">
+              {/* Available balance hint */}
+              <p className="mb-1 text-center text-xs font-medium text-slate-500 dark:text-slate-400">
+                Available: ₹{selectedWalletBalance.toLocaleString('en-IN')}
+              </p>
+
+              <p className="mb-2 text-center text-sm font-medium text-slate-500 dark:text-slate-400 md:mb-3 md:text-base">
+                Enter Amount
+              </p>
+
+              <div className="mb-4 flex flex-col items-center justify-center md:mb-6">
+                <div className="relative flex items-center justify-center">
+                  <span className="mr-1 text-2xl font-bold text-[#0d131c] dark:text-white md:text-3xl">
+                    ₹
+                  </span>
+                  <div className="relative min-w-0 max-w-full overflow-visible">
+                    <div
+                      className={`min-w-0 max-w-full overflow-visible border-none bg-transparent p-0 text-center font-bold text-[#0d131c] dark:text-white ${
+                        formattedValue().length > 12
+                          ? 'text-2xl md:text-3xl'
+                          : 'text-3xl md:text-4xl'
+                      }`}
+                    >
+                      {formattedValue()}
+                    </div>
+                    <div
+                      className={`absolute bottom-[-4px] left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#F57F3d] to-transparent transition-all duration-300 ${
+                        isInputActive
+                          ? 'scale-x-100 opacity-100'
+                          : 'scale-x-0 opacity-0'
+                      }`}
+                    />
+                    <div className="absolute bottom-[-6px] left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-slate-300 to-transparent dark:via-slate-600" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Attach Receipt (same as TopUpScreen) */}
+              <div className="mb-4 flex w-full flex-col items-center md:mb-6">
+                {selectedFile ? (
+                  <div className="flex w-full items-center justify-between gap-3 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm dark:border-slate-700 dark:bg-[#1a2533] dark:text-slate-300 md:py-2.5">
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      <Camera className="h-4 w-4 shrink-0 text-[#F57F3d]" />
+                      <span className="truncate">{selectedFile.name}</span>
+                    </div>
+                    <button
+                      onClick={handleRemoveFile}
+                      className="ml-2 shrink-0 text-sm text-red-500 hover:text-red-600"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={handleAttachReceipt}
+                    className="flex w-full items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-[#1a2533] dark:text-slate-300 dark:hover:bg-slate-700 md:py-2.5"
+                  >
+                    <Camera className="h-4 w-4 text-[#F57F3d]" />
+                    Attach Receipt (Optional)
+                  </button>
+                )}
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/*,application/pdf,.doc,.docx"
+                  onChange={handleFileSelect}
+                />
+              </div>
+
+              {/* Security Notice */}
+              <div className="flex items-center justify-center gap-1.5 py-1 opacity-70 md:py-2">
+                <Lock className="h-3 w-3 text-slate-400 dark:text-slate-500 md:h-3.5 md:w-3.5" />
+                <p className="text-xs font-medium text-slate-400 dark:text-slate-500">
+                  Secure 256-bit SSL Encryption
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Keypad - with integrated submit button (arrow) */}
+          <div className="shrink-0">
+            <Keypad
+              onKeyPress={handleKeyPress}
+              onDelete={handleBackspace}
+              onSubmit={handleContinue}
+              showBiometric={false}
+              submitIcon="arrow"
             />
           </div>
-        </main>
-
-        <section className="z-20 rounded-t-[2.5rem] border-t border-white/50 bg-white/90 px-6 pb-8 pt-6 shadow-[0_-10px_40px_-10px_rgba(13,30,58,0.05)] backdrop-blur-md md:px-10">
-          <Keypad onKeyPress={handleKeyPress} onBackspace={handleBackspace} />
-
-          <button
-            // disabled={isInsufficientBalance || enteredAmount <= 0}
-            className="group flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-primary font-bold tracking-wide text-white shadow-lg shadow-primary/30 transition-all hover:bg-[#e06b2c] active:scale-[0.99]"
-            onClick={() => {
-              if (isInsufficientBalance || enteredAmount <= 0) {
-                toast.error('Insufficient wallet balance');
-                return;
-              }
-
-              nextStep();
-            }}
-          >
-            Continue
-            <MdArrowForward className="text-xl transition-transform group-hover:translate-x-1" />
-          </button>
-        </section>
+        </div>
       </div>
     </div>
   );

@@ -1,11 +1,9 @@
-import React, {useState, useCallback} from 'react';
-import {MdArrowBack, MdArrowForward, MdEditNote} from 'react-icons/md';
+import React, {useState, useCallback, useRef} from 'react';
+import {ArrowLeft, Lock} from 'lucide-react';
 import {useNavigate} from '@tanstack/react-router';
 import toast from 'react-hot-toast';
 
 import {PaymentData, WalletAmount} from './TopupWithdrawlFlow'; // adjust import path
-import CurrencySelector from '@/features/Payments/Components/CurrencySelector';
-import AmountDisplay from '@/features/Payments/Components/AccountDisplay';
 import {Keypad} from '../Profilehub/ui/Keypad';
 
 type Props = {
@@ -28,36 +26,27 @@ const WithdrawScreen: React.FC<Props> = ({
   walletAmmount = {E_PRIVATEACCOUNT: 0, E_TEMPORYACCOUNT: 0},
 }) => {
   const navigate = useNavigate();
-
-  // Only private account is used for top‑up withdrawals
-  const privateBalance = walletAmmount.E_PRIVATEACCOUNT ?? 0;
+  const [isInputActive, setIsInputActive] = useState(false);
 
   const selectedBalance =
     accountType === 'E_PRIVATEACCOUNT'
-      ? walletAmmount.E_PRIVATEACCOUNT
-      : walletAmmount.E_TEMPORYACCOUNT;
+      ? (walletAmmount.E_PRIVATEACCOUNT ?? 0)
+      : (walletAmmount.E_TEMPORYACCOUNT ?? 0);
 
   const enteredAmount = Number(paymentData.amount || 0);
   const isInsufficientBalance = enteredAmount > selectedBalance;
 
-  // ----- Keypad handlers -----
+  // ----- Keypad handlers (same logic as before) -----
   const handleKeyPress = useCallback(
     (key: string) => {
+      setIsInputActive(true);
+      setTimeout(() => setIsInputActive(false), 300);
+
       setPaymentData((prev) => {
         const value = prev.amount || '';
 
         // Prevent double decimal
         if (key === '.' && value.includes('.')) return prev;
-
-        // Replace leading zero
-        if (value === '0' && key !== '.') {
-          const nextAmount = key;
-          if (Number(nextAmount) > privateBalance) {
-            toast.error('Insufficient wallet balance');
-            return prev;
-          }
-          return {...prev, amount: nextAmount};
-        }
 
         // Start with decimal
         if (value === '' && key === '.') {
@@ -73,7 +62,13 @@ const WithdrawScreen: React.FC<Props> = ({
         // Limit total digits (9 digits for crore range)
         if (value.replace('.', '').length >= 9) return prev;
 
-        const nextAmount = value + key;
+        let nextAmount = value + key;
+
+        // Replace leading zero
+        if (value === '0' && key !== '.') {
+          nextAmount = key;
+        }
+
         if (Number(nextAmount) > selectedBalance) {
           toast.error('Insufficient wallet balance');
           return prev;
@@ -82,20 +77,22 @@ const WithdrawScreen: React.FC<Props> = ({
         return {...prev, amount: nextAmount};
       });
     },
-    [privateBalance, setPaymentData],
+    [selectedBalance, setPaymentData],
   );
 
   const handleBackspace = useCallback(() => {
+    setIsInputActive(true);
+    setTimeout(() => setIsInputActive(false), 300);
+
     setPaymentData((prev) => {
-      const value = prev?.amount;
-      if (!value || value.length <= 1) {
+      const value = prev.amount || '';
+      if (value.length <= 1) {
         return {...prev, amount: ''};
       }
       return {...prev, amount: value.slice(0, -1)};
     });
   }, [setPaymentData]);
 
-  // ----- Continue -----
   const handleContinue = () => {
     if (isInsufficientBalance || enteredAmount <= 0) {
       toast.error('Insufficient wallet balance');
@@ -104,58 +101,135 @@ const WithdrawScreen: React.FC<Props> = ({
     nextStep();
   };
 
+  // Format the displayed amount with commas (same as TopUpScreen)
+  const formattedValue = () => {
+    const raw = paymentData.amount || '';
+    if (raw === '' || raw === '0') return '0';
+
+    if (raw.endsWith('.')) {
+      const integerPart = parseInt(raw.slice(0, -1) || '0', 10);
+      return integerPart.toLocaleString('en-IN') + '.';
+    }
+
+    const parts = raw.split('.');
+    const integerPart = parseInt(parts[0] || '0', 10);
+    const formattedInteger = integerPart.toLocaleString('en-IN');
+
+    if (parts.length > 1) {
+      const decimalPart = parts[1].slice(0, 2);
+      return `${formattedInteger}.${decimalPart}`;
+    }
+
+    return formattedInteger;
+  };
+
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-[#f8f6f5] p-0 sm:p-4">
-      <div className="bg-premium-pattern relative mx-auto flex h-[100dvh] w-full flex-col overflow-hidden bg-[#f8f6f5] shadow-2xl ring-1 ring-black/5 sm:h-[884px] sm:rounded-[40px] sm:bg-white">
-        {/* Header */}
-        <header className="relative z-10 mt-2 flex shrink-0 items-center justify-between px-4 py-4">
+    <div className="font-inter flex h-screen flex-col bg-[#f8f6f5] text-[#0d131c] dark:bg-[#221610] dark:text-white">
+      {/* Header */}
+      <div className="shrink-0 border-b border-slate-200/50 bg-[#f8f6f5] px-4 pb-2 pt-4 dark:border-slate-800/50 dark:bg-[#221610] md:pt-6">
+        <div className="flex items-center justify-between">
           <button
-            className="flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-white/50 active:scale-95"
             onClick={() => navigate({to: '/dashboard'})}
+            className="flex size-10 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-slate-200 dark:hover:bg-slate-800"
           >
-            <MdArrowBack className="text-swiss-navy text-2xl" />
+            <ArrowLeft className="h-5 w-5 text-[#0d131c] dark:text-white" />
           </button>
-          <h2 className="text-swiss-navy flex-1 pr-10 text-center text-lg font-bold leading-tight">
+          <h2 className="text-center text-lg font-bold leading-tight md:text-xl">
             Withdraw Wallet
           </h2>
           <div className="w-10" /> {/* spacer */}
-        </header>
+        </div>
+      </div>
 
-        {/* Main content */}
-        <main className="no-scrollbar relative z-0 flex flex-1 flex-col items-center overflow-y-auto px-4 pb-4 pt-4 md:px-8">
-          {/* Private Account Balance Card */}
-          <div className="mb-6 w-full max-w-xs rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 p-4 text-center shadow-sm md:max-w-md">
-            <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
-              {accountType === 'E_PRIVATEACCOUNT'
-                ? 'Private Account Balance'
-                : 'Temporary Account Balance'}
-            </p>
-            <p className="text-2xl font-bold text-slate-900">
-              ₹{selectedBalance.toLocaleString('en-IN')}
-            </p>
+      {/* Main Content */}
+      <div className="flex-1 overflow-hidden">
+        <div className="flex h-full flex-col">
+          {/* Account Type Toggle */}
+          <div className="shrink-0 px-4 pt-3 md:pt-4">
+            <div className="flex w-full items-stretch rounded-xl bg-slate-200/50 p-1 dark:bg-[#1a2533]/50">
+              <button
+                onClick={() => setAccountType('E_PRIVATEACCOUNT')}
+                className={`flex-1 rounded-lg border py-2.5 text-xs font-bold leading-tight transition-all md:py-3 md:text-sm ${
+                  accountType === 'E_PRIVATEACCOUNT'
+                    ? 'border-slate-100 bg-white text-[#F57F3d] shadow-sm dark:border-slate-700 dark:bg-[#1a2533]'
+                    : 'border-transparent text-slate-500 hover:text-[#0d131c] dark:text-slate-400 dark:hover:text-white'
+                }`}
+              >
+                E Private Account
+              </button>
+              <button
+                onClick={() => setAccountType('E_TEMPORYACCOUNT')}
+                className={`flex-1 rounded-lg border py-2.5 text-xs font-bold leading-tight transition-all md:py-3 md:text-sm ${
+                  accountType === 'E_TEMPORYACCOUNT'
+                    ? 'border-slate-100 bg-white text-[#F57F3d] shadow-sm dark:border-slate-700 dark:bg-[#1a2533]'
+                    : 'border-transparent text-slate-500 hover:text-[#0d131c] dark:text-slate-400 dark:hover:text-white'
+                }`}
+              >
+                Temporarily Virtual Account
+              </button>
+            </div>
           </div>
 
-          <CurrencySelector
-            accountType={accountType}
-            setAccountType={setAccountType}
-          />
-          <AmountDisplay amount={paymentData?.amount} />
+          {/* Amount Display Section */}
+          <div className="flex flex-1 flex-col items-center justify-center px-4 md:px-8">
+            <div className="w-full max-w-xs md:max-w-sm">
+              {/* Available balance hint */}
+              <p className="mb-1 text-center text-xs font-medium text-slate-500 dark:text-slate-400">
+                Available: ₹{selectedBalance.toLocaleString('en-IN')}
+              </p>
 
-          <div className="mb-8" />
-        </main>
+              <p className="mb-2 text-center text-sm font-medium text-slate-500 dark:text-slate-400 md:mb-3 md:text-base">
+                Enter Amount
+              </p>
 
-        {/* Keypad & Continue button */}
-        <section className="z-20 rounded-t-[2.5rem] bg-white/90 px-6 pb-8 pt-6 backdrop-blur-md md:px-10">
-          <Keypad onKeyPress={handleKeyPress} prevStep={handleBackspace} />
+              <div className="mb-4 flex flex-col items-center justify-center md:mb-6">
+                <div className="relative flex items-center justify-center">
+                  <span className="mr-1 text-2xl font-bold text-[#0d131c] dark:text-white md:text-3xl">
+                    ₹
+                  </span>
+                  <div className="relative min-w-0 max-w-full overflow-visible">
+                    <div
+                      className={`min-w-0 max-w-full overflow-visible border-none bg-transparent p-0 text-center font-bold text-[#0d131c] dark:text-white ${
+                        formattedValue().length > 12
+                          ? 'text-2xl md:text-3xl'
+                          : 'text-3xl md:text-4xl'
+                      }`}
+                    >
+                      {formattedValue()}
+                    </div>
+                    <div
+                      className={`absolute bottom-[-4px] left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#F57F3d] to-transparent transition-all duration-300 ${
+                        isInputActive
+                          ? 'scale-x-100 opacity-100'
+                          : 'scale-x-0 opacity-0'
+                      }`}
+                    />
+                    <div className="absolute bottom-[-6px] left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-slate-300 to-transparent dark:via-slate-600" />
+                  </div>
+                </div>
+              </div>
 
-          <button
-            className="group flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-primary font-bold tracking-wide text-white shadow-lg shadow-primary/30 transition-all hover:bg-[#e06b2c] active:scale-[0.99]"
-            onClick={handleContinue}
-          >
-            Continue
-            <MdArrowForward className="text-xl transition-transform group-hover:translate-x-1" />
-          </button>
-        </section>
+              {/* Security Notice (same as TopUpScreen) */}
+              <div className="flex items-center justify-center gap-1.5 py-1 opacity-70 md:py-2">
+                <Lock className="h-3 w-3 text-slate-400 dark:text-slate-500 md:h-3.5 md:w-3.5" />
+                <p className="text-xs font-medium text-slate-400 dark:text-slate-500">
+                  Secure 256-bit SSL Encryption
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Keypad - with submit button integrated (arrow icon) */}
+          <div className="shrink-0">
+            <Keypad
+              onKeyPress={handleKeyPress}
+              onDelete={handleBackspace}
+              onSubmit={handleContinue}
+              showBiometric={false}
+              submitIcon="arrow"
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

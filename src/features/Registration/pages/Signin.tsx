@@ -173,18 +173,24 @@ const Signin: React.FC = () => {
 
         {/* Main content */}
         <div className="relative z-10 flex flex-1 flex-col justify-between px-6 pb-6 pt-8 md:px-8 md:pb-8 md:pt-10">
-          {/* Header */}
-          <div className="flex flex-col gap-2 md:gap-3">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#F57F3D]/10 backdrop-blur-sm md:h-14 md:w-14">
-              <div className="material-symbols-outlined text-2xl text-[#F57F3D] md:text-3xl">
-                account_balance_wallet
+          <div className="mb-8 flex flex-col items-center">
+            {/* Logo row: icon + brand name */}
+            <div className="mb-4 flex items-center gap-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F57F3D]/10 md:h-12 md:w-12">
+                <span className="material-symbols-outlined text-2xl text-[#F57F3D] md:text-3xl">
+                  account_balance_wallet
+                </span>
               </div>
-              <span className="">Swiss-Quote</span>
+              <span className="text-lg font-semibold text-[#0d131c] dark:text-white md:text-xl">
+                Swiss-Quote
+              </span>
             </div>
-            <h1 className="text-[32px] font-bold leading-tight tracking-tight text-[#0d131c] dark:text-white md:text-[36px]">
+
+            {/* Welcome text */}
+            <h1 className="mb-2 text-3xl font-bold leading-tight tracking-tight text-[#0d131c] dark:text-white md:text-4xl">
               Welcome back
             </h1>
-            <p className="text-gray-500 dark:text-gray-400 text-base font-normal leading-normal md:text-lg">
+            <p className="text-gray-500 dark:text-gray-400 max-w-sm text-center text-base md:text-lg">
               Enter your details to access your account.
             </p>
           </div>

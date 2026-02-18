@@ -271,7 +271,7 @@ const StatementsScreen: React.FC = () => {
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
                   max={endDate}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 pr-10 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition-all focus:border-primary focus:ring-1 focus:ring-primary"
                 />
               </div>
             </label>
@@ -283,7 +283,7 @@ const StatementsScreen: React.FC = () => {
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
                   min={startDate}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 pr-10 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition-all focus:border-primary focus:ring-1 focus:ring-primary"
                 />
               </div>
             </label>

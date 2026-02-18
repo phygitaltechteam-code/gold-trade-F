@@ -127,17 +127,17 @@ export const Header: React.FC = () => {
   const profilePhoto = profileData?.photo || '';
 
   return (
-    <div className="sticky top-0 z-20 flex items-center justify-between bg-white px-6 py-4 dark:bg-[#101722]">
+    <div className="sticky top-0 z-20 flex items-center justify-between bg-white px-4 py-3 dark:bg-[#101722] md:px-6 md:py-4">
       <div className="flex flex-1 flex-col justify-center">
-        <p className="text-sm font-medium leading-normal text-slate-500 dark:text-[#94a3b8]">
+        <p className="text-xs font-medium leading-normal text-slate-500 dark:text-[#94a3b8] md:text-sm">
           SwissQuote
         </p>
-        <h2 className="text-xl font-bold leading-tight tracking-tight text-[#0d131c] dark:text-white">
+        <h2 className="text-lg font-bold leading-tight tracking-tight text-[#0d131c] dark:text-white md:text-xl">
           {user?.fullname}
         </h2>
       </div>
 
-      <div className="relative flex items-center gap-4">
+      <div className="relative flex items-center gap-3 md:gap-4">
         {/* Notification Bell with Dropdown */}
         <div className="relative">
           <button
@@ -149,7 +149,7 @@ export const Header: React.FC = () => {
             }}
             className="relative flex items-center justify-center rounded-full p-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800"
           >
-            <GrNotification size={20} />
+            <GrNotification size={18} className="md:size-[20px]" />
 
             {unreadCount > 0 && (
               <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-xs font-semibold text-white">
@@ -158,115 +158,126 @@ export const Header: React.FC = () => {
             )}
           </button>
 
-          {/* Notification Dropdown (unchanged) */}
+          {/* Notification Dropdown - Responsive */}
           {isNotificationOpen && (
-            <div className="animate-in fade-in slide-in-from-top-2 absolute right-0 top-12 z-50 w-65 rounded-lg border border-slate-200 bg-white shadow-xl duration-200 dark:border-slate-800 dark:bg-[#1a2233]">
-              <div className="border-b border-slate-100 p-4 dark:border-slate-800">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-slate-800 dark:text-white">
-                    Notifications
+            <>
+              <div
+                className="fixed inset-0 z-40 bg-transparent"
+                onClick={() => {
+                  setIsNotificationOpen(false);
+                  setIsExpanded(false);
+                }}
+              />
+              <div className="absolute right-0 top-12 z-50 w-64 rounded-lg border border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-[#1a2233] max-sm:fixed max-sm:left-4 max-sm:right-4 max-sm:top-16 max-sm:w-auto sm:left-auto sm:right-0 sm:w-72 md:w-80 lg:w-96">
+                <div className="border-b border-slate-100 p-4 dark:border-slate-800">
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="flex items-center gap-2 font-semibold text-slate-800 dark:text-white">
+                      <span className="whitespace-nowrap">Notifications</span>
+                      {unreadCount > 0 && (
+                        <span className="whitespace-nowrap rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-600 dark:bg-red-900/30 dark:text-red-400">
+                          {unreadCount} new
+                        </span>
+                      )}
+                    </h3>
                     {unreadCount > 0 && (
-                      <span className="ml-2 rounded-full bg-red-100 px-2 py-1 text-xs text-red-600 dark:bg-red-900/30 dark:text-red-400">
-                        {unreadCount} new
-                      </span>
+                      <button
+                        onClick={markAllAsRead}
+                        className="whitespace-nowrap text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                      >
+                        Mark all read
+                      </button>
                     )}
-                  </h3>
-                  {unreadCount > 0 && (
-                    <button
-                      onClick={markAllAsRead}
-                      className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400"
-                    >
-                      Mark all as read
-                    </button>
+                  </div>
+                </div>
+
+                <div className="max-h-96 overflow-y-auto">
+                  {notifications.length > 0 ? (
+                    <div className="p-2">
+                      {displayedNotifications.map((notification) => (
+                        <div
+                          key={notification.id}
+                          onClick={() =>
+                            handleNotificationClick(notification.id)
+                          }
+                          className={`flex cursor-pointer items-start gap-3 rounded-lg p-3 transition-colors ${
+                            !readNotifications.has(notification.id)
+                              ? 'bg-blue-50/50 hover:bg-blue-50 dark:bg-blue-900/10 dark:hover:bg-blue-900/20'
+                              : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                          }`}
+                        >
+                          {!readNotifications.has(notification.id) && (
+                            <div className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-orange-500"></div>
+                          )}
+
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center justify-between gap-2">
+                              <h4
+                                className={`truncate text-sm font-medium ${
+                                  !readNotifications.has(notification.id)
+                                    ? 'text-slate-900 dark:text-white'
+                                    : 'text-slate-700 dark:text-slate-300'
+                                }`}
+                              >
+                                {notification.title}
+                              </h4>
+                              <span className="whitespace-nowrap text-xs text-slate-500 dark:text-slate-400">
+                                {formatRelativeTime(notification.createdAt)}
+                              </span>
+                            </div>
+                            <p
+                              className={`mt-1 line-clamp-2 text-xs ${
+                                !readNotifications.has(notification.id)
+                                  ? 'text-slate-700 dark:text-slate-300'
+                                  : 'text-slate-500 dark:text-slate-500'
+                              }`}
+                            >
+                              {notification.message}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+
+                      {notifications.length > 5 && (
+                        <div className="border-t border-slate-100 px-3 py-2 dark:border-slate-800">
+                          <button
+                            onClick={() => setIsExpanded(!isExpanded)}
+                            className="flex w-full items-center justify-center gap-2 rounded-md bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                          >
+                            {isExpanded ? (
+                              <>
+                                <FiChevronUp size={16} />
+                                Show less
+                              </>
+                            ) : (
+                              <>
+                                <FiChevronDown size={16} />
+                                View all ({notifications.length})
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="p-8 text-center">
+                      <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
+                        <GrNotification className="text-slate-400 dark:text-slate-500" />
+                      </div>
+                      <p className="text-slate-500 dark:text-slate-400">
+                        No notifications yet
+                      </p>
+                    </div>
                   )}
                 </div>
               </div>
-
-              <div className="max-h-96 overflow-y-auto">
-                {notifications.length > 0 ? (
-                  <div className="p-2">
-                    {displayedNotifications.map((notification) => (
-                      <div
-                        key={notification.id}
-                        onClick={() => handleNotificationClick(notification.id)}
-                        className={`flex cursor-pointer items-start gap-3 rounded-lg p-3 transition-colors ${
-                          !readNotifications.has(notification.id)
-                            ? 'bg-blue-50/50 hover:bg-blue-50 dark:bg-blue-900/10 dark:hover:bg-blue-900/20'
-                            : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
-                        }`}
-                      >
-                        {!readNotifications.has(notification.id) && (
-                          <div className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-orange-500"></div>
-                        )}
-
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center justify-between">
-                            <h4
-                              className={`truncate font-medium ${
-                                !readNotifications.has(notification.id)
-                                  ? 'text-slate-900 dark:text-white'
-                                  : 'text-slate-700 dark:text-slate-300'
-                              }`}
-                            >
-                              {notification.title}
-                            </h4>
-                            <span className="whitespace-nowrap text-xs text-slate-500 dark:text-slate-400">
-                              {formatRelativeTime(notification.createdAt)}
-                            </span>
-                          </div>
-                          <p
-                            className={`mt-1 line-clamp-2 text-sm ${
-                              !readNotifications.has(notification.id)
-                                ? 'text-slate-700 dark:text-slate-300'
-                                : 'text-slate-500 dark:text-slate-500'
-                            }`}
-                          >
-                            {notification.message}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-
-                    {notifications.length > 5 && (
-                      <div className="border-t border-slate-100 px-3 py-2 dark:border-slate-800">
-                        <button
-                          onClick={() => setIsExpanded(!isExpanded)}
-                          className="flex w-full items-center justify-center gap-2 rounded-md bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-                        >
-                          {isExpanded ? (
-                            <>
-                              <FiChevronUp size={16} />
-                              Show less
-                            </>
-                          ) : (
-                            <>
-                              <FiChevronDown size={16} />
-                              View all ({notifications.length})
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="p-8 text-center">
-                    <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
-                      <GrNotification className="text-slate-400 dark:text-slate-500" />
-                    </div>
-                    <p className="text-slate-500 dark:text-slate-400">
-                      No notifications yet
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
+            </>
           )}
         </div>
 
         {/* Profile Button with Photo */}
         <button
           onClick={handleProfileClick}
-          className="h-10 w-10 overflow-hidden rounded-full bg-slate-200 shadow-sm ring-2 ring-white transition-transform active:scale-95 dark:ring-[#101722]"
+          className="h-9 w-9 overflow-hidden rounded-full bg-slate-200 shadow-sm ring-2 ring-white transition-transform active:scale-95 dark:ring-[#101722] md:h-10 md:w-10"
         >
           {profilePhoto ? (
             <img
@@ -282,17 +293,6 @@ export const Header: React.FC = () => {
           )}
         </button>
       </div>
-
-      {/* Click outside to close dropdown */}
-      {isNotificationOpen && (
-        <div
-          className="fixed inset-0 z-40"
-          onClick={() => {
-            setIsNotificationOpen(false);
-            setIsExpanded(false);
-          }}
-        />
-      )}
     </div>
   );
 };
