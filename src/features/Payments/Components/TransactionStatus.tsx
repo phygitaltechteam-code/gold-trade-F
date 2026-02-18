@@ -178,19 +178,6 @@ export const TransferStatusScreen: React.FC<props> = ({
               <div className="h-full w-1/2 animate-pulse rounded-full bg-primary/40"></div>
             </div>
           </div>
-
-          {/* Footer / Bottom Actions */}
-          <div className="mt-auto w-full space-y-6 lg:space-y-8">
-            <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-primary/20 bg-primary/5 py-4 font-semibold text-primary transition-colors hover:bg-primary/10 active:scale-[0.98] md:py-5 lg:mx-auto lg:w-full lg:max-w-md">
-              <MdCall className="text-xl lg:text-2xl" />
-              <span className="md:text-lg">Need help? Call Support</span>
-            </button>
-
-            <div className="text-gray-300 flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-widest md:text-xs lg:text-sm">
-              <MdLock className="text-xs md:text-sm" />
-              <span>Secure End-to-End Encryption</span>
-            </div>
-          </div>
         </div>
       </div>
     </div>

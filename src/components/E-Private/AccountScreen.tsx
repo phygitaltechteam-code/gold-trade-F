@@ -1,4 +1,4 @@
-/*eslint-disable*/
+/* eslint-disable */
 import React, {useMemo, useState, useRef, useEffect} from 'react';
 import {
   MdArrowBack,
@@ -7,29 +7,23 @@ import {
   MdSwapHoriz,
   MdDescription,
   MdSearch,
-  MdTune,
+  MdFilterList,
   MdAccountBalanceWallet,
   MdSwapVert,
   MdPerson,
   MdSchedule,
   MdCancel,
   MdCheckCircle,
-  MdDescription as MdDescIcon,
   MdClose,
-  MdFilterList,
-  MdPictureAsPdf,
-  MdAttachMoney,
-  MdCalendarToday,
-  MdViewList,
-  MdGridOn,
+  MdChevronRight,
 } from 'react-icons/md';
+import {FaChevronDown, FaChevronUp} from 'react-icons/fa';
+import {useNavigate} from '@tanstack/react-router';
 import {AccountScreenProps} from './type';
 import {jsPDF} from 'jspdf';
 import 'jspdf-autotable';
-import {FaChevronDown, FaChevronUp} from 'react-icons/fa';
-import {useNavigate} from '@tanstack/react-router';
 
-// Define filter types
+// Define filter types (same as original)
 type TransactionTypeFilter = 'ALL' | 'CREDIT' | 'DEBIT';
 type StatusFilter = 'ALL' | 'COMPLETED' | 'PENDING' | 'REJECTED';
 type DateFilter = 'ALL' | 'TODAY' | 'WEEK' | 'MONTH' | 'CUSTOM';
@@ -52,6 +46,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
   error = null,
 }) => {
   const navigate = useNavigate();
+
   // Filter state
   const [filterState, setFilterState] = useState<FilterState>({
     searchQuery: '',
@@ -67,6 +62,14 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
     'desktop',
   );
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Navigate to transaction detail
+  const handleTransactionClick = (transactionId: string) => {
+    navigate({
+      to: '/wallet/transferlist/$id',
+      params: {id: transactionId},
+    });
+  };
 
   // Check screen size on mount and resize
   useEffect(() => {
@@ -188,9 +191,9 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
 
   // Determine how many transactions to show initially
   const getInitialTransactionCount = () => {
-    if (screenSize === 'mobile') return 5; // Increased from 3 to 5 for better UX
-    if (screenSize === 'tablet') return 8; // Increased from 5 to 8
-    return 10; // Increased from 7 to 10
+    if (screenSize === 'mobile') return 5;
+    if (screenSize === 'tablet') return 8;
+    return 10;
   };
 
   // Check if we should show "See More" button
@@ -250,139 +253,83 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
     return groups;
   }, [limitedTransactions]);
 
-  // Helper function to get icon based on transaction
-  const getTransactionIcon = (transaction: any) => {
+  // Helper to map transaction to the new item design
+  const getTransactionItemProps = (transaction: any) => {
+    const isCredit = transaction.type === 'CREDIT';
+    const isPending = transaction.isPending;
+    const isRejected = transaction.isRejected;
+
+    // Determine icon and colors based on transaction type
+    let Icon = MdAccountBalanceWallet;
+    let iconBgClass = 'bg-slate-100';
+    let colorClass = 'text-slate-600';
+    let statusText = '';
+    let badgeClass = '';
+
     const particular = transaction.particular?.toLowerCase() || '';
-
     if (particular.includes('sent money')) {
-      return (
-        <MdSwapVert
-          className="text-red-600"
-          size={screenSize === 'mobile' ? 18 : 20}
-        />
-      );
+      Icon = MdSwapVert;
+      iconBgClass = 'bg-red-100';
+      colorClass = 'text-red-600';
+    } else if (particular.includes('topup')) {
+      Icon = MdAccountBalanceWallet;
+      iconBgClass = 'bg-green-100';
+      colorClass = 'text-green-600';
+    } else if (transaction.beneficiary) {
+      Icon = MdPerson;
+      iconBgClass = 'bg-blue-100';
+      colorClass = 'text-blue-600';
     }
 
-    if (particular.includes('topup')) {
-      return (
-        <MdAccountBalanceWallet
-          className="text-green-600"
-          size={screenSize === 'mobile' ? 18 : 20}
-        />
-      );
+    // Status badge
+    if (isPending) {
+      statusText = 'Pending';
+      badgeClass = 'bg-yellow-100 text-yellow-800';
+    } else if (isRejected) {
+      statusText = 'Rejected';
+      badgeClass = 'bg-red-100 text-red-800';
+    } else {
+      statusText = 'Approved';
+      badgeClass = 'bg-green-100 text-green-800';
     }
 
-    if (transaction.beneficiary) {
-      return (
-        <MdPerson
-          className="text-blue-600"
-          size={screenSize === 'mobile' ? 18 : 20}
-        />
-      );
-    }
-
-    return (
-      <MdAccountBalanceWallet
-        className="text-slate-600"
-        size={screenSize === 'mobile' ? 18 : 20}
-      />
-    );
-  };
-
-  // Helper function to get background class
-  const getTransactionBgClass = (transaction: any) => {
-    const particular = transaction.particular?.toLowerCase() || '';
-
-    if (transaction.isPending) return 'bg-yellow-100';
-    if (transaction.isRejected) return 'bg-red-100';
-
-    if (particular.includes('sent money')) {
-      return 'bg-red-100';
-    }
-
-    if (particular.includes('topup')) {
-      return 'bg-green-100';
-    }
-
-    if (transaction.beneficiary) {
-      return 'bg-blue-100';
-    }
-
-    return 'bg-slate-100';
-  };
-
-  // Helper function to get status badge
-  const getStatusBadge = (transaction: any) => {
-    if (transaction.isPending) {
-      return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800">
-          <MdSchedule size={10} />
-          <span className={screenSize === 'mobile' ? 'hidden sm:inline' : ''}>
-            Pending
-          </span>
-        </span>
-      );
-    }
-
-    if (transaction.isRejected) {
-      return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-800">
-          <MdCancel size={10} />
-          <span className={screenSize === 'mobile' ? 'hidden sm:inline' : ''}>
-            Rejected
-          </span>
-        </span>
-      );
-    }
-
-    return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
-        <MdCheckCircle size={10} />
-        <span className={screenSize === 'mobile' ? 'hidden sm:inline' : ''}>
-          Completed
-        </span>
-      </span>
-    );
-  };
-
-  // Helper to get transaction title
-  const getTransactionTitle = (transaction: any) => {
-    if (transaction.beneficiary) {
-      return `Transfer to ${transaction.beneficiary.fullName}`;
-    }
-
-    if (transaction.particular?.includes('Sent money to')) {
-      return transaction.particular;
-    }
-
-    if (transaction.particular?.includes('Topup wallet')) {
-      return 'Wallet Top-up';
-    }
-
-    return transaction.particular || 'Transaction';
-  };
-
-  // Helper to get transaction subtitle
-  const getTransactionSubtitle = (transaction: any) => {
+    // Format date
     const date = new Date(transaction.createdAt);
-    const timeString = date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
+    const formattedDate = date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
     });
 
+    // Title
+    let title = transaction.particular || 'Transaction';
     if (transaction.beneficiary) {
-      return `Account: ${transaction.beneficiary.accountNumber} • ${timeString}`;
+      title = `Transfer to ${transaction.beneficiary.fullName}`;
     }
 
-    if (transaction.rejectReason) {
-      return `Reason: ${transaction.rejectReason.substring(0, 20)}... • ${timeString}`;
-    }
+    // Amount with sign
+    const amountSign = isCredit ? '+' : '-';
+    const amountColor = isCredit
+      ? 'text-green-600 dark:text-green-400'
+      : 'text-[#0d131c] dark:text-white';
 
-    return `${transaction.type} • ${timeString}`;
+    return {
+      id: transaction.id,
+      Icon,
+      iconBgClass,
+      colorClass,
+      title,
+      date: formattedDate,
+      amount: transaction.amount,
+      amountSign,
+      amountColor,
+      status: statusText,
+      badgeClass,
+      category: isCredit ? 'Credit' : 'Debit',
+    };
   };
 
-  // Generate PDF function
+  // Generate PDF function (unchanged)
   const generatePDF = () => {
     const doc = new jsPDF();
 
@@ -402,7 +349,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
     // Transactions table
     const tableData = filteredTransactions.map((transaction) => [
       new Date(transaction.createdAt).toLocaleDateString(),
-      getTransactionTitle(transaction).substring(0, 30),
+      getTransactionItemProps(transaction).title.substring(0, 30),
       transaction.beneficiary?.accountNumber || '-',
       transaction.type,
       formatCurrency(transaction.amount),
@@ -498,7 +445,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
 
   return (
     <div className="flex h-screen flex-col bg-white">
-      {/* Header - Mobile Optimized */}
+      {/* Header */}
       <header className="sticky top-0 z-50 flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3">
         <button
           onClick={() => navigate({to: '/dashboard'})}
@@ -517,7 +464,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
         </button>
       </header>
 
-      {/* Balance Section - Mobile Optimized */}
+      {/* Balance Section */}
       <section className="px-4 py-4">
         <h1 className="text-center text-2xl font-bold text-slate-900">
           {formatCurrency(totalBalance)}
@@ -532,7 +479,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
         </div>
       </section>
 
-      {/* Quick Actions - Mobile Optimized */}
+      {/* Quick Actions */}
       <section className="mb-4 px-4">
         <div className="grid grid-cols-3 gap-3">
           <button className="group flex flex-col items-center gap-1">
@@ -570,7 +517,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
         </div>
       </section>
 
-      {/* Transactions Section - Mobile Optimized */}
+      {/* Transactions Section */}
       <div className="flex-1 overflow-y-auto">
         <div className="px-4 pb-20">
           {/* Search and Filter Bar */}
@@ -685,7 +632,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
           {/* Transactions List */}
           {filteredTransactions.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12">
-              <MdDescIcon size={48} className="mb-4 text-slate-300" />
+              <MdDescription size={48} className="mb-4 text-slate-300" />
               <p className="text-sm text-slate-500">No transactions found</p>
               {hasActiveFilters() && (
                 <button
@@ -706,50 +653,64 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
                     </h4>
                     <div className="space-y-2">
                       {dateTransactions.map((transaction) => {
-                        const title = getTransactionTitle(transaction);
-                        const subtitle = getTransactionSubtitle(transaction);
-                        const amount =
-                          transaction.type === 'CREDIT'
-                            ? `+${formatCurrency(transaction.amount)}`
-                            : `-${formatCurrency(transaction.amount)}`;
-                        const isPositive = transaction.type === 'CREDIT';
-                        const icon = getTransactionIcon(transaction);
-                        const bgClass = getTransactionBgClass(transaction);
-                        const statusBadge = getStatusBadge(transaction);
+                        const item = getTransactionItemProps(transaction);
 
                         return (
                           <div
-                            key={transaction.id}
-                            className="flex items-center justify-between rounded-xl border border-slate-100 bg-white p-3"
+                            key={item.id}
+                            onClick={() => handleTransactionClick(item.id)}
+                            className="flex cursor-pointer items-center justify-between rounded-xl border border-slate-100 bg-white p-3 transition-colors hover:bg-slate-50 dark:border-slate-700/50 dark:bg-slate-800/50 dark:hover:bg-slate-800"
                           >
-                            <div className="flex min-w-0 flex-1 items-center gap-3">
+                            <div className="flex items-center gap-4">
                               <div
-                                className={`flex h-10 w-10 items-center justify-center rounded-lg ${bgClass}`}
+                                className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${item.iconBgClass} ${item.colorClass}`}
                               >
-                                {icon}
+                                <item.Icon size={28} />
                               </div>
-                              <div className="min-w-0 flex-1">
-                                <div className="flex items-center gap-2">
-                                  <p className="truncate text-sm font-semibold text-slate-900">
-                                    {title}
-                                  </p>
-                                  {statusBadge}
-                                </div>
-                                <p className="truncate text-xs text-slate-500">
-                                  {subtitle}
+                              <div className="flex flex-col">
+                                <p className="text-base font-semibold leading-tight text-[#0d131c] dark:text-white">
+                                  {item.title}
                                 </p>
+                                <p className="mt-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">
+                                  {item.date}
+                                </p>
+                                {item.status && (
+                                  <div className="mt-1">
+                                    <span
+                                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${item.badgeClass}`}
+                                    >
+                                      {item.status === 'Pending' && (
+                                        <span className="mr-1 h-1.5 w-1.5 rounded-full bg-yellow-500"></span>
+                                      )}
+                                      {item.status === 'Approved' && (
+                                        <span className="mr-1 h-1.5 w-1.5 rounded-full bg-green-500"></span>
+                                      )}
+                                      {item.status === 'Rejected' && (
+                                        <span className="mr-1 h-1.5 w-1.5 rounded-full bg-red-500"></span>
+                                      )}
+                                      {item.status}
+                                    </span>
+                                  </div>
+                                )}
                               </div>
                             </div>
-                            <div className="flex-shrink-0 pl-2">
-                              <span
-                                className={`whitespace-nowrap text-sm font-bold ${
-                                  isPositive
-                                    ? 'text-emerald-600'
-                                    : 'text-red-600'
-                                }`}
-                              >
-                                {amount}
-                              </span>
+
+                            <div className="flex flex-col items-end">
+                              <div className="text-right">
+                                <p
+                                  className={`text-sm font-semibold sm:text-base ${item.amountColor}`}
+                                >
+                                  {item.amountSign}${item.amount.toFixed(2)}
+                                </p>
+                                <p className="text-[10px] text-slate-400 dark:text-slate-500 sm:text-xs">
+                                  {item.category}
+                                </p>
+                              </div>
+
+                              <div className="mt-1 flex items-center gap-0.5 text-[10px] text-slate-500 dark:text-slate-400 sm:mt-2 sm:gap-1 sm:text-xs">
+                                <span>View</span>
+                                <MdChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </div>
                             </div>
                           </div>
                         );
@@ -759,7 +720,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
                 ),
               )}
 
-              {/* Show More/Less Button - ALWAYS SHOW IF CONDITION MET */}
+              {/* Show More/Less Button */}
               {shouldShowSeeMore && (
                 <div className="sticky bottom-4 mt-6">
                   <button
@@ -785,7 +746,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
         </div>
       </div>
 
-      {/* Filter Modal - Mobile Optimized */}
+      {/* Filter Modal */}
       {showFilterModal && (
         <div className="fixed inset-0 z-50 flex items-end bg-black/50 backdrop-blur-sm">
           <div className="max-h-[85vh] w-full overflow-hidden rounded-t-2xl bg-white">

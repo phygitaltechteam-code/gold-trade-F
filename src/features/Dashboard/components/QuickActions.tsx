@@ -17,8 +17,8 @@ const actions: ActionItem[] = [
     label: 'Currency Converter',
     icon: MdOutlineCurrencyExchange,
   },
+  {id: 'transfer', label: 'Transfer', icon: MdReceiptLong},
   {id: 'withdraw', label: 'Withdraw', icon: MdWallet},
-  {id: 'transactions', label: 'Transactions', icon: MdReceiptLong},
 ];
 
 export const QuickActions: React.FC = () => {
@@ -32,15 +32,11 @@ export const QuickActions: React.FC = () => {
       case 'withdraw':
         navigate({to: '/topupwithdrawl/walletwithdrawl'});
         break;
-
-      case 'transactions':
+      case 'transfer':
         navigate({to: '/wallet/paymentdashbord'});
-        // Handle bills navigation
         break;
       case 'currency':
         navigate({to: '/currencyconverter'});
-
-        // Handle scan navigation
         break;
       default:
         break;

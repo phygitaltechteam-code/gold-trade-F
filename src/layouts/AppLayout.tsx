@@ -33,6 +33,7 @@ const AppLayout = () => {
     '/accounthub/contact-info',
     '/accounthub/chnagepassword',
     '/eprivate/statement',
+    '/beneficiary/addbeneficiaryy',
     // '/updatebeneficiary/$id',
   ];
 

@@ -143,11 +143,11 @@ const AddBeneficiary: React.FC = () => {
               <div className="space-y-1.5">
                 <div className="flex gap-3 md:gap-5">
                   {/* Country Code */}
-                  <div className="w-28 space-y-1.5">
-                    {/* <label className="mb-2 mt-1 block text-sm font-medium text-slate-700 dark:text-slate-400">
+                  {/* <div className="w-28 space-y-1.5"> */}
+                  {/* <label className="mb-2 mt-1 block text-sm font-medium text-slate-700 dark:text-slate-400">
                       Country code <span className="text-red-500">*</span>
                     </label> */}
-                    {/* 
+                  {/* 
                     <select
                       id="countryCode"
                       className="h-[42px] w-full rounded-md border border-stroke bg-transparent px-3 text-sm text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
@@ -161,13 +161,13 @@ const AddBeneficiary: React.FC = () => {
                         </option>
                       ))}
                     </select> */}
-                    <GenericDropdown
+                  {/* <GenericDropdown
                       name="countryCode"
                       label=" Country code"
                       options={contryCode}
                       required
                     />
-                  </div>
+                  </div> */}
 
                   {/* Phone Number */}
                   <div className="flex-1 space-y-1.5">

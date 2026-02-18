@@ -20,19 +20,18 @@ const navItems = [
     iconSize: 'text-xl',
   },
   {
+    label: 'Transfer',
+    icon: FaUser,
+    to: '/wallet/paymentdashbord',
+    iconSize: 'text-xl',
+  },
+  {
     label: 'Account',
     icon: FaCreditCard,
 
     to: '/eprivate/eprivatereports',
     iconSize: 'text-xl',
   },
-
-  // {
-  //   label: 'Transaction',
-  //   icon: FaUser,
-  //   to: '/wallet/paymentdashbord',
-  //   iconSize: 'text-xl',
-  // },
 
   {
     label: 'Profile',
