@@ -1,4 +1,4 @@
-/*eslint-disable*/
+/* eslint-disable */
 import PinScreen from '@/components/Wallet/PinScreen';
 import ProcessingScreen from '@/components/Wallet/ProcessingScreen';
 import SuccessScreen from '@/components/Wallet/SuccessScreen';
@@ -37,7 +37,6 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
   });
   const [isAdminApproved, setIsAdminApproved] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
-  const [isSubmittingPin, setIsSubmittingPin] = useState(false); // Add this state
 
   const navigate = useNavigate();
 
@@ -50,7 +49,6 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
     accountType: 'private' | 'virtual',
     receipt?: File,
   ) => {
-    console.log('TopUp Submitted:', receipt);
     const transactionId =
       'TX' + Date.now() + Math.random().toString(36).substr(2, 9);
 
@@ -62,28 +60,19 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
       timestamp: new Date().toISOString(),
       transactionId,
       status: 'pending',
-      ...(receipt && {proof: receipt}), // Store receipt as proof
+      ...(receipt && {proof: receipt}),
     }));
 
     setCurrentStep('pin');
   };
 
-  // Handle PIN submission
+  // Handle PIN submission – immediately go to processing screen
   const handlePinSubmit = (pin: string) => {
-    // Set submitting state to show loading in PIN screen
-    console.log('Transaction Data Updated:', transactionData);
-    setIsSubmittingPin(true);
-
     // Update transaction data
-    setTransactionData((prev) => ({
-      ...prev,
-      pin,
-      // Don't set status to processing yet
-    }));
+    setTransactionData((prev) => ({...prev, pin}));
 
     // Format payload
     const cleanAmount = parseFloat(transactionData.amount.replace(/,/g, ''));
-
     const payload = {
       amount: cleanAmount,
       currency: 'INR',
@@ -92,16 +81,17 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
         transactionData.accountType === 'private'
           ? 'E_PRIVATEACCOUNT'
           : 'E_TEMPORYACCOUNT',
-      ...(transactionData.proof && {proof: transactionData.proof}), // Include receipt if available
+      ...(transactionData.proof && {proof: transactionData.proof}),
     };
 
-    // console.log('Transaction Payload:', payload);
+    // Immediately show processing screen
+    setCurrentStep('processing');
 
-    // Submit to API FIRST, then handle response
+    // Submit to API
     submitTransaction(payload);
   };
 
-  // ---------- API Submission ----------
+  // API submission
   const submitTransaction = async (payload: any) => {
     try {
       setErrorMessage('');
@@ -115,14 +105,6 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
             setIsAdminApproved(true);
             setTransactionData((prev) => ({...prev, status: 'success'}));
             setCurrentStep('success');
-
-            setTimeout(() => {
-              navigate({to: '/dashboard'});
-              onComplete?.({
-                ...transactionData,
-                status: 'success',
-              });
-            }, 1000);
           } else if (
             response.status === 'pending' ||
             response.data?.isPending
@@ -131,25 +113,16 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
             setTransactionData((prev) => ({...prev, status: 'pending'}));
             setCurrentStep('adminApproved');
 
-            // Simulate admin approval after 5 seconds (replace with real logic)
+            // Simulate admin approval (replace with real logic)
             setTimeout(() => {
               setIsAdminApproved(true);
               setTransactionData((prev) => ({...prev, status: 'success'}));
               setCurrentStep('success');
-
-              setTimeout(() => {
-                navigate({to: '/dashboard'});
-                onComplete?.({
-                  ...transactionData,
-                  status: 'success',
-                });
-              }, 2000);
             }, 5000);
           } else {
-            // Rejected
+            // Rejected – show error on processing screen
             setErrorMessage(response.message || 'Transaction was rejected');
             setTransactionData((prev) => ({...prev, status: 'failed'}));
-            setTimeout(() => navigate({to: '/dashboard'}), 3000);
           }
         },
         onError: (error: any) => {
@@ -159,12 +132,13 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
             error?.message ||
             'Transaction failed';
 
+          // PIN errors go back to PIN screen; others stay on processing with message
           if (/pin|security|password|invalid/i.test(errorMsg)) {
             setErrorMessage('Invalid PIN. Please try again.');
             setCurrentStep('pin');
           } else {
             setErrorMessage(errorMsg);
-            setTimeout(() => navigate({to: '/dashboard'}), 3000);
+            // stay on 'processing' and show error (retry button will go back to pin)
           }
           setTransactionData((prev) => ({...prev, status: 'failed'}));
         },
@@ -172,7 +146,6 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
     } catch (error) {
       console.error('Unexpected error:', error);
       setErrorMessage('An unexpected error occurred');
-      setTimeout(() => navigate({to: '/dashboard'}), 3000);
       setTransactionData((prev) => ({...prev, status: 'failed'}));
     }
   };
@@ -207,7 +180,6 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
     });
     setIsAdminApproved(false);
     setErrorMessage('');
-    setIsSubmittingPin(false);
   };
 
   return (
@@ -226,18 +198,16 @@ const WalletFlow: React.FC<WalletFlowProps> = ({onComplete}) => {
           onPinSubmit={handlePinSubmit}
           onBack={handleBack}
           transactionAmount={transactionData.amount}
-          isSubmitting={isSubmittingPin} // Pass loading state to PIN screen
-          errorMessage={errorMessage} // Pass error message to PIN screen
+          errorMessage={errorMessage} // passed for shake/clear
         />
       )}
 
       {currentStep === 'processing' && (
         <ProcessingScreen
           transactionData={transactionData}
-          onBack={handleBack}
-          isAdminApproved={isAdminApproved}
+          onBack={() => setCurrentStep('pin')} // retry goes to PIN
           errorMessage={errorMessage}
-          isSubmitting={isSubmitting}
+          isSubmitting={isSubmitting} // from mutation (true while API in flight)
         />
       )}
 

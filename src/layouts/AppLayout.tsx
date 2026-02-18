@@ -27,6 +27,12 @@ const AppLayout = () => {
     '/accounthub/enter-currentpin',
     '/accounthub/setnew-pin',
     '/accounthub/confirm-pin',
+    '/currencyconverter',
+    '/wallet/paymentdashbord',
+    '/accounthub/personal-info',
+    '/accounthub/contact-info',
+    '/accounthub/chnagepassword',
+    '/eprivate/statement',
     // '/updatebeneficiary/$id',
   ];
 

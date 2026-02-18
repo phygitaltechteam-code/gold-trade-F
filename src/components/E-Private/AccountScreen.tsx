@@ -46,7 +46,6 @@ interface FilterState {
 }
 
 const AccountScreen: React.FC<AccountScreenProps> = ({
-  onNavigate,
   transactions = [],
   wallet,
   isLoading = false,

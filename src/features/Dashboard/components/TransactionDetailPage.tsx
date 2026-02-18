@@ -15,15 +15,11 @@ import {
   MdRefresh,
   MdHourglassEmpty,
   MdCancel,
-  MdPrint,
-  MdDownload,
 } from 'react-icons/md';
 import {useNavigate, useParams} from '@tanstack/react-router';
 import {transformApiTransaction} from '@/utils/formatters';
-import {api} from '@/utils/axios';
-import toast from 'react-hot-toast';
-import {useQuery} from '@tanstack/react-query';
 import {useGetTransactionById} from '../pages/dashboardmutation';
+import toast from 'react-hot-toast';
 
 interface ApiUser {
   fullname: string;
@@ -92,7 +88,7 @@ export const TransactionDetailPage: React.FC = () => {
   const [originalTransaction, setOriginalTransaction] =
     useState<ApiTransaction | null>(null);
   const [copied, setCopied] = useState(false);
-  const [isPDFLoading, setIsPDFLoading] = useState(false);
+  const [isLoadingReceipt, setIsLoadingReceipt] = useState(false);
 
   const {
     data: apiTransactionData,
@@ -118,23 +114,17 @@ export const TransactionDetailPage: React.FC = () => {
     }
   };
 
-  const handleShareReceipt = () => {
-    toast.success('Share feature coming soon!');
-  };
-
   const handleBackToHome = () => {
     navigate({to: '/dashboard'});
   };
 
-  // PDF Generation Function with auto-print
-  const handleGeneratePDF = () => {
-    if (!originalTransaction) return;
-
-    setIsPDFLoading(true);
+  // ---------- Generate receipt HTML (with optional auto‑print script) ----------
+  const generateReceiptHTML = (autoPrint = false): string => {
+    if (!originalTransaction) return '';
 
     const isCredit = originalTransaction.type === 'CREDIT';
     const transactionType = isCredit ? 'Credit' : 'Debit';
-    const amountSign = isCredit ? '' : '';
+    const amountSign = isCredit ? '+' : '-';
     const userName = originalTransaction?.user?.fullname || 'Unknown User';
     const userEmail = originalTransaction?.user?.email || 'No email';
     const userPhone = originalTransaction?.user?.phoneNumber || 'No phone';
@@ -156,193 +146,55 @@ export const TransactionDetailPage: React.FC = () => {
     const catererEmail = user?.email || 'support@example.com';
     const catererPhone = user?.phoneNumber || '+1 234 567 8900';
 
-    const htmlContent = `<!DOCTYPE html>
+    const autoPrintScript = autoPrint
+      ? `
+        <script>
+          (function() {
+            setTimeout(function() {
+              window.print();
+              setTimeout(function() { window.close(); }, 1000);
+            }, 300);
+          })();
+        </script>
+      `
+      : '';
+
+    return `<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transaction Receipt</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-        
-        body {
-            padding: 16px;
-            background: white;
-            color: #333;
-            font-size: 14px;
-            line-height: 1.4;
-            -webkit-text-size-adjust: 100%;
-            max-width: 100%;
-            overflow-x: hidden;
-        }
-        
-        .receipt {
-            width: 100%;
-            max-width: 100%;
-            margin: 0 auto;
-            padding: 16px;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        
-        @media (min-width: 640px) {
-            .receipt {
-                max-width: 400px;
-                padding: 20px;
-            }
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-            padding-bottom: 16px;
-            border-bottom: 2px dashed #cbd5e0;
-        }
-        
-        .company-name {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 4px;
-            color: #F97316;
-            word-wrap: break-word;
-        }
-        
-        .receipt-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin: 12px 0;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .amount-section {
-            text-align: center;
-            margin: 20px 0;
-            padding: 20px 16px;
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-        }
-        
-        .amount {
-            font-size: 28px;
-            font-weight: 800;
-            margin: 8px 0;
-            color: ${isCredit ? '#059669' : '#dc2626'};
-            line-height: 1.2;
-        }
-        
-        @media (min-width: 640px) {
-            .amount {
-                font-size: 32px;
-            }
-        }
-        
-        .status-badge {
-            display: inline-block;
-            padding: 6px 16px;
-            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-            color: white;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            margin-top: 12px;
-            letter-spacing: 0.3px;
-        }
-        
-        .details-section {
-            margin: 20px 0;
-        }
-        
-        .detail-row {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            margin: 12px 0;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #f1f5f9;
-        }
-        
-        .detail-label {
-            font-weight: 500;
-            color: #64748b;
-            min-width: 120px;
-            margin-bottom: 4px;
-        }
-        
-        .detail-value {
-            text-align: right;
-            font-weight: 500;
-            color: #1e293b;
-            flex: 1;
-            min-width: 0;
-            overflow-wrap: break-word;
-            word-break: break-word;
-        }
-        
-        .transaction-id {
-            margin: 20px 0;
-            padding: 16px;
-            background: #f8fafc;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-            text-align: center;
-        }
-        
-        .footer {
-            margin-top: 24px;
-            padding-top: 16px;
-            border-top: 2px dashed #cbd5e0;
-            text-align: center;
-            font-size: 12px;
-            color: #64748b;
-        }
-        
-        .contact-info {
-            margin-top: 12px;
-            font-size: 11px;
-            color: #94a3b8;
-            line-height: 1.5;
-        }
-        
-        @media print {
-            @page {
-                size: auto;
-                margin: 5mm;
-            }
-            body {
-                padding: 0;
-                margin: 0;
-                font-size: 12px;
-            }
-            .receipt {
-                border: none;
-                box-shadow: none;
-                max-width: 100%;
-                padding: 0;
-            }
-            .no-print {
-                display: none !important;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { padding: 16px; background: white; color: #333; font-size: 14px; line-height: 1.4; max-width: 100%; overflow-x: hidden; }
+        .receipt { width: 100%; max-width: 100%; margin: 0 auto; padding: 16px; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        @media (min-width: 640px) { .receipt { max-width: 400px; padding: 20px; } }
+        .header { text-align: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px dashed #cbd5e0; }
+        .company-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; color: #F97316; word-wrap: break-word; }
+        .receipt-title { font-size: 16px; font-weight: 600; margin: 12px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+        .amount-section { text-align: center; margin: 20px 0; padding: 20px 16px; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-radius: 12px; border: 1px solid #e2e8f0; }
+        .amount { font-size: 28px; font-weight: 800; margin: 8px 0; color: ${isCredit ? '#059669' : '#dc2626'}; line-height: 1.2; }
+        @media (min-width: 640px) { .amount { font-size: 32px; } }
+        .status-badge { display: inline-block; padding: 6px 16px; background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; border-radius: 20px; font-size: 12px; font-weight: 700; margin-top: 12px; letter-spacing: 0.3px; }
+        .details-section { margin: 20px 0; }
+        .detail-row { display: flex; flex-wrap: wrap; justify-content: space-between; margin: 12px 0; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9; }
+        .detail-label { font-weight: 500; color: #64748b; min-width: 120px; margin-bottom: 4px; }
+        .detail-value { text-align: right; font-weight: 500; color: #1e293b; flex: 1; min-width: 0; overflow-wrap: break-word; word-break: break-word; }
+        .transaction-id { margin: 20px 0; padding: 16px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center; }
+        .footer { margin-top: 24px; padding-top: 16px; border-top: 2px dashed #cbd5e0; text-align: center; font-size: 12px; color: #64748b; }
+        .contact-info { margin-top: 12px; font-size: 11px; color: #94a3b8; line-height: 1.5; }
+        @media print { @page { size: auto; margin: 5mm; } body { padding: 0; margin: 0; font-size: 12px; } .receipt { border: none; box-shadow: none; max-width: 100%; padding: 0; } .no-print { display: none !important; } }
     </style>
 </head>
 <body>
     <div class="receipt">
-        <!-- Header -->
         <div class="header">
             <div class="company-name">${catererName}</div>
             <div style="font-size: 13px; margin-bottom: 4px; color: #475569;">Transaction Receipt</div>
             <div style="font-size: 11px; color: #94a3b8;">Secure Digital Receipt</div>
         </div>
         
-        <!-- Amount -->
         <div class="amount-section">
             <div style="font-size: 13px; color: #64748b; margin-bottom: 8px;">Transaction Amount</div>
             <div class="amount">${amountSign}$${originalTransaction.amount.toFixed(2)}</div>
@@ -352,139 +204,74 @@ export const TransactionDetailPage: React.FC = () => {
             <div class="status-badge">COMPLETED</div>
         </div>
         
-        <!-- Transaction Details -->
         <div class="details-section">
             <div class="receipt-title">Transaction Details</div>
-            
-            <div class="detail-row">
-                <div class="detail-label">Type:</div>
-                <div class="detail-value">${transactionType}</div>
-            </div>
-            
-            <div class="detail-row">
-                <div class="detail-label">${isCredit ? 'From' : 'To'}:</div>
-                <div class="detail-value">${userName}</div>
-            </div>
-            
-            <div class="detail-row">
-                <div class="detail-label">Email:</div>
-                <div class="detail-value">${userEmail}</div>
-            </div>
-            
-            ${
-              userPhone !== 'No phone'
-                ? `
-            <div class="detail-row">
-                <div class="detail-label">Phone:</div>
-                <div class="detail-value">${userPhone}</div>
-            </div>
-            `
-                : ''
-            }
-            
-            <div class="detail-row">
-                <div class="detail-label">Account Type:</div>
-                <div class="detail-value">
-                    ${
-                      originalTransaction.accountType === 'E_PRIVATEACCOUNT'
-                        ? 'E Private Account'
-                        : originalTransaction.accountType ===
-                            'E_TEMPORARYACCOUNT'
-                          ? 'E Temporary Account'
-                          : originalTransaction.accountType
-                    }
-                </div>
-            </div>
-            
-            <div class="detail-row">
-                <div class="detail-label">Description:</div>
-                <div class="detail-value">${originalTransaction.particular}</div>
-            </div>
-            
-            <div class="detail-row">
-                <div class="detail-label">Date:</div>
-                <div class="detail-value">${formattedDate}</div>
-            </div>
-            
-            <div class="detail-row">
-                <div class="detail-label">Time:</div>
-                <div class="detail-value">${formattedTime}</div>
-            </div>
-            
-            <div class="detail-row">
-                <div class="detail-label">Reference:</div>
-                <div class="detail-value">${originalTransaction.id.slice(0, 8).toUpperCase()}</div>
-            </div>
-        </div>
-        
-        <!-- Transaction ID -->
-        <div class="transaction-id">
-            <div style="font-size: 11px; margin-bottom: 8px; color: #64748b;">Transaction ID</div>
-            <div style="font-size: 16px; font-weight: 700; letter-spacing: 0.5px; word-break: break-all;">${originalTransaction.id.toUpperCase()}</div>
-        </div>
-        
-        <!-- Footer -->
-        <div class="footer">
-            <div style="margin-bottom: 8px;">Thank you for your transaction</div>
-            <div style="margin-bottom: 12px;">This is an official digital receipt</div>
-            <div class="contact-info">
-                ${catererEmail}<br>
-                ${catererPhone}<br>
-                Generated on ${new Date().toLocaleDateString('en-GB', {
-                  day: '2-digit',
-                  month: 'short',
-                  year: 'numeric',
-                })} at ${new Date().toLocaleTimeString('en-US', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
-            </div>
+            <div class="detail-row"><div class="detail-label">Type:</div><div class="detail-value">${transactionType}</div></div>
+            <div class="detail-row"><div class="detail-label">${isCredit ? 'From' : 'To'}:</div><div class="detail-value">${userName}</div></div>
+            <div class="detail-row"><div class="detail-label">Email:</div><div class="detail-value">${userEmail}</div></div>
+            ${userPhone !== 'No phone' ? `<div class="detail-row"><div class="detail-label">Phone:</div><div class="detail-value">${userPhone}</div></div>` : ''}
+            <div class="detail-row"><div class="detail-label">Account Type:</div><div class="detail-value">${originalTransaction.accountType === 'E_PRIVATEACCOUNT' ? 'E Private Account' : originalTransaction.accountType === 'E_TEMPORARYACCOUNT' ? 'E Temporary Account' : originalTransaction.accountType}</div></div>
+            <div class="detail-row"><div class="detail-label">Description:</div><div class="detail-value">${originalTransaction.particular}</div></div>
+            <div class="detail-row"><div class="detail-label">Date:</div><div class="detail-value">${formattedDate}</div></div>
+            <div class="detail-row"><div class="detail-label">Time:</div><div class="detail-value">${formattedTime}</div></div>
+            <div class="detail-row"><div class="detail-label">Reference:</div><div class="detail-value">${originalTransaction.id.slice(0, 8).toUpperCase()}</div></div>
         </div>
     </div>
-    
-    <!-- Auto-print script -->
-    <script>
-        (function() {
-            // Wait for content to load, then auto-print
-            setTimeout(function() {
-                try {
-                    window.print();
-                } catch (e) {
-                    console.log('Print failed:', e);
-                }
-                
-                // Close window after printing (optional)
-                setTimeout(function() {
-                    try {
-                        window.close();
-                    } catch (e) {
-                        // Window might not be allowed to close
-                    }
-                }, 1000);
-            }, 300);
-        })();
-    </script>
+    ${autoPrintScript}
 </body>
 </html>`;
+  };
 
-    const printWindow = window.open(
+  // Open receipt in a new window (view only, no auto‑print)
+  const handleViewReceipt = () => {
+    if (!originalTransaction) return;
+    setIsLoadingReceipt(true);
+
+    const htmlContent = generateReceiptHTML(false); // no auto‑print
+    const receiptWindow = window.open(
       '',
       '_blank',
-      'width=500,height=700,scrollbars=no,resizable=no',
+      'width=500,height=700,scrollbars=yes,resizable=yes',
     );
 
-    if (!printWindow) {
-      toast.error('Please allow popups to print receipt');
-      setIsPDFLoading(false);
+    if (!receiptWindow) {
+      toast.error('Please allow popups to view the receipt');
+      setIsLoadingReceipt(false);
       return;
     }
 
-    printWindow.document.open();
-    printWindow.document.write(htmlContent);
-    printWindow.document.title = `Receipt_${originalTransaction.id.slice(0, 8)}`;
-    printWindow.document.close();
+    receiptWindow.document.open();
+    receiptWindow.document.write(htmlContent);
+    receiptWindow.document.title = `Receipt_${originalTransaction.id.slice(0, 8)}`;
+    receiptWindow.document.close();
+    setIsLoadingReceipt(false);
+  };
 
-    setIsPDFLoading(false);
+  // Share receipt using Web Share API or fallback
+  const handleShareReceipt = async () => {
+    if (!originalTransaction) return;
+
+    const shareData = {
+      title: 'Transaction Receipt',
+      text: `Amount: $${originalTransaction.amount.toFixed(2)}\nType: ${originalTransaction.type}\nDate: ${formatDate(originalTransaction.createdAt)}\nID: ${originalTransaction.id}`,
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        toast.success('Shared successfully!');
+      } catch (err) {
+        if (err instanceof Error && err.name !== 'AbortError') {
+          toast.error('Sharing failed');
+        }
+      }
+    } else {
+      // Fallback: copy summary to clipboard
+      const summary = `${shareData.title}\n${shareData.text}\nLink: ${shareData.url}`;
+      await navigator.clipboard.writeText(summary);
+      toast.success('Receipt details copied to clipboard!');
+    }
   };
 
   // Loading State
@@ -735,9 +522,9 @@ export const TransactionDetailPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Receipt Section */}
+            {/* Receipt Section – updated onClick and eye icon */}
             <div
-              onClick={handleGeneratePDF}
+              onClick={handleViewReceipt}
               className="group mt-4 flex cursor-pointer items-center gap-3 rounded-xl border border-slate-100 bg-slate-50/80 p-3 transition-colors hover:bg-slate-100 dark:border-slate-700 dark:bg-black/20 dark:hover:bg-slate-800/30 sm:mt-6"
             >
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-primary shadow-sm transition-transform group-hover:scale-105 dark:bg-slate-800">
@@ -754,12 +541,12 @@ export const TransactionDetailPage: React.FC = () => {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleGeneratePDF();
+                  handleViewReceipt();
                 }}
                 className="p-2 text-slate-400 transition-colors hover:text-primary"
-                disabled={isPDFLoading}
+                disabled={isLoadingReceipt}
               >
-                {isPDFLoading ? (
+                {isLoadingReceipt ? (
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
                 ) : (
                   <MdVisibility className="text-[16px]" />
@@ -868,10 +655,6 @@ export const TransactionDetailPage: React.FC = () => {
               <span className="text-sm sm:text-base">
                 Try Another Transaction
               </span>
-            </button>
-            <button className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-transparent py-3 font-semibold text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white sm:h-14">
-              <MdCall />
-              <span className="text-sm sm:text-base">Contact Support</span>
             </button>
           </div>
         </main>

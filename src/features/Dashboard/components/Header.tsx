@@ -160,7 +160,7 @@ export const Header: React.FC = () => {
 
           {/* Notification Dropdown (unchanged) */}
           {isNotificationOpen && (
-            <div className="animate-in fade-in slide-in-from-top-2 absolute right-0 top-12 z-50 w-80 rounded-lg border border-slate-200 bg-white shadow-xl duration-200 dark:border-slate-800 dark:bg-[#1a2233]">
+            <div className="animate-in fade-in slide-in-from-top-2 absolute right-0 top-12 z-50 w-65 rounded-lg border border-slate-200 bg-white shadow-xl duration-200 dark:border-slate-800 dark:bg-[#1a2233]">
               <div className="border-b border-slate-100 p-4 dark:border-slate-800">
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold text-slate-800 dark:text-white">

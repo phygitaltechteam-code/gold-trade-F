@@ -282,10 +282,6 @@ function CurrencyConverter() {
                 </select>
               </div>
             </div>
-
-            {/* <p className="text-center text-xs text-gray-500">
-            Rates by moneyconvert.net • Auto refresh 30s
-          </p> */}
           </div>
         )}
       </main>

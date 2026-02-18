@@ -241,7 +241,7 @@ const EditPersonalInfo: React.FC = () => {
             {/* Full Name Input */}
             <div className="flex flex-col gap-2 md:gap-3">
               <label
-                className="text-navy text-sm font-bold uppercase tracking-wider dark:text-slate-200 md:text-base"
+                className="text-sm font-medium text-slate-700 dark:text-slate-300"
                 htmlFor="fullname"
               >
                 Full Name
@@ -264,7 +264,7 @@ const EditPersonalInfo: React.FC = () => {
             {/* Date of Birth Input with Age Validation */}
             <div className="flex flex-col gap-2 md:gap-3">
               <label
-                className="text-navy text-sm font-bold uppercase tracking-wider dark:text-slate-200 md:text-base"
+                className="text-sm font-medium text-slate-700 dark:text-slate-300"
                 htmlFor="dob"
               >
                 Date of Birth
@@ -296,14 +296,14 @@ const EditPersonalInfo: React.FC = () => {
             {/* Account Number (Read-only with eye toggle) */}
             <div className="flex flex-col gap-2 md:gap-3">
               <label
-                className="text-navy flex items-center gap-2 text-sm font-bold uppercase tracking-wider dark:text-slate-200 md:text-base"
+                className="text-sm font-medium text-slate-700 dark:text-slate-300"
                 htmlFor="account-number"
               >
                 Account Number
-                <MdLock
+                {/* <MdLock
                   className="text-gray-400 text-base md:text-lg"
                   title="Secure field"
-                />
+                /> */}
               </label>
               <div className="relative">
                 <input
@@ -324,9 +324,9 @@ const EditPersonalInfo: React.FC = () => {
                   }
                 >
                   {showAccountNumber ? (
-                    <MdVisibilityOff className="text-xl md:text-2xl" />
-                  ) : (
                     <MdVisibility className="text-xl md:text-2xl" />
+                  ) : (
+                    <MdVisibilityOff className="text-xl md:text-2xl" />
                   )}
                 </button>
               </div>
