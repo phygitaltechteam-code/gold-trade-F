@@ -1,6 +1,6 @@
 /*eslint-disable*/
-import React, {useState} from 'react';
-import {MdArrowBack, MdArrowForward} from 'react-icons/md';
+import React, {useState, useEffect} from 'react';
+import {MdArrowBack, MdArrowForward, MdOutlineLoop} from 'react-icons/md';
 import {useNavigate} from '@tanstack/react-router';
 import {beneficiarySchema} from '../beneficiarySchema';
 import {BeneficiaryFormData} from '../types';
@@ -11,23 +11,11 @@ import GenericDropdown from '@/components/Forms/DropDown/GenericDropDown';
 import {SectionHeader, Divider} from '../Components/BenifeciaryFormComponents';
 import {useAddBeneficiary} from '@/lib/react-query/beneficiary';
 
-// Type for Indian PIN code API response
-interface PinCodeResponse {
-  Message: string;
-  Status: string;
-  PostOffice: Array<{
-    Name: string;
-    District: string;
-    State: string;
-    Country: string;
-    Pincode: string;
-  }>;
-}
-
 const AddBeneficiary: React.FC = () => {
   const navigate = useNavigate();
   const {mutateAsync: addBeneficiary} = useAddBeneficiary();
-  const [isLoadingAddress, setIsLoadingAddress] = useState(false);
+  const [countryCode, setCountryCode] = useState('+91'); // default India
+  const [isLoadingPincode, setIsLoadingPincode] = useState(false);
 
   const methods = useForm<BeneficiaryFormData>({
     resolver: zodResolver(beneficiarySchema),
@@ -37,13 +25,51 @@ const AddBeneficiary: React.FC = () => {
     mode: 'onChange',
   });
 
+  const {
+    watch,
+    setValue,
+    formState: {errors},
+  } = methods;
+  const watchedPincode = watch('pincode');
+  const watchedCountry = watch('country');
+
+  // Lookup Indian PIN code
+  useEffect(() => {
+    if (watchedCountry === 'IN' && watchedPincode?.length === 6) {
+      const handler = setTimeout(() => {
+        lookupPincode(watchedPincode);
+      }, 500);
+      return () => clearTimeout(handler);
+    }
+  }, [watchedPincode, watchedCountry]);
+
+  const lookupPincode = async (pincode: string) => {
+    setIsLoadingPincode(true);
+    try {
+      const response = await fetch(
+        `https://api.postalpincode.in/pincode/${pincode}`,
+      );
+      if (response.ok) {
+        const data = await response.json();
+        if (data[0]?.Status === 'Success' && data[0]?.PostOffice?.length > 0) {
+          const first = data[0].PostOffice[0];
+          // Set city to post office name (locality/block) instead of district
+          setValue('city', first.Block || '', {shouldValidate: true});
+          setValue('state', first.State || '', {shouldValidate: true});
+        }
+      }
+    } catch (error) {
+      console.error('Pincode lookup failed:', error);
+    } finally {
+      setIsLoadingPincode(false);
+    }
+  };
+
   const onSubmit = (data: BeneficiaryFormData) => {
-    console.log('Submitting data:', data);
     const payload = {
       ...data,
-      countryCode,
+      countryCode, // include selected phone country code
     };
-
     console.log('Valid form data:', payload);
 
     addBeneficiary(payload, {
@@ -57,7 +83,6 @@ const AddBeneficiary: React.FC = () => {
     console.log('Form errors:', errors);
   };
 
-  // Options for dropdowns
   const relationshipOptions = [
     {value: 'family', label: 'Family Member'},
     {value: 'friend', label: 'Friend'},
@@ -72,7 +97,6 @@ const AddBeneficiary: React.FC = () => {
     {value: 'ca', label: 'Canada'},
     {value: 'fr', label: 'France'},
     {value: 'de', label: 'Germany'},
-    {value: 'in', label: 'India'},
   ];
 
   const bankCountryOptions = [
@@ -81,14 +105,12 @@ const AddBeneficiary: React.FC = () => {
     {value: 'uk', label: 'United Kingdom'},
     {value: 'fr', label: 'France'},
     {value: 'de', label: 'Germany'},
-    {value: 'in', label: 'India'},
   ];
 
   const currencyOptions = [
     {value: 'usd', label: 'USD'},
     {value: 'eur', label: 'EUR'},
     {value: 'gbp', label: 'GBP'},
-    {value: 'inr', label: 'INR'},
   ];
 
   const accountTypeOptions = [
@@ -96,7 +118,7 @@ const AddBeneficiary: React.FC = () => {
     {value: 'savings', label: 'Savings'},
   ];
 
-  const contryCode = [
+  const countryCodeOptions = [
     {value: '+91', label: '🇮🇳 +91 (India)'},
     {value: '+1', label: '🇺🇸 +1 (USA)'},
     {value: '+44', label: '🇬🇧 +44 (UK)'},
@@ -125,8 +147,7 @@ const AddBeneficiary: React.FC = () => {
         </h1>
       </div>
 
-      {/* <ProgressBar step={1} total={3} label="Beneficiary Details" /> */}
-
+      {/* Main Form */}
       <main className="flex-1 overflow-y-auto px-5 pb-24 pt-2 md:px-10">
         <FormProvider {...methods}>
           <form
@@ -156,45 +177,26 @@ const AddBeneficiary: React.FC = () => {
                 required
               />
 
-              <div className="space-y-1.5">
-                <div className="flex gap-3 md:gap-5">
-                  {/* Country Code */}
-                  {/* <div className="w-28 space-y-1.5"> */}
-                  {/* <label className="mb-2 mt-1 block text-sm font-medium text-slate-700 dark:text-slate-400">
-                      Country code <span className="text-red-500">*</span>
-                    </label> */}
-                  {/* 
-                    <select
-                      id="countryCode"
-                      className="h-[42px] w-full rounded-md border border-stroke bg-transparent px-3 text-sm text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
-                      value={countryCode}
-                      onChange={(e) => setContryCode(e.target.value)}
-                    >
-
-                      {contryCode.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select> */}
-                  {/* <GenericDropdown
-                      name="countryCode"
-                      label=" Country code"
-                      options={contryCode}
-                      required
-                    />
-                  </div> */}
-
-                  {/* Phone Number */}
-                  <div className="flex-1 space-y-1.5">
-                    <GenericInputField
-                      name="phoneNumber"
-                      label="Phone No"
-                      placeholder="5550123"
-                      type="tel"
-                      required
-                    />
-                  </div>
+              {/* Phone with country code */}
+              <div className="flex flex-col gap-3 md:flex-row md:gap-4">
+                <div className="md:w-1/3">
+                  <GenericDropdown
+                    name="phoneCountryCode"
+                    label="Country Code"
+                    options={countryCodeOptions}
+                    value={countryCode}
+                    onChange={(val) => setCountryCode(val)}
+                    required
+                  />
+                </div>
+                <div className="flex-1">
+                  <GenericInputField
+                    name="phoneNumber"
+                    label="Phone No"
+                    placeholder="5550123"
+                    type="tel"
+                    required
+                  />
                 </div>
               </div>
             </div>
@@ -211,6 +213,44 @@ const AddBeneficiary: React.FC = () => {
                 required
               />
 
+              {/* Custom Pincode field with spinner */}
+              <div className="flex-1 space-y-1.5 md:w-1/3 md:flex-none">
+                <label className="mb-2 mt-1 block text-sm font-medium text-slate-700 dark:text-slate-400">
+                  Pincode <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    {...methods.register('pincode')}
+                    className={`h-[42px] w-full rounded-md border border-stroke bg-transparent px-3 text-sm text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white ${
+                      errors.pincode ? 'border-red-500' : ''
+                    }`}
+                    placeholder="12345"
+                    type="text"
+                  />
+                  {isLoadingPincode && (
+                    <MdOutlineLoop
+                      className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-primary"
+                      size={18}
+                    />
+                  )}
+                </div>
+                {errors.pincode && (
+                  <p className="text-xs text-red-500">
+                    {errors.pincode.message}
+                  </p>
+                )}
+                {watchedCountry === 'IN' &&
+                  watchedPincode?.length === 6 &&
+                  !isLoadingPincode && (
+                    <p className="mt-1 text-xs text-primary">
+                      <span className="material-symbols-outlined mr-1 align-middle text-[12px]">
+                        auto_awesome
+                      </span>
+                      City/State will auto-fill for Indian PIN codes
+                    </p>
+                  )}
+              </div>
+
               <GenericInputField
                 name="city"
                 label="City / Locality"
@@ -218,22 +258,16 @@ const AddBeneficiary: React.FC = () => {
                 required
               />
 
-              <div className="flex gap-4 md:gap-6">
-                <GenericInputField
-                  name="state"
-                  label="State"
-                  placeholder="State"
-                  required
-                />
-                <div className="w-1/3">
+              {/* State, Pincode, Country row */}
+              <div className="flex flex-col gap-4 md:flex-row md:gap-6">
+                <div className="flex-1">
                   <GenericInputField
-                    name="pincode"
-                    label="Pincode"
-                    placeholder="12345"
+                    name="state"
+                    label="State"
+                    placeholder="State"
                     required
                   />
                 </div>
-              </div>
 
                 <div className="flex-1">
                   <GenericDropdown
@@ -269,18 +303,21 @@ const AddBeneficiary: React.FC = () => {
                   />
                 </div>
               </div>
+
               <GenericInputField
                 name="accountNumber"
                 label="Account"
                 placeholder="CH93 0000 0000 0000 0000 0"
                 required
               />
+
               <GenericDropdown
                 name="accountType"
                 label="Account Type"
                 options={accountTypeOptions}
                 required
               />
+
               <div className="flex gap-4">
                 <div className="flex-1">
                   <GenericInputField
@@ -299,12 +336,14 @@ const AddBeneficiary: React.FC = () => {
                   />
                 </div>
               </div>
+
               <GenericInputField
                 name="bankName"
                 label="Bank Name"
                 placeholder="e.g. Chase Bank"
                 required
               />
+
               <GenericInputField
                 name="branchName"
                 label="Branch Name"
