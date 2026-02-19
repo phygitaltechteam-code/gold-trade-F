@@ -54,7 +54,7 @@ const AddBeneficiary: React.FC = () => {
         if (data[0]?.Status === 'Success' && data[0]?.PostOffice?.length > 0) {
           const first = data[0].PostOffice[0];
           // Set city to post office name (locality/block) instead of district
-          setValue('city', first.Name || '', {shouldValidate: true});
+          setValue('city', first.Block || '', {shouldValidate: true});
           setValue('state', first.State || '', {shouldValidate: true});
         }
       }
@@ -213,6 +213,44 @@ const AddBeneficiary: React.FC = () => {
                 required
               />
 
+              {/* Custom Pincode field with spinner */}
+              <div className="flex-1 space-y-1.5 md:w-1/3 md:flex-none">
+                <label className="mb-2 mt-1 block text-sm font-medium text-slate-700 dark:text-slate-400">
+                  Pincode <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    {...methods.register('pincode')}
+                    className={`h-[42px] w-full rounded-md border border-stroke bg-transparent px-3 text-sm text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white ${
+                      errors.pincode ? 'border-red-500' : ''
+                    }`}
+                    placeholder="12345"
+                    type="text"
+                  />
+                  {isLoadingPincode && (
+                    <MdOutlineLoop
+                      className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-primary"
+                      size={18}
+                    />
+                  )}
+                </div>
+                {errors.pincode && (
+                  <p className="text-xs text-red-500">
+                    {errors.pincode.message}
+                  </p>
+                )}
+                {watchedCountry === 'IN' &&
+                  watchedPincode?.length === 6 &&
+                  !isLoadingPincode && (
+                    <p className="mt-1 text-xs text-primary">
+                      <span className="material-symbols-outlined mr-1 align-middle text-[12px]">
+                        auto_awesome
+                      </span>
+                      City/State will auto-fill for Indian PIN codes
+                    </p>
+                  )}
+              </div>
+
               <GenericInputField
                 name="city"
                 label="City / Locality"
@@ -229,44 +267,6 @@ const AddBeneficiary: React.FC = () => {
                     placeholder="State"
                     required
                   />
-                </div>
-
-                {/* Custom Pincode field with spinner */}
-                <div className="flex-1 space-y-1.5 md:w-1/3 md:flex-none">
-                  <label className="mb-2 mt-1 block text-sm font-medium text-slate-700 dark:text-slate-400">
-                    Pincode <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <input
-                      {...methods.register('pincode')}
-                      className={`h-[42px] w-full rounded-md border border-stroke bg-transparent px-3 text-sm text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white ${
-                        errors.pincode ? 'border-red-500' : ''
-                      }`}
-                      placeholder="12345"
-                      type="text"
-                    />
-                    {isLoadingPincode && (
-                      <MdOutlineLoop
-                        className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-primary"
-                        size={18}
-                      />
-                    )}
-                  </div>
-                  {errors.pincode && (
-                    <p className="text-xs text-red-500">
-                      {errors.pincode.message}
-                    </p>
-                  )}
-                  {watchedCountry === 'IN' &&
-                    watchedPincode?.length === 6 &&
-                    !isLoadingPincode && (
-                      <p className="mt-1 text-xs text-primary">
-                        <span className="material-symbols-outlined mr-1 align-middle text-[12px]">
-                          auto_awesome
-                        </span>
-                        City/State will auto-fill for Indian PIN codes
-                      </p>
-                    )}
                 </div>
 
                 <div className="flex-1">
