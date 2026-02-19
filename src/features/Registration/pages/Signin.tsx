@@ -6,6 +6,7 @@ import {useNavigate} from '@tanstack/react-router';
 import {AxiosError} from 'axios';
 import React, {useState, useEffect} from 'react';
 import toast from 'react-hot-toast';
+import swissLogo from '@/assets/images/logo/swiss-logo.png';
 
 const Signin: React.FC = () => {
   const {setIsAuthenticated} = useAuthContext();
@@ -15,6 +16,7 @@ const Signin: React.FC = () => {
   const [phoneError, setPhoneError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [logoError, setLogoError] = useState(false); // For image fallback
   const navigate = useNavigate();
 
   interface SignInPayload {
@@ -46,14 +48,10 @@ const Signin: React.FC = () => {
     onError: (error: AxiosError<any>) => {
       const message = error.response?.data?.message || 'Login failed';
       if (message === 'Pending') {
-        navigate({
-          to: '/verification',
-        });
+        navigate({to: '/verification'});
       }
       if (message === 'Rejected') {
-        navigate({
-          to: '/rejected',
-        });
+        navigate({to: '/rejected'});
       }
       if (message === 'User does not exist') {
         toast.error('User does not exist. Please sign up first.');
@@ -65,12 +63,8 @@ const Signin: React.FC = () => {
   });
 
   const validatePhoneNumber = (phone: string): boolean => {
-    // Remove any non-digit characters
     const cleanedPhone = phone.replace(/\D/g, '');
-
-    // Check if it's exactly 10 digits
     const isValid = /^\d{10}$/.test(cleanedPhone);
-
     if (phone && !isValid) {
       setPhoneError('Please enter exactly 10 digits');
       return false;
@@ -95,16 +89,10 @@ const Signin: React.FC = () => {
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-
-    // Only allow digits and spaces
     const cleanedValue = value.replace(/[^\d\s]/g, '');
-
-    // Limit to 10 digits (plus spaces)
     const digitsOnly = cleanedValue.replace(/\s/g, '');
     if (digitsOnly.length <= 10) {
       setUsername(cleanedValue);
-
-      // Validate as user types
       if (cleanedValue) {
         validatePhoneNumber(cleanedValue);
       } else {
@@ -114,41 +102,29 @@ const Signin: React.FC = () => {
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setPassword(value);
+    setPassword(e.target.value);
   };
 
   const handleSignIn = () => {
     setFormSubmitted(true);
-
-    // Clean the phone number before sending
     const cleanedPhone = username.replace(/\D/g, '');
-
-    // Validate phone number
     const isPhoneValid = validatePhoneNumber(cleanedPhone);
     if (!cleanedPhone) {
       setPhoneError('Mobile number is required');
     }
-
-    // Validate password
     const isPasswordValid = validatePassword(password);
-
-    // If either validation fails, stop submission
     if (!isPhoneValid || !cleanedPhone || !isPasswordValid) {
       return;
     }
-
     mutate({username: cleanedPhone, password});
   };
 
-  // Handle Enter key press
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleSignIn();
     }
   };
 
-  // Check if form can be submitted
   const canSubmit = () => {
     const cleanedPhone = username.replace(/\D/g, '');
     return (
@@ -162,31 +138,40 @@ const Signin: React.FC = () => {
 
   return (
     <div className="dark:bg-gray-950 flex min-h-screen w-full justify-center bg-white font-['Inter'] antialiased selection:bg-[#F57F3D]/30">
-      {/* Responsive container */}
       <div className="border-gray-200/60 dark:border-gray-800/60 relative mx-auto min-h-[min(844px,90vh)] w-full max-w-[min(390px,95vw,480px)] overflow-hidden bg-white dark:bg-[#221610] md:min-h-[600px] md:max-w-[420px] md:rounded-2xl">
         {/* Background patterns */}
         <div className="bg-premium-pattern pointer-events-none absolute inset-0 z-0 opacity-100 dark:opacity-5" />
         <div className="from-gray-100/40 pointer-events-none absolute inset-0 z-0 bg-gradient-to-br via-transparent to-transparent dark:from-white/5" />
 
-        {/* Safe area top spacer - responsive */}
         <div className="relative z-10 h-6 w-full md:h-8" />
 
-        {/* Main content */}
         <div className="relative z-10 flex flex-1 flex-col justify-between px-6 pb-6 pt-8 md:px-8 md:pb-8 md:pt-10">
           <div className="mb-8 flex flex-col items-center">
-            {/* Logo row: icon + brand name */}
-            <div className="mb-4 flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F57F3D]/10 md:h-12 md:w-12">
-                <span className="material-symbols-outlined text-2xl text-[#F57F3D] md:text-3xl">
-                  account_balance_wallet
-                </span>
+            {/* Logo row with fallback */}
+            <div className="mb-4 flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#F57F3D]/10 md:h-14 md:w-14">
+                <img
+                  src={swissLogo}
+                  alt="SwissQuote"
+                  className="h-7 w-7 object-contain md:h-9 md:w-9"
+                  onError={() => setLogoError(true)}
+                />
               </div>
-              <span className="text-lg font-semibold text-[#0d131c] dark:text-white md:text-xl">
-                Swiss-Quote
+              <span
+                className="text-2xl font-black tracking-wide text-[#0d131c] dark:text-white md:text-3xl"
+                style={
+                  {
+                    // Optional gradient text – uncomment if desired
+                    // background: 'linear-gradient(135deg, #F57F3D, #FFB347)',
+                    // WebkitBackgroundClip: 'text',
+                    // WebkitTextFillColor: 'transparent',
+                  }
+                }
+              >
+                SwissQuote
               </span>
             </div>
 
-            {/* Welcome text */}
             <h1 className="mb-2 text-3xl font-bold leading-tight tracking-tight text-[#0d131c] dark:text-white md:text-4xl">
               Welcome back
             </h1>
@@ -212,7 +197,7 @@ const Signin: React.FC = () => {
                   value={username}
                   onChange={handlePhoneChange}
                   onKeyPress={handleKeyPress}
-                  maxLength={12} // Allow for spaces: 10 digits + 2 spaces max
+                  maxLength={12}
                   inputMode="numeric"
                 />
               </div>
