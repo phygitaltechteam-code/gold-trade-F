@@ -14,7 +14,7 @@ export const beneficiarySchema = z.object({
   currency: z.string().min(1, 'Currency is required'),
   accountNumber: z.string().min(1, 'Account/IBAN is required'),
   accountType: z.string().min(1, 'Account type is required'),
-  SWIFTBIC: z.string().min(1, 'SWIFT/BIC is required'),
+  // SWIFTBIC: z.string().min(1, 'SWIFT/BIC is required'),
   IFSC: z.string().min(1, 'Routing/IFSC is required'),
   bankName: z.string().min(1, 'Bank name is required'),
   branchName: z.string().min(1, 'Branch name is required'),

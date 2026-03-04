@@ -49,10 +49,20 @@ export const CardCarousel: React.FC<CardCarouselProps> = ({cards}) => {
               </div>
 
               <div className="mt-auto">
-                <h3 className="text-3xl font-bold tracking-tight">
-                  {new Intl.NumberFormat('en-US', {
+                <h3
+                  className={`font-bold tracking-tight ${
+                    card.balance > 999999
+                      ? 'text-2xl sm:text-3xl'
+                      : card.balance > 99999
+                        ? 'text-2xl sm:text-3xl'
+                        : 'text-3xl'
+                  }`}
+                >
+                  {new Intl.NumberFormat('en-IN', {
                     style: 'currency',
-                    currency: card.currency,
+                    currency: 'INR',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
                   }).format(card.balance)}
                 </h3>
               </div>

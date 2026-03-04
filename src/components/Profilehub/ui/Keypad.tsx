@@ -21,7 +21,7 @@ export const Keypad: React.FC<KeypadProps> = ({
   const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
   return (
-    <div className="w-full rounded-t-[2rem] bg-white pb-8 pt-6 shadow-[0_-8px_30px_rgba(0,0,0,0.04)] dark:bg-[#1e1610]">
+    <div className="w-full rounded-t-[2rem] bg-white pb-20 pt-6 shadow-[0_-8px_30px_rgba(0,0,0,0.04)] dark:bg-[#1e1610] md:pb-8">
       <div className="mx-auto grid max-w-[320px] grid-cols-3 gap-x-6 gap-y-4 px-4">
         {keys.map((key) => (
           <button
