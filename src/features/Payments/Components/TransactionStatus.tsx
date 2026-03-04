@@ -107,6 +107,7 @@ import {
   walletAmmount,
 } from '../Pages/PaymentWrapper';
 import {useGetBeneficiaryById} from '@/lib/react-query/beneficiary';
+import {useNavigate} from '@tanstack/react-router';
 
 type props = StepProps & {
   paymentData: PaymentData;
@@ -123,6 +124,7 @@ export const TransferStatusScreen: React.FC<props> = ({
   const {data: benefiaciaryDetails} = useGetBeneficiaryById(
     paymentData?.beneficiaryId,
   );
+  const navigate = useNavigate();
   return (
     <div className="font-sans flex min-h-screen justify-center bg-white text-slate-900">
       <div className="bg-background-light w-full py-10 sm:px-6 lg:px-8 xl:max-w-6xl">
@@ -177,6 +179,13 @@ export const TransferStatusScreen: React.FC<props> = ({
             <div className="bg-gray-100 h-1 w-32 overflow-hidden rounded-full md:w-40 lg:w-48">
               <div className="h-full w-1/2 animate-pulse rounded-full bg-primary/40"></div>
             </div>
+
+            <button
+              onClick={() => navigate({to: '/dashboard'})}
+              className="mt-8 flex h-12 w-full max-w-xs items-center justify-center rounded-xl bg-transparent text-center text-base font-semibold text-slate-500 underline transition-all hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white sm:h-14 sm:text-lg"
+            >
+              Back to Dashboard
+            </button>
           </div>
         </div>
       </div>

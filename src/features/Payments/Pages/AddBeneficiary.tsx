@@ -319,14 +319,14 @@ const AddBeneficiary: React.FC = () => {
               />
 
               <div className="flex gap-4">
-                <div className="flex-1">
+                {/* <div className="flex-1">
                   <GenericInputField
                     name="SWIFTBIC"
                     label="SWIFT / BIC"
                     placeholder="AAAA BB CC 123"
                     required
                   />
-                </div>
+                </div> */}
                 <div className="flex-1">
                   <GenericInputField
                     name="IFSC"

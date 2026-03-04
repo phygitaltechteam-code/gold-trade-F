@@ -81,15 +81,15 @@ const PaymentWrapper: React.FC = () => {
     }
   }, [WalletData]);
 
-  useEffect(() => {
-    if (step === 4) {
-      const timer = setTimeout(() => {
-        navigate({to: '/dashboard'});
-      }, 1000);
+  // useEffect(() => {
+  //   if (step === 4) {
+  //     const timer = setTimeout(() => {
+  //       navigate({to: '/dashboard'});
+  //     }, 1000);
 
-      return () => clearTimeout(timer);
-    }
-  }, [step, navigate]);
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [step, navigate]);
 
   const handlePinSubmit = async (pin: string) => {
     try {

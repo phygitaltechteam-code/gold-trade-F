@@ -41,6 +41,7 @@ const AppLayout = () => {
     showFooterRoutes.includes(location.pathname) ||
     location.pathname.startsWith('/payment/send/') ||
     location.pathname.startsWith('/wallet/transaction/') ||
+    location.pathname.startsWith('/wallet/transferlist/') ||
     location.pathname.startsWith('/updatebeneficiary/');
 
   console.log(showFooter);
