@@ -25,12 +25,19 @@ const SignIn: React.FC = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!credentials.username || !credentials.password) {
-      toast.error('Please enter phone number and password');
+      toast.error('Please enter username and password');
       return;
     }
 
     try {
-      await login(credentials);
+      //  const res = await signIn({
+      //     username: values.identifier,
+      //     password: values.password,
+      //   });
+      await login({
+        username: credentials.username,
+        password: credentials.password,
+      });
     } catch (err) {
       // Error already handled in useEffect
     }
@@ -47,15 +54,15 @@ const SignIn: React.FC = () => {
           Sign In
         </h2>
         <form onSubmit={handleLogin}>
-          {/* Phone/Email Input */}
+          {/* Phone/phoneNumber Input */}
           <div className="mb-6">
             <label className="mb-2.5 block font-medium text-black dark:text-white">
-              Phone Number
+              Phone *
             </label>
             <div className="relative">
               <input
                 type="text"
-                placeholder="Enter your phone number"
+                placeholder="Enter your username"
                 value={credentials.username}
                 onChange={(e) =>
                   setCredentials({...credentials, username: e.target.value})
@@ -116,13 +123,13 @@ const SignIn: React.FC = () => {
 
           {/* Sign Up Link */}
           {/* <div className="mt-6 text-center">
-        <p className="text-sm">
-          Don't have an account?{' '}
-          <Link className="text-primary" to="/signup">
-            Sign Up
-          </Link>
-        </p>
-      </div> */}
+            <p className="text-sm">
+              Don't have an account?{' '}
+              <Link className="text-primary" to="/signup">
+                Sign Up
+              </Link>
+            </p>
+          </div> */}
         </form>
       </div>
     </div>

@@ -3,7 +3,7 @@ import {KYCList} from './KYCList';
 import {KYCDetail} from './KYCDetail';
 import {KYCRequest} from './kyctypes';
 import {motion, AnimatePresence} from 'framer-motion';
-
+import React from 'react';
 export default function KycMainPage() {
   const [selectedRequest, setSelectedRequest] = useState<KYCRequest | null>(
     null,

@@ -1,6 +1,7 @@
 // components/SignupStep3FacialVerification.tsx
 import type {FC} from 'react';
 import {useState, useRef} from 'react';
+import React from 'react';
 
 interface SignupStep3FacialVerificationProps {
   onComplete: (image: File | null) => void;
@@ -218,7 +219,7 @@ const SignupStep3FacialVerification: FC<SignupStep3FacialVerificationProps> = ({
           {/* Continue without photo */}
           <div className="mt-8 border-t border-slate-200 pt-8 dark:border-slate-800 md:mt-10">
             <p className="mb-4 text-center text-slate-600 dark:text-slate-400 md:text-lg">
-              Don't have a photo ready?
+              Don&#39;t have a photo ready?
             </p>
             <button
               onClick={handleContinueWithoutPhoto}

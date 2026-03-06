@@ -465,7 +465,7 @@ const BalanceSheetView = ({
             <AssetRow label="Long-term Debt" val="$4.00M" change="0.0%" />
             <tr className="font-bold text-[#0F1535]">
               <td className="py-4 pt-4 sm:py-6 sm:pt-8" colSpan={3}>
-                Shareholder's Equity
+                Shareholder&rsquo;s Equity
               </td>
             </tr>
             <AssetRow label="Common Stock" val="$5.00M" change="0.0%" />
@@ -534,7 +534,7 @@ const ReportsCenterView = ({
           <ChevronRight size={12} className="sm:h-3.5 sm:w-3.5" />
           <span className="font-medium text-[#0F1535]">Reports Center</span>
         </nav>
-        <h1 className="text-black mb-2 text-2xl font-bold tracking-tight sm:text-3xl">
+        <h1 className="mb-2 text-2xl font-bold tracking-tight text-black sm:text-3xl">
           Financial Reports & Reconciliation
         </h1>
         <p className="text-gray-500 max-w-2xl text-sm sm:text-base">

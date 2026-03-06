@@ -1,38 +1,61 @@
-import { LucideIcon } from "lucide-react";
+export interface User {
+  fullname: string;
+  email: string;
+  phoneNumber: string;
+  isActive: boolean;
+  dob: string | null;
+  isVerified: boolean;
+  isRejected: boolean;
+}
 
-export type ClientStatus = 'Active' | 'Suspended' | 'Pending Review';
+export interface Wallet {
+  id: string;
+  customerId: string;
+  amount: number;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface Client {
   id: string;
-  name: string;
-  email: string;
-  avatar: string;
-  assetUnderControl: number;
-  balance: number;
-  totalPnL: number;
-  status: ClientStatus;
-  uid: string;
-  phone: string;
-  joinedDate: string;
-  region: string;
-  kycLevel: number;
-  address: string;
-  dob: string;
-  nationality: string;
-  taxId: string;
-  bankName: string;
+  userId: string;
+  passport: string;
+  aadharCard: string;
+  panCard: string;
+  passportNumber: string;
+  aadharCardNumber: string | null;
+  panCardNumber: string | null;
   accountNumber: string;
-  routingIfsc: string;
-  accountType: string;
-  nomineeName: string;
-  nomineeRelationship: string;
-  nomineeContact: string;
-  nomineeAllocation: string;
+  address: string;
+  city: string;
+  photo: string;
+  state: string;
+  country: string;
+  pincode: string;
+  securityPin: string;
+  rejectedReason: string | null;
+  bank_Name: string | null;
+  Routing_IFSC: string | null;
+  Account_Type: string | null;
+  createdAt: string;
+  updatedAt: string;
+  Nominee_Name: string | null;
+  Relationship: string | null;
+  Contact: string | null;
+  Allocation: string | null;
+  isKycCompleted: boolean | null;
+  user: User;
+  wallets: Wallet;
+  _count: {
+    senderTransactions: number;
+  };
 }
+
+export type ClientStatus = 'Active' | 'Suspended' | 'Pending Review';
 
 export interface Transaction {
   id: string;
-  type: 'Deposit' | 'Buy Gold' | 'Fee' | 'Withdrawal' | 'Dividend';
+  type: 'Deposit' | 'Withdrawal' | 'Buy Gold' | 'Sell Gold';
   description: string;
   amount: number;
   dateTime: string;

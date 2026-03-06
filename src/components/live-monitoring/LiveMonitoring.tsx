@@ -213,9 +213,9 @@ const LiveMonitoring = () => {
 
   return (
     <div className="font-sans min-h-screen bg-[#F8F9FB] text-slate-900">
-      <main className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+      <main className="mx-auto max-w-[1600px] px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
         {/* Page Header */}
-        <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center sm:mb-8">
+        <div className="mb-6 flex flex-col justify-between gap-4 sm:mb-8 sm:flex-row sm:items-center">
           <h1 className="text-xl font-bold tracking-tight sm:text-2xl lg:text-3xl">
             Live Order Book
           </h1>
@@ -226,7 +226,7 @@ const LiveMonitoring = () => {
                 {new Date().toLocaleTimeString()}
               </span>
             </div>
-            <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+            <div className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
           </div>
         </div>
 

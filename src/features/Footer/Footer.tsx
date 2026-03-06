@@ -11,7 +11,7 @@ import {
 import {motion, AnimatePresence} from 'framer-motion';
 import {useNavigate, useLocation} from '@tanstack/react-router';
 import {User2} from 'lucide-react';
-
+import React from 'react';
 const navItems = [
   {
     label: 'Dashboard',

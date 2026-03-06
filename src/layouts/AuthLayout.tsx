@@ -7,9 +7,9 @@ const AuthLayout = () => {
   const navigate = useNavigate();
   const {isAuthenticated} = useAuthContext();
 
-  // if (isAuthenticated) {
-  //   navigate({to: '/dashboard'});
-  // }
+  if (isAuthenticated) {
+    navigate({to: '/dashboard'});
+  }
 
   return (
     // <div className="flex h-screen w-screen flex-col items-center justify-center rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">

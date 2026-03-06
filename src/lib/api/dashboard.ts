@@ -5,6 +5,7 @@ import {
 } from '@/components/Dashboard/types';
 import {api} from '@/utils/axios';
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
+import {result} from 'lodash';
 
 import toast from 'react-hot-toast';
 
@@ -69,50 +70,24 @@ export const getDashboardData = async (
   filters: DashboardFilters,
 ): Promise<DashboardStats> => {
   try {
-    console.log('Fetching dashboard data with filters:', filters);
-
     const response = await api.put('/admin/dashboard', filters);
+    // console.log('Raw API Response:', response);
 
-    console.log('Raw API Response:', response);
-
-    let dashboardData: DashboardStats;
-
-    if (response.data && typeof response.data === 'object') {
-      if (response.data.customers !== undefined) {
-        dashboardData = response.data;
-      } else if (
-        response.data.data &&
-        response.data.data.customers !== undefined
-      ) {
-        dashboardData = response.data.data;
-      } else if (response.data.statusCode === 200 && response.data.data) {
-        dashboardData = response.data.data;
-      } else {
-        console.error('Unexpected response format:', response.data);
-        throw new Error('Invalid API response format');
-      }
-    } else {
+    if (!response.data) {
       throw new Error('No data received from API');
     }
-
+    const dashboardData = response.data;
+    // Return the mapped data with proper structure
     const result: DashboardStats = {
-      ...dashboardData,
-      changePercentages: {
-        customers: 12,
-        transactions: 5,
-        fees: 8,
-        txAmount: 15,
-        Total_reserves: 2,
-        beneficiary: 10,
-        totalTopups: -3,
-        totalTransfers: 20,
-      },
+      TOTAL_DEPOSITS: dashboardData.TOTAL_DEPOSITS ?? 0,
+      WITHDRAWALS: dashboardData.WITHDRAWALS ?? 0,
+      PLATFORM_PROFIT: dashboardData.PLATFORM_PROFIT ?? 0,
+      OPEN_EXPOSURE: dashboardData.OPEN_EXPOSURE ?? 0,
+      MARGIN_UTIL: dashboardData.MARGIN_UTIL ?? 0,
     };
 
     return result;
   } catch (error: any) {
-    console.error('Error fetching dashboard data:', error);
-
     const errorMessage =
       error?.response?.data?.message ||
       error?.response?.data?.error ||

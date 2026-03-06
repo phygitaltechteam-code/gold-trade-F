@@ -140,32 +140,33 @@ export default function WithdrawalRequest() {
     return MOCK_DATA.filter((req) => {
       // Tab filter
       const matchesTab = activeTab === req.status;
-      
+
       // Search filter
-      const matchesSearch = 
+      const matchesSearch =
         searchTerm === '' ||
         req.requestId.toLowerCase().includes(searchTerm.toLowerCase()) ||
         req.client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         req.amount.toString().includes(searchTerm) ||
         req.bank.toLowerCase().includes(searchTerm.toLowerCase());
-      
+
       return matchesTab && matchesSearch;
     });
   }, [activeTab, searchTerm]);
 
   // Calculate dynamic stats
   const stats = useMemo(() => {
-    const pendingAmount = MOCK_DATA.filter(r => r.status === 'Pending')
-      .reduce((sum, r) => sum + r.amount, 0);
-    
-    const processedToday = MOCK_DATA.filter(r => 
-      r.date === 'Today' && r.status === 'Approved'
+    const pendingAmount = MOCK_DATA.filter(
+      (r) => r.status === 'Pending',
+    ).reduce((sum, r) => sum + r.amount, 0);
+
+    const processedToday = MOCK_DATA.filter(
+      (r) => r.date === 'Today' && r.status === 'Approved',
     ).length;
-    
+
     const totalOutflow = MOCK_DATA.reduce((sum, r) => sum + r.amount, 0);
-    
+
     return {
-      pendingCount: MOCK_DATA.filter(r => r.status === 'Pending').length,
+      pendingCount: MOCK_DATA.filter((r) => r.status === 'Pending').length,
       pendingAmount,
       processedToday,
       totalOutflow,
@@ -175,11 +176,11 @@ export default function WithdrawalRequest() {
   // Get counts for each status
   const statusCounts = useMemo(() => {
     return {
-      Pending: MOCK_DATA.filter(r => r.status === 'Pending').length,
-      Review: MOCK_DATA.filter(r => r.status === 'Review').length,
-      'On Hold': MOCK_DATA.filter(r => r.status === 'On Hold').length,
-      Approved: MOCK_DATA.filter(r => r.status === 'Approved').length,
-      Rejected: MOCK_DATA.filter(r => r.status === 'Rejected').length,
+      Pending: MOCK_DATA.filter((r) => r.status === 'Pending').length,
+      Review: MOCK_DATA.filter((r) => r.status === 'Review').length,
+      'On Hold': MOCK_DATA.filter((r) => r.status === 'On Hold').length,
+      Approved: MOCK_DATA.filter((r) => r.status === 'Approved').length,
+      Rejected: MOCK_DATA.filter((r) => r.status === 'Rejected').length,
     };
   }, []);
 
@@ -187,7 +188,7 @@ export default function WithdrawalRequest() {
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const paginatedData = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   // Reset pagination when tab changes
@@ -201,14 +202,14 @@ export default function WithdrawalRequest() {
     if (selectedRequests.length === paginatedData.length) {
       setSelectedRequests([]);
     } else {
-      setSelectedRequests(paginatedData.map(r => r.id));
+      setSelectedRequests(paginatedData.map((r) => r.id));
     }
   };
 
   // Handle single select
   const handleSelect = (id: string) => {
-    setSelectedRequests(prev =>
-      prev.includes(id) ? prev.filter(r => r !== id) : [...prev, id]
+    setSelectedRequests((prev) =>
+      prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id],
     );
   };
 
@@ -240,13 +241,25 @@ export default function WithdrawalRequest() {
 
   // Handle export
   const handleExport = () => {
-    const dataToExport = selectedRequests.length > 0 
-      ? MOCK_DATA.filter(r => selectedRequests.includes(r.id))
-      : filteredData;
+    const dataToExport =
+      selectedRequests.length > 0
+        ? MOCK_DATA.filter((r) => selectedRequests.includes(r.id))
+        : filteredData;
 
     const csvContent = [
-      ['Request ID', 'Date', 'Time', 'Client Name', 'Tier', 'Amount', 'Fee', 'Bank', 'Account', 'Status'],
-      ...dataToExport.map(req => [
+      [
+        'Request ID',
+        'Date',
+        'Time',
+        'Client Name',
+        'Tier',
+        'Amount',
+        'Fee',
+        'Bank',
+        'Account',
+        'Status',
+      ],
+      ...dataToExport.map((req) => [
         req.requestId,
         req.date,
         req.time,
@@ -256,9 +269,11 @@ export default function WithdrawalRequest() {
         req.fee.toString(),
         req.bank,
         req.accountLast4,
-        req.status
-      ])
-    ].map(row => row.join(',')).join('\n');
+        req.status,
+      ]),
+    ]
+      .map((row) => row.join(','))
+      .join('\n');
 
     const blob = new Blob([csvContent], {type: 'text/csv'});
     const url = window.URL.createObjectURL(blob);
@@ -271,14 +286,14 @@ export default function WithdrawalRequest() {
 
   return (
     <div className="font-sans min-h-screen bg-[#F8F9FB] text-[#1A1D21]">
-      <main className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+      <main className="mx-auto max-w-[1600px] px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
         {/* Header */}
         <div className="mb-6 flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
           <div className="flex items-center gap-3">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
+            <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
               Withdrawal Requests
             </h1>
-            <span className="border-stroke text-gray-500 rounded-full border bg-white px-2.5 py-0.5 text-[10px] sm:text-[11px] font-medium shadow-sm">
+            <span className="text-gray-500 rounded-full border border-stroke bg-white px-2.5 py-0.5 text-[10px] font-medium shadow-sm sm:text-[11px]">
               Live Updates
             </span>
           </div>
@@ -294,18 +309,18 @@ export default function WithdrawalRequest() {
                   setCurrentPage(1);
                 }}
                 placeholder="Search ID, Client, Amount..."
-                className="border-stroke w-full rounded-lg border bg-white py-2 pl-10 pr-4 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 sm:w-64"
+                className="w-full rounded-lg border border-stroke bg-white py-2 pl-10 pr-4 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 sm:w-64"
               />
               {searchTerm && (
                 <button
                   onClick={() => setSearchTerm('')}
                   className="absolute right-3 top-1/2 -translate-y-1/2"
                 >
-                  <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                  <X className="text-gray-400 hover:text-gray-600 h-4 w-4" />
                 </button>
               )}
             </div>
-            <button className="border-stroke hover:bg-gray-50 relative rounded-lg border bg-white p-2 transition-colors">
+            <button className="hover:bg-gray-50 relative rounded-lg border border-stroke bg-white p-2 transition-colors">
               <Bell className="text-gray-600 h-5 w-5" />
               <span className="absolute right-2 top-2 h-2 w-2 rounded-full border-2 border-white bg-red-500"></span>
             </button>
@@ -342,7 +357,7 @@ export default function WithdrawalRequest() {
               initial={{opacity: 0, y: -20}}
               animate={{opacity: 1, y: 0}}
               exit={{opacity: 0, y: -20}}
-              className="mb-4 flex flex-wrap items-center gap-3 rounded-lg bg-orange-50 p-3 border border-orange-200"
+              className="mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-orange-200 bg-orange-50 p-3"
             >
               <span className="text-sm font-medium text-orange-700">
                 {selectedRequests.length} request(s) selected
@@ -355,7 +370,7 @@ export default function WithdrawalRequest() {
               </button>
               <button
                 onClick={handleBulkReject}
-                className="rounded-lg bg-white border border-orange-200 px-4 py-1.5 text-xs font-bold text-orange-600 hover:bg-orange-100"
+                className="rounded-lg border border-orange-200 bg-white px-4 py-1.5 text-xs font-bold text-orange-600 hover:bg-orange-100"
               >
                 Reject All
               </button>
@@ -370,18 +385,26 @@ export default function WithdrawalRequest() {
         </AnimatePresence>
 
         {/* Main Content Area */}
-        <div className="border-stroke overflow-hidden rounded-xl border bg-white shadow-sm">
+        <div className="overflow-hidden rounded-xl border border-stroke bg-white shadow-sm">
           {/* Tabs & Controls */}
-          <div className="border-stroke flex flex-col justify-between border-b px-4 pt-4 sm:flex-row sm:items-center sm:px-6">
+          <div className="flex flex-col justify-between border-b border-stroke px-4 pt-4 sm:flex-row sm:items-center sm:px-6">
             <div className="flex gap-4 overflow-x-auto pb-4 sm:gap-8 sm:pb-0">
-              {(['Pending', 'Review', 'On Hold', 'Approved', 'Rejected'] as const).map((tab) => (
+              {(
+                [
+                  'Pending',
+                  'Review',
+                  'On Hold',
+                  'Approved',
+                  'Rejected',
+                ] as const
+              ).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => {
                     setActiveTab(tab);
                     setCurrentPage(1);
                   }}
-                  className={`relative whitespace-nowrap pb-4 text-xs sm:text-sm font-medium transition-all ${
+                  className={`relative whitespace-nowrap pb-4 text-xs font-medium transition-all sm:text-sm ${
                     activeTab === tab
                       ? 'text-orange-500'
                       : 'text-gray-500 hover:text-gray-700'
@@ -389,13 +412,19 @@ export default function WithdrawalRequest() {
                 >
                   {tab}
                   {statusCounts[tab] > 0 && (
-                    <span className={`ml-2 rounded-md px-1.5 py-0.5 text-[10px] ${
-                      tab === 'Pending' ? 'bg-orange-50 text-orange-600' :
-                      tab === 'Review' ? 'bg-purple-50 text-purple-600' :
-                      tab === 'On Hold' ? 'bg-gray-100 text-gray-600' :
-                      tab === 'Approved' ? 'bg-emerald-50 text-emerald-600' :
-                      'bg-red-50 text-red-600'
-                    }`}>
+                    <span
+                      className={`ml-2 rounded-md px-1.5 py-0.5 text-[10px] ${
+                        tab === 'Pending'
+                          ? 'bg-orange-50 text-orange-600'
+                          : tab === 'Review'
+                            ? 'bg-purple-50 text-purple-600'
+                            : tab === 'On Hold'
+                              ? 'bg-gray-100 text-gray-600'
+                              : tab === 'Approved'
+                                ? 'bg-emerald-50 text-emerald-600'
+                                : 'bg-red-50 text-red-600'
+                      }`}
+                    >
                       {statusCounts[tab]}
                     </span>
                   )}
@@ -413,14 +442,14 @@ export default function WithdrawalRequest() {
               {/* Mobile Filter Button */}
               <button
                 onClick={() => setShowMobileFilter(!showMobileFilter)}
-                className="rounded-lg border border-stroke bg-white p-2 transition-colors hover:bg-gray-50 sm:hidden"
+                className="hover:bg-gray-50 rounded-lg border border-stroke bg-white p-2 transition-colors sm:hidden"
               >
-                <Filter className="h-4 w-4 text-gray-600" />
+                <Filter className="text-gray-600 h-4 w-4" />
               </button>
-              
+
               <button
                 onClick={handleExport}
-                className="text-gray-600 hover:bg-gray-50 flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs sm:text-sm font-medium transition-colors"
+                className="text-gray-600 hover:bg-gray-50 flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors sm:text-sm"
               >
                 <Download className="h-4 w-4" />
                 <span className="hidden sm:inline">Export</span>
@@ -435,14 +464,16 @@ export default function WithdrawalRequest() {
                 initial={{opacity: 0, height: 0}}
                 animate={{opacity: 1, height: 'auto'}}
                 exit={{opacity: 0, height: 0}}
-                className="border-b border-stroke bg-gray-50/50 p-4 sm:hidden"
+                className="bg-gray-50/50 border-b border-stroke p-4 sm:hidden"
               >
-                <h3 className="mb-2 text-xs font-bold text-gray-400">Quick Filters</h3>
+                <h3 className="text-gray-400 mb-2 text-xs font-bold">
+                  Quick Filters
+                </h3>
                 <div className="flex flex-wrap gap-2">
                   {['High Value', 'Today', 'Yesterday'].map((filter) => (
                     <button
                       key={filter}
-                      className="rounded-full border border-stroke bg-white px-3 py-1 text-xs font-medium hover:bg-gray-50"
+                      className="hover:bg-gray-50 rounded-full border border-stroke bg-white px-3 py-1 text-xs font-medium"
                     >
                       {filter}
                     </button>
@@ -453,25 +484,27 @@ export default function WithdrawalRequest() {
           </AnimatePresence>
 
           {/* Mobile Card View */}
-          <div className="block lg:hidden divide-y divide-stroke">
+          <div className="block divide-y divide-stroke lg:hidden">
             {paginatedData.length > 0 ? (
               paginatedData.map((req) => (
-                <div key={req.id} className="relative p-4 hover:bg-gray-50/50">
+                <div key={req.id} className="hover:bg-gray-50/50 relative p-4">
                   {req.isHighValue && (
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500" />
+                    <div className="absolute bottom-0 left-0 top-0 w-1 bg-red-500" />
                   )}
-                  
-                  <div className="flex items-start justify-between mb-3">
+
+                  <div className="mb-3 flex items-start justify-between">
                     <div className="flex items-center gap-3">
                       <input
                         type="checkbox"
                         checked={selectedRequests.includes(req.id)}
                         onChange={() => handleSelect(req.id)}
-                        className="border-stroke rounded text-orange-500 focus:ring-orange-500"
+                        className="rounded border-stroke text-orange-500 focus:ring-orange-500"
                       />
                       <div>
-                        <span className="text-sm font-bold">{req.requestId}</span>
-                        <span className="ml-2 text-[10px] text-gray-500">
+                        <span className="text-sm font-bold">
+                          {req.requestId}
+                        </span>
+                        <span className="text-gray-500 ml-2 text-[10px]">
                           {req.date}, {req.time}
                         </span>
                       </div>
@@ -479,7 +512,7 @@ export default function WithdrawalRequest() {
                     <StatusBadge status={req.status} />
                   </div>
 
-                  <div className="flex items-center gap-3 mb-3">
+                  <div className="mb-3 flex items-center gap-3">
                     {req.client.avatar ? (
                       <img
                         src={req.client.avatar}
@@ -493,31 +526,36 @@ export default function WithdrawalRequest() {
                     )}
                     <div>
                       <p className="text-sm font-semibold">{req.client.name}</p>
-                      <p className="text-xs text-gray-500">{req.client.tier}</p>
+                      <p className="text-gray-500 text-xs">{req.client.tier}</p>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 mb-3">
+                  <div className="mb-3 grid grid-cols-2 gap-3">
                     <div>
-                      <p className="text-[10px] text-gray-400 mb-1">Amount</p>
+                      <p className="text-gray-400 mb-1 text-[10px]">Amount</p>
                       <p className="text-sm font-bold">
-                        ${req.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}
+                        $
+                        {req.amount.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                        })}
                       </p>
-                      <p className="text-[9px] text-gray-400">Fee: ${req.fee.toFixed(2)}</p>
+                      <p className="text-gray-400 text-[9px]">
+                        Fee: ${req.fee.toFixed(2)}
+                      </p>
                     </div>
                     <div>
-                      <p className="text-[10px] text-gray-400 mb-1">Bank</p>
+                      <p className="text-gray-400 mb-1 text-[10px]">Bank</p>
                       <div className="flex items-center gap-1">
-                        <Landmark className="h-3 w-3 text-gray-400" />
+                        <Landmark className="text-gray-400 h-3 w-3" />
                         <span className="text-xs font-medium">{req.bank}</span>
                       </div>
-                      <p className="text-[9px] text-gray-400 font-mono">
+                      <p className="text-gray-400 font-mono text-[9px]">
                         **** {req.accountLast4}
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-end gap-2 mt-2">
+                  <div className="mt-2 flex items-center justify-end gap-2">
                     <button
                       onClick={() => handleReject(req.id)}
                       className="text-gray-500 hover:bg-gray-100 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
@@ -534,23 +572,26 @@ export default function WithdrawalRequest() {
                 </div>
               ))
             ) : (
-              <div className="p-8 text-center text-gray-400">
+              <div className="text-gray-400 p-8 text-center">
                 No {activeTab.toLowerCase()} requests found
               </div>
             )}
           </div>
 
           {/* Desktop Table View */}
-          <div className="hidden lg:block overflow-x-auto">
+          <div className="hidden overflow-x-auto lg:block">
             <table className="w-full border-collapse text-left">
               <thead>
-                <tr className="bg-gray-50/50 border-stroke border-y">
+                <tr className="bg-gray-50/50 border-y border-stroke">
                   <th className="py-4 pl-6">
                     <input
                       type="checkbox"
-                      checked={selectedRequests.length === paginatedData.length && paginatedData.length > 0}
+                      checked={
+                        selectedRequests.length === paginatedData.length &&
+                        paginatedData.length > 0
+                      }
                       onChange={handleSelectAll}
-                      className="border-stroke rounded text-orange-500 focus:ring-orange-500"
+                      className="rounded border-stroke text-orange-500 focus:ring-orange-500"
                     />
                   </th>
                   <th className="text-gray-400 px-4 py-4 text-[11px] font-semibold uppercase tracking-wider">
@@ -588,7 +629,7 @@ export default function WithdrawalRequest() {
                           type="checkbox"
                           checked={selectedRequests.includes(req.id)}
                           onChange={() => handleSelect(req.id)}
-                          className="border-stroke rounded text-orange-500 focus:ring-orange-500"
+                          className="rounded border-stroke text-orange-500 focus:ring-orange-500"
                         />
                       </td>
                       <td className="px-4 py-4">
@@ -632,7 +673,10 @@ export default function WithdrawalRequest() {
                       <td className="px-4 py-4 text-right">
                         <div className="flex flex-col">
                           <span className="text-gray-900 text-sm font-bold">
-                            ${req.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}
+                            $
+                            {req.amount.toLocaleString('en-US', {
+                              minimumFractionDigits: 2,
+                            })}
                           </span>
                           <span className="text-gray-400 text-xs italic">
                             Fee: ${req.fee.toFixed(2)}
@@ -675,7 +719,10 @@ export default function WithdrawalRequest() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={7} className="px-6 py-8 text-center text-gray-400">
+                    <td
+                      colSpan={7}
+                      className="text-gray-400 px-6 py-8 text-center"
+                    >
                       No {activeTab.toLowerCase()} requests found
                     </td>
                   </tr>
@@ -686,11 +733,14 @@ export default function WithdrawalRequest() {
 
           {/* Footer / Pagination */}
           {filteredData.length > 0 && (
-            <div className="bg-gray-50/30 border-stroke flex flex-col items-center justify-between gap-3 border-t px-4 py-3 sm:flex-row sm:px-6 sm:py-4">
-              <p className="text-gray-500 text-[10px] sm:text-xs order-2 sm:order-1">
+            <div className="bg-gray-50/30 flex flex-col items-center justify-between gap-3 border-t border-stroke px-4 py-3 sm:flex-row sm:px-6 sm:py-4">
+              <p className="text-gray-500 order-2 text-[10px] sm:order-1 sm:text-xs">
                 Showing{' '}
                 <span className="text-gray-900 font-semibold">
-                  {Math.min((currentPage - 1) * itemsPerPage + 1, filteredData.length)}
+                  {Math.min(
+                    (currentPage - 1) * itemsPerPage + 1,
+                    filteredData.length,
+                  )}
                 </span>{' '}
                 to{' '}
                 <span className="text-gray-900 font-semibold">
@@ -702,21 +752,23 @@ export default function WithdrawalRequest() {
                 </span>{' '}
                 {activeTab.toLowerCase()} requests
               </p>
-              <div className="flex items-center gap-2 order-1 sm:order-2">
+              <div className="order-1 flex items-center gap-2 sm:order-2">
                 <button
-                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="border-stroke text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg border bg-white p-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg border border-stroke bg-white p-1.5 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
-                <span className="text-xs font-medium text-gray-600">
+                <span className="text-gray-600 text-xs font-medium">
                   {currentPage} / {totalPages}
                 </span>
                 <button
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
                   disabled={currentPage === totalPages}
-                  className="border-stroke text-gray-600 hover:bg-gray-50 rounded-lg border bg-white p-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="text-gray-600 hover:bg-gray-50 rounded-lg border border-stroke bg-white p-1.5 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>
@@ -743,19 +795,19 @@ function SummaryCard({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="border-stroke group flex items-start justify-between rounded-xl border bg-white p-4 sm:p-5 lg:p-6 shadow-sm transition-colors hover:border-orange-200">
+    <div className="group flex items-start justify-between rounded-xl border border-stroke bg-white p-4 shadow-sm transition-colors hover:border-orange-200 sm:p-5 lg:p-6">
       <div>
-        <p className="text-gray-400 mb-1 sm:mb-2 text-[10px] sm:text-xs font-semibold uppercase tracking-wider">
+        <p className="text-gray-400 mb-1 text-[10px] font-semibold uppercase tracking-wider sm:mb-2 sm:text-xs">
           {title}
         </p>
-        <h3 className="text-gray-900 mb-1 text-xl sm:text-2xl lg:text-3xl font-bold">
+        <h3 className="text-gray-900 mb-1 text-xl font-bold sm:text-2xl lg:text-3xl">
           {value}
         </h3>
-        <p className={`text-[9px] sm:text-xs font-medium ${subValueColor}`}>
+        <p className={`text-[9px] font-medium sm:text-xs ${subValueColor}`}>
           {subValue}
         </p>
       </div>
-      <div className="bg-gray-50 rounded-lg p-1.5 sm:p-2 transition-colors group-hover:bg-orange-50">
+      <div className="bg-gray-50 rounded-lg p-1.5 transition-colors group-hover:bg-orange-50 sm:p-2">
         {icon}
       </div>
     </div>
@@ -773,7 +825,7 @@ function StatusBadge({status}: {status: WithdrawalRequest['status']}) {
 
   return (
     <span
-      className={`inline-block rounded-md border px-2 py-1 text-[9px] sm:text-[10px] font-bold uppercase whitespace-nowrap ${styles[status]}`}
+      className={`inline-block whitespace-nowrap rounded-md border px-2 py-1 text-[9px] font-bold uppercase sm:text-[10px] ${styles[status]}`}
     >
       {status}
     </span>

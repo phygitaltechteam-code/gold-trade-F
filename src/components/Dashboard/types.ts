@@ -1,4 +1,3 @@
-// types/dashboard.ts
 export type DashboardFilterType = '7Days' | '30Days' | '24Hours' | 'custom';
 
 export interface DashboardFilters {
@@ -8,41 +7,59 @@ export interface DashboardFilters {
 }
 
 export interface DashboardStats {
-  customers: number;
-  transactions: number;
-  fees: number;
-  txAmount: number;
-  Total_reserves: number;
-  beneficiary: number;
-  totalTopups: number;
-  totalTransfers: number;
-
-  volumeVsFees?: {
-    volume: number[];
-    fees: number[];
-    labels: string[];
-  };
-  topupsVsTransfers?: {
-    topups: number[];
-    transfers: number[];
-    labels: string[];
-  };
+  TOTAL_DEPOSITS: number;
+  WITHDRAWALS: number;
+  PLATFORM_PROFIT: number;
+  OPEN_EXPOSURE: number;
+  MARGIN_UTIL: number;
+  tradingVolume: TradingVolumeData[];
+  revenueSources: RevenueSourceData[];
+  topTraders: TraderData[];
+  recentTransactions: TransactionData[];
   changePercentages?: {
-    customers: number;
-    transactions: number;
-    fees: number;
-    txAmount: number;
-    Total_reserves: number;
-    beneficiary: number;
-    totalTopups: number;
-    totalTransfers: number;
+    TOTAL_DEPOSITS: number;
+    WITHDRAWALS: number;
+    PLATFORM_PROFIT: number;
+    OPEN_EXPOSURE: number;
+    MARGIN_UTIL: number;
   };
 }
 
-export interface DashboardResponse {
-  statusCode: number;
-  status: boolean;
-  message: string;
-  data: DashboardStats;
-  errors: null;
+export interface TradingVolumeData {
+  name: string;
+  value: number;
+}
+
+export interface RevenueSourceData {
+  name: string;
+  value: number;
+  color: string;
+}
+
+export interface TraderData {
+  id: string;
+  name: string;
+  volume: string;
+  pnl: string;
+  risk: 'Low' | 'Med' | 'High';
+}
+
+export interface TransactionData {
+  type: 'Deposit' | 'Withdrawal';
+  date: string;
+  amount: string;
+  status: 'Completed' | 'Pending' | 'Rejected';
+}
+
+// Chart data types
+export interface VolumeVsFeesData {
+  date: string;
+  volume: number;
+  fees: number;
+}
+
+export interface TopUpsVsTransfersData {
+  week: string;
+  topups: number;
+  transfers: number;
 }

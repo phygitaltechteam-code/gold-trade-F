@@ -1,6 +1,5 @@
-// components/OnboardingStep1.tsx
-
 import type {FC} from 'react';
+import React from 'react';
 
 const OnboardingStep1: FC = () => {
   return (

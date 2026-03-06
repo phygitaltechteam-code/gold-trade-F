@@ -5,30 +5,16 @@ import {Link, useLocation} from '@tanstack/react-router';
 import SidebarLinkGroup from './SidebarLinkGroup';
 import {SidebarProps} from '@/types';
 import {IoIosArrowDown} from 'react-icons/io';
-import {BiHome} from 'react-icons/bi';
 import {
-  MdAccountCircle,
-  MdCreditScore,
   MdDashboard,
-  MdDescription,
-  MdFactCheck,
-  MdPercent,
-  MdPriceCheck,
-  MdSend,
   MdSettings,
-  MdWallet,
-  MdOutlinePeople,
   MdOutlineVerified,
   MdOutlineMonitor,
-  MdOutlineLogout,
-  MdOutlineAttachMoney,
-  MdOutlineAssessment,
-  MdOutlineSettings,
   MdOutlinePriceChange,
 } from 'react-icons/md';
 import {useAuthContext} from '@/context/AuthContext';
-import {FaUsers, FaUserTie} from 'react-icons/fa';
-import {RiMoneyDollarCircleLine, RiFileListLine} from 'react-icons/ri';
+import {FaUsers} from 'react-icons/fa';
+import {RiMoneyDollarCircleLine} from 'react-icons/ri';
 import {TbReportAnalytics} from 'react-icons/tb';
 import {LucideBox} from 'lucide-react';
 
@@ -38,6 +24,7 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
   const {user} = useAuthContext();
   const isEmployee = user?.role === 'EMPLOYEE';
   const isAdmin = user?.role === 'ADMIN';
+  console.log('user', user);
   const isCompany = user?.role === 'COMPANY';
   const isFixedOpenRef = useRef(false);
   const [isFixedOpen, setIsFixedOpen] = useState(false);
@@ -55,57 +42,96 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
   } | null>(null);
 
   const handleSignOut = async () => {
-    console.log('logouttt');
-    localStorage.clear();
-    window.location.reload();
+    try {
+      // Clear everything
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.href = '/';
+    } catch (error) {
+      window.location.href = '/';
+    }
   };
 
-  // GoldTradeAdmin Routes - Static sidebar items regardless of role
-  const sidebarRoutes = [
-    {
-      label: 'Dashboard',
-      path: '/dashboard',
-      icon: <MdDashboard size={22} />,
-    },
-    {
-      label: 'Clients',
-      path: '/clients/mainpage',
-      icon: <FaUsers size={22} />,
-    },
-    {
-      label: 'KYC Approvals',
-      path: '/KYCApproval/kycmain',
-      icon: <MdOutlineVerified size={22} />,
-    },
-    {
-      label: 'Live Monitoring',
-      path: '/KYCApproval/livemonitoring',
-      icon: <MdOutlineMonitor size={22} />,
-    },
-    {
-      label: 'Withdrawal Requests',
-      path: '/withdrawlreq/withdrawlRequest',
-      icon: <RiMoneyDollarCircleLine size={22} />,
-    },
-    {
-      label: 'Financial Reports',
-      path: '/Report/financialReport',
-      icon: <TbReportAnalytics size={22} />,
-    },
-    {
-      label: 'Revenue Config',
-      path: '/Report/ReviewConfig',
-      icon: <MdOutlinePriceChange size={22} />,
-    },
-    {
-      label: 'Settings',
-      icon: <MdSettings size={22} />,
-      subRoutes: [
-        {label: 'Change Password', path: '/change-password'},
-        {label: 'Logout', onClick: () => handleSignOut()},
-      ],
-    },
-  ];
+  // GoldTradeAdmin Routes - Role-based sidebar items
+  const sidebarRoutes = isAdmin
+    ? [
+        {
+          label: 'Dashboard',
+          path: '/dashboard',
+          icon: <MdDashboard size={22} />,
+        },
+        {
+          label: 'Clients',
+          path: '/clients/mainpage',
+          icon: <FaUsers size={22} />,
+        },
+        {
+          label: 'KYC Approvals',
+          path: '/KYCApproval/kycmain',
+          icon: <MdOutlineVerified size={22} />,
+        },
+        {
+          label: 'Live Monitoring',
+          path: '/KYCApproval/livemonitoring',
+          icon: <MdOutlineMonitor size={22} />,
+        },
+        {
+          label: 'Withdrawal Requests',
+          path: '/withdrawlreq/withdrawlRequest',
+          icon: <RiMoneyDollarCircleLine size={22} />,
+        },
+        {
+          label: 'Financial Reports',
+          path: '/Report/financialReport',
+          icon: <TbReportAnalytics size={22} />,
+        },
+        {
+          label: 'Revenue Config',
+          path: '/Report/ReviewConfig',
+          icon: <MdOutlinePriceChange size={22} />,
+        },
+        {
+          label: 'Settings',
+          icon: <MdSettings size={22} />,
+          subRoutes: [
+            {label: 'Change Password', path: '/change-password'},
+            {label: 'Logout', onClick: () => handleSignOut()},
+          ],
+        },
+      ]
+    : isEmployee
+      ? [
+          {
+            label: 'Dashboard',
+            path: '/dashboard',
+            icon: <MdDashboard size={22} />,
+          },
+          {
+            label: 'Settings',
+            icon: <MdSettings size={22} />,
+            subRoutes: [
+              {label: 'Change Password', path: '/change-password'},
+              {label: 'Logout', onClick: () => handleSignOut()},
+            ],
+          },
+        ]
+      : isCompany
+        ? [
+            {
+              label: 'Dashboard',
+              path: '/dashboard',
+              icon: <MdDashboard size={22} />,
+            },
+            {
+              label: 'Settings',
+              icon: <MdSettings size={22} />,
+              subRoutes: [
+                {label: 'Change Password', path: '/change-password'},
+                {label: 'Logout', onClick: () => handleSignOut()},
+              ],
+            },
+          ]
+        : []; // Default empty array for any other roles
 
   const trigger = useRef<HTMLButtonElement>(null);
   const sidebar = useRef<HTMLDivElement>(null);
@@ -120,7 +146,6 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
     storedSidebarExpanded === null ? false : storedSidebarExpanded === 'true',
   );
 
-  const [isHovered, setIsHovered] = useState(false);
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -186,6 +211,7 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
     <div className="relative z-50">
       {/* SIDEBAR */}
       <aside
+        ref={sidebar}
         className={`fixed inset-y-0 left-0 z-50 flex h-screen flex-col bg-white text-black transition-transform duration-300 ease-in-out ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:static lg:translate-x-0`}
@@ -214,7 +240,13 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
                 <div className="flex flex-col items-start overflow-hidden">
                   <p className="font-bold text-black-2">GoldTrade</p>{' '}
                   <p className="bg-gradient-to-r from-[#FF6321] to-[#FF8C00] bg-clip-text text-xl font-bold text-transparent">
-                    Admin
+                    {isAdmin
+                      ? 'Admin'
+                      : isEmployee
+                        ? 'Employee'
+                        : isCompany
+                          ? 'Company'
+                          : 'User'}
                   </p>
                 </div>
               )}
@@ -283,7 +315,19 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
                           <ul className="ml-6 mt-1 space-y-1">
                             {route.subRoutes.map((subRoute, subIndex) => (
                               <li key={subIndex}>
-                                {subRoute.path ? (
+                                {subRoute.onClick ? (
+                                  <button
+                                    onClick={() => {
+                                      subRoute.onClick();
+                                      setHoveredRoute(null);
+                                      setShowSubRoutes(null);
+                                      setSidebarOpen(false);
+                                    }}
+                                    className="block w-full rounded px-3 py-2 text-left text-sm text-black hover:bg-primary/20"
+                                  >
+                                    {subRoute.label}
+                                  </button>
+                                ) : (
                                   <Link
                                     to={subRoute.path}
                                     onClick={() => {
@@ -295,13 +339,6 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
                                   >
                                     {subRoute.label}
                                   </Link>
-                                ) : (
-                                  <button
-                                    onClick={subRoute.onClick}
-                                    className="block w-full rounded px-3 py-2 text-left text-sm text-black hover:bg-primary/20"
-                                  >
-                                    {subRoute.label}
-                                  </button>
                                 )}
                               </li>
                             ))}
@@ -391,7 +428,23 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
           }}
         >
           {showSubRoutes.subRoutes.map((subRoute, subIndex) =>
-            subRoute.path ? (
+            subRoute.onClick ? (
+              <button
+                key={subIndex}
+                onClick={() => {
+                  subRoute.onClick();
+                  setHoveredRect(null);
+                  setHoveredRoute(null);
+                  setShowSubRoutes(null);
+                  if (window.innerWidth < 1024) {
+                    setSidebarOpen(false);
+                  }
+                }}
+                className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm text-black hover:bg-primary/10"
+              >
+                {subRoute.label}
+              </button>
+            ) : (
               <Link
                 key={subIndex}
                 to={subRoute.path}
@@ -407,14 +460,6 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
               >
                 {subRoute.label}
               </Link>
-            ) : (
-              <button
-                key={subIndex}
-                onClick={subRoute.onClick}
-                className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm text-black hover:bg-primary/10"
-              >
-                {subRoute.label}
-              </button>
             ),
           )}
         </div>

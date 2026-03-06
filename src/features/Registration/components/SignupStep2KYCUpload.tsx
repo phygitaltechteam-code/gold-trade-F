@@ -1,5 +1,5 @@
 import {useState, type FC, useEffect} from 'react';
-
+import React from 'react';
 type KYCPassportData = {
   type: 'Passport';
   number: string;
@@ -241,7 +241,7 @@ const SignupStep2KYCUpload: FC<SignupStep2KYCUploadProps> = ({
             Passport Verification
           </h2>
           <p className="mt-2 text-slate-600 dark:text-slate-300 md:mt-3 md:text-lg">
-            Upload your passport. We'll verify it securely using encrypted OCR
+            Upload your passport. We&#39;ll verify it securely using encrypted OCR
             checks.
           </p>
 

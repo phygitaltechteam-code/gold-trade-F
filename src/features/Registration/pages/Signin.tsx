@@ -157,18 +157,8 @@ const Signin: React.FC = () => {
                   onError={() => setLogoError(true)}
                 />
               </div>
-              <span
-                className="text-2xl font-black tracking-wide text-[#0d131c] dark:text-white md:text-3xl"
-                style={
-                  {
-                    // Optional gradient text – uncomment if desired
-                    // background: 'linear-gradient(135deg, #F57F3D, #FFB347)',
-                    // WebkitBackgroundClip: 'text',
-                    // WebkitTextFillColor: 'transparent',
-                  }
-                }
-              >
-                SwissQuote
+              <span className="text-2xl font-black tracking-wide text-[#0d131c] dark:text-white md:text-3xl">
+                GoldTrade
               </span>
             </div>
 

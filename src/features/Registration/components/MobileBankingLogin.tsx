@@ -1,6 +1,5 @@
-// components/MobileBankingLogin.tsx
-
 import type {FC} from 'react';
+import React from 'react';
 
 const MobileBankingLogin: FC = () => {
   return (
@@ -128,7 +127,7 @@ const MobileBankingLogin: FC = () => {
           {/* Footer */}
           <div className="mt-auto flex flex-col items-center gap-6 pt-8">
             <p className="text-gray-500 dark:text-gray-400 text-center text-sm">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <a
                 href="#"
                 className="ml-1 font-semibold text-[#F57F3D] transition-colors hover:text-blue-600"

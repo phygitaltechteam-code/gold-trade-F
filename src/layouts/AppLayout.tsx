@@ -10,31 +10,22 @@ const AppLayout = () => {
   const {isAuthenticated, user} = useAuthContext();
 
   useEffect(() => {
-    // TEMPORARILY DISABLED AUTH - Uncomment when auth is ready
-    // if (!isAuthenticated) {
-    //   navigate({to: '/'});
-    //   return;
-    // }
-    
-    // Optional: Still handle role-based navigation if needed
-    // if (user?.role === 'ADMIN') {
-    //   navigate({to: '/dashboard'});
-    // } else if (user?.role === 'MANAGER') {
-    //   navigate({to: '/'});
-    // } else if (user?.role === 'EMPLOYEE') {
-    //   navigate({to: '/dashboard'});
-    // } else if (user?.role === 'SUPERADMIN') {
-    //   navigate({to: '/superadmin/superadmindash'});
-    // }
+    if (!isAuthenticated) {
+      navigate({to: '/'});
+      return;
+    }
+    if (user?.role === 'ADMIN') {
+      navigate({to: '/dashboard'});
+    }
   }, [isAuthenticated, user, navigate]);
 
   return (
     <div className="dark:bg-boxdark-2 dark:text-bodydark">
       <div className="flex h-screen overflow-hidden">
-        {/* TEMPORARILY SHOW SIDEBAR FOR ALL USERS - Modify as needed */}
-        {/* {user?.role !== 'EMPLOYEE' && ( */}
+        {/* Show sidebar for ALL authenticated users */}
+        {isAuthenticated && (
           <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-        {/* )} */}
+        )}
         <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
           <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
           <main>

@@ -255,8 +255,8 @@ const CustomMultiselectDropdown: React.FC<CustomMultiselectDropdownProps> = ({
                     </svg>
                   </div>
                   <p className="text-gray-500 dark:text-gray-400 text-sm">
-                    No results found for "
-                    <span className="font-medium">{searchTerm}</span>"
+                    No results found for &ldquo;
+                    <span className="font-medium">{searchTerm}</span>&rdquo;
                   </p>
                 </div>
               ) : (

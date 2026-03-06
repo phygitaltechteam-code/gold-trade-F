@@ -14,11 +14,18 @@ import {
 import {ChartDataPoint, BarChartDataPoint} from '@/types/dashboard';
 import {useGetDashToUpGraph, useGetfeeChart} from '@/lib/api/dashboard';
 
-// const volumeData: ChartDataPoint[] = ;
+interface VolumeVsFeesChartProps {
+  data?: {name: string; volume: number; fees: number}[];
+}
 
-export const VolumeVsFeesChart: React.FC = () => {
-  const [volumeData, setVolumeData] = useState<ChartDataPoint[]>([]);
+export const VolumeVsFeesChart: React.FC<VolumeVsFeesChartProps> = ({
+  data: propData,
+}) => {
+  const [volumeData, setVolumeData] = useState<
+    {name: string; volume: number; fees: number}[]
+  >([]);
   const {data: volumeDatas} = useGetfeeChart();
+
   useEffect(() => {
     console.log('volumeDatas', volumeDatas);
     if (volumeDatas) {
@@ -26,10 +33,13 @@ export const VolumeVsFeesChart: React.FC = () => {
     }
   }, [volumeDatas]);
 
+  // Use provided data or fetched data
+  const chartData = propData || volumeData;
+
   return (
     <ResponsiveContainer width="100%" height="100%">
       <ComposedChart
-        data={volumeData}
+        data={chartData}
         margin={{top: 10, right: 10, left: -20, bottom: 0}}
       >
         <defs>
@@ -84,9 +94,16 @@ export const VolumeVsFeesChart: React.FC = () => {
   );
 };
 
-export const TopUpsVsTransfersChart: React.FC = () => {
+interface TopUpsVsTransfersChartProps {
+  data?: {name: string; topUps: number; transfers: number; color?: string}[];
+}
+
+export const TopUpsVsTransfersChart: React.FC<TopUpsVsTransfersChartProps> = ({
+  data: propData,
+}) => {
   const {mutateAsync: fetchWeeklyData} = useGetDashToUpGraph();
   const [weeklyData, setWeeklyData] = useState<BarChartDataPoint[]>([]);
+
   const getCurrentWeekRange = () => {
     const today = new Date();
 
@@ -121,23 +138,34 @@ export const TopUpsVsTransfersChart: React.FC = () => {
     };
 
     loadWeeklyData();
-  }, []);
+  }, [fetchWeeklyData]);
+
+  // Use provided data or fetched data
+  const chartData = propData || weeklyData;
+
+  // Transform data for the bar chart if needed
+  const barData = chartData.map((item) => ({
+    name: item.day || item.name,
+    topUps: item.topUps || item.value || 0,
+    transfers: item.transfers || 0,
+  }));
 
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart
-        data={weeklyData}
+        data={barData}
         margin={{top: 20, right: 10, left: -20, bottom: 0}}
         barGap={8}
       >
         <CartesianGrid vertical={false} stroke="#f0f0f0" />
         <XAxis
-          dataKey="day"
+          dataKey="name"
           axisLine={false}
           tickLine={false}
           tick={{fontSize: 12, fill: '#6B7280'}}
           dy={10}
         />
+        <YAxis hide />
         <Tooltip
           cursor={{fill: 'transparent'}}
           contentStyle={{borderRadius: '8px'}}

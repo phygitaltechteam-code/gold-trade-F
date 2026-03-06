@@ -1,6 +1,5 @@
-// components/BiometricSetup.tsx
-
 import type {FC} from 'react';
+import React from 'react';
 
 const BiometricSetup: FC = () => {
   return (
