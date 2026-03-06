@@ -1,70 +1,46 @@
+import Header from '@/components/Header';
+import Sidebar from '@/components/Sidebar';
 import {useAuthContext} from '@/context/AuthContext';
-import Footer from '@/features/Footer/Footer';
-import {
-  Navigate,
-  Outlet,
-  useLocation,
-  useNavigate,
-} from '@tanstack/react-router';
-import {useEffect, useState} from 'react';
+import {Outlet, useNavigate} from '@tanstack/react-router';
+import React, {useEffect, useState} from 'react';
 
 const AppLayout = () => {
-  const {isAuthenticated} = useAuthContext();
-  const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
-  const location = useLocation();
   const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
+  const {isAuthenticated, user} = useAuthContext();
 
-  const showFooterRoutes = [
-    '/dashboard',
-    '/projects',
-    '/profile',
-    '/payment/send/$id',
-    '/wallet/toupscreen',
-    '/topupwithdrawl/walletwithdrawl',
-    '/beneficiary/statuspending',
-    '/updatebeneficiary/$id',
-    '/wallet/transaction/$id',
-    '/accounthub/enter-currentpin',
-    '/accounthub/setnew-pin',
-    '/accounthub/confirm-pin',
-    '/currencyconverter',
-    '/wallet/paymentdashbord',
-    '/accounthub/personal-info',
-    '/accounthub/contact-info',
-    '/accounthub/chnagepassword',
-    '/eprivate/statement',
-    '/beneficiary/addbeneficiaryy',
-    // '/updatebeneficiary/$id',
-  ];
-
-  const showFooter =
-    showFooterRoutes.includes(location.pathname) ||
-    location.pathname.startsWith('/payment/send/') ||
-    location.pathname.startsWith('/wallet/transaction/') ||
-    location.pathname.startsWith('/wallet/transferlist/') ||
-    location.pathname.startsWith('/updatebeneficiary/');
-
-  console.log(showFooter);
   useEffect(() => {
-    !isAuthenticated && navigate({to: '/signin'});
-  }, [isAuthenticated]);
+    // TEMPORARILY DISABLED AUTH - Uncomment when auth is ready
+    // if (!isAuthenticated) {
+    //   navigate({to: '/'});
+    //   return;
+    // }
+    
+    // Optional: Still handle role-based navigation if needed
+    // if (user?.role === 'ADMIN') {
+    //   navigate({to: '/dashboard'});
+    // } else if (user?.role === 'MANAGER') {
+    //   navigate({to: '/'});
+    // } else if (user?.role === 'EMPLOYEE') {
+    //   navigate({to: '/dashboard'});
+    // } else if (user?.role === 'SUPERADMIN') {
+    //   navigate({to: '/superadmin/superadmindash'});
+    // }
+  }, [isAuthenticated, user, navigate]);
 
   return (
     <div className="dark:bg-boxdark-2 dark:text-bodydark">
       <div className="flex h-screen overflow-hidden">
-        {/* Backdrop for mobile */}
-        {sidebarOpen && (
-          <div
-            className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
-
-        {/* Main content */}
+        {/* TEMPORARILY SHOW SIDEBAR FOR ALL USERS - Modify as needed */}
+        {/* {user?.role !== 'EMPLOYEE' && ( */}
+          <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        {/* )} */}
         <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
+          <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
           <main>
-            <Outlet />
-            <div className="">{!showFooter && <Footer />}</div>
+            <div className="mx-auto max-w-screen-2xl p-1">
+              <Outlet />
+            </div>
           </main>
         </div>
       </div>

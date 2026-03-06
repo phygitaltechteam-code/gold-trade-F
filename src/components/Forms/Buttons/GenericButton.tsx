@@ -6,7 +6,6 @@ interface GenericButtonProps {
   className?: string;
   disabled?: boolean;
   children: React.ReactNode;
-  label?: string;
 }
 
 const GenericButton: React.FC<GenericButtonProps> = ({
@@ -15,14 +14,13 @@ const GenericButton: React.FC<GenericButtonProps> = ({
   className = '',
   disabled = false,
   children,
-  label,
 }) => {
   return (
     <button
       type={type}
       onClick={onClick}
-      className={`mx-1 rounded bg-primary px-6 py-1 text-white transition duration-300 ease-in-out disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
       disabled={disabled}
+      className={`mx-1 rounded px-4 py-1 transition duration-300 ease-in-out disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
     >
       {children}
     </button>

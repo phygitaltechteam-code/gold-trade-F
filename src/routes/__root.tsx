@@ -1,7 +1,9 @@
-import * as React from 'react';
-import {Outlet, createRootRoute} from '@tanstack/react-router';
-import RootLayout from './../layouts/RootLayout';
+import SyncLoader from 'react-spinners/SyncLoader';
+import React from 'react';
+import {RootLayout} from '@/layouts';
+import {createRootRoute} from '@tanstack/react-router';
 
 export const Route = createRootRoute({
   component: RootLayout,
+  loader: () => <SyncLoader />,
 });

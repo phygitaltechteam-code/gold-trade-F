@@ -2,8 +2,8 @@ import React, {useState, useEffect, useRef} from 'react';
 import {useFormContext, Controller} from 'react-hook-form';
 
 interface Suggestion {
-  id?: string;
-  name?: string;
+  id?: string; // id is optional
+  name?: string; // name is optional
   description?: string;
   categoryId?: string;
   languageId?: string;
@@ -15,20 +15,16 @@ interface SearchInputWithSuggestionsProps {
   name: string;
   label?: string;
   placeholder?: string;
-  suggestions: Suggestion[];
-  onDishSearch?: (dishId: string, dishName: string) => void;
-  onDishClear?: () => void;
-  defaultValue?: string; // dishId
+  suggestions: Suggestion[]; // Accepts an empty array as well
+  onDishSearch?: (dishId: string, dishName: string) => void; // Updated to accept dishId
 }
 
 const SearchInputWithSuggestions: React.FC<SearchInputWithSuggestionsProps> = ({
   name,
   label,
   placeholder,
-  suggestions = [],
+  suggestions = [], // Default to an empty array if no suggestions are provided
   onDishSearch,
-  onDishClear,
-  defaultValue = '',
 }) => {
   const {control} = useFormContext();
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -38,58 +34,35 @@ const SearchInputWithSuggestions: React.FC<SearchInputWithSuggestionsProps> = ({
   const inputRef = useRef<HTMLInputElement | null>(null);
   const suggestionsRef = useRef<HTMLUListElement | null>(null);
 
-  // 🔁 Sync dish name when dishId (defaultValue) is received
-  useEffect(() => {
-    if (defaultValue && suggestions.length > 0) {
-      const matched = suggestions.find((d) => d.id === defaultValue);
-      if (matched?.name) {
-        setSearchTerm(matched.name);
-      }
-    }
-  }, [defaultValue, suggestions]);
-
-  // 🔍 Filter suggestions on typing
+  // Filter suggestions based on search term with debounce
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (searchTerm.trim() === '') {
-        setFilteredOptions(suggestions);
-      } else {
-        const results = suggestions.filter((suggestion) =>
-          suggestion.name?.toLowerCase().includes(searchTerm.toLowerCase()),
+      if (searchTerm) {
+        const results = suggestions.filter(
+          (suggestion) =>
+            suggestion.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            false, // Ensure it's safe
         );
         setFilteredOptions(results);
+      } else {
+        setFilteredOptions([]); // No search term, clear the suggestions
       }
     }, 300);
 
-    return () => clearTimeout(timer);
+    return () => clearTimeout(timer); // Clear timeout when searchTerm or suggestions change
   }, [searchTerm, suggestions]);
 
-  const handleSelectSuggestion = (
-    id?: string,
-    dishName?: string,
-    onChange?: (val: string) => void,
-  ) => {
-    if (dishName && id) {
+  const handleSelectSuggestion = (id?: string, dishName?: string) => {
+    if (dishName) {
       setSearchTerm(dishName);
-      setFilteredOptions([]);
-      if (onDishSearch) onDishSearch(id, dishName);
-      if (onChange) onChange(dishName);
+      setFilteredOptions([]); // Clear suggestions after selecting one
+      if (onDishSearch && id) {
+        onDishSearch(id, dishName); // Pass id along with the name to the parent
+      }
     }
   };
 
-  const handleFocus = () => {
-    setIsFocused(true);
-    if (!searchTerm.trim()) {
-      setFilteredOptions(suggestions);
-    } else {
-      const results = suggestions.filter((s) =>
-        s.name?.toLowerCase().includes(searchTerm.toLowerCase()),
-      );
-      setFilteredOptions(results);
-    }
-    if (onDishClear) onDishClear();
-  };
-
+  const handleFocus = () => setIsFocused(true);
   const handleBlur = () => setTimeout(() => setIsFocused(false), 200);
 
   const handleClickOutside = (e: MouseEvent) => {
@@ -99,7 +72,7 @@ const SearchInputWithSuggestions: React.FC<SearchInputWithSuggestionsProps> = ({
       suggestionsRef.current &&
       !suggestionsRef.current.contains(e.target as Node)
     ) {
-      setIsFocused(false);
+      setIsFocused(false); // Close the suggestion list if clicked outside
     }
   };
 
@@ -129,18 +102,18 @@ const SearchInputWithSuggestions: React.FC<SearchInputWithSuggestionsProps> = ({
             type="text"
             value={searchTerm}
             onChange={(e) => {
-              const value = e.target.value;
-              setSearchTerm(value);
-              field.onChange(value);
+              setSearchTerm(e.target.value);
+              field.onChange(e.target.value); // Update form value
             }}
             onFocus={handleFocus}
             onBlur={handleBlur}
             placeholder={placeholder}
-            className="w-full rounded border-[1.5px] border-stroke bg-transparent px-2 outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+            className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-3 outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
             aria-expanded={!!filteredOptions.length}
             aria-haspopup="listbox"
           />
 
+          {/* Show the suggestions list if there are filtered options */}
           {isFocused && filteredOptions.length > 0 && (
             <ul
               ref={suggestionsRef}
@@ -149,24 +122,20 @@ const SearchInputWithSuggestions: React.FC<SearchInputWithSuggestionsProps> = ({
             >
               {filteredOptions.map((option) => (
                 <li
-                  key={option.id || Math.random()}
-                  onClick={() =>
-                    handleSelectSuggestion(
-                      option.id,
-                      option.name,
-                      field.onChange,
-                    )
-                  }
+                  key={option.id || Math.random()} // Use id for the key or fallback to a random key
+                  onClick={() => handleSelectSuggestion(option.id, option.name)} // Pass id and name
                   className="hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer p-2"
                   role="option"
                   aria-selected={searchTerm === option.name}
                 >
-                  {option.name || 'Unnamed Dish'}
+                  {option.name || 'Unnamed Dish'}{' '}
+                  {/* Display default if name is missing */}
                 </li>
               ))}
             </ul>
           )}
 
+          {/* If no results found */}
           {isFocused && filteredOptions.length === 0 && searchTerm && (
             <div className="absolute z-10 mt-2 w-full rounded border border-stroke bg-white shadow-lg dark:bg-form-input">
               <p className="text-gray-600 p-2">No results found</p>

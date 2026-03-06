@@ -47,7 +47,7 @@ const GenericExpandTable: React.FC<ExpandableTableProps> = ({
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
     const childrenMatch = category.children.some((child) =>
-      child.name?.toLowerCase().includes(searchTerm.toLowerCase()),
+      child.name.toLowerCase().includes(searchTerm.toLowerCase()),
     );
     return categoryMatches || childrenMatch;
   });

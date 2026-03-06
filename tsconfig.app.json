@@ -16,11 +16,12 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
+    "strictNullChecks": true,
 
     /* Linting */
-    "strict": true,
+    "strict": false,
     "noUnusedLocals": false,
-    "noUnusedParameters": false,
+    "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
 
     /* Path Alias */
@@ -31,3 +32,4 @@
   },
   "include": ["src", "src/routes/_app/_events/.tsx"]
 }
+

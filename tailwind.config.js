@@ -5,17 +5,8 @@ export const content = ['./index.html', './src/**/*.{js,ts,jsx,tsx}'];
 export const darkMode = 'class';
 export const theme = {
   fontFamily: {
-    custom: ['"Lobster"', 'cursive'],
-    dish: ['"Merriweather"', 'serif'],
     satoshi: ['Satoshi', 'sans-serif'],
-    pacifico: ['Pacifico'],
-    alfa: ['"Alfa Slab One"', 'cursive'],
-    nabla: ['Nabla', 'sans-serif'],
-    roca: ['Roca One'],
-    robotoSlab: ['"Roboto Slab"', 'serif'],
-    croissant: ['"Croissant One"', 'sans-serif'],
-    lora: ['"Lora"', 'serif'],
-    marathi: ["'Noto Sans Devanagari'", 'sans-serif'],
+    croissant: ['"Croissant One"', 'cursive'],
   },
   screens: {
     '2xsm': '375px',
@@ -26,7 +17,6 @@ export const theme = {
   extend: {
     colors: {
       current: 'currentColor',
-      primary:'#ff7207',
       transparent: 'transparent',
       white: '#FFFFFF',
       black: '#1C2434',
@@ -35,7 +25,7 @@ export const theme = {
       bodydark: '#AEB7C0',
       bodydark1: '#DEE4EE',
       bodydark2: '#8A99AF',
-   
+        primary:'#ff7207',
       secondary: '#80CAEE',
       stroke: '#E2E8F0',
       gray: '#EFF4FB',

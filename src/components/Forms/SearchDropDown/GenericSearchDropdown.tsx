@@ -1,6 +1,6 @@
-import React, {useState, useEffect, useRef} from 'react';
-import {useFormContext, Controller, useWatch} from 'react-hook-form';
-import {IoIosArrowDown, IoIosArrowUp} from 'react-icons/io';
+import React, {useState, useEffect} from 'react';
+import {useFormContext, Controller} from 'react-hook-form';
+import {DownIcon, GlobeIcon} from '../../../icons';
 
 interface Option {
   value: string;
@@ -12,8 +12,7 @@ interface GenericSearchDropdownProps {
   label?: string;
   options: Option[];
   defaultOption?: string;
-  disabled?: boolean;
-  onSearchTextChange?: (text: string) => void;
+  error?: string; // 👈 Add error prop
 }
 
 const GenericSearchDropdown: React.FC<GenericSearchDropdownProps> = ({
@@ -21,29 +20,15 @@ const GenericSearchDropdown: React.FC<GenericSearchDropdownProps> = ({
   label,
   options,
   defaultOption = '',
-  disabled = false,
-  onSearchTextChange,
+  error, // 👈 Accept error
 }) => {
   const {control} = useFormContext();
-  const watchedValue = useWatch({name, control});
-
   const [searchTerm, setSearchTerm] = useState<string>(defaultOption);
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const optionsRef = useRef<HTMLDivElement>(null);
-
-  // Sync search term with selected value
-  useEffect(() => {
-    const selectedOption = options?.find(
-      (option) => option.value === watchedValue,
-    );
-    setSearchTerm(selectedOption ? selectedOption.label : '');
-  }, [watchedValue, options]);
-
-  // Debounce the search term
   const [debouncedSearchTerm, setDebouncedSearchTerm] =
     useState<string>(searchTerm);
+
+  // Debounce search input
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
@@ -51,34 +36,9 @@ const GenericSearchDropdown: React.FC<GenericSearchDropdownProps> = ({
     return () => clearTimeout(handler);
   }, [searchTerm]);
 
-  const filteredOptions = options?.filter((option) =>
+  const filteredOptions = options.filter((option) =>
     option.label.toLowerCase().includes(debouncedSearchTerm.toLowerCase()),
   );
-
-  // Scroll to highlighted option
-  const scrollToOption = (index: number) => {
-    if (optionsRef.current && index >= 0 && index < filteredOptions.length) {
-      const optionElement = optionsRef.current.children[index] as HTMLElement;
-      if (optionElement) {
-        optionElement.scrollIntoView({behavior: 'smooth', block: 'nearest'});
-      }
-    }
-  };
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-        setHighlightedIndex(-1);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   return (
     <Controller
@@ -86,58 +46,21 @@ const GenericSearchDropdown: React.FC<GenericSearchDropdownProps> = ({
       control={control}
       defaultValue={defaultOption}
       render={({field: {onChange, value}}) => {
+        useEffect(() => {
+          const selectedOption = options.find(
+            (option) => option.value === value,
+          );
+          setSearchTerm(selectedOption ? selectedOption.label : '');
+        }, [value, options]);
+
         const handleInputClick = () => {
           setSearchTerm('');
+          onChange('');
           setIsOpen(true);
-          setHighlightedIndex(-1);
-        };
-
-        const handleKeyDown = (e: React.KeyboardEvent) => {
-          if (!isOpen && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
-            setIsOpen(true);
-            return;
-          }
-
-          switch (e.key) {
-            case 'ArrowDown':
-              e.preventDefault();
-              setHighlightedIndex((prev) => {
-                const next = prev < filteredOptions.length - 1 ? prev + 1 : 0;
-                scrollToOption(next);
-                return next;
-              });
-              break;
-
-            case 'ArrowUp':
-              e.preventDefault();
-              setHighlightedIndex((prev) => {
-                const next = prev > 0 ? prev - 1 : filteredOptions.length - 1;
-                scrollToOption(next);
-                return next;
-              });
-              break;
-
-            case 'Enter':
-              e.preventDefault();
-              if (highlightedIndex >= 0 && filteredOptions[highlightedIndex]) {
-                const selected = filteredOptions[highlightedIndex];
-                onChange(selected.value);
-                setSearchTerm(selected.label);
-                setIsOpen(false);
-                setHighlightedIndex(-1);
-              }
-              break;
-
-            case 'Escape':
-              e.preventDefault();
-              setIsOpen(false);
-              setHighlightedIndex(-1);
-              break;
-          }
         };
 
         return (
-          <div className="relative" ref={dropdownRef}>
+          <div className="relative">
             {label && (
               <label className="mb-2.5 block text-black dark:text-white">
                 {label}
@@ -145,41 +68,36 @@ const GenericSearchDropdown: React.FC<GenericSearchDropdownProps> = ({
             )}
 
             <div className="relative bg-white dark:bg-form-input">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2">
+                <GlobeIcon />
+              </span>
+
               <input
                 type="text"
                 placeholder={`Search ${label}`}
                 value={searchTerm}
-                // onChange={(e) => setSearchTerm(e.target.value)}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setSearchTerm(value);
-                  if (onSearchTextChange) {
-                    onSearchTextChange(value);
-                  }
-                }}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 onClick={handleInputClick}
                 onFocus={() => setIsOpen(true)}
-                onKeyDown={handleKeyDown}
-                className="w-full rounded-md border border-stroke bg-transparent px-2 py-1 text-sm text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary dark:disabled:bg-black"
+                onBlur={() => setTimeout(() => setIsOpen(false), 200)}
+                className={`w-full rounded border-[1.5px] px-12 py-3 outline-none transition ${error ? 'border-red-500' : 'border-stroke'} focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white`}
                 aria-expanded={isOpen}
                 aria-haspopup="true"
                 aria-controls={`${name}-dropdown`}
-                disabled={disabled}
               />
 
               <span className="absolute right-4 top-1/2 -translate-y-1/2">
-                {isOpen ? <IoIosArrowUp /> : <IoIosArrowDown />}
+                <DownIcon />
               </span>
 
               {isOpen && (
                 <div
                   id={`${name}-dropdown`}
-                  ref={optionsRef}
                   className="absolute z-10 mt-2 max-h-60 w-full overflow-y-auto rounded border border-stroke bg-white shadow-lg dark:bg-form-input"
                   role="listbox"
                 >
                   {filteredOptions.length > 0 ? (
-                    filteredOptions.map((option, index) => (
+                    filteredOptions.map((option) => (
                       <div
                         key={option.value}
                         onMouseDown={() => {
@@ -187,12 +105,7 @@ const GenericSearchDropdown: React.FC<GenericSearchDropdownProps> = ({
                           setSearchTerm(option.label);
                           setIsOpen(false);
                         }}
-                        onMouseEnter={() => setHighlightedIndex(index)}
-                        className={`hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer p-2 ${
-                          highlightedIndex === index
-                            ? 'bg-gray dark:bg-graydark'
-                            : ''
-                        }`}
+                        className="hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer p-2"
                         role="option"
                         aria-selected={value === option.value}
                       >
@@ -207,6 +120,12 @@ const GenericSearchDropdown: React.FC<GenericSearchDropdownProps> = ({
                 </div>
               )}
             </div>
+
+            {error && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                {error}
+              </p>
+            )}
           </div>
         );
       }}

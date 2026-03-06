@@ -1,12 +1,13 @@
-import {ReactNode, useEffect, useState} from 'react';
+import React, {ReactNode, useEffect, useState} from 'react';
 import {AuthContext} from './AuthContext';
 import {Token, User} from '@/types';
-import {QUERY_KEYS} from '@/lib/react-query/queryKeys';
+
 import {jwtDecode} from 'jwt-decode';
+import {QUERY_KEYS} from '@/lib/react-query/QueryKeys';
 
 const AuthContextProvider = ({children}: {children: ReactNode}) => {
   const [user, setUser] = useState<User | null>(null);
-  const [role, setRole] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>();
   const [token, setToken] = useState<Token | null>(null);
   const [isSuperAdmin, setIsSuperAdmin] = useState<boolean>(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -41,7 +42,6 @@ const AuthContextProvider = ({children}: {children: ReactNode}) => {
     user,
     setUser,
     role,
-    setRole,
     token,
     setToken,
     isAuthenticated,

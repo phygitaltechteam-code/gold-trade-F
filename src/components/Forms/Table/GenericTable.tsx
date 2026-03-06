@@ -1,9 +1,7 @@
 import React, {useState} from 'react';
-import {FiEdit} from 'react-icons/fi';
+import {FiEdit, FiEye} from 'react-icons/fi';
 import {GrFormNext, GrFormPrevious} from 'react-icons/gr';
 import {MdDelete} from 'react-icons/md';
-import {FiEye} from 'react-icons/fi';
-import {FaArrowLeft} from 'react-icons/fa';
 
 type Button<T> = {
   label: string;
@@ -22,7 +20,7 @@ export type Column<T> = {
   action?: boolean;
   onEdit?: (item: T) => void;
   onDelete?: (item: T) => void;
-  onCellClick?: (item: T) => void;
+  onView?: (item: T) => void;
 };
 
 type GenericTableProps<T> = {
@@ -34,13 +32,15 @@ type GenericTableProps<T> = {
   action?: boolean;
   onEdit?: (item: T) => void;
   onDelete?: (item: T) => void;
-  paginationOff?: boolean;
   onView?: (item: T) => void;
-  showBackButton?: boolean;
-  onBack?: () => void;
+  paginationOff?: boolean;
+  // Add Tooltip Props
+  viewTooltip?: string;
+  editTooltip?: string;
+  deleteTooltip?: string;
 };
 
-export const GenericTable = <T,>({
+const GenericTable = <T,>({
   data,
   columns,
   itemsPerPage = 5,
@@ -49,10 +49,13 @@ export const GenericTable = <T,>({
   title,
   onEdit: handleEdit,
   onDelete: handleDelete,
+  onView: handleView,
   paginationOff = false,
-  onView,
-  showBackButton = false,
-  onBack,
+
+  // Tooltip Props
+  viewTooltip,
+  editTooltip,
+  deleteTooltip,
 }: GenericTableProps<T>) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
@@ -122,21 +125,7 @@ export const GenericTable = <T,>({
 
   return (
     <div className="rounded-sm border border-stroke bg-white px-4 pb-2 pt-4 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-6">
-      {title && (
-        <div className="mb-3 flex items-center gap-2">
-          {showBackButton && onBack && (
-            <button
-              onClick={onBack}
-              className="hover:bg-gray-100 rounded p-1.5 dark:hover:bg-meta-4"
-            >
-              <FaArrowLeft className="h-5 w-5" />
-            </button>
-          )}
-
-          <h2 className="text-lg font-semibold">{title}</h2>
-        </div>
-      )}
-
+      {title && <h2 className="mb-3 text-lg font-semibold">{title}</h2>}
       {searchAble && (
         <div className="mb-3 flex justify-between">
           <input
@@ -193,10 +182,6 @@ export const GenericTable = <T,>({
                     <td
                       key={colIndex}
                       className="border-b border-[#eee] px-3 py-2 dark:border-strokedark"
-                      onClick={() => column.onCellClick?.(item)} // 👈 Trigger click
-                      style={{
-                        cursor: column.onCellClick ? 'pointer' : 'default',
-                      }} // 👈 Show pointer
                     >
                       <div className="py-1.5">
                         {column.render
@@ -223,29 +208,33 @@ export const GenericTable = <T,>({
                 })}
                 {action && (
                   <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
-                    <div className="flex items-center space-x-2 py-1.5 sm:block sm:space-x-0 sm:space-y-2">
-                      {onView && (
+                    <div className="flex items-center justify-center gap-0.5">
+                      {handleView && (
                         <button
-                          className="hover:bg-gray-100 rounded p-1.5 dark:hover:bg-meta-4"
-                          onClick={() => onView(item)}
+                          className="inline-flex items-center justify-center rounded p-1 hover:text-primary dark:hover:text-secondary"
+                          onClick={() => handleView(item)}
+                          title={viewTooltip || 'View'}
+                          aria-label={viewTooltip || 'View'}
                         >
-                          <FiEye className="h-4 w-4" />
+                          <FiEye className="h-3.5 w-3.5" />
                         </button>
                       )}
                       {handleEdit && (
                         <button
-                          className="hover:bg-gray-100 rounded p-1.5 dark:hover:bg-meta-4"
+                          className="inline-flex items-center justify-center rounded p-1 hover:text-primary dark:hover:text-secondary"
                           onClick={() => handleEdit(item)}
+                          title={editTooltip || 'Edit'}
                         >
-                          <FiEdit className="h-4 w-4" />
+                          <FiEdit className="h-3.5 w-3.5" />
                         </button>
                       )}
                       {handleDelete && (
                         <button
-                          className="hover:bg-gray-100 rounded p-1.5 dark:hover:bg-meta-4"
+                          className="inline-flex items-center justify-center rounded p-1 hover:text-primary dark:hover:text-secondary"
                           onClick={() => handleDelete(item)}
+                          title={deleteTooltip || 'Delete'}
                         >
-                          <MdDelete className="h-4 w-4" />
+                          <MdDelete className="h-3.5 w-3.5" />
                         </button>
                       )}
                     </div>

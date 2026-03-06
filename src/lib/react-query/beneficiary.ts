@@ -1,93 +1,53 @@
-/*eslint-disable*/
-
-import {useQueryClient, useMutation, useQuery} from '@tanstack/react-query';
-import toast from 'react-hot-toast';
+import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
 import {
-  addBenefishiary,
-  getBeneficiaryById,
-  getBenefishiary,
-  getWalletByCustomer,
-  payment,
-  TransactionPayload,
-  updateBeneficiary,
-} from '../beneficiary/beneficiary';
-import {BeneficiaryFormData} from '@/features/Payments/types';
-import axios from 'axios';
-
-export const useAddBeneficiary = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (data: BeneficiaryFormData) => addBenefishiary(data),
-    onSuccess: () => {
-      toast.success(' Beneficiary added successfully');
-      queryClient.invalidateQueries({queryKey: ['beneficiary']});
-    },
-    onError: (error) => {
-      toast.error('Failed to add  Beneficiary: ' + error.message);
-    },
-  });
-};
-
-// UPDATE BENEFICIARY MUTATION
-export const useUpdateBeneficiary = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({id, data}: {id: string; data: BeneficiaryFormData}) =>
-      updateBeneficiary(id, data),
-
-    onSuccess: () => {
-      toast.success('Beneficiary updated successfully');
-
-      // refresh beneficiary list + single beneficiary cache
-      queryClient.invalidateQueries({queryKey: ['beneficiary']});
-    },
-
-    onError: (error: any) => {
-      const message = axios.isAxiosError(error)
-        ? error.response?.data?.message || 'Update failed'
-        : 'Update failed';
-
-      toast.error(message);
-    },
-  });
-};
+  acceptBeneficiary,
+  getAllBeneficiary,
+  getBeneficiaryByCustomer,
+  rejectBeneficiary,
+} from '../api/beneficiary';
+import toast from 'react-hot-toast';
 
 export const useGetBeneficiary = () =>
   useQuery({
     queryKey: ['beneficiary'],
-    queryFn: () => getBenefishiary(),
+    queryFn: () => getAllBeneficiary(),
   });
 
-export const useGetWalletByCustomer = () =>
+export const useGetBeneficiaryByCustomer = (id: string) =>
   useQuery({
-    queryKey: ['wallet'],
-    queryFn: () => getWalletByCustomer(),
+    queryKey: ['beneficiary', id],
+    queryFn: () => getBeneficiaryByCustomer(id),
   });
 
-// Add this to your existing beneficiary query hooks
-export const useGetBeneficiaryById = (id: string) => {
-  return useQuery({
-    queryKey: ['beneficiary', id],
-    queryFn: () => getBeneficiaryById(id),
-    enabled: !!id, // Only run query if id exists
+export const useAcceptBeneficiary = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => acceptBeneficiary(id),
+
+    onSuccess: () => {
+      toast.success('Beneficiary Accepted!');
+      queryClient.invalidateQueries({queryKey: ['beneficiary']});
+    },
+    onError: () => {
+      toast.error('Failed To Accept beneficiary!');
+    },
   });
 };
 
-export const usePayment = () => {
+export const useRejectBeneficiary = () => {
   const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: payment,
-    onSuccess: () => {
-      toast.success('Payment successfully');
-      queryClient.invalidateQueries({queryKey: ['payment']});
-    },
-    onError: (error: any) => {
-      const message = axios.isAxiosError(error)
-        ? error.response?.data?.message || 'Payment failed'
-        : 'Payment failed';
 
-      toast.error(message);
+  return useMutation({
+    mutationFn: ({id, note}: {id: string; note: string}) =>
+      rejectBeneficiary(id, note),
+
+    onSuccess: () => {
+      toast.success('Beneficiary rejected!');
+      queryClient.invalidateQueries({queryKey: ['beneficiary']});
+    },
+    onError: () => {
+      toast.error('Failed To Reject beneficiary!');
     },
   });
 };

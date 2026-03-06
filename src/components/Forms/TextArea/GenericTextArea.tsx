@@ -15,7 +15,7 @@ const GenericTextArea: React.FC<TextAreaProps> = ({
   label,
   placeholder,
   validation,
-  rows = 1,
+  rows = 6,
   disabled = false,
 }) => {
   const {
@@ -28,11 +28,11 @@ const GenericTextArea: React.FC<TextAreaProps> = ({
 
   return (
     <div>
-      <label className="mb-1 block text-black dark:text-white">{label}</label>
+      <label className="mb-3 block text-black dark:text-white">{label}</label>
       <textarea
         rows={rows}
         placeholder={placeholder}
-        className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-3 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+        className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
         disabled={disabled}
         {...register(name, validation)}
       ></textarea>

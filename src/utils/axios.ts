@@ -1,5 +1,5 @@
+import {QUERY_KEYS} from '@/lib/react-query/QueryKeys';
 import {Token, User} from '@/types';
-import {QUERY_KEYS} from '@/lib/react-query/queryKeys';
 import axios, {AxiosError, AxiosInstance, AxiosResponse} from 'axios';
 import {jwtDecode} from 'jwt-decode';
 
@@ -8,7 +8,9 @@ export const unAuthenticatedApi: AxiosInstance = axios.create({
 });
 
 // Get the token from localStorage
-let token: Token = JSON.parse(localStorage.getItem(QUERY_KEYS.TOKEN) || 'null');
+let token: Token | null = JSON.parse(
+  localStorage.getItem(QUERY_KEYS.TOKEN) || 'null',
+);
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_SERVER_URL,

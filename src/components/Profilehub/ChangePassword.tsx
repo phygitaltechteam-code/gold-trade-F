@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {MdVisibilityOff, MdVisibility, MdCheck, MdError} from 'react-icons/md';
-import {useChangePassword} from './profilemutation';
+import {useChangePassword} from './mutation';
 
 const ChangePassword: React.FC = () => {
   const {
@@ -118,7 +118,7 @@ const ChangePassword: React.FC = () => {
           hasUpperCase: false,
           hasNumber: false,
         });
-        window.location.href = '/accounthub/acounthub';
+        window.location.href = '/dashboard';
       },
     });
   };
@@ -134,7 +134,7 @@ const ChangePassword: React.FC = () => {
       <div className="relative mx-auto flex h-screen w-full max-w-[min(390px,95vw,500px)] flex-col bg-white dark:bg-[#221610] md:max-w-[600px]">
         {/* Header */}
         <div className="sticky top-0 z-20 flex items-center justify-between bg-white/95 px-4 py-3 backdrop-blur-md dark:bg-[#221610]/95 md:px-6 md:py-4">
-          <button
+          {/* <button
             onClick={() => window.history.back()}
             className="-ml-2 flex items-center justify-center rounded-full p-2 text-slate-900 transition-colors hover:bg-slate-50 dark:text-white dark:hover:bg-slate-800 md:p-2.5"
           >
@@ -151,7 +151,7 @@ const ChangePassword: React.FC = () => {
                 d="M15 19l-7-7 7-7"
               />
             </svg>
-          </button>
+          </button> */}
           <h1 className="flex-1 pr-8 text-center text-base font-bold tracking-tight text-slate-900 dark:text-white md:text-lg">
             Change Password
           </h1>
