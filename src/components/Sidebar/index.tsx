@@ -22,10 +22,11 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
   const location = useLocation();
   const {pathname} = location;
   const {user} = useAuthContext();
-  const isEmployee = user?.role === 'EMPLOYEE';
+
   const isAdmin = user?.role === 'ADMIN';
-  console.log('user', user);
-  const isCompany = user?.role === 'COMPANY';
+  const isSuperAdmin = user?.role === 'SUPERADMIN';
+  console.log('userrrr', user);
+
   const isFixedOpenRef = useRef(false);
   const [isFixedOpen, setIsFixedOpen] = useState(false);
   const isExpanded = sidebarOpen || isFixedOpen;
@@ -52,7 +53,6 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
     }
   };
 
-  // GoldTradeAdmin Routes - Role-based sidebar items
   const sidebarRoutes = isAdmin
     ? [
         {
@@ -91,6 +91,11 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
           icon: <MdOutlinePriceChange size={22} />,
         },
         {
+          label: 'Admin Registration',
+          path: '/superadmin/superadmin',
+          icon: <FaUsers size={22} />,
+        },
+        {
           label: 'Settings',
           icon: <MdSettings size={22} />,
           subRoutes: [
@@ -99,39 +104,15 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
           ],
         },
       ]
-    : isEmployee
+    : isSuperAdmin
       ? [
           {
             label: 'Dashboard',
-            path: '/dashboard',
+            path: '/superadmin/superadmin',
             icon: <MdDashboard size={22} />,
           },
-          {
-            label: 'Settings',
-            icon: <MdSettings size={22} />,
-            subRoutes: [
-              {label: 'Change Password', path: '/change-password'},
-              {label: 'Logout', onClick: () => handleSignOut()},
-            ],
-          },
         ]
-      : isCompany
-        ? [
-            {
-              label: 'Dashboard',
-              path: '/dashboard',
-              icon: <MdDashboard size={22} />,
-            },
-            {
-              label: 'Settings',
-              icon: <MdSettings size={22} />,
-              subRoutes: [
-                {label: 'Change Password', path: '/change-password'},
-                {label: 'Logout', onClick: () => handleSignOut()},
-              ],
-            },
-          ]
-        : []; // Default empty array for any other roles
+      : [];
 
   const trigger = useRef<HTMLButtonElement>(null);
   const sidebar = useRef<HTMLDivElement>(null);
@@ -240,13 +221,7 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
                 <div className="flex flex-col items-start overflow-hidden">
                   <p className="font-bold text-black-2">GoldTrade</p>{' '}
                   <p className="bg-gradient-to-r from-[#FF6321] to-[#FF8C00] bg-clip-text text-xl font-bold text-transparent">
-                    {isAdmin
-                      ? 'Admin'
-                      : isEmployee
-                        ? 'Employee'
-                        : isCompany
-                          ? 'Company'
-                          : 'User'}
+                    {isAdmin ? 'Admin' : 'Super Admin'}
                   </p>
                 </div>
               )}
