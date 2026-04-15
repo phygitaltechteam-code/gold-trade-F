@@ -14,7 +14,7 @@ const AppLayout = () => {
       navigate({to: '/signin'});
       return;
     }
-    if (user?.role === 'ADMIN') {
+    if (user?.role === 'COMPANY') {
       navigate({to: '/dashboard'});
     } else if (user?.role === 'SUPERADMIN') {
       navigate({to: '/superadmin/superadmin'});
@@ -25,9 +25,9 @@ const AppLayout = () => {
     <div className="dark:bg-boxdark-2 dark:text-bodydark">
       <div className="flex h-screen overflow-hidden">
         {/* Show sidebar for ALL authenticated users */}
-        {/* {isAuthenticated && ( */}
-        <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-        {/* )} */}
+        {isAuthenticated && (
+          <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        )}
         <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
           <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
           <main>

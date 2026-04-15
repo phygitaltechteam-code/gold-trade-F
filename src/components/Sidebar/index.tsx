@@ -23,8 +23,10 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
   const {pathname} = location;
   const {user} = useAuthContext();
 
-  const isAdmin = user?.role === 'ADMIN';
+  const isCompany = user?.role === 'COMPANY';
   const isSuperAdmin = user?.role === 'SUPERADMIN';
+  const isAdmin = user?.role === 'ADMIN'; // Add this back for logo display
+
   console.log('userrrr', user);
 
   const isFixedOpenRef = useRef(false);
@@ -53,11 +55,16 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
     }
   };
 
-  const sidebarRoutes = isAdmin
+  const sidebarRoutes = isCompany
     ? [
         {
           label: 'Dashboard',
           path: '/dashboard',
+          icon: <MdDashboard size={22} />,
+        },
+        {
+          label: 'Add Broker',
+          path: '/companybroker/displaybroker',
           icon: <MdDashboard size={22} />,
         },
         {
@@ -188,6 +195,14 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Get the correct role display text
+  const getRoleText = () => {
+    if (isAdmin) return 'Admin';
+    if (isSuperAdmin) return 'Super Admin';
+    if (isCompany) return 'Company';
+    return 'User';
+  };
+
   return (
     <div className="relative z-50">
       {/* SIDEBAR */}
@@ -219,9 +234,9 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
 
               {isExpanded && (
                 <div className="flex flex-col items-start overflow-hidden">
-                  <p className="font-bold text-black-2">GoldTrade</p>{' '}
+                  <p className="font-bold text-black-2">GoldTrade</p>
                   <p className="bg-gradient-to-r from-[#FF6321] to-[#FF8C00] bg-clip-text text-xl font-bold text-transparent">
-                    {isAdmin ? 'Admin' : 'Super Admin'}
+                    {getRoleText()}
                   </p>
                 </div>
               )}
@@ -233,129 +248,135 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
         <div className="no-scrollbar flex flex-col overflow-y-auto px-2 duration-300 ease-linear">
           <nav className="mt-4 space-y-1 p-2">
             <ul>
-              {sidebarRoutes.map((route, index) =>
-                route.subRoutes ? (
-                  <SidebarLinkGroup activeCondition={isExpanded} key={index}>
-                    {(handleClick, open) => (
-                      <div className="relative">
-                        <button
-                          onMouseEnter={(e) => {
-                            if (!isExpanded) {
-                              const rect =
-                                e.currentTarget.getBoundingClientRect();
-                              setHoveredLabel(route.label);
-                              setTooltipPos({
-                                top: rect.top + rect.height / 2,
-                                left: rect.right + 8,
-                              });
-                            }
-                          }}
-                          onMouseLeave={() => {
-                            setHoveredLabel(null);
-                            setTooltipPos(null);
-                          }}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            const rect = (
-                              e.currentTarget as HTMLElement
-                            ).getBoundingClientRect();
+              {sidebarRoutes.length > 0 ? (
+                sidebarRoutes.map((route, index) =>
+                  route.subRoutes ? (
+                    <SidebarLinkGroup activeCondition={isExpanded} key={index}>
+                      {(handleClick, open) => (
+                        <div className="relative">
+                          <button
+                            onMouseEnter={(e) => {
+                              if (!isExpanded) {
+                                const rect =
+                                  e.currentTarget.getBoundingClientRect();
+                                setHoveredLabel(route.label);
+                                setTooltipPos({
+                                  top: rect.top + rect.height / 2,
+                                  left: rect.right + 8,
+                                });
+                              }
+                            }}
+                            onMouseLeave={() => {
+                              setHoveredLabel(null);
+                              setTooltipPos(null);
+                            }}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              const rect = (
+                                e.currentTarget as HTMLElement
+                              ).getBoundingClientRect();
 
-                            setHoveredRect({
-                              top: rect.top,
-                              left: rect.right + 5,
-                            });
-                            setHoveredRoute(route.label);
-                            setShowSubRoutes({
-                              label: route.label,
-                              subRoutes: route.subRoutes || [],
-                            });
-                          }}
-                          className={`group flex w-full items-center gap-2.5 rounded px-3 py-2 text-sm font-medium text-black hover:bg-primary/10 ${
-                            pathname.includes(route.path || '')
-                              ? 'bg-primary/10'
-                              : ''
-                          }`}
-                        >
-                          <span className="text-black transition-colors group-hover:text-primary">
-                            {route.icon}
-                          </span>
-                          {isExpanded && route.label}
-                          {isExpanded && (
-                            <IoIosArrowDown
-                              className={`ml-auto transform duration-200 ${open ? 'rotate-180' : ''}`}
-                            />
+                              setHoveredRect({
+                                top: rect.top,
+                                left: rect.right + 5,
+                              });
+                              setHoveredRoute(route.label);
+                              setShowSubRoutes({
+                                label: route.label,
+                                subRoutes: route.subRoutes || [],
+                              });
+                            }}
+                            className={`group flex w-full items-center gap-2.5 rounded px-3 py-2 text-sm font-medium text-black hover:bg-primary/10 ${
+                              pathname.includes(route.path || '')
+                                ? 'bg-primary/10'
+                                : ''
+                            }`}
+                          >
+                            <span className="text-black transition-colors group-hover:text-primary">
+                              {route.icon}
+                            </span>
+                            {isExpanded && route.label}
+                            {isExpanded && (
+                              <IoIosArrowDown
+                                className={`ml-auto transform duration-200 ${open ? 'rotate-180' : ''}`}
+                              />
+                            )}
+                          </button>
+                          {isExpanded && open && (
+                            <ul className="ml-6 mt-1 space-y-1">
+                              {route.subRoutes.map((subRoute, subIndex) => (
+                                <li key={subIndex}>
+                                  {subRoute.onClick ? (
+                                    <button
+                                      onClick={() => {
+                                        subRoute.onClick();
+                                        setHoveredRoute(null);
+                                        setShowSubRoutes(null);
+                                        setSidebarOpen(false);
+                                      }}
+                                      className="block w-full rounded px-3 py-2 text-left text-sm text-black hover:bg-primary/20"
+                                    >
+                                      {subRoute.label}
+                                    </button>
+                                  ) : (
+                                    <Link
+                                      to={subRoute.path}
+                                      onClick={() => {
+                                        setHoveredRoute(null);
+                                        setShowSubRoutes(null);
+                                        setSidebarOpen(false);
+                                      }}
+                                      className="block rounded px-3 py-2 text-sm text-black hover:bg-primary/20"
+                                    >
+                                      {subRoute.label}
+                                    </Link>
+                                  )}
+                                </li>
+                              ))}
+                            </ul>
                           )}
-                        </button>
-                        {isExpanded && open && (
-                          <ul className="ml-6 mt-1 space-y-1">
-                            {route.subRoutes.map((subRoute, subIndex) => (
-                              <li key={subIndex}>
-                                {subRoute.onClick ? (
-                                  <button
-                                    onClick={() => {
-                                      subRoute.onClick();
-                                      setHoveredRoute(null);
-                                      setShowSubRoutes(null);
-                                      setSidebarOpen(false);
-                                    }}
-                                    className="block w-full rounded px-3 py-2 text-left text-sm text-black hover:bg-primary/20"
-                                  >
-                                    {subRoute.label}
-                                  </button>
-                                ) : (
-                                  <Link
-                                    to={subRoute.path}
-                                    onClick={() => {
-                                      setHoveredRoute(null);
-                                      setShowSubRoutes(null);
-                                      setSidebarOpen(false);
-                                    }}
-                                    className="block rounded px-3 py-2 text-sm text-black hover:bg-primary/20"
-                                  >
-                                    {subRoute.label}
-                                  </Link>
-                                )}
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </div>
-                    )}
-                  </SidebarLinkGroup>
-                ) : (
-                  <li key={index}>
-                    <Link
-                      to={route.path}
-                      onMouseEnter={(e) => {
-                        const rect = (
-                          e.currentTarget as unknown as HTMLAnchorElement
-                        ).getBoundingClientRect();
-                        setHoveredLabel(route.label);
-                        setTooltipPos({
-                          top: rect.top + rect.height / 2,
-                          left: rect.right + 8,
-                        });
-                      }}
-                      onMouseLeave={() => {
-                        setHoveredLabel(null);
-                        setTooltipPos(null);
-                      }}
-                      onClick={() => {
-                        setHoveredRoute(null);
-                        setShowSubRoutes(null);
-                        setSidebarOpen(false);
-                      }}
-                      className={`group flex w-full items-center gap-2.5 rounded px-3 py-2 text-sm font-medium text-black hover:bg-primary/10 ${
-                        pathname.includes(route.path) ? 'bg-primary/10' : ''
-                      }`}
-                    >
-                      <span className="text-black transition-colors group-hover:text-primary">
-                        {route.icon}
-                      </span>
-                      {isExpanded && route.label}
-                    </Link>
-                  </li>
-                ),
+                        </div>
+                      )}
+                    </SidebarLinkGroup>
+                  ) : (
+                    <li key={index}>
+                      <Link
+                        to={route.path}
+                        onMouseEnter={(e) => {
+                          const rect = (
+                            e.currentTarget as unknown as HTMLAnchorElement
+                          ).getBoundingClientRect();
+                          setHoveredLabel(route.label);
+                          setTooltipPos({
+                            top: rect.top + rect.height / 2,
+                            left: rect.right + 8,
+                          });
+                        }}
+                        onMouseLeave={() => {
+                          setHoveredLabel(null);
+                          setTooltipPos(null);
+                        }}
+                        onClick={() => {
+                          setHoveredRoute(null);
+                          setShowSubRoutes(null);
+                          setSidebarOpen(false);
+                        }}
+                        className={`group flex w-full items-center gap-2.5 rounded px-3 py-2 text-sm font-medium text-black hover:bg-primary/10 ${
+                          pathname.includes(route.path) ? 'bg-primary/10' : ''
+                        }`}
+                      >
+                        <span className="text-black transition-colors group-hover:text-primary">
+                          {route.icon}
+                        </span>
+                        {isExpanded && route.label}
+                      </Link>
+                    </li>
+                  ),
+                )
+              ) : (
+                <li className="text-gray-500 px-3 py-2 text-center text-sm">
+                  No menu items available
+                </li>
               )}
             </ul>
           </nav>

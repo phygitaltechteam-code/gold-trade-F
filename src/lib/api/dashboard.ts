@@ -71,7 +71,7 @@ export const getDashboardData = async (
 ): Promise<DashboardStats> => {
   try {
     const response = await api.put('/admin/dashboard', filters);
-    // console.log('Raw API Response:', response);
+    console.log('Raw API Response:', response);
 
     if (!response.data) {
       throw new Error('No data received from API');

@@ -1,0 +1,247 @@
+import React, { useState } from 'react';
+import { FiEdit, FiEye, FiTrash } from 'react-icons/fi';
+import { GrFormNext, GrFormPrevious } from 'react-icons/gr';
+
+const CustomBrokerTable = ({ 
+  data, 
+  onView, 
+  onEdit, 
+  onDelete,
+  refreshTrigger 
+}) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const itemsPerPage = 10;
+
+  // Filter data based on search
+  const filteredData = data.filter((item) => {
+    const searchTerm = searchQuery.toLowerCase();
+    return (
+      item?.fullname?.toLowerCase().includes(searchTerm) ||
+      item?.BKId?.toLowerCase().includes(searchTerm) ||
+      item?.email?.toLowerCase().includes(searchTerm) ||
+      item?.phoneNumber?.toLowerCase().includes(searchTerm)
+    );
+  });
+
+  // Sort data
+  const sortedData = [...filteredData].sort((a, b) => {
+    if (!sortConfig.key) return 0;
+    const aVal = a[sortConfig.key] || '';
+    const bVal = b[sortConfig.key] || '';
+    if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+    if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  // Paginate data
+  const totalPages = Math.ceil(sortedData.length / itemsPerPage);
+  const paginatedData = sortedData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handleSort = (key) => {
+    setSortConfig({
+      key,
+      direction: sortConfig.key === key && sortConfig.direction === 'asc' ? 'desc' : 'asc',
+    });
+  };
+
+  const handleViewImage = (imageUrl) => {
+    if (imageUrl && typeof imageUrl === 'string') {
+      window.open(imageUrl, '_blank');
+    }
+  };
+
+  return (
+    <div className="rounded-sm border border-stroke bg-white px-4 pb-2 pt-4 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-6">
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Broker List (Total: {data.length})</h2>
+        <input
+          type="text"
+          placeholder="Search..."
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setCurrentPage(1);
+          }}
+          className="w-64 rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm outline-none focus:border-primary"
+        />
+      </div>
+
+      <div className="max-w-full overflow-x-auto">
+        <table className="w-full table-auto">
+          <thead>
+            <tr className="bg-gray-2 text-left dark:bg-meta-4">
+              <th className="min-w-[60px] px-3 py-2.5 font-medium text-black dark:text-white">
+                S.No
+              </th>
+              <th 
+                className="min-w-[120px] cursor-pointer px-3 py-2.5 font-medium text-black dark:text-white"
+                onClick={() => handleSort('BKId')}
+              >
+                BK ID {sortConfig.key === 'BKId' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </th>
+              <th 
+                className="min-w-[150px] cursor-pointer px-3 py-2.5 font-medium text-black dark:text-white"
+                onClick={() => handleSort('fullname')}
+              >
+                Full Name {sortConfig.key === 'fullname' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </th>
+              <th className="min-w-[120px] px-3 py-2.5 font-medium text-black dark:text-white">
+                Username
+              </th>
+              <th className="min-w-[200px] px-3 py-2.5 font-medium text-black dark:text-white">
+                Email
+              </th>
+              <th className="min-w-[120px] px-3 py-2.5 font-medium text-black dark:text-white">
+                Phone Number
+              </th>
+              <th className="min-w-[150px] px-3 py-2.5 font-medium text-black dark:text-white">
+                Aadhar Number
+              </th>
+              <th className="min-w-[200px] px-3 py-2.5 font-medium text-black dark:text-white">
+                Documents
+              </th>
+              <th className="min-w-[100px] px-3 py-2.5 font-medium text-black dark:text-white">
+                KYC Status
+              </th>
+              <th className="min-w-[100px] px-3 py-2.5 font-medium text-black dark:text-white">
+                Created At
+              </th>
+              <th className="min-w-[100px] px-3 py-2.5 font-medium text-black dark:text-white">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {paginatedData.map((item, index) => (
+              <tr key={item?.id || index} className="text-sm">
+                <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
+                  {(currentPage - 1) * itemsPerPage + index + 1}
+                </td>
+                <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
+                  {item?.BKId || 'N/A'}
+                </td>
+                <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
+                  {item?.fullname || 'N/A'}
+                </td>
+                <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
+                  {item?.username || 'N/A'}
+                </td>
+                <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
+                  {item?.email || 'N/A'}
+                </td>
+                <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
+                  {item?.phoneNumber || 'N/A'}
+                </td>
+                <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
+                  {item?.aadharCardNumber || 'N/A'}
+                </td>
+                <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
+                  <div className="flex gap-2">
+                    {item?.photo && (
+                      <button
+                        onClick={() => handleViewImage(item.photo)}
+                        className="rounded bg-blue-500 px-2 py-1 text-xs text-white hover:bg-blue-600"
+                      >
+                        Photo
+                      </button>
+                    )}
+                    {item?.aadharCardF && (
+                      <button
+                        onClick={() => handleViewImage(item.aadharCardF)}
+                        className="rounded bg-green-500 px-2 py-1 text-xs text-white hover:bg-green-600"
+                      >
+                        Front
+                      </button>
+                    )}
+                    {item?.aadharCardB && (
+                      <button
+                        onClick={() => handleViewImage(item.aadharCardB)}
+                        className="rounded bg-purple-500 px-2 py-1 text-xs text-white hover:bg-purple-600"
+                      >
+                        Back
+                      </button>
+                    )}
+                  </div>
+                </td>
+                <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
+                  <span
+                    className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
+                      item?.isKycCompleted
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-yellow-100 text-yellow-800'
+                    }`}
+                  >
+                    {item?.isKycCompleted ? 'Completed' : 'Pending'}
+                  </span>
+                </td>
+                <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
+                  {item?.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'N/A'}
+                </td>
+                <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => onView?.(item)}
+                      className="rounded p-1 text-blue-600 hover:bg-blue-50"
+                      title="View"
+                    >
+                      <FiEye className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => onEdit?.(item)}
+                      className="rounded p-1 text-green-600 hover:bg-green-50"
+                      title="Edit"
+                    >
+                      <FiEdit className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => onDelete?.(item)}
+                      className="rounded p-1 text-red-600 hover:bg-red-50"
+                      title="Delete"
+                    >
+                      <FiTrash className="h-4 w-4" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {paginatedData.length === 0 && (
+        <div className="py-8 text-center text-gray-500">No brokers found</div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="mt-4 flex items-center justify-between">
+          <span className="text-sm">
+            Page {currentPage} of {totalPages}
+          </span>
+          <div className="flex gap-2">
+            <button
+              className="rounded border p-1.5 hover:bg-gray-100 disabled:opacity-50"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              <GrFormPrevious className="h-4 w-4" />
+            </button>
+            <button
+              className="rounded border p-1.5 hover:bg-gray-100 disabled:opacity-50"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              <GrFormNext className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CustomBrokerTable;
