@@ -22,7 +22,7 @@ const AppLayout = () => {
   }, [isAuthenticated, user, navigate]);
 
   return (
-    <div className="dark:bg-boxdark-2 dark:text-bodydark">
+    <div className="bg-white dark:bg-boxdark-2 dark:text-bodydark">
       <div className="flex h-screen overflow-hidden">
         {/* Show sidebar for ALL authenticated users */}
         {isAuthenticated && (
@@ -31,7 +31,7 @@ const AppLayout = () => {
         <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
           <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
           <main>
-            <div className="mx-auto max-w-screen-2xl p-1">
+            <div className="mx-auto w-full p-1">
               <Outlet />
             </div>
           </main>

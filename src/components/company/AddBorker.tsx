@@ -1,56 +1,62 @@
-import {useAddBroker} from '@/lib/api/addbroker';
-import React, {useState} from 'react';
-import {useNavigate} from '@tanstack/react-router';
+import { useAddBroker } from '@/lib/api/addbroker';
+import React, { useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import toast from 'react-hot-toast';
-import {z} from 'zod';
+import { z } from 'zod';
 
 // Define Zod schema for form data validation
 const BrokerSchema = z.object({
   fullname: z.string().min(1, 'Full name is required'),
-  username: z.string().min(1, 'Username is required'),
-  email: z.string().email('Please enter a valid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
-  referralCode: z.string().optional(),
-  phoneNumber: z
-    .string()
-    .min(1, 'Phone number is required')
-    .regex(/^\d{10}$/, 'Please enter a valid 10-digit phone number'),
-  aadharCardNumber: z
-    .string()
-    .min(1, 'Aadhar card number is required')
-    .regex(/^\d{12}$/, 'Please enter a valid 12-digit Aadhar number'),
+  phoneNumber: z.string().min(1, 'Phone number is required'),
+  superBrokerId: z.string().min(1, 'Please select a Super Broker'),
 });
 
 const AddBroker = () => {
   const navigate = useNavigate();
   const addbroker = useAddBroker();
+  
   const [formData, setFormData] = useState({
     fullname: '',
-    username: '',
-    email: '',
     password: '',
-    referralCode: '',
+    area: '',
+    commission: '',
     phoneNumber: '',
     aadharCardNumber: '',
+    superBrokerId: '',
   });
 
   const [images, setImages] = useState({
-    photo: null,
     aadharCardF: null,
-    aadharCardB: null,
   });
 
   const [imagePreviews, setImagePreviews] = useState({
-    photo: null,
     aadharCardF: null,
-    aadharCardB: null,
   });
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Searchable Dropdown state
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  // Mock super brokers
+  const mockSuperBrokers = [
+    { id: '1', SBID: 'SB-1001', fullname: 'Rajesh Kumar' },
+    { id: '2', SBID: 'SB-1002', fullname: 'Priya Sharma' },
+    { id: '3', SBID: 'SB-1003', fullname: 'Amit Patel' },
+    { id: '4', SBID: 'SB-1004', fullname: 'Neha Gupta' }
+  ];
+
+  const filteredSuperBrokers = mockSuperBrokers.filter(
+    (sb) =>
+      sb.fullname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sb.SBID.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const handleInputChange = (e) => {
-    const {name, value} = e.target;
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -129,12 +135,7 @@ const AddBroker = () => {
       BrokerSchema.parse(formData);
 
       const imageErrors = {};
-      if (!images.photo) imageErrors.photo = 'Photo is required';
-      if (!images.aadharCardF)
-        imageErrors.aadharCardF = 'Aadhar card front image is required';
-      if (!images.aadharCardB)
-        imageErrors.aadharCardB = 'Aadhar card back image is required';
-
+   
       if (Object.keys(imageErrors).length > 0) {
         setErrors(imageErrors);
         const firstError = Object.values(imageErrors)[0];
@@ -159,24 +160,21 @@ const AddBroker = () => {
   const resetForm = () => {
     setFormData({
       fullname: '',
-      username: '',
-      email: '',
       password: '',
-      referralCode: '',
+      area: '',
+      commission: '',
       phoneNumber: '',
       aadharCardNumber: '',
+      superBrokerId: '',
     });
     setImages({
-      photo: null,
       aadharCardF: null,
-      aadharCardB: null,
     });
     setImagePreviews({
-      photo: null,
       aadharCardF: null,
-      aadharCardB: null,
     });
     setErrors({});
+    setSearchTerm('');
   };
 
   const handleSubmit = async (e) => {
@@ -190,22 +188,19 @@ const AddBroker = () => {
 
     const formDataToSend = new FormData();
     formDataToSend.append('fullname', formData.fullname);
-    formDataToSend.append('username', formData.username);
-    formDataToSend.append('email', formData.email);
     formDataToSend.append('password', formData.password);
-    formDataToSend.append('referralCode', formData.referralCode);
     formDataToSend.append('phoneNumber', formData.phoneNumber);
     formDataToSend.append('aadharCardNumber', formData.aadharCardNumber);
-    formDataToSend.append('photo', images.photo);
     formDataToSend.append('aadharCardF', images.aadharCardF);
-    formDataToSend.append('aadharCardB', images.aadharCardB);
+    formDataToSend.append('commission', formData.commission);
+    formDataToSend.append('area', formData.area);
+    formDataToSend.append('superBrokerId', formData.superBrokerId);
 
     try {
       await addbroker.mutateAsync(formDataToSend);
       resetForm();
       toast.success('Broker registered successfully!');
-      // Navigate back to display page after successful submission
-      navigate({to: '/companybroker/displaybroker'});
+      navigate({ to: '/companybroker/displaybroker' });
     } catch (error) {
       console.error('Submission error:', error);
     } finally {
@@ -213,7 +208,7 @@ const AddBroker = () => {
     }
   };
 
-  const ImageUploadField = ({label, field, required}) => (
+  const ImageUploadField = ({ label, field, required }) => (
     <div className="mb-4">
       <label className="text-gray-700 mb-2 block text-sm font-medium">
         {label} {required && <span className="text-red-500">*</span>}
@@ -293,7 +288,7 @@ const AddBroker = () => {
               </p>
             </div>
             <button
-              onClick={() => navigate({to: '/companybroker/displaybroker'})}
+              onClick={() => navigate({ to: '/companybroker/displaybroker' })}
               className="hover:bg-gray-100 rounded-lg bg-white px-4 py-2 text-orange-500 transition-all"
             >
               Back to List
@@ -313,9 +308,8 @@ const AddBroker = () => {
                 name="fullname"
                 value={formData.fullname}
                 onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                  errors.fullname ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${errors.fullname ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 placeholder="Enter full name"
               />
               {errors.fullname && (
@@ -323,43 +317,25 @@ const AddBroker = () => {
               )}
             </div>
 
-            {/* Username */}
+            {/* Phone number */}
             <div className="mb-4">
               <label className="text-gray-700 mb-2 block text-sm font-medium">
-                Username <span className="text-red-500">*</span>
+                Phone Number <span className="text-red-500">*</span>
               </label>
               <input
-                type="text"
-                name="username"
-                value={formData.username}
+                type="tel"
+                name="phoneNumber"
+                value={formData.phoneNumber}
                 onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                  errors.username ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="Enter username"
+                maxLength={10}
+                className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${errors.phoneNumber ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                placeholder="Enter 10-digit phone number"
               />
-              {errors.username && (
-                <p className="mt-1 text-xs text-red-500">{errors.username}</p>
-              )}
-            </div>
-
-            {/* Email */}
-            <div className="mb-4">
-              <label className="text-gray-700 mb-2 block text-sm font-medium">
-                Email <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                  errors.email ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="broker@gmail.com"
-              />
-              {errors.email && (
-                <p className="mt-1 text-xs text-red-500">{errors.email}</p>
+              {errors.phoneNumber && (
+                <p className="mt-1 text-xs text-red-500">
+                  {errors.phoneNumber}
+                </p>
               )}
             </div>
 
@@ -373,9 +349,8 @@ const AddBroker = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                  errors.password ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${errors.password ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 placeholder="Enter password (min 6 characters)"
               />
               {errors.password && (
@@ -383,33 +358,70 @@ const AddBroker = () => {
               )}
             </div>
 
-            {/* Phone Number */}
-            <div className="mb-4">
+            {/* Searchable Super Broker Dropdown */}
+            <div className="mb-4 relative">
               <label className="text-gray-700 mb-2 block text-sm font-medium">
-                Phone Number <span className="text-red-500">*</span>
+                Assign to Super Broker <span className="text-red-500">*</span>
               </label>
-              <input
-                type="tel"
-                name="phoneNumber"
-                value={formData.phoneNumber}
-                onChange={handleInputChange}
-                maxLength={10}
-                className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                  errors.phoneNumber ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="Enter 10-digit phone number"
-              />
-              {errors.phoneNumber && (
-                <p className="mt-1 text-xs text-red-500">
-                  {errors.phoneNumber}
-                </p>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search Super Broker by Name or ID"
+                  value={
+                    isDropdownOpen
+                      ? searchTerm
+                      : mockSuperBrokers.find((sb) => sb.id === formData.superBrokerId)
+                        ? `${mockSuperBrokers.find((sb) => sb.id === formData.superBrokerId)?.fullname} (${mockSuperBrokers.find((sb) => sb.id === formData.superBrokerId)?.SBID})`
+                        : ''
+                  }
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setIsDropdownOpen(true);
+                  }}
+                  onFocus={() => {
+                    setIsDropdownOpen(true);
+                    setSearchTerm(''); // clear search when opening to see all options
+                  }}
+                  onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
+                  className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${errors.superBrokerId ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                />
+                
+                {isDropdownOpen && (
+                  <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
+                    {filteredSuperBrokers.length > 0 ? (
+                      filteredSuperBrokers.map((sb) => (
+                        <div
+                          key={sb.id}
+                          className="cursor-pointer px-4 py-2 hover:bg-orange-50"
+                          onClick={() => {
+                            setFormData((prev) => ({ ...prev, superBrokerId: sb.id }));
+                            setSearchTerm('');
+                            setIsDropdownOpen(false);
+                            if (errors.superBrokerId) {
+                              setErrors((prev) => ({ ...prev, superBrokerId: '' }));
+                            }
+                          }}
+                        >
+                          <div className="font-medium text-gray-900">{sb.fullname}</div>
+                          <div className="text-xs text-gray-500">{sb.SBID}</div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="px-4 py-2 text-sm text-gray-500">No Super Brokers found</div>
+                    )}
+                  </div>
+                )}
+              </div>
+              {errors.superBrokerId && (
+                <p className="mt-1 text-xs text-red-500">{errors.superBrokerId}</p>
               )}
             </div>
 
             {/* Aadhar Card Number */}
             <div className="mb-4">
               <label className="text-gray-700 mb-2 block text-sm font-medium">
-                Aadhar Card Number <span className="text-red-500">*</span>
+                Aadhar Card Number 
               </label>
               <input
                 type="text"
@@ -417,9 +429,8 @@ const AddBroker = () => {
                 value={formData.aadharCardNumber}
                 onChange={handleInputChange}
                 maxLength={12}
-                className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                  errors.aadharCardNumber ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${errors.aadharCardNumber ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 placeholder="Enter 12-digit Aadhar number"
               />
               {errors.aadharCardNumber && (
@@ -429,19 +440,39 @@ const AddBroker = () => {
               )}
             </div>
 
-            {/* Referral/Brother Code */}
+            {/* Area */}
             <div className="mb-4">
               <label className="text-gray-700 mb-2 block text-sm font-medium">
-                Referral/Brother Code
+                Area 
               </label>
               <input
                 type="text"
-                name="referralCode"
-                value={formData.referralCode}
+                name="area"
+                value={formData.area}
                 onChange={handleInputChange}
                 className="border-gray-300 w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                placeholder="Enter referral code (optional)"
+                placeholder="Enter Area"
               />
+              {errors.area && (
+                <p className="mt-1 text-xs text-red-500">{errors.area}</p>
+              )}
+            </div>
+
+             <div className="mb-4">
+              <label className="text-gray-700 mb-2 block text-sm font-medium">
+                Commission % 
+              </label>
+              <input
+                type="text"
+                name="commission"
+                value={formData.commission}
+                onChange={handleInputChange}
+                className="border-gray-300 w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                placeholder="Enter Commission %"
+              />
+              {errors.commission && (
+                <p className="mt-1 text-xs text-red-500">{errors.commission}</p>
+              )}
             </div>
           </div>
 
@@ -456,65 +487,31 @@ const AddBroker = () => {
                 field="aadharCardF"
                 required
               />
-              <ImageUploadField
-                label="Aadhar Card Back"
-                field="aadharCardB"
-                required
-              />
-              <ImageUploadField
-                label="Photo / Face Verification"
-                field="photo"
-                required
-              />
             </div>
           </div>
 
           {/* Review Section */}
-          {(imagePreviews.aadharCardF ||
-            imagePreviews.aadharCardB ||
-            imagePreviews.photo) && (
-            <div className="bg-gray-50 mt-6 rounded-lg p-4">
-              <h3 className="text-md text-gray-800 mb-3 font-semibold">
-                Review Uploaded Images
-              </h3>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                {imagePreviews.aadharCardF && (
-                  <div>
-                    <p className="text-gray-600 mb-1 text-sm">
-                      Aadhar Card Front:
-                    </p>
-                    <img
-                      src={imagePreviews.aadharCardF}
-                      alt="Aadhar Front"
-                      className="h-24 w-24 rounded-lg object-cover"
-                    />
-                  </div>
-                )}
-                {imagePreviews.aadharCardB && (
-                  <div>
-                    <p className="text-gray-600 mb-1 text-sm">
-                      Aadhar Card Back:
-                    </p>
-                    <img
-                      src={imagePreviews.aadharCardB}
-                      alt="Aadhar Back"
-                      className="h-24 w-24 rounded-lg object-cover"
-                    />
-                  </div>
-                )}
-                {imagePreviews.photo && (
-                  <div>
-                    <p className="text-gray-600 mb-1 text-sm">Photo:</p>
-                    <img
-                      src={imagePreviews.photo}
-                      alt="Photo"
-                      className="h-24 w-24 rounded-lg object-cover"
-                    />
-                  </div>
-                )}
+          {(imagePreviews.aadharCardF) && (
+              <div className="bg-gray-50 mt-6 rounded-lg p-4">
+                <h3 className="text-md text-gray-800 mb-3 font-semibold">
+                  Review Uploaded Images
+                </h3>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  {imagePreviews.aadharCardF && (
+                    <div>
+                      <p className="text-gray-600 mb-1 text-sm">
+                        Aadhar Card Front:
+                      </p>
+                      <img
+                        src={imagePreviews.aadharCardF}
+                        alt="Aadhar Front"
+                        className="h-24 w-24 rounded-lg object-cover"
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           {/* Submit Button */}
           <div className="mt-6 flex gap-4">

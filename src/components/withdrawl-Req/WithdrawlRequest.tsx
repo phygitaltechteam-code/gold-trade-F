@@ -26,7 +26,13 @@ interface WithdrawalRequest {
     avatar?: string;
     initials: string;
   };
+  brokerName: string;
+  superBrokerName: string;
+  walletBalance: number;
   amount: number;
+  withdrawType: string;
+  detailAmount: number;
+  paidDate: string;
   fee: number;
   bank: string;
   accountLast4: string;
@@ -41,7 +47,13 @@ const MOCK_DATA: WithdrawalRequest[] = [
     date: 'Today',
     time: '10:42 AM',
     client: {name: 'John Doe', tier: 'Gold Tier', initials: 'JD'},
+    brokerName: 'Capital Brokerage',
+    superBrokerName: 'Global Markets Group',
+    walletBalance: 45000.0,
     amount: 15400.0,
+    withdrawType: 'Bank Transfer',
+    detailAmount: 15385.0,
+    paidDate: 'Pending',
     fee: 15.0,
     bank: 'Chase Bank',
     accountLast4: '8821',
@@ -53,7 +65,13 @@ const MOCK_DATA: WithdrawalRequest[] = [
     date: 'Today',
     time: '09:15 AM',
     client: {name: 'Alice Smith', tier: 'Standard Tier', initials: 'AS'},
+    brokerName: 'TradeCorp',
+    superBrokerName: 'Alpha Financial',
+    walletBalance: 12000.0,
     amount: 2100.0,
+    withdrawType: 'Crypto Wallet',
+    detailAmount: 2095.0,
+    paidDate: 'Pending',
     fee: 5.0,
     bank: 'Wells Fargo',
     accountLast4: '4492',
@@ -70,7 +88,13 @@ const MOCK_DATA: WithdrawalRequest[] = [
       initials: 'MC',
       avatar: 'https://picsum.photos/seed/marcus/40/40',
     },
+    brokerName: 'Asia Wealth',
+    superBrokerName: 'Global Markets Group',
+    walletBalance: 250000.0,
     amount: 85000.0,
+    withdrawType: 'Wire Transfer',
+    detailAmount: 84950.0,
+    paidDate: 'Reviewing',
     fee: 50.0,
     bank: 'HSBC Global',
     accountLast4: '1102',
@@ -83,7 +107,13 @@ const MOCK_DATA: WithdrawalRequest[] = [
     date: 'Yesterday',
     time: '11:55 PM',
     client: {name: 'Robert King', tier: 'Standard Tier', initials: 'RK'},
+    brokerName: 'King Investments',
+    superBrokerName: 'Alpha Financial',
+    walletBalance: 3400.0,
     amount: 850.0,
+    withdrawType: 'Bank Transfer',
+    detailAmount: 848.0,
+    paidDate: 'Pending',
     fee: 2.0,
     bank: 'Bank of America',
     accountLast4: '9931',
@@ -95,7 +125,13 @@ const MOCK_DATA: WithdrawalRequest[] = [
     date: 'Yesterday',
     time: '04:20 PM',
     client: {name: 'Sarah Lee', tier: 'Silver Tier', initials: 'SL'},
+    brokerName: 'TradeCorp',
+    superBrokerName: 'Global Markets Group',
+    walletBalance: 9800.0,
     amount: 4200.0,
+    withdrawType: 'PayPal',
+    detailAmount: 4196.0,
+    paidDate: 'Hold',
     fee: 4.0,
     bank: 'Citibank',
     accountLast4: '2381',
@@ -107,7 +143,13 @@ const MOCK_DATA: WithdrawalRequest[] = [
     date: 'Yesterday',
     time: '02:10 PM',
     client: {name: 'David Brown', tier: 'Gold Tier', initials: 'DB'},
+    brokerName: 'Capital Brokerage',
+    superBrokerName: 'Alpha Financial',
+    walletBalance: 65000.0,
     amount: 12500.0,
+    withdrawType: 'Wire Transfer',
+    detailAmount: 12488.0,
+    paidDate: '2023-10-25',
     fee: 12.0,
     bank: 'Chase Bank',
     accountLast4: '5543',
@@ -119,7 +161,13 @@ const MOCK_DATA: WithdrawalRequest[] = [
     date: '2 days ago',
     time: '11:30 AM',
     client: {name: 'Emma Wilson', tier: 'Standard Tier', initials: 'EW'},
+    brokerName: 'King Investments',
+    superBrokerName: 'Global Markets Group',
+    walletBalance: 8000.0,
     amount: 3200.0,
+    withdrawType: 'Bank Transfer',
+    detailAmount: 3197.0,
+    paidDate: 'Rejected',
     fee: 3.0,
     bank: 'Wells Fargo',
     accountLast4: '7789',
@@ -392,8 +440,7 @@ export default function WithdrawalRequest() {
               {(
                 [
                   'Pending',
-                  'Review',
-                  'On Hold',
+                 
                   'Approved',
                   'Rejected',
                 ] as const
@@ -416,10 +463,9 @@ export default function WithdrawalRequest() {
                       className={`ml-2 rounded-md px-1.5 py-0.5 text-[10px] ${
                         tab === 'Pending'
                           ? 'bg-orange-50 text-orange-600'
-                          : tab === 'Review'
-                            ? 'bg-purple-50 text-purple-600'
-                            : tab === 'On Hold'
-                              ? 'bg-gray-100 text-gray-600'
+                          
+                           
+                         
                               : tab === 'Approved'
                                 ? 'bg-emerald-50 text-emerald-600'
                                 : 'bg-red-50 text-red-600'
@@ -583,7 +629,7 @@ export default function WithdrawalRequest() {
             <table className="w-full border-collapse text-left">
               <thead>
                 <tr className="bg-gray-50/50 border-y border-stroke">
-                  <th className="py-4 pl-6">
+                  <th className="py-4 pl-6 pr-2">
                     <input
                       type="checkbox"
                       checked={
@@ -594,29 +640,23 @@ export default function WithdrawalRequest() {
                       className="rounded border-stroke text-orange-500 focus:ring-orange-500"
                     />
                   </th>
-                  <th className="text-gray-400 px-4 py-4 text-[11px] font-semibold uppercase tracking-wider">
-                    Request ID / Date
-                  </th>
-                  <th className="text-gray-400 px-4 py-4 text-[11px] font-semibold uppercase tracking-wider">
-                    Client Details
-                  </th>
-                  <th className="text-gray-400 px-4 py-4 text-right text-[11px] font-semibold uppercase tracking-wider">
-                    Amount (USD)
-                  </th>
-                  <th className="text-gray-400 px-4 py-4 text-[11px] font-semibold uppercase tracking-wider">
-                    Bank Destination
-                  </th>
-                  <th className="text-gray-400 px-4 py-4 text-[11px] font-semibold uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="text-gray-400 py-4 pr-6 text-right text-[11px] font-semibold uppercase tracking-wider">
-                    Actions
-                  </th>
+                  <th className="text-gray-400 px-3 py-4 text-[11px] font-semibold uppercase tracking-wider">Sr</th>
+                  <th className="text-gray-400 px-3 py-4 text-[11px] font-semibold uppercase tracking-wider">Request ID</th>
+                  <th className="text-gray-400 px-3 py-4 text-[11px] font-semibold uppercase tracking-wider">Client Name</th>
+                  <th className="text-gray-400 px-3 py-4 text-[11px] font-semibold uppercase tracking-wider">Broker Name</th>
+                  <th className="text-gray-400 px-3 py-4 text-[11px] font-semibold uppercase tracking-wider">Super Broker Name</th>
+                  <th className="text-gray-400 px-3 py-4 text-right text-[11px] font-semibold uppercase tracking-wider">Wallet Balance</th>
+                  <th className="text-gray-400 px-3 py-4 text-right text-[11px] font-semibold uppercase tracking-wider">Withdraw Amount</th>
+                  <th className="text-gray-400 px-3 py-4 text-center text-[11px] font-semibold uppercase tracking-wider">Withdraw Type</th>
+                  <th className="text-gray-400 px-3 py-4 text-right text-[11px] font-semibold uppercase tracking-wider">Detail Amount</th>
+                  <th className="text-gray-400 px-3 py-4 text-[11px] font-semibold uppercase tracking-wider">Paid Date</th>
+                  <th className="text-gray-400 px-3 py-4 text-[11px] font-semibold uppercase tracking-wider">Status</th>
+                  <th className="text-gray-400 py-4 pr-6 pl-2 text-right text-[11px] font-semibold uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-gray-100 divide-y">
                 {paginatedData.length > 0 ? (
-                  paginatedData.map((req) => (
+                  paginatedData.map((req, idx) => (
                     <tr
                       key={req.id}
                       className="hover:bg-gray-50/50 group relative transition-colors"
@@ -624,7 +664,7 @@ export default function WithdrawalRequest() {
                       {req.isHighValue && (
                         <div className="absolute bottom-0 left-0 top-0 w-1 bg-red-500" />
                       )}
-                      <td className="py-4 pl-6">
+                      <td className="py-4 pl-6 pr-2">
                         <input
                           type="checkbox"
                           checked={selectedRequests.includes(req.id)}
@@ -632,22 +672,15 @@ export default function WithdrawalRequest() {
                           className="rounded border-stroke text-orange-500 focus:ring-orange-500"
                         />
                       </td>
-                      <td className="px-4 py-4">
-                        <div className="flex flex-col">
-                          <span className="text-gray-900 text-sm font-bold">
-                            {req.requestId}
-                          </span>
-                          <span className="text-gray-500 text-xs">
-                            {req.date}, {req.time}
-                          </span>
-                          {req.isHighValue && (
-                            <span className="mt-1 inline-flex items-center rounded bg-red-50 px-1.5 py-0.5 text-[9px] font-bold uppercase text-red-600">
-                              High Value
-                            </span>
-                          )}
-                        </div>
+                      <td className="px-3 py-4 text-sm text-gray-500 font-medium">
+                        {(currentPage - 1) * itemsPerPage + idx + 1}
                       </td>
-                      <td className="px-4 py-4">
+                      <td className="px-3 py-4">
+                        <span className="text-gray-900 text-sm font-bold">
+                          {req.requestId}
+                        </span>
+                      </td>
+                      <td className="px-3 py-4">
                         <div className="flex items-center gap-3">
                           {req.client.avatar ? (
                             <img
@@ -660,46 +693,38 @@ export default function WithdrawalRequest() {
                               {req.client.initials}
                             </div>
                           )}
-                          <div className="flex flex-col">
-                            <span className="text-gray-900 text-sm font-semibold">
-                              {req.client.name}
-                            </span>
-                            <span className="text-gray-500 text-xs">
-                              {req.client.tier}
-                            </span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 text-right">
-                        <div className="flex flex-col">
-                          <span className="text-gray-900 text-sm font-bold">
-                            $
-                            {req.amount.toLocaleString('en-US', {
-                              minimumFractionDigits: 2,
-                            })}
-                          </span>
-                          <span className="text-gray-400 text-xs italic">
-                            Fee: ${req.fee.toFixed(2)}
+                          <span className="text-gray-900 text-sm font-semibold whitespace-nowrap">
+                            {req.client.name}
                           </span>
                         </div>
                       </td>
-                      <td className="px-4 py-4">
-                        <div className="flex items-center gap-2">
-                          <Landmark className="text-gray-400 h-4 w-4" />
-                          <div className="flex flex-col">
-                            <span className="text-gray-700 text-sm font-medium">
-                              {req.bank}
-                            </span>
-                            <span className="text-gray-400 font-mono text-xs">
-                              **** {req.accountLast4}
-                            </span>
-                          </div>
-                        </div>
+                      <td className="px-3 py-4 text-sm text-gray-700 font-medium whitespace-nowrap">
+                        {req.brokerName}
                       </td>
-                      <td className="px-4 py-4">
+                      <td className="px-3 py-4 text-sm text-gray-700 font-medium whitespace-nowrap">
+                        {req.superBrokerName}
+                      </td>
+                      <td className="px-3 py-4 text-right text-sm font-bold text-gray-900 whitespace-nowrap">
+                        ${req.walletBalance.toLocaleString('en-US', {minimumFractionDigits: 2})}
+                      </td>
+                      <td className="px-3 py-4 text-right text-sm font-bold text-orange-500 whitespace-nowrap">
+                        ${req.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}
+                      </td>
+                      <td className="px-3 py-4 text-center text-sm text-gray-600 font-medium whitespace-nowrap">
+                        <span className="bg-gray-100 px-2 py-1 rounded text-xs border border-slate-200">
+                          {req.withdrawType}
+                        </span>
+                      </td>
+                      <td className="px-3 py-4 text-right text-sm font-bold text-emerald-600 whitespace-nowrap">
+                        ${req.detailAmount.toLocaleString('en-US', {minimumFractionDigits: 2})}
+                      </td>
+                      <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap">
+                        {req.paidDate}
+                      </td>
+                      <td className="px-3 py-4">
                         <StatusBadge status={req.status} />
                       </td>
-                      <td className="py-4 pr-6 text-right">
+                      <td className="py-4 pr-6 pl-2 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => handleReject(req.id)}
@@ -720,7 +745,7 @@ export default function WithdrawalRequest() {
                 ) : (
                   <tr>
                     <td
-                      colSpan={7}
+                      colSpan={13}
                       className="text-gray-400 px-6 py-8 text-center"
                     >
                       No {activeTab.toLowerCase()} requests found
@@ -817,8 +842,7 @@ function SummaryCard({
 function StatusBadge({status}: {status: WithdrawalRequest['status']}) {
   const styles = {
     Pending: 'bg-orange-50 text-orange-600 border-orange-100',
-    Review: 'bg-purple-50 text-purple-600 border-purple-100',
-    'On Hold': 'bg-gray-100 text-gray-600 border-stroke',
+
     Approved: 'bg-emerald-50 text-emerald-600 border-emerald-100',
     Rejected: 'bg-red-50 text-red-600 border-red-100',
   };

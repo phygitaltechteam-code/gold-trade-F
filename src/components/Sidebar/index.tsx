@@ -63,8 +63,18 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
           icon: <MdDashboard size={22} />,
         },
         {
-          label: 'Add Broker',
+          label: 'Super Broker',
+          path: '/companybroker/DisplaySuperBroker',
+          icon: <MdDashboard size={22} />,
+        },
+        {
+          label: 'Broker',
           path: '/companybroker/displaybroker',
+          icon: <MdDashboard size={22} />,
+        },
+        {
+          label: 'TransactionLedger',
+          path: '/TransactionLedger',
           icon: <MdDashboard size={22} />,
         },
         {

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { FiEdit, FiEye, FiTrash } from 'react-icons/fi';
-import { GrFormNext, GrFormPrevious } from 'react-icons/gr';
+import { Search, ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 
 const CustomBrokerTable = ({ 
   data, 
@@ -20,7 +19,6 @@ const CustomBrokerTable = ({
     return (
       item?.fullname?.toLowerCase().includes(searchTerm) ||
       item?.BKId?.toLowerCase().includes(searchTerm) ||
-      item?.email?.toLowerCase().includes(searchTerm) ||
       item?.phoneNumber?.toLowerCase().includes(searchTerm)
     );
   });
@@ -36,7 +34,7 @@ const CustomBrokerTable = ({
   });
 
   // Paginate data
-  const totalPages = Math.ceil(sortedData.length / itemsPerPage);
+  const totalPages = Math.ceil(sortedData.length / itemsPerPage) || 1;
   const paginatedData = sortedData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -49,193 +47,172 @@ const CustomBrokerTable = ({
     });
   };
 
-  const handleViewImage = (imageUrl) => {
-    if (imageUrl && typeof imageUrl === 'string') {
-      window.open(imageUrl, '_blank');
-    }
+  const getSortIcon = (key) => {
+    if (sortConfig.key !== key) return <ArrowUpDown className="ml-1 h-3 w-3 text-slate-400" />;
+    return sortConfig.direction === 'asc' ? 
+      <ArrowUp className="ml-1 h-3 w-3 text-[#F57F3D]" /> : 
+      <ArrowDown className="ml-1 h-3 w-3 text-[#F57F3D]" />;
+  };
+
+  const getInitials = (name) => {
+    if (!name) return 'NA';
+    return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
   };
 
   return (
-    <div className="rounded-sm border border-stroke bg-white px-4 pb-2 pt-4 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-6">
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Broker List (Total: {data.length})</h2>
-        <input
-          type="text"
-          placeholder="Search..."
-          value={searchQuery}
-          onChange={(e) => {
-            setSearchQuery(e.target.value);
-            setCurrentPage(1);
-          }}
-          className="w-64 rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm outline-none focus:border-primary"
-        />
+    <div className="rounded-xl border border-slate-200 bg-white shadow-sm font-inter">
+      {/* Header Controls */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 p-5 gap-4">
+        <h2 className="text-lg font-bold text-[#0F1535]">Broker Queue</h2>
+        <div className="relative">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <Search className="h-4 w-4 text-slate-400" />
+          </div>
+          <input
+            type="text"
+            placeholder="Search by name, ID, or phone..."
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="w-full sm:w-80 rounded-lg border border-slate-200 bg-white py-2 pl-10 pr-4 text-sm text-[#0F1535] placeholder-slate-400 outline-none transition focus:border-[#F57F3D] focus:ring-1 focus:ring-[#F57F3D]"
+          />
+        </div>
       </div>
 
-      <div className="max-w-full overflow-x-auto">
-        <table className="w-full table-auto">
+      {/* Table */}
+      <div className="overflow-x-auto">
+        <table className="w-full table-auto border-collapse">
           <thead>
-            <tr className="bg-gray-2 text-left dark:bg-meta-4">
-              <th className="min-w-[60px] px-3 py-2.5 font-medium text-black dark:text-white">
-                S.No
+            <tr className="bg-slate-50 border-b border-slate-200">
+              <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">
+                Broker Details
               </th>
               <th 
-                className="min-w-[120px] cursor-pointer px-3 py-2.5 font-medium text-black dark:text-white"
+                className="cursor-pointer px-5 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap hover:bg-slate-100 transition-colors"
                 onClick={() => handleSort('BKId')}
               >
-                BK ID {sortConfig.key === 'BKId' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <div className="flex items-center">ID {getSortIcon('BKId')}</div>
               </th>
-              <th 
-                className="min-w-[150px] cursor-pointer px-3 py-2.5 font-medium text-black dark:text-white"
-                onClick={() => handleSort('fullname')}
-              >
-                Full Name {sortConfig.key === 'fullname' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">
+                Contact & Area
               </th>
-              <th className="min-w-[120px] px-3 py-2.5 font-medium text-black dark:text-white">
-                Username
+              <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">
+                Stats
               </th>
-              <th className="min-w-[200px] px-3 py-2.5 font-medium text-black dark:text-white">
-                Email
+              <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">
+                Commission
               </th>
-              <th className="min-w-[120px] px-3 py-2.5 font-medium text-black dark:text-white">
-                Phone Number
-              </th>
-              <th className="min-w-[150px] px-3 py-2.5 font-medium text-black dark:text-white">
-                Aadhar Number
-              </th>
-              <th className="min-w-[200px] px-3 py-2.5 font-medium text-black dark:text-white">
-                Documents
-              </th>
-              <th className="min-w-[100px] px-3 py-2.5 font-medium text-black dark:text-white">
-                KYC Status
-              </th>
-              <th className="min-w-[100px] px-3 py-2.5 font-medium text-black dark:text-white">
-                Created At
-              </th>
-              <th className="min-w-[100px] px-3 py-2.5 font-medium text-black dark:text-white">
-                Actions
+              <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">
+                Status
               </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-slate-100">
             {paginatedData.map((item, index) => (
-              <tr key={item?.id || index} className="text-sm">
-                <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
-                  {(currentPage - 1) * itemsPerPage + index + 1}
-                </td>
-                <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
-                  {item?.BKId || 'N/A'}
-                </td>
-                <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
-                  {item?.fullname || 'N/A'}
-                </td>
-                <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
-                  {item?.username || 'N/A'}
-                </td>
-                <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
-                  {item?.email || 'N/A'}
-                </td>
-                <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
-                  {item?.phoneNumber || 'N/A'}
-                </td>
-                <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
-                  {item?.aadharCardNumber || 'N/A'}
-                </td>
-                <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
-                  <div className="flex gap-2">
-                    {item?.photo && (
-                      <button
-                        onClick={() => handleViewImage(item.photo)}
-                        className="rounded bg-blue-500 px-2 py-1 text-xs text-white hover:bg-blue-600"
-                      >
-                        Photo
-                      </button>
-                    )}
-                    {item?.aadharCardF && (
-                      <button
-                        onClick={() => handleViewImage(item.aadharCardF)}
-                        className="rounded bg-green-500 px-2 py-1 text-xs text-white hover:bg-green-600"
-                      >
-                        Front
-                      </button>
-                    )}
-                    {item?.aadharCardB && (
-                      <button
-                        onClick={() => handleViewImage(item.aadharCardB)}
-                        className="rounded bg-purple-500 px-2 py-1 text-xs text-white hover:bg-purple-600"
-                      >
-                        Back
-                      </button>
-                    )}
+              <tr 
+                key={item?.id || index} 
+                className="group cursor-pointer bg-white transition-colors hover:bg-slate-50"
+                onClick={() => onView?.(item)}
+              >
+                <td className="px-5 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-600">
+                      {getInitials(item?.fullname)}
+                    </div>
+                    <div>
+                      <div className="font-semibold text-[#0F1535]">{item?.fullname || 'N/A'}</div>
+                      <div className="text-xs text-slate-500">Broker</div>
+                    </div>
                   </div>
                 </td>
-                <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
-                  <span
-                    className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
-                      item?.isKycCompleted
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-yellow-100 text-yellow-800'
-                    }`}
-                  >
-                    {item?.isKycCompleted ? 'Completed' : 'Pending'}
-                  </span>
+                <td className="px-5 py-4 text-sm font-medium text-slate-600">
+                  {item?.BKId || 'N/A'}
                 </td>
-                <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
-                  {item?.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'N/A'}
+                <td className="px-5 py-4">
+                  <div className="text-sm font-medium text-[#0F1535]">{item?.phoneNumber || 'N/A'}</div>
+                  <div className="text-xs text-slate-500">{item?.area || 'N/A'}</div>
                 </td>
-                <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => onView?.(item)}
-                      className="rounded p-1 text-blue-600 hover:bg-blue-50"
-                      title="View"
-                    >
-                      <FiEye className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => onEdit?.(item)}
-                      className="rounded p-1 text-green-600 hover:bg-green-50"
-                      title="Edit"
-                    >
-                      <FiEdit className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => onDelete?.(item)}
-                      className="rounded p-1 text-red-600 hover:bg-red-50"
-                      title="Delete"
-                    >
-                      <FiTrash className="h-4 w-4" />
-                    </button>
+                <td className="px-5 py-4">
+                  <div className="text-sm font-medium text-[#0F1535]">{item?.totalCustomers || '0'} Customers</div>
+                  <div className="text-xs text-slate-500">₹{item?.totalBusiness?.toLocaleString() || '0'} Vol</div>
+                </td>
+                <td className="px-5 py-4">
+                  <div className="text-sm font-bold text-[#F57F3D]">₹{item?.totalCommission?.toLocaleString() || '0'}</div>
+                  <div className="text-xs text-slate-500">{item?.commission ? `${item.commission}% Rate` : 'N/A'}</div>
+                </td>
+                <td className="px-5 py-4">
+                  <div className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
+                    item?.isActive
+                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                      : 'bg-rose-50 text-rose-700 border border-rose-200'
+                  }`}>
+                    <div className={`h-1.5 w-1.5 rounded-full ${item?.isActive ? 'bg-emerald-500' : 'bg-rose-500'}`}></div>
+                    {item?.isActive ? 'Active' : 'Inactive'}
                   </div>
                 </td>
               </tr>
             ))}
+            
+            {paginatedData.length === 0 && (
+              <tr>
+                <td colSpan={6} className="px-5 py-10 text-center text-slate-500">
+                  <div className="flex flex-col items-center justify-center">
+                    <Search className="mb-2 h-8 w-8 text-slate-300" />
+                    <p>No brokers found matching your criteria</p>
+                  </div>
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
 
-      {paginatedData.length === 0 && (
-        <div className="py-8 text-center text-gray-500">No brokers found</div>
-      )}
-
-      {totalPages > 1 && (
-        <div className="mt-4 flex items-center justify-between">
-          <span className="text-sm">
-            Page {currentPage} of {totalPages}
-          </span>
-          <div className="flex gap-2">
+      {/* Pagination */}
+      {totalPages > 0 && (
+        <div className="flex items-center justify-between border-t border-slate-200 px-5 py-4 bg-white rounded-b-xl">
+          <div className="text-sm text-slate-500">
+            Showing <span className="font-semibold text-[#0F1535]">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-semibold text-[#0F1535]">{Math.min(currentPage * itemsPerPage, sortedData.length)}</span> of <span className="font-semibold text-[#0F1535]">{sortedData.length}</span> results
+          </div>
+          <div className="flex items-center space-x-1">
             <button
-              className="rounded border p-1.5 hover:bg-gray-100 disabled:opacity-50"
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
+              className="flex h-8 w-8 items-center justify-center rounded border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 disabled:opacity-50 transition-colors"
             >
-              <GrFormPrevious className="h-4 w-4" />
+              <ChevronLeft className="h-4 w-4" />
             </button>
+            
+            {[...Array(totalPages)].map((_, i) => {
+              const page = i + 1;
+              // Show limited pages logic (e.g. 1 2 3 ... 10)
+              if (page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)) {
+                return (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`flex h-8 w-8 items-center justify-center rounded border text-sm font-medium transition-colors ${
+                      currentPage === page
+                        ? 'border-[#F57F3D] bg-[#F57F3D]/5 text-[#F57F3D]'
+                        : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                );
+              } else if (page === currentPage - 2 || page === currentPage + 2) {
+                return <span key={page} className="px-1 text-slate-400">...</span>;
+              }
+              return null;
+            })}
+
             <button
-              className="rounded border p-1.5 hover:bg-gray-100 disabled:opacity-50"
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
+              className="flex h-8 w-8 items-center justify-center rounded border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 disabled:opacity-50 transition-colors"
             >
-              <GrFormNext className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4" />
             </button>
           </div>
         </div>

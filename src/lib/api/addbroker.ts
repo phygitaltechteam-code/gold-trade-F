@@ -56,6 +56,13 @@ export const useGetBrokerData = () =>
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
+  export const useGetSuperBrokerData = () =>
+  useQuery({
+    queryKey: ['get-superbroker'],
+    queryFn: () => getSuperBrokerData(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
 export const addBroker = async (data: FormData) => {
   try {
     console.log('Sending FormData to API');
@@ -84,6 +91,17 @@ export const deleteBroker = async (id: string) => {
 const getBrokerData = async () => {
   try {
     const response = await api.get(`/company/broker`);
+    // Return only the serializable data
+    return JSON.parse(JSON.stringify(response.data));
+  } catch (error) {
+    console.error('Error fetching broker data:', error);
+    throw error;
+  }
+};
+
+const getSuperBrokerData = async () => {
+  try {
+    const response = await api.get(`/company/superbroker`);
     // Return only the serializable data
     return JSON.parse(JSON.stringify(response.data));
   } catch (error) {
