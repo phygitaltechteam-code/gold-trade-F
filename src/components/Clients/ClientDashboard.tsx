@@ -1,3 +1,4 @@
+
 import React, {useState} from 'react';
 import {
   Search,
@@ -89,8 +90,106 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [kycFilter, setKycFilter] = useState<string>('all');
+  const [brokerFilter, setBrokerFilter] = useState<string>('all');
+  const [superBrokerFilter, setSuperBrokerFilter] = useState<string>('all');
 
-  const {data: clients = [], isLoading, error, refetch} = useGetAllClients();
+  // Temporarily bypass API call because backend is not ready
+  // const {data: clients = [], isLoading, error, refetch} = useGetAllClients();
+  const isLoading = false;
+  const error = null;
+  const refetch = () => {};
+  
+  const [clients, setClients] = useState<any[]>([
+    {
+      id: '1',
+      user: {
+        fullname: 'Alex Vane',
+        email: 'alex.vane@example.com',
+        phoneNumber: '+1234567890',
+        isActive: true,
+        isVerified: true,
+        isRejected: false,
+      },
+      wallets: { amount: 45230.00 },
+      isKycCompleted: true,
+      createdAt: new Date().toISOString(),
+      photo: '',
+      brokerName: 'Apex Broker',
+      superBrokerName: 'Alpha Super',
+    },
+    {
+      id: '2',
+      user: {
+        fullname: 'Jessica Stone',
+        email: 'jessica.s@example.com',
+        phoneNumber: '+1987654321',
+        isActive: true,
+        isVerified: true,
+        isRejected: false,
+      },
+      wallets: { amount: 12050.00 },
+      isKycCompleted: false,
+      createdAt: new Date(Date.now() - 86400000).toISOString(),
+      photo: '',
+      brokerName: 'Delta Broker',
+      superBrokerName: 'Alpha Super',
+    },
+    {
+      id: '3',
+      user: {
+        fullname: 'Michael Chen',
+        email: 'm.chen@example.com',
+        phoneNumber: '+1122334455',
+        isActive: false,
+        isVerified: false,
+        isRejected: true,
+      },
+      wallets: { amount: 128900.50 },
+      isKycCompleted: true,
+      createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
+      photo: '',
+      brokerName: 'Apex Broker',
+      superBrokerName: 'Beta Super',
+    },
+    {
+      id: '4',
+      user: {
+        fullname: 'Emma Larson',
+        email: 'emma.l@example.com',
+        phoneNumber: '+1555666777',
+        isActive: false,
+        isVerified: false,
+        isRejected: false,
+      },
+      wallets: { amount: 0.00 },
+      isKycCompleted: false,
+      createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
+      photo: '',
+      brokerName: 'Zeta Broker',
+      superBrokerName: 'Beta Super',
+    },
+    {
+      id: '5',
+      user: {
+        fullname: 'David Ross',
+        email: 'd.ross@example.com',
+        phoneNumber: '+1444333222',
+        isActive: true,
+        isVerified: true,
+        isRejected: false,
+      },
+      wallets: { amount: 2500.00 },
+      isKycCompleted: true,
+      createdAt: new Date(Date.now() - 86400000 * 4).toISOString(),
+      photo: '',
+      brokerName: 'Delta Broker',
+      superBrokerName: 'Alpha Super',
+    }
+  ]);
+
+  // Extract unique Brokers and Super Brokers from data dynamically
+  const brokers = Array.from(new Set(clients.map((c: any) => c.brokerName).filter(Boolean)));
+  const superBrokers = Array.from(new Set(clients.map((c: any) => c.superBrokerName).filter(Boolean)));
 
   // Calculate stats
   const activeTraders = clients.filter(
@@ -125,7 +224,10 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
       matchesKyc = client.isKycCompleted === (kycFilter === 'completed');
     }
 
-    return matchesSearch && matchesStatus && matchesKyc;
+    const matchesBroker = brokerFilter === 'all' || client.brokerName === brokerFilter;
+    const matchesSuperBroker = superBrokerFilter === 'all' || client.superBrokerName === superBrokerFilter;
+
+    return matchesSearch && matchesStatus && matchesKyc && matchesBroker && matchesSuperBroker;
   });
 
   const formatCurrency = (amount: number) => {
@@ -155,7 +257,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
     <motion.div
       initial={{opacity: 0, y: 20}}
       animate={{opacity: 1, y: 0}}
-      className="mx-auto max-w-7xl px-6 py-8"
+      className="mx-auto max-w-9xl px-6 py-8"
     >
       {/* Header */}
       <div className="mb-8 flex items-center justify-between">
@@ -215,7 +317,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           <div className="space-y-1.5">
             <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
               Account Status
@@ -254,22 +356,37 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
               className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
             />
           </div>
+          
           <div className="space-y-1.5">
             <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              Wallet Balance
+              Broker
             </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Min"
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-              />
-              <input
-                type="text"
-                placeholder="Max"
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-              />
-            </div>
+            <select
+              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+              value={brokerFilter}
+              onChange={(e) => setBrokerFilter(e.target.value)}
+            >
+              <option value="all">All Brokers</option>
+              {brokers.map((broker: any) => (
+                <option key={broker} value={broker}>{broker}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Super Broker
+            </label>
+            <select
+              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+              value={superBrokerFilter}
+              onChange={(e) => setSuperBrokerFilter(e.target.value)}
+            >
+              <option value="all">All Super Brokers</option>
+              {superBrokers.map((sb: any) => (
+                <option key={sb} value={sb}>{sb}</option>
+              ))}
+            </select>
           </div>
         </div>
       </div>
@@ -289,47 +406,30 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
             <table className="w-full border-collapse text-left">
               <thead>
                 <tr className="border-bottom border-slate-100 bg-slate-50/50">
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    <input
-                      type="checkbox"
-                      className="rounded border-slate-300 text-orange-500 focus:ring-orange-500"
-                    />
-                  </th>
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Name
-                  </th>
-                  <th className="px-6 py-4 text-right text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Wallet Balance
-                  </th>
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Status
-                  </th>
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    KYC
-                  </th>
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Joined
-                  </th>
-                  <th className="px-6 py-4"></th>
+                  <th className="px-4 py-4 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400">Sr</th>
+                  <th className="px-4 py-4 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400">Client Name</th>
+                  <th className="px-4 py-4 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400">Broker Name</th>
+                  <th className="px-4 py-4 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400">Super Broker Name</th>
+                  <th className="px-4 py-4 text-right text-[10px] font-bold uppercase tracking-wider text-slate-400">Wallet Balance</th>
+                  <th className="px-4 py-4 text-right text-[10px] font-bold uppercase tracking-wider text-slate-400">Asset Under Control</th>
+                  <th className="px-4 py-4 text-right text-[10px] font-bold uppercase tracking-wider text-slate-400">Margin Amount</th>
+                  <th className="px-4 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Active Trade</th>
+                  <th className="px-4 py-4 text-right text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Amount</th>
+                  <th className="px-4 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-slate-400">Status</th>
+                  <th className="px-4 py-4"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {filteredClients.map((client: Client) => (
+                {filteredClients.map((client: Client, index: number) => (
                   <tr
                     key={client.id}
                     className="group cursor-pointer transition-colors hover:bg-slate-50/80"
                     onClick={() => onSelectClient(client)}
                   >
-                    <td
-                      className="px-6 py-4"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <input
-                        type="checkbox"
-                        className="rounded border-slate-300 text-orange-500 focus:ring-orange-500"
-                      />
+                    <td className="px-4 py-4 text-sm text-slate-500 font-medium">
+                      {index + 1}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-4">
                       <div className="flex items-center gap-3">
                         {client.photo ? (
                           <img
@@ -344,7 +444,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
                           </div>
                         )}
                         <div>
-                          <div className="text-sm font-medium text-slate-900">
+                          <div className="text-sm font-medium text-slate-900 whitespace-nowrap">
                             {client.user?.fullname}
                           </div>
                           <div className="text-xs text-slate-400">
@@ -353,29 +453,60 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-right">
-                      <span className="text-sm font-medium text-slate-600">
+                    <td className="px-4 py-4 text-sm text-slate-600 font-medium whitespace-nowrap">
+                      {client.brokerName || 'N/A'}
+                    </td>
+                    <td className="px-4 py-4 text-sm text-slate-600 font-medium whitespace-nowrap">
+                      {client.superBrokerName || 'N/A'}
+                    </td>
+                    <td className="px-4 py-4 text-right">
+                      <span className="text-sm font-bold text-slate-900 whitespace-nowrap">
                         ${client.wallets?.amount?.toLocaleString() || '0'}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
-                      <StatusBadge client={client} />
+                    <td className="px-4 py-4 text-right">
+                      <span className="text-sm font-bold text-slate-900 whitespace-nowrap">
+                        $0.00
+                      </span>
                     </td>
-                    <td className="px-6 py-4">
-                      {client.isKycCompleted ? (
-                        <span className="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-bold text-emerald-600">
-                          Completed
+                    <td className="px-4 py-4 text-right">
+                      <span className="text-sm font-bold text-slate-900 whitespace-nowrap">
+                        $0.00
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 text-center">
+                      <span className="text-sm font-medium text-slate-600">
+                        0
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 text-right">
+                      <span className="text-sm font-bold text-orange-500 whitespace-nowrap">
+                        ${client.wallets?.amount?.toLocaleString() || '0'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 text-center" onClick={(e) => e.stopPropagation()}>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="sr-only peer"
+                          checked={client.user?.isActive || false}
+                          onChange={() => {
+                            setClients((prev) => 
+                              prev.map((c) => 
+                                c.id === client.id 
+                                  ? { ...c, user: { ...c.user, isActive: !c.user.isActive } }
+                                  : c
+                              )
+                            );
+                          }}
+                        />
+                        <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                        <span className="ml-2 text-[10px] font-bold uppercase text-slate-500 w-12 text-left">
+                          {client.user?.isActive ? 'Active' : 'Inactive'}
                         </span>
-                      ) : (
-                        <span className="rounded-full bg-amber-50 px-2 py-1 text-[10px] font-bold text-amber-600">
-                          Pending
-                        </span>
-                      )}
+                      </label>
                     </td>
-                    <td className="px-6 py-4 text-xs text-slate-500">
-                      {new Date(client.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-4 py-4 text-right">
                       <button className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600">
                         <MoreVertical className="h-4 w-4" />
                       </button>

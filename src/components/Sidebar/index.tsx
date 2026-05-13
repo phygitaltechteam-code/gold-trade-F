@@ -128,6 +128,11 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
             path: '/superadmin/superadmin',
             icon: <MdDashboard size={22} />,
           },
+          {
+            label: 'Clients',
+            path: '/clients/mainpage',
+            icon: <FaUsers size={22} />,
+          },
         ]
       : [];
 
