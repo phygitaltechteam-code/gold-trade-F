@@ -82,6 +82,12 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
           path: '/clients/mainpage',
           icon: <FaUsers size={22} />,
         },
+
+        {
+          label: 'Pending Approvals',
+          path: '/Approval/pendingapprovals',
+          icon: <FaUsers size={22} />,
+        },
         {
           label: 'KYC Approvals',
           path: '/KYCApproval/kycmain',

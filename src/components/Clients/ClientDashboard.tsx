@@ -99,7 +99,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
   const error = null;
   const refetch = () => {};
   
-  const [clients, setClients] = useState<any[]>([
+  const [clients, setClients] = useState<Client[]>([
     {
       id: '1',
       user: {
@@ -110,6 +110,10 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
         isVerified: true,
         isRejected: false,
       },
+      address: '123 Main St',
+      area: 'Kolkata',
+      commission: '10%',
+      aadharCardNumber: '1234567890',
       wallets: { amount: 45230.00 },
       isKycCompleted: true,
       createdAt: new Date().toISOString(),
@@ -120,7 +124,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
     {
       id: '2',
       user: {
-        fullname: 'Jessica Stone',
+        fullname: 'Jessica Stone',  
         email: 'jessica.s@example.com',
         phoneNumber: '+1987654321',
         isActive: true,
@@ -414,7 +418,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
                   <th className="px-4 py-4 text-right text-[10px] font-bold uppercase tracking-wider text-slate-400">Asset Under Control</th>
                   <th className="px-4 py-4 text-right text-[10px] font-bold uppercase tracking-wider text-slate-400">Margin Amount</th>
                   <th className="px-4 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Active Trade</th>
-                  <th className="px-4 py-4 text-right text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Amount</th>
+                  <th className="px-4 py-4 text-right text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Traid</th>
                   <th className="px-4 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-slate-400">Status</th>
                   <th className="px-4 py-4"></th>
                 </tr>

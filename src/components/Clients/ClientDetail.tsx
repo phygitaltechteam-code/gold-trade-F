@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import {
   ChevronLeft,
@@ -25,16 +25,17 @@ import {
   Loader2,
   TrendingUp,
 } from 'lucide-react';
-import {motion} from 'framer-motion';
-import {Client} from './types';
-import {useGetClientById} from './mutationapi';
+import { motion } from 'framer-motion';
+import { Client } from './types';
+import { useGetClientById } from './mutationapi';
+import { FiEdit2, FiSave, FiX } from 'react-icons/fi';
 
 interface ClientDetailProps {
   client: Client;
   onBack: () => void;
 }
 
-const InfoSection = ({title, children, icon: Icon}: any) => (
+const InfoSection = ({ title, children, icon: Icon }: any) => (
   <div className="space-y-4">
     <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
       <Icon className="h-4 w-4 text-slate-400" />
@@ -68,7 +69,7 @@ const InfoItem = ({
   </div>
 );
 
-const DocCard = ({name, type, status, icon: Icon, color, url}: any) => (
+const DocCard = ({ name, type, status, icon: Icon, color, url }: any) => (
   <a
     href={url}
     target="_blank"
@@ -88,8 +89,10 @@ const DocCard = ({name, type, status, icon: Icon, color, url}: any) => (
   </a>
 );
 
-export const ClientDetail: React.FC<ClientDetailProps> = ({client, onBack}) => {
- // const {data: clientData, isLoading} = useGetClientById(client.id);
+export const ClientDetail: React.FC<ClientDetailProps> = ({ client, onBack }) => {
+
+  const [isEditing, setIsEditing] = useState(false);
+  // const {data: clientData, isLoading} = useGetClientById(client.id);
   const displayClient = client;
   const isLoading = false;
   const [activeTab, setActiveTab] = useState('ledger');
@@ -144,22 +147,22 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({client, onBack}) => {
       paymentStatus: 'PAID'
     }
   ];
-  
+
   const mockPaymentData = [
     { sr: '1', dateTime: '2023-10-01 10:30 AM', amount: '$5,000.00', walletAmount: '$15,000.00' },
     { sr: '2', dateTime: '2023-10-02 14:15 PM', amount: '$1,200.00', walletAmount: '$13,800.00' },
   ];
 
   const ledgerColumns = [
-     { header: 'Sr', accessor: 'sr' },
+    { header: 'Sr', accessor: 'sr' },
     { header: 'Date/Time', accessor: 'dateTime' },
     { header: 'Customer Name', accessor: 'customerName' },
     { header: 'Broker Name', accessor: 'brokerName' },
     { header: 'Transaction ID', accessor: 'transactionId' },
     { header: 'Stript', accessor: 'stript' },
     { header: 'Order Type', accessor: 'orderType' },
-     {header : 'Holding Type', accessor : 'holdingType'},
-    {header: 'Qty' , accessor : 'qty'},
+    { header: 'Holding Type', accessor: 'holdingType' },
+    { header: 'Qty', accessor: 'qty' },
     { header: 'Price', accessor: 'price' },
     { header: 'Status', accessor: 'status' },
     { header: 'Transaction Amount', accessor: 'transactionAmount' },
@@ -167,7 +170,7 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({client, onBack}) => {
 
     { header: 'Paid Amount', accessor: 'paidAmount' },
     { header: 'Margin Amount', accessor: 'marginAmount' },
-        { header: 'Total Commission', accessor: 'totalCommission' },
+    { header: 'Total Commission', accessor: 'totalCommission' },
 
     { header: 'Broker Commission', accessor: 'brokerCommission' },
     // { header: 'Super Broker Commission', accessor: 'superBrokerCommission' },
@@ -198,8 +201,8 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({client, onBack}) => {
 
   return (
     <motion.div
-      initial={{opacity: 0, x: 20}}
-      animate={{opacity: 1, x: 0}}
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
       className="mx-auto max-w-9xl px-6 py-8"
     >
       {/* Header */}
@@ -241,7 +244,7 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({client, onBack}) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         {/* Main Content */}
         <div className="space-y-8 lg:col-span-2">
           {/* Quick Stats */}
@@ -299,7 +302,7 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({client, onBack}) => {
           </div>
 
           {/* Client Information Card */}
-          <div className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
+          {/* <div className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
             <div className="border-b border-slate-100 bg-slate-50/30 px-6 py-4">
               <h2 className="text-sm font-bold uppercase tracking-wider text-slate-900">
                 Client Information
@@ -380,7 +383,144 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({client, onBack}) => {
                 />
               </InfoSection>
             </div>
+          </div> */}
+
+
+          <div className="mb-6 rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+            <div className="border-b border-stroke px-6 py-4 dark:border-strokedark flex justify-between items-center bg-gradient-to-r from-orange-500 to-red-500 rounded-t-lg">
+              <h2 className="text-xl font-semibold text-white">Super Broker Profile</h2>
+              {!isEditing ? (
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="flex items-center gap-2 rounded bg-white px-4 py-2 text-sm font-medium text-orange-500 hover:bg-gray-100 transition-colors"
+                >
+                  <FiEdit2 className="h-4 w-4" /> Edit Profile
+                </button>
+              ) : (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setIsEditing(false)}
+                    className="flex items-center gap-2 rounded bg-red-100 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-200 transition-colors"
+                  >
+                    <FiX className="h-4 w-4" /> Cancel
+                  </button>
+                  <button
+                    // onClick={handleSave}
+                    className="flex items-center gap-2 rounded bg-white px-4 py-2 text-sm font-medium text-orange-500 hover:bg-gray-100 transition-colors"
+                  >
+                    <FiSave className="h-4 w-4" /> Save
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="p-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-black dark:text-white">
+                    Full Name
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      name="fullname"
+                      value={displayClient.user?.fullname || 'N/A'}
+                      // onChange={handleInputChange}
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                    />
+                  ) : (
+                    <p className="text-black dark:text-white">{displayClient.user?.fullname || 'N/A'}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-black dark:text-white">
+                    Aadhar Number
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      name="aadharCardNumber"
+                      value={displayClient.aadharCardNumber || 'N/A'}
+                      // onChange={handleInputChange}
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                    />
+                  ) : (
+                    <p className="text-black dark:text-white">{displayClient.aadharCardNumber || 'N/A'}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-black dark:text-white">
+                    Commission %
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      name="commission"
+                      value={displayClient.commission || 'N/A'}
+                      // onChange={}
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                    />
+                  ) : (
+                    <p className="text-black dark:text-white">{ displayClient.commission || 'N/A'}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-black dark:text-white">
+                    Area
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      name="area"
+                      value={displayClient.area || 'N/A'}
+                      // onChange={handleInputChange}
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                    />
+                  ) : (
+                    <p className="text-black dark:text-white">{displayClient.area || 'N/A'}</p>
+                  )}
+                </div>
+                  <div>
+                  <label className="mb-2 block text-sm font-medium text-black dark:text-white">
+                    Address
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      name="address"
+                      value={displayClient.address || 'N/A'}
+                      // onChange={handleInputChange}
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                    />
+                  ) : (
+                    <p className="text-black dark:text-white">{displayClient.address || 'N/A'}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-black dark:text-white">
+                    Password
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type="text" // using text so it can be viewed and edited easily
+                      name="password"
+                      // value={editData.password}
+                      // onChange={handleInputChange}
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                    />
+                  ) : (
+                    <p className="text-black dark:text-white">••••••••</p>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
+
+
 
           {/* Documentation */}
           <div className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
@@ -438,21 +578,19 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({client, onBack}) => {
             <div className="mb-6 flex border-b border-slate-100">
               <button
                 onClick={() => setActiveTab('ledger')}
-                className={`px-4 py-3 text-sm font-semibold transition-colors ${
-                  activeTab === 'ledger'
+                className={`px-4 py-3 text-sm font-semibold transition-colors ${activeTab === 'ledger'
                     ? 'border-b-2 border-orange-500 text-orange-500'
                     : 'text-slate-500 hover:text-slate-700'
-                }`}
+                  }`}
               >
                 Client Ledger
               </button>
               <button
                 onClick={() => setActiveTab('payment')}
-                className={`px-4 py-3 text-sm font-semibold transition-colors ${
-                  activeTab === 'payment'
+                className={`px-4 py-3 text-sm font-semibold transition-colors ${activeTab === 'payment'
                     ? 'border-b-2 border-orange-500 text-orange-500'
                     : 'text-slate-500 hover:text-slate-700'
-                }`}
+                  }`}
               >
                 Payment
               </button>
@@ -477,125 +615,33 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({client, onBack}) => {
           </div>
         </div>
 
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Profile Summary */}
-          <div className="rounded-2xl border border-black/5 bg-white p-8 text-center shadow-sm">
-            <div className="relative mb-4 inline-block">
-              {displayClient.photo ? (
-                <img
-                  src={displayClient.photo}
-                  alt={fullName}
-                  className="h-24 w-24 rounded-full border-4 border-white object-cover shadow-md"
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full border-4 border-white bg-slate-200 text-3xl font-bold text-slate-600 shadow-md">
-                  {fullName.charAt(0) || 'U'}
-                </div>
-              )}
-              {displayClient.user?.isActive && (
-                <div className="absolute bottom-1 right-1 h-5 w-5 rounded-full border-4 border-white bg-emerald-500" />
-              )}
-            </div>
-            <h2 className="mb-1 text-xl font-semibold text-slate-900">
-              {fullName}
-            </h2>
-            <p className="mb-6 text-sm text-slate-400">{email}</p>
-
-            <div className="grid grid-cols-2 gap-6 border-t border-slate-50 pt-6 text-left">
-              <div className="space-y-4">
-                <InfoItem label="Phone" value={phone} />
-                <InfoItem
-                  label="Country"
-                  value={displayClient.country || 'N/A'}
-                />
-              </div>
-              <div className="space-y-4">
-                <InfoItem
-                  label="Joined"
-                  value={new Date(displayClient.createdAt).toLocaleDateString()}
-                />
-                <div>
-                  <div className="mb-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    KYC Status
-                  </div>
-                  <span
-                    className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                      displayClient.isKycCompleted
-                        ? 'border-orange-100 bg-orange-50 text-orange-600'
-                        : 'border-amber-100 bg-amber-50 text-amber-600'
-                    }`}
-                  >
-                    {displayClient.isKycCompleted ? 'Completed' : 'Pending'}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Admin Actions */}
-          <div className="rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
-            <h3 className="mb-6 text-sm font-bold uppercase tracking-wider text-slate-900">
-              Admin Actions
-            </h3>
-            <div className="mb-6 grid grid-cols-2 gap-3">
-              <button className="flex items-center justify-center gap-2 rounded-xl bg-orange-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm shadow-orange-200 transition-colors hover:bg-orange-600">
-                <CreditCard className="h-4 w-4" /> Credit
-              </button>
-              <button className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50">
-                <Mail className="h-4 w-4" /> Email
-              </button>
-              <button className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50">
-                <RotateCcw className="h-4 w-4" /> Reset
-              </button>
-              <button className="flex items-center justify-center gap-2 rounded-xl border border-rose-100 bg-rose-50 px-4 py-2.5 text-sm font-medium text-rose-600 transition-colors hover:bg-rose-100">
-                <Snowflake className="h-4 w-4" /> Freeze
-              </button>
-            </div>
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                Internal Notes
-              </label>
-              <textarea
-                placeholder="Add a note about this client..."
-                className="h-24 w-full resize-none rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-              />
-              <div className="flex items-center justify-between pt-2 text-[10px] text-slate-400">
-                <span>Last edited by Admin_01</span>
-                <span>Oct 12, 14:30</span>
-              </div>
-            </div>
-          </div>
-        </div>
+     
       </div>
       {/* Wallet Balance Modal */}
       {isWalletModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl border border-slate-100">
             <h3 className="text-lg font-bold text-slate-900 mb-4">Manage Wallet Balance</h3>
-            
+
             {/* Toggle buttons */}
             <div className="grid grid-cols-2 gap-2 mb-6 bg-slate-100 p-1 rounded-xl">
               <button
                 type="button"
                 onClick={() => setWalletActionType('add')}
-                className={`py-2 text-sm font-semibold rounded-lg transition-all ${
-                  walletActionType === 'add'
+                className={`py-2 text-sm font-semibold rounded-lg transition-all ${walletActionType === 'add'
                     ? 'bg-white text-orange-500 shadow-sm'
                     : 'text-slate-600 hover:text-slate-800'
-                }`}
+                  }`}
               >
                 Add
               </button>
               <button
                 type="button"
                 onClick={() => setWalletActionType('withdraw')}
-                className={`py-2 text-sm font-semibold rounded-lg transition-all ${
-                  walletActionType === 'withdraw'
+                className={`py-2 text-sm font-semibold rounded-lg transition-all ${walletActionType === 'withdraw'
                     ? 'bg-white text-orange-500 shadow-sm'
                     : 'text-slate-600 hover:text-slate-800'
-                }`}
+                  }`}
               >
                 Withdraw
               </button>
@@ -621,7 +667,7 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({client, onBack}) => {
                   className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-xs font-bold uppercase text-slate-500 mb-1.5">
                   Pin
@@ -665,7 +711,7 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({client, onBack}) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl border border-slate-100">
             <h3 className="text-lg font-bold text-slate-900 mb-6">Add Margin</h3>
-            
+
             <form onSubmit={(e) => {
               e.preventDefault();
               alert(`Intraday Margin: ${intradayMargin}, Holding Margin: ${holdingMargin}, Pin: ${marginPin}`);
@@ -701,7 +747,7 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({client, onBack}) => {
                   className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-xs font-bold uppercase text-slate-500 mb-1.5">
                   Pin

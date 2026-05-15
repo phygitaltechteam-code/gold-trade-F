@@ -50,7 +50,7 @@ const TransactionLedger = () => {
       </div>
 
       <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-        <div className="p-6">
+        <div className="">
           <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
             <h3 className="text-lg font-semibold text-black dark:text-white">Ledger Records</h3>
             <div className="flex flex-wrap items-center gap-3">

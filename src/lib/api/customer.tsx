@@ -39,3 +39,23 @@ export const rejectTheCustomer = async (id: string, note: string) => {
     throw error;
   }
 };
+
+export const deleteCustomer = async (id: string) => {
+  try {
+    const response = await api.delete(`admin/customer/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting customer:', error);
+    throw error;
+  }
+};
+
+export const updateCustomer = async (id: string, data: any) => {
+  try {
+    const response = await api.put(`admin/customer/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating customer:', error);
+    throw error;
+  }
+};

@@ -22,11 +22,13 @@ export interface Client {
   passport: string;
   aadharCard: string;
   panCard: string;
+  commission: string;
+  area: string;
+  address: string;
   passportNumber: string;
   aadharCardNumber: string | null;
   panCardNumber: string | null;
   accountNumber: string;
-  address: string;
   city: string;
   photo: string;
   state: string;

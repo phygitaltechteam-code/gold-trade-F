@@ -109,3 +109,53 @@ const getSuperBrokerData = async () => {
     throw error;
   }
 };
+
+export const approveBroker = async (id: string) => {
+  try {
+    const response = await api.put(`/company/broker/approve/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error approving broker:', error);
+    throw error;
+  }
+};
+
+export const updateBroker = async ({ id, data }: { id: string; data: any }) => {
+  try {
+    const response = await api.put(`/company/broker/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating broker:', error);
+    throw error;
+  }
+};
+
+export const useApproveBroker = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: approveBroker,
+    onSuccess: () => {
+      toast.success('Broker Approved Successfully!');
+      queryClient.invalidateQueries({ queryKey: ['get-broker'] });
+    },
+    onError: (error: any) => {
+      const backendMessage = error?.response?.data?.message || 'Failed to approve broker';
+      toast.error(backendMessage);
+    },
+  });
+};
+
+export const useUpdateBroker = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateBroker,
+    onSuccess: () => {
+      toast.success('Broker Updated Successfully!');
+      queryClient.invalidateQueries({ queryKey: ['get-broker'] });
+    },
+    onError: (error: any) => {
+      const backendMessage = error?.response?.data?.message || 'Failed to update broker';
+      toast.error(backendMessage);
+    },
+  });
+};

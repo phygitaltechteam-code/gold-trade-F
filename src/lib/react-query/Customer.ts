@@ -4,6 +4,8 @@ import {
   getAllCustomer,
   getCustomerById,
   rejectTheCustomer,
+  deleteCustomer,
+  updateCustomer,
 } from '../api/customer';
 import toast from 'react-hot-toast';
 
@@ -27,6 +29,7 @@ export const useAcceptCustomer = () => {
 
     onSuccess: () => {
       toast.success('Customer Accepted!');
+      queryClient.invalidateQueries({queryKey: ['customer']});
       queryClient.invalidateQueries({queryKey: ['accept-customer']});
     },
     onError: () => {
@@ -44,10 +47,43 @@ export const useRejectCustomer = () => {
 
     onSuccess: () => {
       toast.success('Customer Rejected!');
+      queryClient.invalidateQueries({queryKey: ['customer']});
       queryClient.invalidateQueries({queryKey: ['reject-customer']});
     },
     onError: () => {
       toast.error('Failed To Reject Customer!');
+    },
+  });
+};
+
+export const useDeleteCustomer = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => deleteCustomer(id),
+
+    onSuccess: () => {
+      toast.success('Customer Deleted Successfully!');
+      queryClient.invalidateQueries({queryKey: ['customer']});
+    },
+    onError: () => {
+      toast.error('Failed To Delete Customer!');
+    },
+  });
+};
+
+export const useUpdateCustomer = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({id, data}: {id: string; data: any}) => updateCustomer(id, data),
+
+    onSuccess: () => {
+      toast.success('Customer Updated Successfully!');
+      queryClient.invalidateQueries({queryKey: ['customer']});
+    },
+    onError: () => {
+      toast.error('Failed To Update Customer!');
     },
   });
 };

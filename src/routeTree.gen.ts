@@ -70,6 +70,7 @@ import { Route as AppReportFinancialReportImport } from './routes/_app/Report/fi
 import { Route as AppReportReviewConfigImport } from './routes/_app/Report/ReviewConfig'
 import { Route as AppKYCApprovalLivemonitoringImport } from './routes/_app/KYCApproval/livemonitoring'
 import { Route as AppKYCApprovalKycmainImport } from './routes/_app/KYCApproval/kycmain'
+import { Route as AppApprovalPendingapprovalsImport } from './routes/_app/Approval/pendingapprovals'
 import { Route as AppApprovalCustomerregisterapproveImport } from './routes/_app/Approval/customerregisterapprove'
 import { Route as NativeTokenUserPassImport } from './routes/_native/token.$user.$pass'
 import { Route as AppClientViewbeneficiaryIdImport } from './routes/_app/client/viewbeneficiary.$id'
@@ -446,6 +447,13 @@ const AppKYCApprovalKycmainRoute = AppKYCApprovalKycmainImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 
+const AppApprovalPendingapprovalsRoute =
+  AppApprovalPendingapprovalsImport.update({
+    id: '/Approval/pendingapprovals',
+    path: '/Approval/pendingapprovals',
+    getParentRoute: () => AppRoute,
+  } as any)
+
 const AppApprovalCustomerregisterapproveRoute =
   AppApprovalCustomerregisterapproveImport.update({
     id: '/Approval/customerregisterapprove',
@@ -673,6 +681,13 @@ declare module '@tanstack/react-router' {
       path: '/Approval/customerregisterapprove'
       fullPath: '/Approval/customerregisterapprove'
       preLoaderRoute: typeof AppApprovalCustomerregisterapproveImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/Approval/pendingapprovals': {
+      id: '/_app/Approval/pendingapprovals'
+      path: '/Approval/pendingapprovals'
+      fullPath: '/Approval/pendingapprovals'
+      preLoaderRoute: typeof AppApprovalPendingapprovalsImport
       parentRoute: typeof AppImport
     }
     '/_app/KYCApproval/kycmain': {
@@ -983,6 +998,7 @@ interface AppRouteChildren {
   AppWallettopupreportRoute: typeof AppWallettopupreportRoute
   AppWithdrawpageRoute: typeof AppWithdrawpageRoute
   AppApprovalCustomerregisterapproveRoute: typeof AppApprovalCustomerregisterapproveRoute
+  AppApprovalPendingapprovalsRoute: typeof AppApprovalPendingapprovalsRoute
   AppKYCApprovalKycmainRoute: typeof AppKYCApprovalKycmainRoute
   AppKYCApprovalLivemonitoringRoute: typeof AppKYCApprovalLivemonitoringRoute
   AppReportReviewConfigRoute: typeof AppReportReviewConfigRoute
@@ -1042,6 +1058,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppWithdrawpageRoute: AppWithdrawpageRoute,
   AppApprovalCustomerregisterapproveRoute:
     AppApprovalCustomerregisterapproveRoute,
+  AppApprovalPendingapprovalsRoute: AppApprovalPendingapprovalsRoute,
   AppKYCApprovalKycmainRoute: AppKYCApprovalKycmainRoute,
   AppKYCApprovalLivemonitoringRoute: AppKYCApprovalLivemonitoringRoute,
   AppReportReviewConfigRoute: AppReportReviewConfigRoute,
@@ -1144,6 +1161,7 @@ export interface FileRoutesByFullPath {
   '/verification': typeof AuthVerificationRoute
   '/': typeof AuthIndexRoute
   '/Approval/customerregisterapprove': typeof AppApprovalCustomerregisterapproveRoute
+  '/Approval/pendingapprovals': typeof AppApprovalPendingapprovalsRoute
   '/KYCApproval/kycmain': typeof AppKYCApprovalKycmainRoute
   '/KYCApproval/livemonitoring': typeof AppKYCApprovalLivemonitoringRoute
   '/Report/ReviewConfig': typeof AppReportReviewConfigRoute
@@ -1210,6 +1228,7 @@ export interface FileRoutesByTo {
   '/verification': typeof AuthVerificationRoute
   '/': typeof AuthIndexRoute
   '/Approval/customerregisterapprove': typeof AppApprovalCustomerregisterapproveRoute
+  '/Approval/pendingapprovals': typeof AppApprovalPendingapprovalsRoute
   '/KYCApproval/kycmain': typeof AppKYCApprovalKycmainRoute
   '/KYCApproval/livemonitoring': typeof AppKYCApprovalLivemonitoringRoute
   '/Report/ReviewConfig': typeof AppReportReviewConfigRoute
@@ -1280,6 +1299,7 @@ export interface FileRoutesById {
   '/_auth/verification': typeof AuthVerificationRoute
   '/_auth/': typeof AuthIndexRoute
   '/_app/Approval/customerregisterapprove': typeof AppApprovalCustomerregisterapproveRoute
+  '/_app/Approval/pendingapprovals': typeof AppApprovalPendingapprovalsRoute
   '/_app/KYCApproval/kycmain': typeof AppKYCApprovalKycmainRoute
   '/_app/KYCApproval/livemonitoring': typeof AppKYCApprovalLivemonitoringRoute
   '/_app/Report/ReviewConfig': typeof AppReportReviewConfigRoute
@@ -1348,6 +1368,7 @@ export interface FileRouteTypes {
     | '/verification'
     | '/'
     | '/Approval/customerregisterapprove'
+    | '/Approval/pendingapprovals'
     | '/KYCApproval/kycmain'
     | '/KYCApproval/livemonitoring'
     | '/Report/ReviewConfig'
@@ -1413,6 +1434,7 @@ export interface FileRouteTypes {
     | '/verification'
     | '/'
     | '/Approval/customerregisterapprove'
+    | '/Approval/pendingapprovals'
     | '/KYCApproval/kycmain'
     | '/KYCApproval/livemonitoring'
     | '/Report/ReviewConfig'
@@ -1481,6 +1503,7 @@ export interface FileRouteTypes {
     | '/_auth/verification'
     | '/_auth/'
     | '/_app/Approval/customerregisterapprove'
+    | '/_app/Approval/pendingapprovals'
     | '/_app/KYCApproval/kycmain'
     | '/_app/KYCApproval/livemonitoring'
     | '/_app/Report/ReviewConfig'
@@ -1575,6 +1598,7 @@ export const routeTree = rootRoute
         "/_app/wallettopupreport",
         "/_app/withdrawpage",
         "/_app/Approval/customerregisterapprove",
+        "/_app/Approval/pendingapprovals",
         "/_app/KYCApproval/kycmain",
         "/_app/KYCApproval/livemonitoring",
         "/_app/Report/ReviewConfig",
@@ -1719,6 +1743,10 @@ export const routeTree = rootRoute
     },
     "/_app/Approval/customerregisterapprove": {
       "filePath": "_app/Approval/customerregisterapprove.tsx",
+      "parent": "/_app"
+    },
+    "/_app/Approval/pendingapprovals": {
+      "filePath": "_app/Approval/pendingapprovals.tsx",
       "parent": "/_app"
     },
     "/_app/KYCApproval/kycmain": {
