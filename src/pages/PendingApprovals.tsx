@@ -357,8 +357,8 @@ const PendingApprovals: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50/50 p-6 md:p-8 font-inter">
-      <div className="mx-auto max-w-[1500px]">
+    <div className="min-h-screen bg-gray-50/50 p-2 md:p-8 font-inter">
+      <div className="mx-auto max-w-[2000px]">
         {/* Header & Status Toggle */}
         <div className="mb-8 flex flex-col justify-between items-start md:flex-row md:items-center gap-4 border-b border-gray-200 pb-6 bg-white p-6 rounded-2xl shadow-sm border border-stroke">
           <div>
@@ -411,7 +411,7 @@ const PendingApprovals: React.FC = () => {
         <div className="mb-6 flex gap-3 border-b border-gray-200 pb-4">
           <button
             onClick={() => setActiveTab('brokers')}
-            className={`flex items-center gap-2 rounded-xl px-6 py-3 font-bold text-sm transition-all ${
+            className={`flex items-center gap-2 rounded-xl px-1 py-1.5 font-bold text-sm transition-all ${
               activeTab === 'brokers'
                 ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg shadow-orange-500/20 scale-105'
                 : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
@@ -424,7 +424,7 @@ const PendingApprovals: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab('clients')}
-            className={`flex items-center gap-2 rounded-xl px-6 py-3 font-bold text-sm transition-all ${
+            className={`flex items-center gap-2 rounded-xl px-2 py-3 font-bold text-sm transition-all ${
               activeTab === 'clients'
                 ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg shadow-orange-500/20 scale-105'
                 : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'

@@ -1,8 +1,9 @@
 import { useAddBroker } from '@/lib/api/addbroker';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import toast from 'react-hot-toast';
 import { z } from 'zod';
+import { useAuthContext } from '@/context/AuthContext';
 
 // Define Zod schema for form data validation
 const BrokerSchema = z.object({
@@ -15,6 +16,8 @@ const BrokerSchema = z.object({
 const AddBroker = () => {
   const navigate = useNavigate();
   const addbroker = useAddBroker();
+  const { user } = useAuthContext();
+  const isSuperBroker = user?.role === 'SUPERBROKER';
   
   const [formData, setFormData] = useState({
     fullname: '',
@@ -25,6 +28,15 @@ const AddBroker = () => {
     aadharCardNumber: '',
     superBrokerId: '',
   });
+
+  useEffect(() => {
+    if (isSuperBroker && user) {
+      setFormData((prev) => ({
+        ...prev,
+        superBrokerId: user.id || 'mock-dev-id-999',
+      }));
+    }
+  }, [isSuperBroker, user]);
 
   const [images, setImages] = useState({
     aadharCardF: null,
@@ -200,7 +212,7 @@ const AddBroker = () => {
       await addbroker.mutateAsync(formDataToSend);
       resetForm();
       toast.success('Broker registered successfully!');
-      navigate({ to: '/companybroker/displaybroker' });
+      navigate({ to: isSuperBroker ? '/superbroker/brokerlist' : '/companybroker/displaybroker' });
     } catch (error) {
       console.error('Submission error:', error);
     } finally {
@@ -288,7 +300,7 @@ const AddBroker = () => {
               </p>
             </div>
             <button
-              onClick={() => navigate({ to: '/companybroker/displaybroker' })}
+              onClick={() => navigate({ to: isSuperBroker ? '/superbroker/brokerlist' : '/companybroker/displaybroker' })}
               className="hover:bg-gray-100 rounded-lg bg-white px-4 py-2 text-orange-500 transition-all"
             >
               Back to List
@@ -358,62 +370,71 @@ const AddBroker = () => {
               )}
             </div>
 
-            {/* Searchable Super Broker Dropdown */}
+            {/* Searchable Super Broker Dropdown or locked role input */}
             <div className="mb-4 relative">
               <label className="text-gray-700 mb-2 block text-sm font-medium">
                 Assign to Super Broker <span className="text-red-500">*</span>
               </label>
-              <div className="relative">
+              {isSuperBroker ? (
                 <input
                   type="text"
-                  placeholder="Search Super Broker by Name or ID"
-                  value={
-                    isDropdownOpen
-                      ? searchTerm
-                      : mockSuperBrokers.find((sb) => sb.id === formData.superBrokerId)
-                        ? `${mockSuperBrokers.find((sb) => sb.id === formData.superBrokerId)?.fullname} (${mockSuperBrokers.find((sb) => sb.id === formData.superBrokerId)?.SBID})`
-                        : ''
-                  }
-                  onChange={(e) => {
-                    setSearchTerm(e.target.value);
-                    setIsDropdownOpen(true);
-                  }}
-                  onFocus={() => {
-                    setIsDropdownOpen(true);
-                    setSearchTerm(''); // clear search when opening to see all options
-                  }}
-                  onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
-                  className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${errors.superBrokerId ? 'border-red-500' : 'border-gray-300'
-                    }`}
+                  disabled
+                  value={`${user?.fullname || 'Mock Super Broker'} (Super Broker)`}
+                  className="w-full rounded-lg border border-slate-200 bg-slate-100 p-2 text-slate-500 font-semibold cursor-not-allowed"
                 />
-                
-                {isDropdownOpen && (
-                  <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
-                    {filteredSuperBrokers.length > 0 ? (
-                      filteredSuperBrokers.map((sb) => (
-                        <div
-                          key={sb.id}
-                          className="cursor-pointer px-4 py-2 hover:bg-orange-50"
-                          onClick={() => {
-                            setFormData((prev) => ({ ...prev, superBrokerId: sb.id }));
-                            setSearchTerm('');
-                            setIsDropdownOpen(false);
-                            if (errors.superBrokerId) {
-                              setErrors((prev) => ({ ...prev, superBrokerId: '' }));
-                            }
-                          }}
-                        >
-                          <div className="font-medium text-gray-900">{sb.fullname}</div>
-                          <div className="text-xs text-gray-500">{sb.SBID}</div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="px-4 py-2 text-sm text-gray-500">No Super Brokers found</div>
-                    )}
-                  </div>
-                )}
-              </div>
-              {errors.superBrokerId && (
+              ) : (
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search Super Broker by Name or ID"
+                    value={
+                      isDropdownOpen
+                        ? searchTerm
+                        : mockSuperBrokers.find((sb) => sb.id === formData.superBrokerId)
+                          ? `${mockSuperBrokers.find((sb) => sb.id === formData.superBrokerId)?.fullname} (${mockSuperBrokers.find((sb) => sb.id === formData.superBrokerId)?.SBID})`
+                          : ''
+                    }
+                    onChange={(e) => {
+                      setSearchTerm(e.target.value);
+                      setIsDropdownOpen(true);
+                    }}
+                    onFocus={() => {
+                      setIsDropdownOpen(true);
+                      setSearchTerm(''); // clear search when opening to see all options
+                    }}
+                    onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
+                    className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${errors.superBrokerId ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                  />
+                  
+                  {isDropdownOpen && (
+                    <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
+                      {filteredSuperBrokers.length > 0 ? (
+                        filteredSuperBrokers.map((sb) => (
+                          <div
+                            key={sb.id}
+                            className="cursor-pointer px-4 py-2 hover:bg-orange-50"
+                            onClick={() => {
+                              setFormData((prev) => ({ ...prev, superBrokerId: sb.id }));
+                              setSearchTerm('');
+                              setIsDropdownOpen(false);
+                              if (errors.superBrokerId) {
+                                setErrors((prev) => ({ ...prev, superBrokerId: '' }));
+                              }
+                            }}
+                          >
+                            <div className="font-medium text-gray-900">{sb.fullname}</div>
+                            <div className="text-xs text-gray-500">{sb.SBID}</div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="px-4 py-2 text-sm text-gray-500">No Super Brokers found</div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+              {errors.superBrokerId && !isSuperBroker && (
                 <p className="mt-1 text-xs text-red-500">{errors.superBrokerId}</p>
               )}
             </div>

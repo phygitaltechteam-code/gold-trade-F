@@ -26,6 +26,9 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
   const isCompany = user?.role === 'COMPANY';
   const isSuperAdmin = user?.role === 'SUPERADMIN';
   const isAdmin = user?.role === 'ADMIN'; // Add this back for logo display
+  const isBroker = user?.role === 'BROKER';
+  const isCustomer = user?.role === 'CUSTOMER';
+  const isSuperBroker = user?.role === 'SUPERBROKER';
 
   console.log('userrrr', user);
 
@@ -140,7 +143,82 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
             icon: <FaUsers size={22} />,
           },
         ]
-      : [];
+    :isBroker
+    ?[
+      {
+        label: 'Dashboard',
+        path: '/broker/dashboard',
+        icon: <MdDashboard size={22} />,
+      },
+      {
+        label: 'Customer List',
+        path: '/broker/customerlist',
+        icon: <FaUsers size={22} />,
+      },
+      {
+        label: 'Commission History',
+        path: '/broker/commissionhistory',
+        icon: <FaUsers size={22} />,
+      },
+      {
+        label: 'Payment History',
+        path: '/broker/paymenthistory',
+        icon: <FaUsers size={22} />,
+      },
+      {
+        label: 'Settings',
+        icon: <MdSettings size={22} />,
+        subRoutes: [
+          {label: 'Change Password', path: '/change-password'},
+          {label: 'Logout', onClick: () => handleSignOut()},
+        ],
+      },
+    ]
+    :isCustomer
+    ?[
+      {
+        label: 'Dashboard',
+        path: '/customer/dashboard',
+        icon: <MdDashboard size={22} />,
+      },
+      {
+        label: 'Clients',
+        path: '/customer/clients',
+        icon: <FaUsers size={22} />,
+      },
+    ]
+    :isSuperBroker
+    ?[
+      {
+        label: 'Dashboard',
+        path: '/superbroker/dashboard',
+        icon: <MdDashboard size={22} />,
+      },
+      {
+        label: 'Broker List',
+        path: '/superbroker/brokerlist',
+        icon: <FaUsers size={22} />,
+      },
+      {
+        label: 'Commission History',
+        path: '/superbroker/commissionhistory',
+        icon: <FaUsers size={22} />,
+      },
+      {
+        label: 'Payment History',
+        path: '/superbroker/paymenthistory',
+        icon: <FaUsers size={22} />,
+      },
+      {
+        label: 'Settings',
+        icon: <MdSettings size={22} />,
+        subRoutes: [
+          {label: 'Change Password', path: '/change-password'},
+          {label: 'Logout', onClick: () => handleSignOut()},
+        ],
+      },
+    ]
+    :[];
 
   const trigger = useRef<HTMLButtonElement>(null);
   const sidebar = useRef<HTMLDivElement>(null);

@@ -40,6 +40,11 @@ import { Route as AppWalletToupscreenImport } from './routes/_app/wallet/toupscr
 import { Route as AppWalletSuccessImport } from './routes/_app/wallet/success'
 import { Route as AppWalletProcessingImport } from './routes/_app/wallet/processing'
 import { Route as AppWalletPinImport } from './routes/_app/wallet/pin'
+import { Route as AppSuperbrokerPaymenthistoryImport } from './routes/_app/superbroker/paymenthistory'
+import { Route as AppSuperbrokerDashboardImport } from './routes/_app/superbroker/dashboard'
+import { Route as AppSuperbrokerCommissionhistoryImport } from './routes/_app/superbroker/commissionhistory'
+import { Route as AppSuperbrokerBrokerlistImport } from './routes/_app/superbroker/brokerlist'
+import { Route as AppSuperbrokerAddbrokerImport } from './routes/_app/superbroker/addbroker'
 import { Route as AppSuperadminSuperadminImport } from './routes/_app/superadmin/superadmin'
 import { Route as AppEprivateStatementImport } from './routes/_app/eprivate/statement'
 import { Route as AppEprivateEprivatereportsImport } from './routes/_app/eprivate/eprivatereports'
@@ -59,6 +64,11 @@ import { Route as AppClientDisplayclientImport } from './routes/_app/client/disp
 import { Route as AppClientComissionImport } from './routes/_app/client/comission'
 import { Route as AppClientBeneficiaryImport } from './routes/_app/client/beneficiary'
 import { Route as AppClientAddcommisionImport } from './routes/_app/client/addcommision'
+import { Route as AppBrokerPaymenthistoryImport } from './routes/_app/broker/paymenthistory'
+import { Route as AppBrokerDashboardImport } from './routes/_app/broker/dashboard'
+import { Route as AppBrokerCustomerlistImport } from './routes/_app/broker/customerlist'
+import { Route as AppBrokerCommissionhistoryImport } from './routes/_app/broker/commissionhistory'
+import { Route as AppBrokerAddcustomerImport } from './routes/_app/broker/addcustomer'
 import { Route as AppAccounthubSetnewPinImport } from './routes/_app/accounthub/setnew-pin'
 import { Route as AppAccounthubPersonalInfoImport } from './routes/_app/accounthub/personal-info'
 import { Route as AppAccounthubEnterCurrentpinImport } from './routes/_app/accounthub/enter-currentpin'
@@ -254,6 +264,38 @@ const AppWalletPinRoute = AppWalletPinImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 
+const AppSuperbrokerPaymenthistoryRoute =
+  AppSuperbrokerPaymenthistoryImport.update({
+    id: '/superbroker/paymenthistory',
+    path: '/superbroker/paymenthistory',
+    getParentRoute: () => AppRoute,
+  } as any)
+
+const AppSuperbrokerDashboardRoute = AppSuperbrokerDashboardImport.update({
+  id: '/superbroker/dashboard',
+  path: '/superbroker/dashboard',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppSuperbrokerCommissionhistoryRoute =
+  AppSuperbrokerCommissionhistoryImport.update({
+    id: '/superbroker/commissionhistory',
+    path: '/superbroker/commissionhistory',
+    getParentRoute: () => AppRoute,
+  } as any)
+
+const AppSuperbrokerBrokerlistRoute = AppSuperbrokerBrokerlistImport.update({
+  id: '/superbroker/brokerlist',
+  path: '/superbroker/brokerlist',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppSuperbrokerAddbrokerRoute = AppSuperbrokerAddbrokerImport.update({
+  id: '/superbroker/addbroker',
+  path: '/superbroker/addbroker',
+  getParentRoute: () => AppRoute,
+} as any)
+
 const AppSuperadminSuperadminRoute = AppSuperadminSuperadminImport.update({
   id: '/superadmin/superadmin',
   path: '/superadmin/superadmin',
@@ -375,6 +417,38 @@ const AppClientBeneficiaryRoute = AppClientBeneficiaryImport.update({
 const AppClientAddcommisionRoute = AppClientAddcommisionImport.update({
   id: '/client/addcommision',
   path: '/client/addcommision',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppBrokerPaymenthistoryRoute = AppBrokerPaymenthistoryImport.update({
+  id: '/broker/paymenthistory',
+  path: '/broker/paymenthistory',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppBrokerDashboardRoute = AppBrokerDashboardImport.update({
+  id: '/broker/dashboard',
+  path: '/broker/dashboard',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppBrokerCustomerlistRoute = AppBrokerCustomerlistImport.update({
+  id: '/broker/customerlist',
+  path: '/broker/customerlist',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppBrokerCommissionhistoryRoute = AppBrokerCommissionhistoryImport.update(
+  {
+    id: '/broker/commissionhistory',
+    path: '/broker/commissionhistory',
+    getParentRoute: () => AppRoute,
+  } as any,
+)
+
+const AppBrokerAddcustomerRoute = AppBrokerAddcustomerImport.update({
+  id: '/broker/addcustomer',
+  path: '/broker/addcustomer',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -767,6 +841,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAccounthubSetnewPinImport
       parentRoute: typeof AppImport
     }
+    '/_app/broker/addcustomer': {
+      id: '/_app/broker/addcustomer'
+      path: '/broker/addcustomer'
+      fullPath: '/broker/addcustomer'
+      preLoaderRoute: typeof AppBrokerAddcustomerImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/broker/commissionhistory': {
+      id: '/_app/broker/commissionhistory'
+      path: '/broker/commissionhistory'
+      fullPath: '/broker/commissionhistory'
+      preLoaderRoute: typeof AppBrokerCommissionhistoryImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/broker/customerlist': {
+      id: '/_app/broker/customerlist'
+      path: '/broker/customerlist'
+      fullPath: '/broker/customerlist'
+      preLoaderRoute: typeof AppBrokerCustomerlistImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/broker/dashboard': {
+      id: '/_app/broker/dashboard'
+      path: '/broker/dashboard'
+      fullPath: '/broker/dashboard'
+      preLoaderRoute: typeof AppBrokerDashboardImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/broker/paymenthistory': {
+      id: '/_app/broker/paymenthistory'
+      path: '/broker/paymenthistory'
+      fullPath: '/broker/paymenthistory'
+      preLoaderRoute: typeof AppBrokerPaymenthistoryImport
+      parentRoute: typeof AppImport
+    }
     '/_app/client/addcommision': {
       id: '/_app/client/addcommision'
       path: '/client/addcommision'
@@ -900,6 +1009,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSuperadminSuperadminImport
       parentRoute: typeof AppImport
     }
+    '/_app/superbroker/addbroker': {
+      id: '/_app/superbroker/addbroker'
+      path: '/superbroker/addbroker'
+      fullPath: '/superbroker/addbroker'
+      preLoaderRoute: typeof AppSuperbrokerAddbrokerImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/superbroker/brokerlist': {
+      id: '/_app/superbroker/brokerlist'
+      path: '/superbroker/brokerlist'
+      fullPath: '/superbroker/brokerlist'
+      preLoaderRoute: typeof AppSuperbrokerBrokerlistImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/superbroker/commissionhistory': {
+      id: '/_app/superbroker/commissionhistory'
+      path: '/superbroker/commissionhistory'
+      fullPath: '/superbroker/commissionhistory'
+      preLoaderRoute: typeof AppSuperbrokerCommissionhistoryImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/superbroker/dashboard': {
+      id: '/_app/superbroker/dashboard'
+      path: '/superbroker/dashboard'
+      fullPath: '/superbroker/dashboard'
+      preLoaderRoute: typeof AppSuperbrokerDashboardImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/superbroker/paymenthistory': {
+      id: '/_app/superbroker/paymenthistory'
+      path: '/superbroker/paymenthistory'
+      fullPath: '/superbroker/paymenthistory'
+      preLoaderRoute: typeof AppSuperbrokerPaymenthistoryImport
+      parentRoute: typeof AppImport
+    }
     '/_app/wallet/pin': {
       id: '/_app/wallet/pin'
       path: '/wallet/pin'
@@ -1010,6 +1154,11 @@ interface AppRouteChildren {
   AppAccounthubEnterCurrentpinRoute: typeof AppAccounthubEnterCurrentpinRoute
   AppAccounthubPersonalInfoRoute: typeof AppAccounthubPersonalInfoRoute
   AppAccounthubSetnewPinRoute: typeof AppAccounthubSetnewPinRoute
+  AppBrokerAddcustomerRoute: typeof AppBrokerAddcustomerRoute
+  AppBrokerCommissionhistoryRoute: typeof AppBrokerCommissionhistoryRoute
+  AppBrokerCustomerlistRoute: typeof AppBrokerCustomerlistRoute
+  AppBrokerDashboardRoute: typeof AppBrokerDashboardRoute
+  AppBrokerPaymenthistoryRoute: typeof AppBrokerPaymenthistoryRoute
   AppClientAddcommisionRoute: typeof AppClientAddcommisionRoute
   AppClientBeneficiaryRoute: typeof AppClientBeneficiaryRoute
   AppClientComissionRoute: typeof AppClientComissionRoute
@@ -1029,6 +1178,11 @@ interface AppRouteChildren {
   AppEprivateEprivatereportsRoute: typeof AppEprivateEprivatereportsRoute
   AppEprivateStatementRoute: typeof AppEprivateStatementRoute
   AppSuperadminSuperadminRoute: typeof AppSuperadminSuperadminRoute
+  AppSuperbrokerAddbrokerRoute: typeof AppSuperbrokerAddbrokerRoute
+  AppSuperbrokerBrokerlistRoute: typeof AppSuperbrokerBrokerlistRoute
+  AppSuperbrokerCommissionhistoryRoute: typeof AppSuperbrokerCommissionhistoryRoute
+  AppSuperbrokerDashboardRoute: typeof AppSuperbrokerDashboardRoute
+  AppSuperbrokerPaymenthistoryRoute: typeof AppSuperbrokerPaymenthistoryRoute
   AppWalletPinRoute: typeof AppWalletPinRoute
   AppWalletProcessingRoute: typeof AppWalletProcessingRoute
   AppWalletSuccessRoute: typeof AppWalletSuccessRoute
@@ -1070,6 +1224,11 @@ const AppRouteChildren: AppRouteChildren = {
   AppAccounthubEnterCurrentpinRoute: AppAccounthubEnterCurrentpinRoute,
   AppAccounthubPersonalInfoRoute: AppAccounthubPersonalInfoRoute,
   AppAccounthubSetnewPinRoute: AppAccounthubSetnewPinRoute,
+  AppBrokerAddcustomerRoute: AppBrokerAddcustomerRoute,
+  AppBrokerCommissionhistoryRoute: AppBrokerCommissionhistoryRoute,
+  AppBrokerCustomerlistRoute: AppBrokerCustomerlistRoute,
+  AppBrokerDashboardRoute: AppBrokerDashboardRoute,
+  AppBrokerPaymenthistoryRoute: AppBrokerPaymenthistoryRoute,
   AppClientAddcommisionRoute: AppClientAddcommisionRoute,
   AppClientBeneficiaryRoute: AppClientBeneficiaryRoute,
   AppClientComissionRoute: AppClientComissionRoute,
@@ -1092,6 +1251,11 @@ const AppRouteChildren: AppRouteChildren = {
   AppEprivateEprivatereportsRoute: AppEprivateEprivatereportsRoute,
   AppEprivateStatementRoute: AppEprivateStatementRoute,
   AppSuperadminSuperadminRoute: AppSuperadminSuperadminRoute,
+  AppSuperbrokerAddbrokerRoute: AppSuperbrokerAddbrokerRoute,
+  AppSuperbrokerBrokerlistRoute: AppSuperbrokerBrokerlistRoute,
+  AppSuperbrokerCommissionhistoryRoute: AppSuperbrokerCommissionhistoryRoute,
+  AppSuperbrokerDashboardRoute: AppSuperbrokerDashboardRoute,
+  AppSuperbrokerPaymenthistoryRoute: AppSuperbrokerPaymenthistoryRoute,
   AppWalletPinRoute: AppWalletPinRoute,
   AppWalletProcessingRoute: AppWalletProcessingRoute,
   AppWalletSuccessRoute: AppWalletSuccessRoute,
@@ -1173,6 +1337,11 @@ export interface FileRoutesByFullPath {
   '/accounthub/enter-currentpin': typeof AppAccounthubEnterCurrentpinRoute
   '/accounthub/personal-info': typeof AppAccounthubPersonalInfoRoute
   '/accounthub/setnew-pin': typeof AppAccounthubSetnewPinRoute
+  '/broker/addcustomer': typeof AppBrokerAddcustomerRoute
+  '/broker/commissionhistory': typeof AppBrokerCommissionhistoryRoute
+  '/broker/customerlist': typeof AppBrokerCustomerlistRoute
+  '/broker/dashboard': typeof AppBrokerDashboardRoute
+  '/broker/paymenthistory': typeof AppBrokerPaymenthistoryRoute
   '/client/addcommision': typeof AppClientAddcommisionRoute
   '/client/beneficiary': typeof AppClientBeneficiaryRoute
   '/client/comission': typeof AppClientComissionRoute
@@ -1192,6 +1361,11 @@ export interface FileRoutesByFullPath {
   '/eprivate/eprivatereports': typeof AppEprivateEprivatereportsRoute
   '/eprivate/statement': typeof AppEprivateStatementRoute
   '/superadmin/superadmin': typeof AppSuperadminSuperadminRoute
+  '/superbroker/addbroker': typeof AppSuperbrokerAddbrokerRoute
+  '/superbroker/brokerlist': typeof AppSuperbrokerBrokerlistRoute
+  '/superbroker/commissionhistory': typeof AppSuperbrokerCommissionhistoryRoute
+  '/superbroker/dashboard': typeof AppSuperbrokerDashboardRoute
+  '/superbroker/paymenthistory': typeof AppSuperbrokerPaymenthistoryRoute
   '/wallet/pin': typeof AppWalletPinRoute
   '/wallet/processing': typeof AppWalletProcessingRoute
   '/wallet/success': typeof AppWalletSuccessRoute
@@ -1240,6 +1414,11 @@ export interface FileRoutesByTo {
   '/accounthub/enter-currentpin': typeof AppAccounthubEnterCurrentpinRoute
   '/accounthub/personal-info': typeof AppAccounthubPersonalInfoRoute
   '/accounthub/setnew-pin': typeof AppAccounthubSetnewPinRoute
+  '/broker/addcustomer': typeof AppBrokerAddcustomerRoute
+  '/broker/commissionhistory': typeof AppBrokerCommissionhistoryRoute
+  '/broker/customerlist': typeof AppBrokerCustomerlistRoute
+  '/broker/dashboard': typeof AppBrokerDashboardRoute
+  '/broker/paymenthistory': typeof AppBrokerPaymenthistoryRoute
   '/client/addcommision': typeof AppClientAddcommisionRoute
   '/client/beneficiary': typeof AppClientBeneficiaryRoute
   '/client/comission': typeof AppClientComissionRoute
@@ -1259,6 +1438,11 @@ export interface FileRoutesByTo {
   '/eprivate/eprivatereports': typeof AppEprivateEprivatereportsRoute
   '/eprivate/statement': typeof AppEprivateStatementRoute
   '/superadmin/superadmin': typeof AppSuperadminSuperadminRoute
+  '/superbroker/addbroker': typeof AppSuperbrokerAddbrokerRoute
+  '/superbroker/brokerlist': typeof AppSuperbrokerBrokerlistRoute
+  '/superbroker/commissionhistory': typeof AppSuperbrokerCommissionhistoryRoute
+  '/superbroker/dashboard': typeof AppSuperbrokerDashboardRoute
+  '/superbroker/paymenthistory': typeof AppSuperbrokerPaymenthistoryRoute
   '/wallet/pin': typeof AppWalletPinRoute
   '/wallet/processing': typeof AppWalletProcessingRoute
   '/wallet/success': typeof AppWalletSuccessRoute
@@ -1311,6 +1495,11 @@ export interface FileRoutesById {
   '/_app/accounthub/enter-currentpin': typeof AppAccounthubEnterCurrentpinRoute
   '/_app/accounthub/personal-info': typeof AppAccounthubPersonalInfoRoute
   '/_app/accounthub/setnew-pin': typeof AppAccounthubSetnewPinRoute
+  '/_app/broker/addcustomer': typeof AppBrokerAddcustomerRoute
+  '/_app/broker/commissionhistory': typeof AppBrokerCommissionhistoryRoute
+  '/_app/broker/customerlist': typeof AppBrokerCustomerlistRoute
+  '/_app/broker/dashboard': typeof AppBrokerDashboardRoute
+  '/_app/broker/paymenthistory': typeof AppBrokerPaymenthistoryRoute
   '/_app/client/addcommision': typeof AppClientAddcommisionRoute
   '/_app/client/beneficiary': typeof AppClientBeneficiaryRoute
   '/_app/client/comission': typeof AppClientComissionRoute
@@ -1330,6 +1519,11 @@ export interface FileRoutesById {
   '/_app/eprivate/eprivatereports': typeof AppEprivateEprivatereportsRoute
   '/_app/eprivate/statement': typeof AppEprivateStatementRoute
   '/_app/superadmin/superadmin': typeof AppSuperadminSuperadminRoute
+  '/_app/superbroker/addbroker': typeof AppSuperbrokerAddbrokerRoute
+  '/_app/superbroker/brokerlist': typeof AppSuperbrokerBrokerlistRoute
+  '/_app/superbroker/commissionhistory': typeof AppSuperbrokerCommissionhistoryRoute
+  '/_app/superbroker/dashboard': typeof AppSuperbrokerDashboardRoute
+  '/_app/superbroker/paymenthistory': typeof AppSuperbrokerPaymenthistoryRoute
   '/_app/wallet/pin': typeof AppWalletPinRoute
   '/_app/wallet/processing': typeof AppWalletProcessingRoute
   '/_app/wallet/success': typeof AppWalletSuccessRoute
@@ -1380,6 +1574,11 @@ export interface FileRouteTypes {
     | '/accounthub/enter-currentpin'
     | '/accounthub/personal-info'
     | '/accounthub/setnew-pin'
+    | '/broker/addcustomer'
+    | '/broker/commissionhistory'
+    | '/broker/customerlist'
+    | '/broker/dashboard'
+    | '/broker/paymenthistory'
     | '/client/addcommision'
     | '/client/beneficiary'
     | '/client/comission'
@@ -1399,6 +1598,11 @@ export interface FileRouteTypes {
     | '/eprivate/eprivatereports'
     | '/eprivate/statement'
     | '/superadmin/superadmin'
+    | '/superbroker/addbroker'
+    | '/superbroker/brokerlist'
+    | '/superbroker/commissionhistory'
+    | '/superbroker/dashboard'
+    | '/superbroker/paymenthistory'
     | '/wallet/pin'
     | '/wallet/processing'
     | '/wallet/success'
@@ -1446,6 +1650,11 @@ export interface FileRouteTypes {
     | '/accounthub/enter-currentpin'
     | '/accounthub/personal-info'
     | '/accounthub/setnew-pin'
+    | '/broker/addcustomer'
+    | '/broker/commissionhistory'
+    | '/broker/customerlist'
+    | '/broker/dashboard'
+    | '/broker/paymenthistory'
     | '/client/addcommision'
     | '/client/beneficiary'
     | '/client/comission'
@@ -1465,6 +1674,11 @@ export interface FileRouteTypes {
     | '/eprivate/eprivatereports'
     | '/eprivate/statement'
     | '/superadmin/superadmin'
+    | '/superbroker/addbroker'
+    | '/superbroker/brokerlist'
+    | '/superbroker/commissionhistory'
+    | '/superbroker/dashboard'
+    | '/superbroker/paymenthistory'
     | '/wallet/pin'
     | '/wallet/processing'
     | '/wallet/success'
@@ -1515,6 +1729,11 @@ export interface FileRouteTypes {
     | '/_app/accounthub/enter-currentpin'
     | '/_app/accounthub/personal-info'
     | '/_app/accounthub/setnew-pin'
+    | '/_app/broker/addcustomer'
+    | '/_app/broker/commissionhistory'
+    | '/_app/broker/customerlist'
+    | '/_app/broker/dashboard'
+    | '/_app/broker/paymenthistory'
     | '/_app/client/addcommision'
     | '/_app/client/beneficiary'
     | '/_app/client/comission'
@@ -1534,6 +1753,11 @@ export interface FileRouteTypes {
     | '/_app/eprivate/eprivatereports'
     | '/_app/eprivate/statement'
     | '/_app/superadmin/superadmin'
+    | '/_app/superbroker/addbroker'
+    | '/_app/superbroker/brokerlist'
+    | '/_app/superbroker/commissionhistory'
+    | '/_app/superbroker/dashboard'
+    | '/_app/superbroker/paymenthistory'
     | '/_app/wallet/pin'
     | '/_app/wallet/processing'
     | '/_app/wallet/success'
@@ -1610,6 +1834,11 @@ export const routeTree = rootRoute
         "/_app/accounthub/enter-currentpin",
         "/_app/accounthub/personal-info",
         "/_app/accounthub/setnew-pin",
+        "/_app/broker/addcustomer",
+        "/_app/broker/commissionhistory",
+        "/_app/broker/customerlist",
+        "/_app/broker/dashboard",
+        "/_app/broker/paymenthistory",
         "/_app/client/addcommision",
         "/_app/client/beneficiary",
         "/_app/client/comission",
@@ -1629,6 +1858,11 @@ export const routeTree = rootRoute
         "/_app/eprivate/eprivatereports",
         "/_app/eprivate/statement",
         "/_app/superadmin/superadmin",
+        "/_app/superbroker/addbroker",
+        "/_app/superbroker/brokerlist",
+        "/_app/superbroker/commissionhistory",
+        "/_app/superbroker/dashboard",
+        "/_app/superbroker/paymenthistory",
         "/_app/wallet/pin",
         "/_app/wallet/processing",
         "/_app/wallet/success",
@@ -1793,6 +2027,26 @@ export const routeTree = rootRoute
       "filePath": "_app/accounthub/setnew-pin.tsx",
       "parent": "/_app"
     },
+    "/_app/broker/addcustomer": {
+      "filePath": "_app/broker/addcustomer.tsx",
+      "parent": "/_app"
+    },
+    "/_app/broker/commissionhistory": {
+      "filePath": "_app/broker/commissionhistory.tsx",
+      "parent": "/_app"
+    },
+    "/_app/broker/customerlist": {
+      "filePath": "_app/broker/customerlist.tsx",
+      "parent": "/_app"
+    },
+    "/_app/broker/dashboard": {
+      "filePath": "_app/broker/dashboard.tsx",
+      "parent": "/_app"
+    },
+    "/_app/broker/paymenthistory": {
+      "filePath": "_app/broker/paymenthistory.tsx",
+      "parent": "/_app"
+    },
     "/_app/client/addcommision": {
       "filePath": "_app/client/addcommision.tsx",
       "parent": "/_app"
@@ -1867,6 +2121,26 @@ export const routeTree = rootRoute
     },
     "/_app/superadmin/superadmin": {
       "filePath": "_app/superadmin/superadmin.tsx",
+      "parent": "/_app"
+    },
+    "/_app/superbroker/addbroker": {
+      "filePath": "_app/superbroker/addbroker.tsx",
+      "parent": "/_app"
+    },
+    "/_app/superbroker/brokerlist": {
+      "filePath": "_app/superbroker/brokerlist.tsx",
+      "parent": "/_app"
+    },
+    "/_app/superbroker/commissionhistory": {
+      "filePath": "_app/superbroker/commissionhistory.tsx",
+      "parent": "/_app"
+    },
+    "/_app/superbroker/dashboard": {
+      "filePath": "_app/superbroker/dashboard.tsx",
+      "parent": "/_app"
+    },
+    "/_app/superbroker/paymenthistory": {
+      "filePath": "_app/superbroker/paymenthistory.tsx",
       "parent": "/_app"
     },
     "/_app/wallet/pin": {

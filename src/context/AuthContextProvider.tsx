@@ -13,6 +13,25 @@ const AuthContextProvider = ({children}: {children: ReactNode}) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
   useEffect(() => {
+    // Development Mock Role Check to view panels without a backend login
+    const mockRole = localStorage.getItem('mock_role');
+    if (mockRole) {
+      const upperRole = mockRole.toUpperCase();
+      const mockUser: User = {
+        id: 'mock-dev-id-999',
+        fullname: `Mock ${mockRole.charAt(0).toUpperCase() + mockRole.slice(1).toLowerCase()}`,
+        role: upperRole,
+        exp: Math.floor(Date.now() / 1000) + 86400,
+      } as any;
+      
+      setToken({ accessToken: 'mock-token', refreshToken: 'mock-token' });
+      setUser(mockUser);
+      setRole(upperRole);
+      setIsSuperAdmin(upperRole === 'SUPERADMIN');
+      setIsAuthenticated(true);
+      return;
+    }
+
     const localToken = JSON.parse(
       localStorage.getItem(QUERY_KEYS.TOKEN) || 'null',
     );

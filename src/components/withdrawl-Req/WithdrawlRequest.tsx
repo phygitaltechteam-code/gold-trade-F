@@ -334,7 +334,7 @@ export default function WithdrawalRequest() {
 
   return (
     <div className="font-sans min-h-screen bg-[#F8F9FB] text-[#1A1D21]">
-      <main className="mx-auto max-w-[1600px] px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
+      <main className="mx-auto max-w-[2000px] px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
         {/* Header */}
         <div className="mb-6 flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
           <div className="flex items-center gap-3">
@@ -530,7 +530,7 @@ export default function WithdrawalRequest() {
           </AnimatePresence>
 
           {/* Mobile Card View */}
-          <div className="block divide-y divide-stroke lg:hidden">
+          {/* <div className="block divide-y divide-stroke lg:hidden">
             {paginatedData.length > 0 ? (
               paginatedData.map((req) => (
                 <div key={req.id} className="hover:bg-gray-50/50 relative p-4">
@@ -622,10 +622,10 @@ export default function WithdrawalRequest() {
                 No {activeTab.toLowerCase()} requests found
               </div>
             )}
-          </div>
+          </div> */}
 
           {/* Desktop Table View */}
-          <div className="hidden overflow-x-auto lg:block">
+          <div className=" overflow-x-auto lg:block">
             <table className="w-full border-collapse text-left">
               <thead>
                 <tr className="bg-gray-50/50 border-y border-stroke">

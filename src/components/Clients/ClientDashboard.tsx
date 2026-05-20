@@ -1,5 +1,6 @@
-
 import React, {useState} from 'react';
+import { useNavigate } from '@tanstack/react-router';
+import { useAuthContext } from '@/context/AuthContext';
 import {
   Search,
   Download,
@@ -87,6 +88,10 @@ const StatusBadge = ({client}: {client: Client}) => {
 export const ClientDashboard: React.FC<ClientDashboardProps> = ({
   onSelectClient,
 }) => {
+  const navigate = useNavigate();
+  const { user } = useAuthContext();
+  const isBroker = user?.role === 'BROKER';
+
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [kycFilter, setKycFilter] = useState<string>('all');
@@ -268,19 +273,17 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
         <h1 className="text-2xl font-semibold text-slate-900">
           Client Management
         </h1>
-        {/* <div className="flex gap-3">
-          <button 
-            onClick={() => refetch()}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
-          >
-            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-            Refresh
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-orange-500 rounded-xl hover:bg-orange-600 transition-colors shadow-sm shadow-orange-200">
-            <Plus className="w-4 h-4" />
-            Add New Client
-          </button>
-        </div> */}
+        {isBroker && (
+          <div className="flex gap-3">
+            <button 
+              onClick={() => navigate({ to: '/broker/addcustomer' })}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-orange-500 to-red-500 rounded-xl hover:from-orange-600 hover:to-red-600 transition-all hover:scale-[1.02] shadow-md"
+            >
+              <Plus className="w-4 h-4" />
+              Add Customer
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Stats Grid */}

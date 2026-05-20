@@ -63,7 +63,7 @@ const CustomBrokerTable = ({
     <div className="rounded-xl border border-slate-200 bg-white shadow-sm font-inter">
       {/* Header Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 p-5 gap-4">
-        <h2 className="text-lg font-bold text-[#0F1535]">Broker Queue</h2>
+        <h2 className="text-lg font-bold text-[#0F1535]">Broker List</h2>
         <div className="relative">
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
             <Search className="h-4 w-4 text-slate-400" />
@@ -84,8 +84,12 @@ const CustomBrokerTable = ({
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full table-auto border-collapse">
-          <thead>
+          <thead className=''>
             <tr className="bg-slate-50 border-b border-slate-200">
+              {/* Added Sr. Header */}
+              <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap w-16">
+                Sr.
+              </th>
               <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">
                 Broker Details
               </th>
@@ -116,6 +120,10 @@ const CustomBrokerTable = ({
                 className="group cursor-pointer bg-white transition-colors hover:bg-slate-50"
                 onClick={() => onView?.(item)}
               >
+                {/* Added Sr. Data Cell - Calculates continuous number across pages */}
+                <td className="px-5 py-4 text-sm font-medium text-slate-500">
+                  {(currentPage - 1) * itemsPerPage + index + 1}
+                </td>
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-600">
@@ -157,7 +165,8 @@ const CustomBrokerTable = ({
             
             {paginatedData.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-5 py-10 text-center text-slate-500">
+                {/* Updated colSpan from 6 to 7 to match new column count */}
+                <td colSpan={7} className="px-5 py-10 text-center text-slate-500">
                   <div className="flex flex-col items-center justify-center">
                     <Search className="mb-2 h-8 w-8 text-slate-300" />
                     <p>No brokers found matching your criteria</p>
@@ -186,7 +195,6 @@ const CustomBrokerTable = ({
             
             {[...Array(totalPages)].map((_, i) => {
               const page = i + 1;
-              // Show limited pages logic (e.g. 1 2 3 ... 10)
               if (page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)) {
                 return (
                   <button
