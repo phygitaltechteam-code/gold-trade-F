@@ -45,8 +45,8 @@ export const Rejection: React.FC = () => {
             Verification Failed
           </h2>
           <p className="px-4 text-center text-base font-medium leading-relaxed text-slate-500">
-            We couldn&#39;t verify your identity with the documents provided. This
-            might be due to blurry photos or expired identification.
+            We couldn&#39;t verify your identity with the documents provided.
+            This might be due to blurry photos or expired identification.
           </p>
 
           {/* Status Badge */}

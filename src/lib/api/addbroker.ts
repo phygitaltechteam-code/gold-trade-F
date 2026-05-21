@@ -1,7 +1,7 @@
-import { api } from "@/utils/axios";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMutation } from "@tanstack/react-query";
-import toast from "react-hot-toast";
+import {api} from '@/utils/axios';
+import {useQuery, useQueryClient} from '@tanstack/react-query';
+import {useMutation} from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 
 export const useAddBroker = () => {
   const queryClient = useQueryClient();
@@ -10,7 +10,7 @@ export const useAddBroker = () => {
     mutationFn: addBroker,
     onSuccess: () => {
       toast.success('Broker Registered Successfully!');
-      queryClient.invalidateQueries({ queryKey: ['get-broker'] });
+      queryClient.invalidateQueries({queryKey: ['get-broker']});
     },
     onError: (error) => {
       console.log('errors', error);
@@ -27,7 +27,7 @@ export const useAddBroker = () => {
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['broker'] });
+      queryClient.invalidateQueries({queryKey: ['broker']});
     },
   });
 };
@@ -39,11 +39,12 @@ export const useDeleteBroker = () => {
     mutationFn: deleteBroker,
     onSuccess: () => {
       toast.success('Broker Deleted Successfully!');
-      queryClient.invalidateQueries({ queryKey: ['get-broker'] });
+      queryClient.invalidateQueries({queryKey: ['get-broker']});
     },
     onError: (error) => {
       console.error('Delete error:', error);
-      const backendMessage = error?.response?.data?.message || 'Failed to delete broker';
+      const backendMessage =
+        error?.response?.data?.message || 'Failed to delete broker';
       toast.error(backendMessage);
     },
   });
@@ -56,7 +57,7 @@ export const useGetBrokerData = () =>
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  export const useGetSuperBrokerData = () =>
+export const useGetSuperBrokerData = () =>
   useQuery({
     queryKey: ['get-superbroker'],
     queryFn: () => getSuperBrokerData(),
@@ -120,7 +121,7 @@ export const approveBroker = async (id: string) => {
   }
 };
 
-export const updateBroker = async ({ id, data }: { id: string; data: any }) => {
+export const updateBroker = async ({id, data}: {id: string; data: any}) => {
   try {
     const response = await api.put(`/company/broker/${id}`, data);
     return response.data;
@@ -136,10 +137,11 @@ export const useApproveBroker = () => {
     mutationFn: approveBroker,
     onSuccess: () => {
       toast.success('Broker Approved Successfully!');
-      queryClient.invalidateQueries({ queryKey: ['get-broker'] });
+      queryClient.invalidateQueries({queryKey: ['get-broker']});
     },
     onError: (error: any) => {
-      const backendMessage = error?.response?.data?.message || 'Failed to approve broker';
+      const backendMessage =
+        error?.response?.data?.message || 'Failed to approve broker';
       toast.error(backendMessage);
     },
   });
@@ -151,10 +153,11 @@ export const useUpdateBroker = () => {
     mutationFn: updateBroker,
     onSuccess: () => {
       toast.success('Broker Updated Successfully!');
-      queryClient.invalidateQueries({ queryKey: ['get-broker'] });
+      queryClient.invalidateQueries({queryKey: ['get-broker']});
     },
     onError: (error: any) => {
-      const backendMessage = error?.response?.data?.message || 'Failed to update broker';
+      const backendMessage =
+        error?.response?.data?.message || 'Failed to update broker';
       toast.error(backendMessage);
     },
   });

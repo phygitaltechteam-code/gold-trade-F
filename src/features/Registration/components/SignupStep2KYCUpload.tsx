@@ -241,8 +241,8 @@ const SignupStep2KYCUpload: FC<SignupStep2KYCUploadProps> = ({
             Passport Verification
           </h2>
           <p className="mt-2 text-slate-600 dark:text-slate-300 md:mt-3 md:text-lg">
-            Upload your passport. We&#39;ll verify it securely using encrypted OCR
-            checks.
+            Upload your passport. We&#39;ll verify it securely using encrypted
+            OCR checks.
           </p>
 
           {/* Passport Number */}

@@ -14,15 +14,13 @@ const AppLayout = () => {
       navigate({to: '/signin'});
       return;
     }
-      if (user?.role === 'COMPANY') {
-        navigate({to: '/dashboard'});
-      } else if (user?.role === 'SUPERADMIN') {
-        navigate({to: '/superadmin/superadmin'});
-    }
-    else if (user?.role === 'BROKER') {
+    if (user?.role === 'COMPANY') {
+      navigate({to: '/dashboard'});
+    } else if (user?.role === 'SUPERADMIN') {
+      navigate({to: '/superadmin/superadmin'});
+    } else if (user?.role === 'BROKER') {
       navigate({to: '/broker/dashboard'});
-    }
-    else if (user?.role === 'SUPERBROKER') {
+    } else if (user?.role === 'SUPERBROKER') {
       navigate({to: '/superbroker/dashboard'});
     }
   }, [isAuthenticated, user, navigate]);

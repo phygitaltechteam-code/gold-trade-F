@@ -437,14 +437,7 @@ export default function WithdrawalRequest() {
           {/* Tabs & Controls */}
           <div className="flex flex-col justify-between border-b border-stroke px-4 pt-4 sm:flex-row sm:items-center sm:px-6">
             <div className="flex gap-4 overflow-x-auto pb-4 sm:gap-8 sm:pb-0">
-              {(
-                [
-                  'Pending',
-                 
-                  'Approved',
-                  'Rejected',
-                ] as const
-              ).map((tab) => (
+              {(['Pending', 'Approved', 'Rejected'] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => {
@@ -463,12 +456,9 @@ export default function WithdrawalRequest() {
                       className={`ml-2 rounded-md px-1.5 py-0.5 text-[10px] ${
                         tab === 'Pending'
                           ? 'bg-orange-50 text-orange-600'
-                          
-                           
-                         
-                              : tab === 'Approved'
-                                ? 'bg-emerald-50 text-emerald-600'
-                                : 'bg-red-50 text-red-600'
+                          : tab === 'Approved'
+                            ? 'bg-emerald-50 text-emerald-600'
+                            : 'bg-red-50 text-red-600'
                       }`}
                     >
                       {statusCounts[tab]}
@@ -625,7 +615,7 @@ export default function WithdrawalRequest() {
           </div> */}
 
           {/* Desktop Table View */}
-          <div className=" overflow-x-auto lg:block">
+          <div className="overflow-x-auto lg:block">
             <table className="w-full border-collapse text-left">
               <thead>
                 <tr className="bg-gray-50/50 border-y border-stroke">
@@ -640,18 +630,42 @@ export default function WithdrawalRequest() {
                       className="rounded border-stroke text-orange-500 focus:ring-orange-500"
                     />
                   </th>
-                  <th className="text-gray-400 px-3 py-4 text-[11px] font-semibold uppercase tracking-wider">Sr</th>
-                  <th className="text-gray-400 px-3 py-4 text-[11px] font-semibold uppercase tracking-wider">Request ID</th>
-                  <th className="text-gray-400 px-3 py-4 text-[11px] font-semibold uppercase tracking-wider">Client Name</th>
-                  <th className="text-gray-400 px-3 py-4 text-[11px] font-semibold uppercase tracking-wider">Broker Name</th>
-                  <th className="text-gray-400 px-3 py-4 text-[11px] font-semibold uppercase tracking-wider">Super Broker Name</th>
-                  <th className="text-gray-400 px-3 py-4 text-right text-[11px] font-semibold uppercase tracking-wider">Wallet Balance</th>
-                  <th className="text-gray-400 px-3 py-4 text-right text-[11px] font-semibold uppercase tracking-wider">Withdraw Amount</th>
-                  <th className="text-gray-400 px-3 py-4 text-center text-[11px] font-semibold uppercase tracking-wider">Withdraw Type</th>
-                  <th className="text-gray-400 px-3 py-4 text-right text-[11px] font-semibold uppercase tracking-wider">Detail Amount</th>
-                  <th className="text-gray-400 px-3 py-4 text-[11px] font-semibold uppercase tracking-wider">Paid Date</th>
-                  <th className="text-gray-400 px-3 py-4 text-[11px] font-semibold uppercase tracking-wider">Status</th>
-                  <th className="text-gray-400 py-4 pr-6 pl-2 text-right text-[11px] font-semibold uppercase tracking-wider">Actions</th>
+                  <th className="text-gray-400 px-3 py-4 text-[11px] font-semibold uppercase tracking-wider">
+                    Sr
+                  </th>
+                  <th className="text-gray-400 px-3 py-4 text-[11px] font-semibold uppercase tracking-wider">
+                    Request ID
+                  </th>
+                  <th className="text-gray-400 px-3 py-4 text-[11px] font-semibold uppercase tracking-wider">
+                    Client Name
+                  </th>
+                  <th className="text-gray-400 px-3 py-4 text-[11px] font-semibold uppercase tracking-wider">
+                    Broker Name
+                  </th>
+                  <th className="text-gray-400 px-3 py-4 text-[11px] font-semibold uppercase tracking-wider">
+                    Super Broker Name
+                  </th>
+                  <th className="text-gray-400 px-3 py-4 text-right text-[11px] font-semibold uppercase tracking-wider">
+                    Wallet Balance
+                  </th>
+                  <th className="text-gray-400 px-3 py-4 text-right text-[11px] font-semibold uppercase tracking-wider">
+                    Withdraw Amount
+                  </th>
+                  <th className="text-gray-400 px-3 py-4 text-center text-[11px] font-semibold uppercase tracking-wider">
+                    Withdraw Type
+                  </th>
+                  <th className="text-gray-400 px-3 py-4 text-right text-[11px] font-semibold uppercase tracking-wider">
+                    Detail Amount
+                  </th>
+                  <th className="text-gray-400 px-3 py-4 text-[11px] font-semibold uppercase tracking-wider">
+                    Paid Date
+                  </th>
+                  <th className="text-gray-400 px-3 py-4 text-[11px] font-semibold uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="text-gray-400 py-4 pl-2 pr-6 text-right text-[11px] font-semibold uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-gray-100 divide-y">
@@ -672,7 +686,7 @@ export default function WithdrawalRequest() {
                           className="rounded border-stroke text-orange-500 focus:ring-orange-500"
                         />
                       </td>
-                      <td className="px-3 py-4 text-sm text-gray-500 font-medium">
+                      <td className="text-gray-500 px-3 py-4 text-sm font-medium">
                         {(currentPage - 1) * itemsPerPage + idx + 1}
                       </td>
                       <td className="px-3 py-4">
@@ -693,38 +707,47 @@ export default function WithdrawalRequest() {
                               {req.client.initials}
                             </div>
                           )}
-                          <span className="text-gray-900 text-sm font-semibold whitespace-nowrap">
+                          <span className="text-gray-900 whitespace-nowrap text-sm font-semibold">
                             {req.client.name}
                           </span>
                         </div>
                       </td>
-                      <td className="px-3 py-4 text-sm text-gray-700 font-medium whitespace-nowrap">
+                      <td className="text-gray-700 whitespace-nowrap px-3 py-4 text-sm font-medium">
                         {req.brokerName}
                       </td>
-                      <td className="px-3 py-4 text-sm text-gray-700 font-medium whitespace-nowrap">
+                      <td className="text-gray-700 whitespace-nowrap px-3 py-4 text-sm font-medium">
                         {req.superBrokerName}
                       </td>
-                      <td className="px-3 py-4 text-right text-sm font-bold text-gray-900 whitespace-nowrap">
-                        ${req.walletBalance.toLocaleString('en-US', {minimumFractionDigits: 2})}
+                      <td className="text-gray-900 whitespace-nowrap px-3 py-4 text-right text-sm font-bold">
+                        $
+                        {req.walletBalance.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                        })}
                       </td>
-                      <td className="px-3 py-4 text-right text-sm font-bold text-orange-500 whitespace-nowrap">
-                        ${req.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}
+                      <td className="whitespace-nowrap px-3 py-4 text-right text-sm font-bold text-orange-500">
+                        $
+                        {req.amount.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                        })}
                       </td>
-                      <td className="px-3 py-4 text-center text-sm text-gray-600 font-medium whitespace-nowrap">
-                        <span className="bg-gray-100 px-2 py-1 rounded text-xs border border-slate-200">
+                      <td className="text-gray-600 whitespace-nowrap px-3 py-4 text-center text-sm font-medium">
+                        <span className="bg-gray-100 rounded border border-slate-200 px-2 py-1 text-xs">
                           {req.withdrawType}
                         </span>
                       </td>
-                      <td className="px-3 py-4 text-right text-sm font-bold text-emerald-600 whitespace-nowrap">
-                        ${req.detailAmount.toLocaleString('en-US', {minimumFractionDigits: 2})}
+                      <td className="whitespace-nowrap px-3 py-4 text-right text-sm font-bold text-emerald-600">
+                        $
+                        {req.detailAmount.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                        })}
                       </td>
-                      <td className="px-3 py-4 text-sm text-gray-500 whitespace-nowrap">
+                      <td className="text-gray-500 whitespace-nowrap px-3 py-4 text-sm">
                         {req.paidDate}
                       </td>
                       <td className="px-3 py-4">
                         <StatusBadge status={req.status} />
                       </td>
-                      <td className="py-4 pr-6 pl-2 text-right">
+                      <td className="py-4 pl-2 pr-6 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => handleReject(req.id)}

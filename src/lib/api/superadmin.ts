@@ -106,9 +106,6 @@ export const useGetCompanyById = (id: string) =>
     queryFn: () => getCompanyById(id),
   });
 
-
-
-
 export type adminPayload = {
   id?: string;
   fullname: string;
@@ -172,4 +169,3 @@ export const getCompanyById = async (id: string) => {
     throw error;
   }
 };
-

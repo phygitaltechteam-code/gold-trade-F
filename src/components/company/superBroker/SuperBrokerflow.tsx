@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
+import React, {useState} from 'react';
+import {useNavigate} from '@tanstack/react-router';
 import DisplaySuperBroker from './DisplaySuperBoker';
+import {useGetAllSuperBrocker} from '@/lib/react-query/superbrocker';
 
 const SuperBrokerflow = () => {
   const navigate = useNavigate();
@@ -13,9 +14,11 @@ const SuperBrokerflow = () => {
   return (
     <div className="h-screen w-full">
       <div className="mb-4 flex items-center justify-between p-4">
-        <h1 className="text-2xl font-bold text-gray-800">Super Broker Management</h1>
+        <h1 className="text-gray-800 text-2xl font-bold">
+          Super Broker Management
+        </h1>
         <button
-          onClick={() => navigate({ to: '/companybroker/addSuperBrocker' })}
+          onClick={() => navigate({to: '/companybroker/addSuperBrocker'})}
           className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 px-4 py-2 text-white transition-all hover:from-orange-600 hover:to-red-600"
         >
           <svg

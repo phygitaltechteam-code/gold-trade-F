@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 
 const TransactionLedger = () => {
@@ -8,35 +8,35 @@ const TransactionLedger = () => {
 
   // Simplified view columns
   const baseColumns = [
-    { header: 'Sr', accessor: 'sr' },
-    { header: 'Date/Time', accessor: 'dateTime' },
-    { header: 'Admin', accessor: 'admin' }, // NEW FIELD
-    { header: 'Transaction ID', accessor: 'transactionId' },
-    { header: 'Stript', accessor: 'stript' },
-    { header: 'Transaction Amount', accessor: 'transactionAmount' },
-    { header: 'Status', accessor: 'status' },
+    {header: 'Sr', accessor: 'sr'},
+    {header: 'Date/Time', accessor: 'dateTime'},
+    {header: 'Admin', accessor: 'admin'}, // NEW FIELD
+    {header: 'Transaction ID', accessor: 'transactionId'},
+    {header: 'Stript', accessor: 'stript'},
+    {header: 'Transaction Amount', accessor: 'transactionAmount'},
+    {header: 'Status', accessor: 'status'},
   ];
 
   // Full detailed view columns
   const expandedColumns = [
-    { header: 'Sr', accessor: 'sr' },
-    { header: 'Date/Time', accessor: 'dateTime' },
-    { header: 'Admin', accessor: 'admin' }, // NEW FIELD
-    { header: 'Customer Name', accessor: 'customerName' },
-    { header: 'Broker Name', accessor: 'brokerName' },
-    { header: 'Transaction ID', accessor: 'transactionId' },
-    { header: 'Stript', accessor: 'stript' },
-    { header: 'Order Type', accessor: 'orderType' },
-    {header : 'Holding Type', accessor : 'holdingType'},
-    {header: 'Qty' , accessor : 'qty'},
-    { header: 'Price', accessor: 'price' },
-    { header: 'Status', accessor: 'status' },
-    { header: 'Transaction Amount', accessor: 'transactionAmount' },
-    { header: 'Paid Amount', accessor: 'paidAmount' },
-    { header: 'Margin Amount', accessor: 'marginAmount' },
-    { header: 'Broker Commission', accessor: 'brokerCommission' },
-    { header: 'Super Broker Commission', accessor: 'superBrokerCommission' },
-    { header: 'Payment Status', accessor: 'paymentStatus' },
+    {header: 'Sr', accessor: 'sr'},
+    {header: 'Date/Time', accessor: 'dateTime'},
+    {header: 'Admin', accessor: 'admin'}, // NEW FIELD
+    {header: 'Customer Name', accessor: 'customerName'},
+    {header: 'Broker Name', accessor: 'brokerName'},
+    {header: 'Transaction ID', accessor: 'transactionId'},
+    {header: 'Stript', accessor: 'stript'},
+    {header: 'Order Type', accessor: 'orderType'},
+    {header: 'Holding Type', accessor: 'holdingType'},
+    {header: 'Qty', accessor: 'qty'},
+    {header: 'Price', accessor: 'price'},
+    {header: 'Status', accessor: 'status'},
+    {header: 'Transaction Amount', accessor: 'transactionAmount'},
+    {header: 'Paid Amount', accessor: 'paidAmount'},
+    {header: 'Margin Amount', accessor: 'marginAmount'},
+    {header: 'Broker Commission', accessor: 'brokerCommission'},
+    {header: 'Super Broker Commission', accessor: 'superBrokerCommission'},
+    {header: 'Payment Status', accessor: 'paymentStatus'},
   ];
 
   const columns = isExpanded ? expandedColumns : baseColumns;
@@ -52,30 +52,39 @@ const TransactionLedger = () => {
       <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="">
           <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-            <h3 className="text-lg font-semibold text-black dark:text-white">Ledger Records</h3>
+            <h3 className="text-lg font-semibold text-black dark:text-white">
+              Ledger Records
+            </h3>
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-black dark:text-white">From:</label>
-                <input 
-                  type="date" 
+                <label className="text-sm font-medium text-black dark:text-white">
+                  From:
+                </label>
+                <input
+                  type="date"
                   value={ledgerStartDate}
                   onChange={(e) => setLedgerStartDate(e.target.value)}
                   className="rounded border border-stroke bg-transparent px-3 py-1 text-sm outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                 />
               </div>
               <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-black dark:text-white">To:</label>
-                <input 
-                  type="date" 
+                <label className="text-sm font-medium text-black dark:text-white">
+                  To:
+                </label>
+                <input
+                  type="date"
                   value={ledgerEndDate}
                   onChange={(e) => setLedgerEndDate(e.target.value)}
                   className="rounded border border-stroke bg-transparent px-3 py-1 text-sm outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                 />
               </div>
               {(ledgerStartDate || ledgerEndDate) && (
-                <button 
-                  onClick={() => { setLedgerStartDate(''); setLedgerEndDate(''); }}
-                  className="rounded bg-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-300 dark:bg-meta-4 dark:text-white dark:hover:bg-meta-3 transition-colors"
+                <button
+                  onClick={() => {
+                    setLedgerStartDate('');
+                    setLedgerEndDate('');
+                  }}
+                  className="bg-gray-200 text-gray-700 hover:bg-gray-300 rounded px-3 py-1.5 text-sm font-medium transition-colors dark:bg-meta-4 dark:text-white dark:hover:bg-meta-3"
                 >
                   Clear
                 </button>

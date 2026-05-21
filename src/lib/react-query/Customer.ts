@@ -76,7 +76,8 @@ export const useUpdateCustomer = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({id, data}: {id: string; data: any}) => updateCustomer(id, data),
+    mutationFn: ({id, data}: {id: string; data: any}) =>
+      updateCustomer(id, data),
 
     onSuccess: () => {
       toast.success('Customer Updated Successfully!');
