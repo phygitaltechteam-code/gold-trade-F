@@ -1,6 +1,7 @@
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
 import {api} from '@/utils/axios';
 import toast from 'react-hot-toast';
+import {getCommisssion, setCommission} from '../api/commission';
 
 interface CommissionFormData {
   name: string;
@@ -43,6 +44,12 @@ export const useGetComissionAll = () =>
     queryFn: () => getAllComission(),
   });
 
+export const useGetComission = () =>
+  useQuery({
+    queryKey: ['commission_single'],
+    queryFn: () => getCommisssion(),
+  });
+
 export const getAllComission = async () => {
   try {
     const response = await api.get(`/admin/transaction/fee`);
@@ -51,4 +58,19 @@ export const getAllComission = async () => {
     console.error('Error fetching customers:', error);
     throw error;
   }
+};
+
+export const useSetComission = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (commission: number) => setCommission(commission),
+    onSuccess: () => {
+      toast.success('Commission set successfully!');
+      queryClient.invalidateQueries({queryKey: ['commission_single']});
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to set commission!');
+    },
+  });
 };
