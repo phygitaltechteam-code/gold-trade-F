@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
-import { useNavigate } from '@tanstack/react-router';
-import { useAuthContext } from '@/context/AuthContext';
+import {useNavigate} from '@tanstack/react-router';
+import {useAuthContext} from '@/context/AuthContext';
 import {
   Search,
   Download,
@@ -89,7 +89,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
   onSelectClient,
 }) => {
   const navigate = useNavigate();
-  const { user } = useAuthContext();
+  const {user} = useAuthContext();
   const isBroker = user?.role === 'BROKER';
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -103,7 +103,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
   const isLoading = false;
   const error = null;
   const refetch = () => {};
-  
+
   const [clients, setClients] = useState<Client[]>([
     {
       id: '1',
@@ -119,7 +119,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
       area: 'Kolkata',
       commission: '10%',
       aadharCardNumber: '1234567890',
-      wallets: { amount: 45230.00 },
+      wallets: {amount: 45230.0},
       isKycCompleted: true,
       createdAt: new Date().toISOString(),
       photo: '',
@@ -129,14 +129,14 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
     {
       id: '2',
       user: {
-        fullname: 'Jessica Stone',  
+        fullname: 'Jessica Stone',
         email: 'jessica.s@example.com',
         phoneNumber: '+1987654321',
         isActive: true,
         isVerified: true,
         isRejected: false,
       },
-      wallets: { amount: 12050.00 },
+      wallets: {amount: 12050.0},
       isKycCompleted: false,
       createdAt: new Date(Date.now() - 86400000).toISOString(),
       photo: '',
@@ -153,7 +153,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
         isVerified: false,
         isRejected: true,
       },
-      wallets: { amount: 128900.50 },
+      wallets: {amount: 128900.5},
       isKycCompleted: true,
       createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
       photo: '',
@@ -170,7 +170,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
         isVerified: false,
         isRejected: false,
       },
-      wallets: { amount: 0.00 },
+      wallets: {amount: 0.0},
       isKycCompleted: false,
       createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
       photo: '',
@@ -187,18 +187,22 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
         isVerified: true,
         isRejected: false,
       },
-      wallets: { amount: 2500.00 },
+      wallets: {amount: 2500.0},
       isKycCompleted: true,
       createdAt: new Date(Date.now() - 86400000 * 4).toISOString(),
       photo: '',
       brokerName: 'Delta Broker',
       superBrokerName: 'Alpha Super',
-    }
+    },
   ]);
 
   // Extract unique Brokers and Super Brokers from data dynamically
-  const brokers = Array.from(new Set(clients.map((c: any) => c.brokerName).filter(Boolean)));
-  const superBrokers = Array.from(new Set(clients.map((c: any) => c.superBrokerName).filter(Boolean)));
+  const brokers = Array.from(
+    new Set(clients.map((c: any) => c.brokerName).filter(Boolean)),
+  );
+  const superBrokers = Array.from(
+    new Set(clients.map((c: any) => c.superBrokerName).filter(Boolean)),
+  );
 
   // Calculate stats
   const activeTraders = clients.filter(
@@ -233,10 +237,19 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
       matchesKyc = client.isKycCompleted === (kycFilter === 'completed');
     }
 
-    const matchesBroker = brokerFilter === 'all' || client.brokerName === brokerFilter;
-    const matchesSuperBroker = superBrokerFilter === 'all' || client.superBrokerName === superBrokerFilter;
+    const matchesBroker =
+      brokerFilter === 'all' || client.brokerName === brokerFilter;
+    const matchesSuperBroker =
+      superBrokerFilter === 'all' ||
+      client.superBrokerName === superBrokerFilter;
 
-    return matchesSearch && matchesStatus && matchesKyc && matchesBroker && matchesSuperBroker;
+    return (
+      matchesSearch &&
+      matchesStatus &&
+      matchesKyc &&
+      matchesBroker &&
+      matchesSuperBroker
+    );
   });
 
   const formatCurrency = (amount: number) => {
@@ -266,7 +279,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
     <motion.div
       initial={{opacity: 0, y: 20}}
       animate={{opacity: 1, y: 0}}
-      className="mx-auto max-w-9xl px-6 py-8"
+      className="max-w-9xl mx-auto px-6 py-8"
     >
       {/* Header */}
       <div className="mb-8 flex items-center justify-between">
@@ -275,11 +288,11 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
         </h1>
         {isBroker && (
           <div className="flex gap-3">
-            <button 
-              onClick={() => navigate({ to: '/broker/addcustomer' })}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-orange-500 to-red-500 rounded-xl hover:from-orange-600 hover:to-red-600 transition-all hover:scale-[1.02] shadow-md"
+            <button
+              onClick={() => navigate({to: '/broker/addcustomer'})}
+              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:scale-[1.02] hover:from-orange-600 hover:to-red-600"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="h-4 w-4" />
               Add Customer
             </button>
           </div>
@@ -363,7 +376,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
               className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
             />
           </div>
-          
+
           <div className="space-y-1.5">
             <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
               Broker
@@ -375,7 +388,9 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
             >
               <option value="all">All Brokers</option>
               {brokers.map((broker: any) => (
-                <option key={broker} value={broker}>{broker}</option>
+                <option key={broker} value={broker}>
+                  {broker}
+                </option>
               ))}
             </select>
           </div>
@@ -391,7 +406,9 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
             >
               <option value="all">All Super Brokers</option>
               {superBrokers.map((sb: any) => (
-                <option key={sb} value={sb}>{sb}</option>
+                <option key={sb} value={sb}>
+                  {sb}
+                </option>
               ))}
             </select>
           </div>
@@ -413,16 +430,36 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
             <table className="w-full border-collapse text-left">
               <thead>
                 <tr className="border-bottom border-slate-100 bg-slate-50/50">
-                  <th className="px-4 py-4 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400">Sr</th>
-                  <th className="px-4 py-4 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400">Client Name</th>
-                  <th className="px-4 py-4 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400">Broker Name</th>
-                  <th className="px-4 py-4 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400">Super Broker Name</th>
-                  <th className="px-4 py-4 text-right text-[10px] font-bold uppercase tracking-wider text-slate-400">Wallet Balance</th>
-                  <th className="px-4 py-4 text-right text-[10px] font-bold uppercase tracking-wider text-slate-400">Asset Under Control</th>
-                  <th className="px-4 py-4 text-right text-[10px] font-bold uppercase tracking-wider text-slate-400">Margin Amount</th>
-                  <th className="px-4 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Active Trade</th>
-                  <th className="px-4 py-4 text-right text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Traid</th>
-                  <th className="px-4 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-slate-400">Status</th>
+                  <th className="px-4 py-4 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    Sr
+                  </th>
+                  <th className="px-4 py-4 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    Client Name
+                  </th>
+                  <th className="px-4 py-4 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    Broker Name
+                  </th>
+                  <th className="px-4 py-4 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    Super Broker Name
+                  </th>
+                  <th className="px-4 py-4 text-right text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    Wallet Balance
+                  </th>
+                  <th className="px-4 py-4 text-right text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    Asset Under Control
+                  </th>
+                  <th className="px-4 py-4 text-right text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    Margin Amount
+                  </th>
+                  <th className="px-4 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    Total Active Trade
+                  </th>
+                  <th className="px-4 py-4 text-right text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    Total Traid
+                  </th>
+                  <th className="px-4 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    Status
+                  </th>
                   <th className="px-4 py-4"></th>
                 </tr>
               </thead>
@@ -433,7 +470,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
                     className="group cursor-pointer transition-colors hover:bg-slate-50/80"
                     onClick={() => onSelectClient(client)}
                   >
-                    <td className="px-4 py-4 text-sm text-slate-500 font-medium">
+                    <td className="px-4 py-4 text-sm font-medium text-slate-500">
                       {index + 1}
                     </td>
                     <td className="px-4 py-4">
@@ -451,7 +488,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
                           </div>
                         )}
                         <div>
-                          <div className="text-sm font-medium text-slate-900 whitespace-nowrap">
+                          <div className="whitespace-nowrap text-sm font-medium text-slate-900">
                             {client.user?.fullname}
                           </div>
                           <div className="text-xs text-slate-400">
@@ -460,24 +497,24 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-sm text-slate-600 font-medium whitespace-nowrap">
+                    <td className="whitespace-nowrap px-4 py-4 text-sm font-medium text-slate-600">
                       {client.brokerName || 'N/A'}
                     </td>
-                    <td className="px-4 py-4 text-sm text-slate-600 font-medium whitespace-nowrap">
+                    <td className="whitespace-nowrap px-4 py-4 text-sm font-medium text-slate-600">
                       {client.superBrokerName || 'N/A'}
                     </td>
                     <td className="px-4 py-4 text-right">
-                      <span className="text-sm font-bold text-slate-900 whitespace-nowrap">
+                      <span className="whitespace-nowrap text-sm font-bold text-slate-900">
                         ${client.wallets?.amount?.toLocaleString() || '0'}
                       </span>
                     </td>
                     <td className="px-4 py-4 text-right">
-                      <span className="text-sm font-bold text-slate-900 whitespace-nowrap">
+                      <span className="whitespace-nowrap text-sm font-bold text-slate-900">
                         $0.00
                       </span>
                     </td>
                     <td className="px-4 py-4 text-right">
-                      <span className="text-sm font-bold text-slate-900 whitespace-nowrap">
+                      <span className="whitespace-nowrap text-sm font-bold text-slate-900">
                         $0.00
                       </span>
                     </td>
@@ -487,28 +524,37 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
                       </span>
                     </td>
                     <td className="px-4 py-4 text-right">
-                      <span className="text-sm font-bold text-orange-500 whitespace-nowrap">
+                      <span className="whitespace-nowrap text-sm font-bold text-orange-500">
                         ${client.wallets?.amount?.toLocaleString() || '0'}
                       </span>
                     </td>
-                    <td className="px-4 py-4 text-center" onClick={(e) => e.stopPropagation()}>
-                      <label className="relative inline-flex items-center cursor-pointer">
+                    <td
+                      className="px-4 py-4 text-center"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <label className="relative inline-flex cursor-pointer items-center">
                         <input
                           type="checkbox"
-                          className="sr-only peer"
+                          className="peer sr-only"
                           checked={client.user?.isActive || false}
                           onChange={() => {
-                            setClients((prev) => 
-                              prev.map((c) => 
-                                c.id === client.id 
-                                  ? { ...c, user: { ...c.user, isActive: !c.user.isActive } }
-                                  : c
-                              )
+                            setClients((prev) =>
+                              prev.map((c) =>
+                                c.id === client.id
+                                  ? {
+                                      ...c,
+                                      user: {
+                                        ...c.user,
+                                        isActive: !c.user.isActive,
+                                      },
+                                    }
+                                  : c,
+                              ),
                             );
                           }}
                         />
-                        <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
-                        <span className="ml-2 text-[10px] font-bold uppercase text-slate-500 w-12 text-left">
+                        <div className="peer h-5 w-9 rounded-full bg-slate-200 after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:border after:border-slate-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none"></div>
+                        <span className="ml-2 w-12 text-left text-[10px] font-bold uppercase text-slate-500">
                           {client.user?.isActive ? 'Active' : 'Inactive'}
                         </span>
                       </label>

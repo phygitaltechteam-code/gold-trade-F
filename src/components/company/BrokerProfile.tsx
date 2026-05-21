@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { FiEdit2, FiSave, FiX } from 'react-icons/fi';
+import React, {useState} from 'react';
+import {FiEdit2, FiSave, FiX} from 'react-icons/fi';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 
 const BrokerProfile = () => {
@@ -25,67 +25,69 @@ const BrokerProfile = () => {
     totalCustomers: 22,
   });
 
-  const [editData, setEditData] = useState({ ...profileData });
+  const [editData, setEditData] = useState({...profileData});
 
   const baseLedgerColumns = [
-    { header: 'Sr', accessor: 'sr' },
-    { header: 'Date/Time', accessor: 'dateTime' },
-    { header: 'Transaction ID', accessor: 'transactionId' },
-    { header: 'Stript', accessor: 'stript' },
-    { header: 'Transaction Amount', accessor: 'transactionAmount' },
+    {header: 'Sr', accessor: 'sr'},
+    {header: 'Date/Time', accessor: 'dateTime'},
+    {header: 'Transaction ID', accessor: 'transactionId'},
+    {header: 'Stript', accessor: 'stript'},
+    {header: 'Transaction Amount', accessor: 'transactionAmount'},
     // { header: 'Super Broker Commission', accessor: 'superBrokerCommission' },
-    { header: 'Status', accessor: 'status' },
+    {header: 'Status', accessor: 'status'},
   ];
 
   const expandedLedgerColumns = [
-    { header: 'Sr', accessor: 'sr' },
-    { header: 'Date/Time', accessor: 'dateTime' },
-    { header: 'Customer Name', accessor: 'customerName' },
-    { header: 'Broker Name', accessor: 'brokerName' },
-    { header: 'Transaction ID', accessor: 'transactionId' },
-    { header: 'Stript', accessor: 'stript' },
-    { header: 'Order Type', accessor: 'orderType' },
-     {header : 'Holding Type', accessor : 'holdingType'},
-    {header: 'Qty' , accessor : 'qty'},
-    { header: 'Price', accessor: 'price' },
-    { header: 'Status', accessor: 'status' },
-    { header: 'Transaction Amount', accessor: 'transactionAmount' },
-    { header: 'Total Amount', accessor: 'totalAmount' },
+    {header: 'Sr', accessor: 'sr'},
+    {header: 'Date/Time', accessor: 'dateTime'},
+    {header: 'Customer Name', accessor: 'customerName'},
+    {header: 'Broker Name', accessor: 'brokerName'},
+    {header: 'Transaction ID', accessor: 'transactionId'},
+    {header: 'Stript', accessor: 'stript'},
+    {header: 'Order Type', accessor: 'orderType'},
+    {header: 'Holding Type', accessor: 'holdingType'},
+    {header: 'Qty', accessor: 'qty'},
+    {header: 'Price', accessor: 'price'},
+    {header: 'Status', accessor: 'status'},
+    {header: 'Transaction Amount', accessor: 'transactionAmount'},
+    {header: 'Total Amount', accessor: 'totalAmount'},
 
-    { header: 'Paid Amount', accessor: 'paidAmount' },
-    { header: 'Margin Amount', accessor: 'marginAmount' },
-        { header: 'Total Commission', accessor: 'totalCommission' },
+    {header: 'Paid Amount', accessor: 'paidAmount'},
+    {header: 'Margin Amount', accessor: 'marginAmount'},
+    {header: 'Total Commission', accessor: 'totalCommission'},
 
-    { header: 'Broker Commission', accessor: 'brokerCommission' },
+    {header: 'Broker Commission', accessor: 'brokerCommission'},
     // { header: 'Super Broker Commission', accessor: 'superBrokerCommission' },
-    { header: 'Payment Status', accessor: 'paymentStatus' },
+    {header: 'Payment Status', accessor: 'paymentStatus'},
   ];
 
-  const ledgerColumns = isLedgerExpanded ? expandedLedgerColumns : baseLedgerColumns;
+  const ledgerColumns = isLedgerExpanded
+    ? expandedLedgerColumns
+    : baseLedgerColumns;
 
   // Column definitions for the Payment History table
   const paymentColumns = [
-    { header: 'Sr', accessor: 'sr' },
-    { header: 'Date', accessor: 'date' },
-    { header: 'Commission Generated', accessor: 'commissionGenerated' },
-    { header: 'Paid Amount', accessor: 'paidAmount' },
-    { header: 'Paid Date', accessor: 'paidDate' },
-    { header: 'Status', accessor: 'status' },
+    {header: 'Sr', accessor: 'sr'},
+    {header: 'Date', accessor: 'date'},
+    {header: 'Commission Generated', accessor: 'commissionGenerated'},
+    {header: 'Paid Amount', accessor: 'paidAmount'},
+    {header: 'Paid Date', accessor: 'paidDate'},
+    {header: 'Status', accessor: 'status'},
   ];
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setEditData((prev) => ({ ...prev, [name]: value }));
+    const {name, value} = e.target;
+    setEditData((prev) => ({...prev, [name]: value}));
   };
 
   const handleSave = () => {
-    setProfileData({ ...editData });
+    setProfileData({...editData});
     setIsEditing(false);
     // TODO: Add API call to save profile details
   };
 
   const handleCancel = () => {
-    setEditData({ ...profileData });
+    setEditData({...profileData});
     setIsEditing(false);
   };
 
@@ -93,12 +95,12 @@ const BrokerProfile = () => {
     <div className="w-full p-4 md:p-6">
       {/* Profile Details Section */}
       <div className="mb-6 rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-        <div className="border-b border-stroke px-6 py-4 dark:border-strokedark flex justify-between items-center bg-gradient-to-r from-orange-500 to-red-500 rounded-t-lg">
+        <div className="flex items-center justify-between rounded-t-lg border-b border-stroke bg-gradient-to-r from-orange-500 to-red-500 px-6 py-4 dark:border-strokedark">
           <h2 className="text-xl font-semibold text-white">Broker Profile</h2>
           {!isEditing ? (
             <button
               onClick={() => setIsEditing(true)}
-              className="flex items-center gap-2 rounded bg-white px-4 py-2 text-sm font-medium text-orange-500 hover:bg-gray-100 transition-colors"
+              className="hover:bg-gray-100 flex items-center gap-2 rounded bg-white px-4 py-2 text-sm font-medium text-orange-500 transition-colors"
             >
               <FiEdit2 className="h-4 w-4" /> Edit Profile
             </button>
@@ -106,13 +108,13 @@ const BrokerProfile = () => {
             <div className="flex gap-2">
               <button
                 onClick={handleCancel}
-                className="flex items-center gap-2 rounded bg-red-100 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-200 transition-colors"
+                className="flex items-center gap-2 rounded bg-red-100 px-4 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-200"
               >
                 <FiX className="h-4 w-4" /> Cancel
               </button>
               <button
                 onClick={handleSave}
-                className="flex items-center gap-2 rounded bg-white px-4 py-2 text-sm font-medium text-orange-500 hover:bg-gray-100 transition-colors"
+                className="hover:bg-gray-100 flex items-center gap-2 rounded bg-white px-4 py-2 text-sm font-medium text-orange-500 transition-colors"
               >
                 <FiSave className="h-4 w-4" /> Save
               </button>
@@ -135,7 +137,9 @@ const BrokerProfile = () => {
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                 />
               ) : (
-                <p className="text-black dark:text-white">{profileData.fullname}</p>
+                <p className="text-black dark:text-white">
+                  {profileData.fullname}
+                </p>
               )}
             </div>
 
@@ -152,7 +156,9 @@ const BrokerProfile = () => {
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                 />
               ) : (
-                <p className="text-black dark:text-white">{profileData.aadharCardNumber}</p>
+                <p className="text-black dark:text-white">
+                  {profileData.aadharCardNumber}
+                </p>
               )}
             </div>
 
@@ -169,7 +175,9 @@ const BrokerProfile = () => {
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                 />
               ) : (
-                <p className="text-black dark:text-white">{profileData.commission}%</p>
+                <p className="text-black dark:text-white">
+                  {profileData.commission}%
+                </p>
               )}
             </div>
 
@@ -212,52 +220,68 @@ const BrokerProfile = () => {
 
       {/* Statistics Cards */}
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-5">
-        <div className="flex items-center justify-center flex-col rounded-lg border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
           <h4 className="text-2xl font-bold text-black dark:text-white">
             ₹{profileData.totalBusiness.toLocaleString()}
           </h4>
-          <span className="text-sm font-medium text-gray-500 mt-1">Total Business</span>
+          <span className="text-gray-500 mt-1 text-sm font-medium">
+            Total Business
+          </span>
         </div>
-        <div className="flex items-center justify-center flex-col rounded-lg border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
           <h4 className="text-2xl font-bold text-green-500">
             ₹{profileData.totalCommission.toLocaleString()}
           </h4>
-          <span className="text-sm font-medium text-gray-500 mt-1">Total Commission</span>
+          <span className="text-gray-500 mt-1 text-sm font-medium">
+            Total Commission
+          </span>
         </div>
-        <div className="flex items-center justify-center flex-col rounded-lg border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
           <h4 className="text-2xl font-bold text-orange-500">
             ₹{profileData.pendingCommission.toLocaleString()}
           </h4>
-          <span className="text-sm font-medium text-gray-500 mt-1">Pending Commission</span>
+          <span className="text-gray-500 mt-1 text-sm font-medium">
+            Pending Commission
+          </span>
         </div>
-        <div className="flex items-center justify-center flex-col rounded-lg border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
           <h4 className="text-2xl font-bold text-blue-500">
             {profileData.totalBrokers}
           </h4>
-          <span className="text-sm font-medium text-gray-500 mt-1">No. Brokers</span>
+          <span className="text-gray-500 mt-1 text-sm font-medium">
+            No. Brokers
+          </span>
         </div>
-         <div className="flex items-center justify-center flex-col rounded-lg border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
           <h4 className="text-2xl font-bold text-blue-500">
             {profileData.totalCustomers}
           </h4>
-          <span className="text-sm font-medium text-gray-500 mt-1">No. Customer</span>
+          <span className="text-gray-500 mt-1 text-sm font-medium">
+            No. Customer
+          </span>
         </div>
       </div>
 
       {/* Tabs Section */}
       <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-        <div className="border-b border-stroke flex dark:border-strokedark">
+        <div className="flex border-b border-stroke dark:border-strokedark">
           <button
             onClick={() => setActiveTab('ledger')}
-            className={`px-6 py-4 font-medium transition-colors hover:text-orange-500 ${activeTab === 'ledger' ? 'border-b-2 border-orange-500 text-orange-500' : 'text-bodydark2'
-              }`}
+            className={`px-6 py-4 font-medium transition-colors hover:text-orange-500 ${
+              activeTab === 'ledger'
+                ? 'border-b-2 border-orange-500 text-orange-500'
+                : 'text-bodydark2'
+            }`}
           >
             Ledger
           </button>
           <button
             onClick={() => setActiveTab('payment')}
-            className={`px-6 py-4 font-medium transition-colors hover:text-orange-500 ${activeTab === 'payment' ? 'border-b-2 border-orange-500 text-orange-500' : 'text-bodydark2'
-              }`}
+            className={`px-6 py-4 font-medium transition-colors hover:text-orange-500 ${
+              activeTab === 'payment'
+                ? 'border-b-2 border-orange-500 text-orange-500'
+                : 'text-bodydark2'
+            }`}
           >
             Payment History
           </button>
@@ -267,30 +291,39 @@ const BrokerProfile = () => {
           {activeTab === 'ledger' ? (
             <div className="overflow-x-auto">
               <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-                <h3 className="text-lg font-semibold text-black dark:text-white">Ledger Records</h3>
+                <h3 className="text-lg font-semibold text-black dark:text-white">
+                  Ledger Records
+                </h3>
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="flex items-center gap-2">
-                    <label className="text-sm font-medium text-black dark:text-white">From:</label>
-                    <input 
-                      type="date" 
+                    <label className="text-sm font-medium text-black dark:text-white">
+                      From:
+                    </label>
+                    <input
+                      type="date"
                       value={ledgerStartDate}
                       onChange={(e) => setLedgerStartDate(e.target.value)}
                       className="rounded border border-stroke bg-transparent px-3 py-1 text-sm outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                     />
                   </div>
                   <div className="flex items-center gap-2">
-                    <label className="text-sm font-medium text-black dark:text-white">To:</label>
-                    <input 
-                      type="date" 
+                    <label className="text-sm font-medium text-black dark:text-white">
+                      To:
+                    </label>
+                    <input
+                      type="date"
                       value={ledgerEndDate}
                       onChange={(e) => setLedgerEndDate(e.target.value)}
                       className="rounded border border-stroke bg-transparent px-3 py-1 text-sm outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                     />
                   </div>
                   {(ledgerStartDate || ledgerEndDate) && (
-                    <button 
-                      onClick={() => { setLedgerStartDate(''); setLedgerEndDate(''); }}
-                      className="rounded bg-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-300 dark:bg-meta-4 dark:text-white dark:hover:bg-meta-3 transition-colors"
+                    <button
+                      onClick={() => {
+                        setLedgerStartDate('');
+                        setLedgerEndDate('');
+                      }}
+                      className="bg-gray-200 text-gray-700 hover:bg-gray-300 rounded px-3 py-1.5 text-sm font-medium transition-colors dark:bg-meta-4 dark:text-white dark:hover:bg-meta-3"
                     >
                       Clear
                     </button>
@@ -312,30 +345,39 @@ const BrokerProfile = () => {
           ) : (
             <div className="overflow-x-auto">
               <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-                <h3 className="text-lg font-semibold text-black dark:text-white">Payment History</h3>
+                <h3 className="text-lg font-semibold text-black dark:text-white">
+                  Payment History
+                </h3>
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="flex items-center gap-2">
-                    <label className="text-sm font-medium text-black dark:text-white">From:</label>
-                    <input 
-                      type="date" 
+                    <label className="text-sm font-medium text-black dark:text-white">
+                      From:
+                    </label>
+                    <input
+                      type="date"
                       value={paymentStartDate}
                       onChange={(e) => setPaymentStartDate(e.target.value)}
                       className="rounded border border-stroke bg-transparent px-3 py-1 text-sm outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                     />
                   </div>
                   <div className="flex items-center gap-2">
-                    <label className="text-sm font-medium text-black dark:text-white">To:</label>
-                    <input 
-                      type="date" 
+                    <label className="text-sm font-medium text-black dark:text-white">
+                      To:
+                    </label>
+                    <input
+                      type="date"
                       value={paymentEndDate}
                       onChange={(e) => setPaymentEndDate(e.target.value)}
                       className="rounded border border-stroke bg-transparent px-3 py-1 text-sm outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                     />
                   </div>
                   {(paymentStartDate || paymentEndDate) && (
-                    <button 
-                      onClick={() => { setPaymentStartDate(''); setPaymentEndDate(''); }}
-                      className="rounded bg-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-300 dark:bg-meta-4 dark:text-white dark:hover:bg-meta-3 transition-colors"
+                    <button
+                      onClick={() => {
+                        setPaymentStartDate('');
+                        setPaymentEndDate('');
+                      }}
+                      className="bg-gray-200 text-gray-700 hover:bg-gray-300 rounded px-3 py-1.5 text-sm font-medium transition-colors dark:bg-meta-4 dark:text-white dark:hover:bg-meta-3"
                     >
                       Clear
                     </button>

@@ -2,7 +2,13 @@ import React, {useState} from 'react';
 import {FiEdit, FiEye, FiTrash} from 'react-icons/fi';
 import {GrFormNext, GrFormPrevious} from 'react-icons/gr';
 
-const SuperBrokerTable = ({data = [], onView, onEdit, onDelete, refreshTrigger}) => {
+const SuperBrokerTable = ({
+  data = [],
+  onView,
+  onEdit,
+  onDelete,
+  refreshTrigger,
+}) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [sortConfig, setSortConfig] = useState({key: null, direction: 'asc'});
@@ -116,14 +122,13 @@ const SuperBrokerTable = ({data = [], onView, onEdit, onDelete, refreshTrigger})
               <th className="min-w-[100px] px-3 py-2.5 font-medium text-black dark:text-white">
                 Status
               </th>
-             
             </tr>
           </thead>
           <tbody>
             {paginatedData.map((item, index) => (
-              <tr 
-                key={item?.id || index} 
-                className="text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-meta-4 transition-colors"
+              <tr
+                key={item?.id || index}
+                className="hover:bg-gray-50 cursor-pointer text-sm transition-colors dark:hover:bg-meta-4"
                 onClick={() => onView?.(item)}
               >
                 <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
@@ -150,13 +155,13 @@ const SuperBrokerTable = ({data = [], onView, onEdit, onDelete, refreshTrigger})
                 <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
                   ₹{item?.totalBusiness || '0'}
                 </td>
-                 <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
+                <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
                   ₹{item?.totalCommission || '0'}
                 </td>
-                 <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
+                <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
                   ₹{item?.pendingCommission || '0'}
                 </td>
-                 <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
+                <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
                   <span
                     className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
                       item?.isActive

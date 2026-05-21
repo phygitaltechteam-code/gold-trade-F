@@ -124,7 +124,7 @@ const GenericTable = <T,>({
     : filteredData.slice(startIdx, startIdx + itemsPerPage);
 
   return (
-    <div className="rounded-sm border border-stroke bg-white px-2 pb-2 pt-4 shadow-default dark:border-strokedark dark:bg-boxdark  sm:p-1">
+    <div className="rounded-sm border border-stroke bg-white px-2 pb-2 pt-4 shadow-default dark:border-strokedark dark:bg-boxdark sm:p-1">
       {title && <h2 className="mb-3 text-lg font-semibold">{title}</h2>}
       {searchAble && (
         <div className="mb-3 flex justify-between">

@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from '@tanstack/react-router';
+import React, {useState, useEffect} from 'react';
+import {useNavigate} from '@tanstack/react-router';
 import toast from 'react-hot-toast';
-import { z } from 'zod';
-import { useAuthContext } from '@/context/AuthContext';
-import { useMutation } from '@tanstack/react-query';
-import { unAuthenticatedApi } from '@/utils/axios';
+import {z} from 'zod';
+import {useAuthContext} from '@/context/AuthContext';
+import {useMutation} from '@tanstack/react-query';
+import {unAuthenticatedApi} from '@/utils/axios';
 
 // Define Zod schema for client form data validation
 const CustomerSchema = z.object({
@@ -20,9 +20,9 @@ const CustomerSchema = z.object({
 
 const AddCustomer = () => {
   const navigate = useNavigate();
-  const { user } = useAuthContext();
+  const {user} = useAuthContext();
   const isBroker = user?.role === 'BROKER';
-  
+
   const [formData, setFormData] = useState({
     fullname: '',
     email: '',
@@ -48,8 +48,10 @@ const AddCustomer = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const {name, value} = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -68,10 +70,15 @@ const AddCustomer = () => {
     const fetchPinDetails = async () => {
       if (formData.postalCode.length === 6) {
         try {
-          const response = await fetch(`https://api.postalpincode.in/pincode/${formData.postalCode}`);
+          const response = await fetch(
+            `https://api.postalpincode.in/pincode/${formData.postalCode}`,
+          );
           if (response.ok) {
             const data = await response.json();
-            if (data[0]?.Status === 'Success' && data[0]?.PostOffice?.length > 0) {
+            if (
+              data[0]?.Status === 'Success' &&
+              data[0]?.PostOffice?.length > 0
+            ) {
               const firstPostOffice = data[0].PostOffice[0];
               setFormData((prev) => ({
                 ...prev,
@@ -88,7 +95,10 @@ const AddCustomer = () => {
     fetchPinDetails();
   }, [formData.postalCode]);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, field: 'aadharCardF') => {
+  const handleImageChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: 'aadharCardF',
+  ) => {
     const file = e.target.files?.[0];
     if (file) {
       const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
@@ -169,12 +179,13 @@ const AddCustomer = () => {
     },
     onSuccess: () => {
       toast.success('Customer registered successfully!');
-      navigate({ to: '/broker/customerlist' });
+      navigate({to: '/broker/customerlist'});
     },
     onError: (error: any) => {
-      const msg = error.response?.data?.message || 'Failed to register customer';
+      const msg =
+        error.response?.data?.message || 'Failed to register customer';
       toast.error(msg);
-    }
+    },
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -212,7 +223,13 @@ const AddCustomer = () => {
     }
   };
 
-  const ImageUploadField = ({ label, field }: { label: string; field: 'aadharCardF' }) => (
+  const ImageUploadField = ({
+    label,
+    field,
+  }: {
+    label: string;
+    field: 'aadharCardF';
+  }) => (
     <div className="mb-4">
       <label className="text-gray-700 mb-2 block text-sm font-medium">
         {label} <span className="text-red-500">*</span>
@@ -230,16 +247,36 @@ const AddCustomer = () => {
               onClick={() => removeImage(field)}
               className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
             >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
         ) : (
           <label className="border-gray-300 bg-gray-50 hover:bg-gray-100 flex h-32 w-32 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed">
             <div className="flex flex-col items-center justify-center pb-6 pt-5">
-              <svg className="text-gray-400 mb-3 h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              <svg
+                className="text-gray-400 mb-3 h-8 w-8"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
               </svg>
               <span className="text-gray-500 text-xs">Upload</span>
             </div>
@@ -252,7 +289,9 @@ const AddCustomer = () => {
           </label>
         )}
       </div>
-      {errors[field] && <p className="mt-1 text-xs text-red-500">{errors[field]}</p>}
+      {errors[field] && (
+        <p className="mt-1 text-xs text-red-500">{errors[field]}</p>
+      )}
     </div>
   );
 
@@ -262,12 +301,16 @@ const AddCustomer = () => {
         <div className="border-gray-200 border-b bg-gradient-to-r from-orange-500 to-red-500 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-white">Customer Registration</h1>
-              <p className="mt-1 text-orange-100">Register a new client under your direct network</p>
+              <h1 className="text-2xl font-bold text-white">
+                Customer Registration
+              </h1>
+              <p className="mt-1 text-orange-100">
+                Register a new client under your direct network
+              </p>
             </div>
             <button
-              onClick={() => navigate({ to: '/broker/customerlist' })}
-              className="hover:bg-gray-100 rounded-lg bg-white px-4 py-2 text-orange-500 transition-all font-semibold"
+              onClick={() => navigate({to: '/broker/customerlist'})}
+              className="hover:bg-gray-100 rounded-lg bg-white px-4 py-2 font-semibold text-orange-500 transition-all"
             >
               Back to List
             </button>
@@ -291,7 +334,9 @@ const AddCustomer = () => {
                 }`}
                 placeholder="Enter full name"
               />
-              {errors.fullname && <p className="mt-1 text-xs text-red-500">{errors.fullname}</p>}
+              {errors.fullname && (
+                <p className="mt-1 text-xs text-red-500">{errors.fullname}</p>
+              )}
             </div>
 
             {/* Email */}
@@ -309,7 +354,9 @@ const AddCustomer = () => {
                 }`}
                 placeholder="Enter email address"
               />
-              {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
+              {errors.email && (
+                <p className="mt-1 text-xs text-red-500">{errors.email}</p>
+              )}
             </div>
 
             {/* Phone number */}
@@ -328,7 +375,11 @@ const AddCustomer = () => {
                 }`}
                 placeholder="Enter 10-digit phone number"
               />
-              {errors.phoneNumber && <p className="mt-1 text-xs text-red-500">{errors.phoneNumber}</p>}
+              {errors.phoneNumber && (
+                <p className="mt-1 text-xs text-red-500">
+                  {errors.phoneNumber}
+                </p>
+              )}
             </div>
 
             {/* Password */}
@@ -346,56 +397,66 @@ const AddCustomer = () => {
                 }`}
                 placeholder="Enter password (min 6 characters)"
               />
-              {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password}</p>}
+              {errors.password && (
+                <p className="mt-1 text-xs text-red-500">{errors.password}</p>
+              )}
             </div>
 
             {/* Locked Broker Name */}
             <div className="mb-2">
-              <label className="text-gray-700 mb-2 block text-sm font-medium">Assigned Broker</label>
+              <label className="text-gray-700 mb-2 block text-sm font-medium">
+                Assigned Broker
+              </label>
               <input
                 type="text"
                 disabled
                 value={`${user?.fullname || 'Mock Broker'} (Broker)`}
-                className="w-full rounded-lg border border-slate-200 bg-slate-100 p-2 text-slate-500 font-semibold cursor-not-allowed"
+                className="w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-100 p-2 font-semibold text-slate-500"
               />
             </div>
 
             {/* Aadhar Card Number */}
             <div className="mb-2">
-              <label className="text-gray-700 mb-2 block text-sm font-medium">Aadhar Card Number</label>
+              <label className="text-gray-700 mb-2 block text-sm font-medium">
+                Aadhar Card Number
+              </label>
               <input
                 type="text"
                 name="aadharCardNumber"
                 value={formData.aadharCardNumber}
                 onChange={handleInputChange}
                 maxLength={12}
-                className="w-full border-gray-300 rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="border-gray-300 w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder="Enter 12-digit Aadhar number"
               />
             </div>
 
             {/* Commission % */}
             <div className="mb-2">
-              <label className="text-gray-700 mb-2 block text-sm font-medium">Commission %</label>
+              <label className="text-gray-700 mb-2 block text-sm font-medium">
+                Commission %
+              </label>
               <input
                 type="text"
                 name="commission"
                 value={formData.commission}
                 onChange={handleInputChange}
-                className="w-full border-gray-300 rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="border-gray-300 w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder="Enter Commission %"
               />
             </div>
 
             {/* Area */}
             <div className="mb-2">
-              <label className="text-gray-700 mb-2 block text-sm font-medium">Area</label>
+              <label className="text-gray-700 mb-2 block text-sm font-medium">
+                Area
+              </label>
               <input
                 type="text"
                 name="area"
                 value={formData.area}
                 onChange={handleInputChange}
-                className="w-full border-gray-300 rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="border-gray-300 w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder="Enter Area"
               />
             </div>
@@ -403,7 +464,9 @@ const AddCustomer = () => {
 
           {/* Address Fields */}
           <div className="border-gray-200 mt-6 border-t pt-4">
-            <h2 className="text-gray-800 mb-4 text-md font-semibold">Client Address Details</h2>
+            <h2 className="text-gray-800 text-md mb-4 font-semibold">
+              Client Address Details
+            </h2>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="mb-2 md:col-span-2">
                 <label className="text-gray-700 mb-2 block text-sm font-medium">
@@ -419,7 +482,11 @@ const AddCustomer = () => {
                   }`}
                   placeholder="Enter street address"
                 />
-                {errors.streetAddress && <p className="mt-1 text-xs text-red-500">{errors.streetAddress}</p>}
+                {errors.streetAddress && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors.streetAddress}
+                  </p>
+                )}
               </div>
 
               <div className="mb-2">
@@ -437,7 +504,11 @@ const AddCustomer = () => {
                   }`}
                   placeholder="Enter 6-digit pin code"
                 />
-                {errors.postalCode && <p className="mt-1 text-xs text-red-500">{errors.postalCode}</p>}
+                {errors.postalCode && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors.postalCode}
+                  </p>
+                )}
               </div>
 
               <div className="mb-2">
@@ -454,7 +525,9 @@ const AddCustomer = () => {
                   }`}
                   placeholder="Enter city"
                 />
-                {errors.city && <p className="mt-1 text-xs text-red-500">{errors.city}</p>}
+                {errors.city && (
+                  <p className="mt-1 text-xs text-red-500">{errors.city}</p>
+                )}
               </div>
 
               <div className="mb-2">
@@ -471,14 +544,20 @@ const AddCustomer = () => {
                   }`}
                   placeholder="Enter state"
                 />
-                {errors.stateProvince && <p className="mt-1 text-xs text-red-500">{errors.stateProvince}</p>}
+                {errors.stateProvince && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors.stateProvince}
+                  </p>
+                )}
               </div>
             </div>
           </div>
 
           {/* Document Section */}
           <div className="border-gray-200 mt-6 border-t pt-4">
-            <h2 className="text-gray-800 mb-4 text-md font-semibold">Document Verification</h2>
+            <h2 className="text-gray-800 text-md mb-4 font-semibold">
+              Document Verification
+            </h2>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               <ImageUploadField label="Aadhar Card Front" field="aadharCardF" />
             </div>
@@ -489,9 +568,11 @@ const AddCustomer = () => {
             <button
               type="submit"
               disabled={isSubmitting || addCustomerMutation.isPending}
-              className="flex-1 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 px-4 py-2.5 text-white font-semibold shadow-md transition-all hover:from-orange-600 hover:to-red-600 disabled:opacity-50 hover:scale-[1.01]"
+              className="flex-1 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 px-4 py-2.5 font-semibold text-white shadow-md transition-all hover:scale-[1.01] hover:from-orange-600 hover:to-red-600 disabled:opacity-50"
             >
-              {isSubmitting || addCustomerMutation.isPending ? 'Submitting...' : 'Register Customer'}
+              {isSubmitting || addCustomerMutation.isPending
+                ? 'Submitting...'
+                : 'Register Customer'}
             </button>
             <button
               type="button"

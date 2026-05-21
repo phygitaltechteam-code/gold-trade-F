@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import {
   ChevronLeft,
@@ -25,17 +25,17 @@ import {
   Loader2,
   TrendingUp,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { Client } from './types';
-import { useGetClientById } from './mutationapi';
-import { FiEdit2, FiSave, FiX } from 'react-icons/fi';
+import {motion} from 'framer-motion';
+import {Client} from './types';
+import {useGetClientById} from './mutationapi';
+import {FiEdit2, FiSave, FiX} from 'react-icons/fi';
 
 interface ClientDetailProps {
   client: Client;
   onBack: () => void;
 }
 
-const InfoSection = ({ title, children, icon: Icon }: any) => (
+const InfoSection = ({title, children, icon: Icon}: any) => (
   <div className="space-y-4">
     <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
       <Icon className="h-4 w-4 text-slate-400" />
@@ -69,7 +69,7 @@ const InfoItem = ({
   </div>
 );
 
-const DocCard = ({ name, type, status, icon: Icon, color, url }: any) => (
+const DocCard = ({name, type, status, icon: Icon, color, url}: any) => (
   <a
     href={url}
     target="_blank"
@@ -89,15 +89,16 @@ const DocCard = ({ name, type, status, icon: Icon, color, url }: any) => (
   </a>
 );
 
-export const ClientDetail: React.FC<ClientDetailProps> = ({ client, onBack }) => {
-
+export const ClientDetail: React.FC<ClientDetailProps> = ({client, onBack}) => {
   const [isEditing, setIsEditing] = useState(false);
   // const {data: clientData, isLoading} = useGetClientById(client.id);
   const displayClient = client;
   const isLoading = false;
   const [activeTab, setActiveTab] = useState('ledger');
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
-  const [walletActionType, setWalletActionType] = useState<'add' | 'withdraw'>('add');
+  const [walletActionType, setWalletActionType] = useState<'add' | 'withdraw'>(
+    'add',
+  );
   const [walletAmount, setWalletAmount] = useState('');
   const [walletPin, setWalletPin] = useState('');
   const [isMarginModalOpen, setIsMarginModalOpen] = useState(false);
@@ -124,7 +125,7 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({ client, onBack }) =>
       marginAmount: '$0.00',
       totalCommission: '$50.00',
       brokerCommission: '$35.00',
-      paymentStatus: 'PAID'
+      paymentStatus: 'PAID',
     },
     {
       sr: '2',
@@ -144,44 +145,54 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({ client, onBack }) =>
       marginAmount: '$0.00',
       totalCommission: '$2.50',
       brokerCommission: '$1.75',
-      paymentStatus: 'PAID'
-    }
+      paymentStatus: 'PAID',
+    },
   ];
 
   const mockPaymentData = [
-    { sr: '1', dateTime: '2023-10-01 10:30 AM', amount: '$5,000.00', walletAmount: '$15,000.00' },
-    { sr: '2', dateTime: '2023-10-02 14:15 PM', amount: '$1,200.00', walletAmount: '$13,800.00' },
+    {
+      sr: '1',
+      dateTime: '2023-10-01 10:30 AM',
+      amount: '$5,000.00',
+      walletAmount: '$15,000.00',
+    },
+    {
+      sr: '2',
+      dateTime: '2023-10-02 14:15 PM',
+      amount: '$1,200.00',
+      walletAmount: '$13,800.00',
+    },
   ];
 
   const ledgerColumns = [
-    { header: 'Sr', accessor: 'sr' },
-    { header: 'Date/Time', accessor: 'dateTime' },
-    { header: 'Customer Name', accessor: 'customerName' },
-    { header: 'Broker Name', accessor: 'brokerName' },
-    { header: 'Transaction ID', accessor: 'transactionId' },
-    { header: 'Stript', accessor: 'stript' },
-    { header: 'Order Type', accessor: 'orderType' },
-    { header: 'Holding Type', accessor: 'holdingType' },
-    { header: 'Qty', accessor: 'qty' },
-    { header: 'Price', accessor: 'price' },
-    { header: 'Status', accessor: 'status' },
-    { header: 'Transaction Amount', accessor: 'transactionAmount' },
-    { header: 'Total Amount', accessor: 'totalAmount' },
+    {header: 'Sr', accessor: 'sr'},
+    {header: 'Date/Time', accessor: 'dateTime'},
+    {header: 'Customer Name', accessor: 'customerName'},
+    {header: 'Broker Name', accessor: 'brokerName'},
+    {header: 'Transaction ID', accessor: 'transactionId'},
+    {header: 'Stript', accessor: 'stript'},
+    {header: 'Order Type', accessor: 'orderType'},
+    {header: 'Holding Type', accessor: 'holdingType'},
+    {header: 'Qty', accessor: 'qty'},
+    {header: 'Price', accessor: 'price'},
+    {header: 'Status', accessor: 'status'},
+    {header: 'Transaction Amount', accessor: 'transactionAmount'},
+    {header: 'Total Amount', accessor: 'totalAmount'},
 
-    { header: 'Paid Amount', accessor: 'paidAmount' },
-    { header: 'Margin Amount', accessor: 'marginAmount' },
-    { header: 'Total Commission', accessor: 'totalCommission' },
+    {header: 'Paid Amount', accessor: 'paidAmount'},
+    {header: 'Margin Amount', accessor: 'marginAmount'},
+    {header: 'Total Commission', accessor: 'totalCommission'},
 
-    { header: 'Broker Commission', accessor: 'brokerCommission' },
+    {header: 'Broker Commission', accessor: 'brokerCommission'},
     // { header: 'Super Broker Commission', accessor: 'superBrokerCommission' },
-    { header: 'Payment Status', accessor: 'paymentStatus' },
+    {header: 'Payment Status', accessor: 'paymentStatus'},
   ];
 
   const paymentColumns = [
-    { header: 'Sr', accessor: 'sr' },
-    { header: 'Date/Time', accessor: 'dateTime' },
-    { header: 'Amount', accessor: 'amount' },
-    { header: 'Wallet Amount', accessor: 'walletAmount' },
+    {header: 'Sr', accessor: 'sr'},
+    {header: 'Date/Time', accessor: 'dateTime'},
+    {header: 'Amount', accessor: 'amount'},
+    {header: 'Wallet Amount', accessor: 'walletAmount'},
   ];
 
   if (isLoading) {
@@ -201,12 +212,12 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({ client, onBack }) =>
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      className="mx-auto max-w-9xl px-6 py-8"
+      initial={{opacity: 0, x: 20}}
+      animate={{opacity: 1, x: 0}}
+      className="max-w-9xl mx-auto px-6 py-8"
     >
       {/* Header */}
-      <div className="mb-8 flex max-w-9xl flex-col justify-between gap-4 md:flex-row md:items-center">
+      <div className="max-w-9xl mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div className="flex items-center gap-4">
           <button
             onClick={onBack}
@@ -231,13 +242,13 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({ client, onBack }) =>
         <div className="flex gap-3">
           <button
             onClick={() => setIsMarginModalOpen(true)}
-            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-50 hover:-translate-y-0.5 active:translate-y-0"
+            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:-translate-y-0.5 hover:bg-slate-50 active:translate-y-0"
           >
             <TrendingUp className="h-4 w-4 text-orange-500" /> Add Margin
           </button>
           <button
             onClick={() => setIsWalletModalOpen(true)}
-            className="flex items-center gap-2 rounded-xl bg-orange-500 px-5 py-3 text-sm font-semibold text-white shadow-md shadow-orange-200 transition-all hover:bg-orange-600 hover:-translate-y-0.5 active:translate-y-0"
+            className="flex items-center gap-2 rounded-xl bg-orange-500 px-5 py-3 text-sm font-semibold text-white shadow-md shadow-orange-200 transition-all hover:-translate-y-0.5 hover:bg-orange-600 active:translate-y-0"
           >
             <CreditCard className="h-4 w-4" /> Wallet Balance
           </button>
@@ -385,14 +396,15 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({ client, onBack }) =>
             </div>
           </div> */}
 
-
           <div className="mb-6 rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-            <div className="border-b border-stroke px-6 py-4 dark:border-strokedark flex justify-between items-center bg-gradient-to-r from-orange-500 to-red-500 rounded-t-lg">
-              <h2 className="text-xl font-semibold text-white">Super Broker Profile</h2>
+            <div className="flex items-center justify-between rounded-t-lg border-b border-stroke bg-gradient-to-r from-orange-500 to-red-500 px-6 py-4 dark:border-strokedark">
+              <h2 className="text-xl font-semibold text-white">
+                Super Broker Profile
+              </h2>
               {!isEditing ? (
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="flex items-center gap-2 rounded bg-white px-4 py-2 text-sm font-medium text-orange-500 hover:bg-gray-100 transition-colors"
+                  className="hover:bg-gray-100 flex items-center gap-2 rounded bg-white px-4 py-2 text-sm font-medium text-orange-500 transition-colors"
                 >
                   <FiEdit2 className="h-4 w-4" /> Edit Profile
                 </button>
@@ -400,13 +412,13 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({ client, onBack }) =>
                 <div className="flex gap-2">
                   <button
                     onClick={() => setIsEditing(false)}
-                    className="flex items-center gap-2 rounded bg-red-100 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-200 transition-colors"
+                    className="flex items-center gap-2 rounded bg-red-100 px-4 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-200"
                   >
                     <FiX className="h-4 w-4" /> Cancel
                   </button>
                   <button
                     // onClick={handleSave}
-                    className="flex items-center gap-2 rounded bg-white px-4 py-2 text-sm font-medium text-orange-500 hover:bg-gray-100 transition-colors"
+                    className="hover:bg-gray-100 flex items-center gap-2 rounded bg-white px-4 py-2 text-sm font-medium text-orange-500 transition-colors"
                   >
                     <FiSave className="h-4 w-4" /> Save
                   </button>
@@ -429,7 +441,9 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({ client, onBack }) =>
                       className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                     />
                   ) : (
-                    <p className="text-black dark:text-white">{displayClient.user?.fullname || 'N/A'}</p>
+                    <p className="text-black dark:text-white">
+                      {displayClient.user?.fullname || 'N/A'}
+                    </p>
                   )}
                 </div>
 
@@ -446,7 +460,9 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({ client, onBack }) =>
                       className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                     />
                   ) : (
-                    <p className="text-black dark:text-white">{displayClient.aadharCardNumber || 'N/A'}</p>
+                    <p className="text-black dark:text-white">
+                      {displayClient.aadharCardNumber || 'N/A'}
+                    </p>
                   )}
                 </div>
 
@@ -463,7 +479,9 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({ client, onBack }) =>
                       className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                     />
                   ) : (
-                    <p className="text-black dark:text-white">{ displayClient.commission || 'N/A'}</p>
+                    <p className="text-black dark:text-white">
+                      {displayClient.commission || 'N/A'}
+                    </p>
                   )}
                 </div>
 
@@ -480,10 +498,12 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({ client, onBack }) =>
                       className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                     />
                   ) : (
-                    <p className="text-black dark:text-white">{displayClient.area || 'N/A'}</p>
+                    <p className="text-black dark:text-white">
+                      {displayClient.area || 'N/A'}
+                    </p>
                   )}
                 </div>
-                  <div>
+                <div>
                   <label className="mb-2 block text-sm font-medium text-black dark:text-white">
                     Address
                   </label>
@@ -496,7 +516,9 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({ client, onBack }) =>
                       className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                     />
                   ) : (
-                    <p className="text-black dark:text-white">{displayClient.address || 'N/A'}</p>
+                    <p className="text-black dark:text-white">
+                      {displayClient.address || 'N/A'}
+                    </p>
                   )}
                 </div>
 
@@ -519,8 +541,6 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({ client, onBack }) =>
               </div>
             </div>
           </div>
-
-
 
           {/* Documentation */}
           <div className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
@@ -578,19 +598,21 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({ client, onBack }) =>
             <div className="mb-6 flex border-b border-slate-100">
               <button
                 onClick={() => setActiveTab('ledger')}
-                className={`px-4 py-3 text-sm font-semibold transition-colors ${activeTab === 'ledger'
+                className={`px-4 py-3 text-sm font-semibold transition-colors ${
+                  activeTab === 'ledger'
                     ? 'border-b-2 border-orange-500 text-orange-500'
                     : 'text-slate-500 hover:text-slate-700'
-                  }`}
+                }`}
               >
                 Client Ledger
               </button>
               <button
                 onClick={() => setActiveTab('payment')}
-                className={`px-4 py-3 text-sm font-semibold transition-colors ${activeTab === 'payment'
+                className={`px-4 py-3 text-sm font-semibold transition-colors ${
+                  activeTab === 'payment'
                     ? 'border-b-2 border-orange-500 text-orange-500'
                     : 'text-slate-500 hover:text-slate-700'
-                  }`}
+                }`}
               >
                 Payment
               </button>
@@ -614,48 +636,55 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({ client, onBack }) =>
             )}
           </div>
         </div>
-
-     
       </div>
       {/* Wallet Balance Modal */}
       {isWalletModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl border border-slate-100">
-            <h3 className="text-lg font-bold text-slate-900 mb-4">Manage Wallet Balance</h3>
+          <div className="w-full max-w-md rounded-2xl border border-slate-100 bg-white p-6 shadow-xl">
+            <h3 className="mb-4 text-lg font-bold text-slate-900">
+              Manage Wallet Balance
+            </h3>
 
             {/* Toggle buttons */}
-            <div className="grid grid-cols-2 gap-2 mb-6 bg-slate-100 p-1 rounded-xl">
+            <div className="mb-6 grid grid-cols-2 gap-2 rounded-xl bg-slate-100 p-1">
               <button
                 type="button"
                 onClick={() => setWalletActionType('add')}
-                className={`py-2 text-sm font-semibold rounded-lg transition-all ${walletActionType === 'add'
+                className={`rounded-lg py-2 text-sm font-semibold transition-all ${
+                  walletActionType === 'add'
                     ? 'bg-white text-orange-500 shadow-sm'
                     : 'text-slate-600 hover:text-slate-800'
-                  }`}
+                }`}
               >
                 Add
               </button>
               <button
                 type="button"
                 onClick={() => setWalletActionType('withdraw')}
-                className={`py-2 text-sm font-semibold rounded-lg transition-all ${walletActionType === 'withdraw'
+                className={`rounded-lg py-2 text-sm font-semibold transition-all ${
+                  walletActionType === 'withdraw'
                     ? 'bg-white text-orange-500 shadow-sm'
                     : 'text-slate-600 hover:text-slate-800'
-                  }`}
+                }`}
               >
                 Withdraw
               </button>
             </div>
 
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              alert(`Action: ${walletActionType}, Amount: ${walletAmount}, Pin: ${walletPin}`);
-              setIsWalletModalOpen(false);
-              setWalletAmount('');
-              setWalletPin('');
-            }} className="space-y-4">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                alert(
+                  `Action: ${walletActionType}, Amount: ${walletAmount}, Pin: ${walletPin}`,
+                );
+                setIsWalletModalOpen(false);
+                setWalletAmount('');
+                setWalletPin('');
+              }}
+              className="space-y-4"
+            >
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-500 mb-1.5">
+                <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
                   Amount
                 </label>
                 <input
@@ -669,7 +698,7 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({ client, onBack }) =>
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-500 mb-1.5">
+                <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
                   Pin
                 </label>
                 <input
@@ -690,13 +719,13 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({ client, onBack }) =>
                     setWalletAmount('');
                     setWalletPin('');
                   }}
-                  className="flex-1 py-2.5 text-sm font-medium text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
+                  className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 text-sm font-medium text-white bg-orange-500 rounded-xl hover:bg-orange-600 shadow-md shadow-orange-200 transition-colors"
+                  className="flex-1 rounded-xl bg-orange-500 py-2.5 text-sm font-medium text-white shadow-md shadow-orange-200 transition-colors hover:bg-orange-600"
                 >
                   Submit
                 </button>
@@ -709,19 +738,26 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({ client, onBack }) =>
       {/* Margin Modal */}
       {isMarginModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl border border-slate-100">
-            <h3 className="text-lg font-bold text-slate-900 mb-6">Add Margin</h3>
+          <div className="w-full max-w-md rounded-2xl border border-slate-100 bg-white p-6 shadow-xl">
+            <h3 className="mb-6 text-lg font-bold text-slate-900">
+              Add Margin
+            </h3>
 
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              alert(`Intraday Margin: ${intradayMargin}, Holding Margin: ${holdingMargin}, Pin: ${marginPin}`);
-              setIsMarginModalOpen(false);
-              setIntradayMargin('');
-              setHoldingMargin('');
-              setMarginPin('');
-            }} className="space-y-4">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                alert(
+                  `Intraday Margin: ${intradayMargin}, Holding Margin: ${holdingMargin}, Pin: ${marginPin}`,
+                );
+                setIsMarginModalOpen(false);
+                setIntradayMargin('');
+                setHoldingMargin('');
+                setMarginPin('');
+              }}
+              className="space-y-4"
+            >
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-500 mb-1.5">
+                <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
                   Intraday Margin
                 </label>
                 <input
@@ -735,7 +771,7 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({ client, onBack }) =>
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-500 mb-1.5">
+                <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
                   Holding Margin
                 </label>
                 <input
@@ -749,7 +785,7 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({ client, onBack }) =>
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-500 mb-1.5">
+                <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
                   Pin
                 </label>
                 <input
@@ -771,13 +807,13 @@ export const ClientDetail: React.FC<ClientDetailProps> = ({ client, onBack }) =>
                     setHoldingMargin('');
                     setMarginPin('');
                   }}
-                  className="flex-1 py-2.5 text-sm font-medium text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
+                  className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 text-sm font-medium text-white bg-orange-500 rounded-xl hover:bg-orange-600 shadow-md shadow-orange-200 transition-colors"
+                  className="flex-1 rounded-xl bg-orange-500 py-2.5 text-sm font-medium text-white shadow-md shadow-orange-200 transition-colors hover:bg-orange-600"
                 >
                   Submit
                 </button>

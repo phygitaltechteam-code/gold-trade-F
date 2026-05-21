@@ -23,8 +23,8 @@ const AuthContextProvider = ({children}: {children: ReactNode}) => {
         role: upperRole,
         exp: Math.floor(Date.now() / 1000) + 86400,
       } as any;
-      
-      setToken({ accessToken: 'mock-token', refreshToken: 'mock-token' });
+
+      setToken({accessToken: 'mock-token', refreshToken: 'mock-token'});
       setUser(mockUser);
       setRole(upperRole);
       setIsSuperAdmin(upperRole === 'SUPERADMIN');

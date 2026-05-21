@@ -1,9 +1,9 @@
-import { useAddBroker } from '@/lib/api/addbroker';
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from '@tanstack/react-router';
+import {useAddBroker} from '@/lib/api/addbroker';
+import React, {useState, useEffect} from 'react';
+import {useNavigate} from '@tanstack/react-router';
 import toast from 'react-hot-toast';
-import { z } from 'zod';
-import { useAuthContext } from '@/context/AuthContext';
+import {z} from 'zod';
+import {useAuthContext} from '@/context/AuthContext';
 
 // Define Zod schema for form data validation
 const BrokerSchema = z.object({
@@ -16,9 +16,9 @@ const BrokerSchema = z.object({
 const AddBroker = () => {
   const navigate = useNavigate();
   const addbroker = useAddBroker();
-  const { user } = useAuthContext();
+  const {user} = useAuthContext();
   const isSuperBroker = user?.role === 'SUPERBROKER';
-  
+
   const [formData, setFormData] = useState({
     fullname: '',
     password: '',
@@ -55,20 +55,20 @@ const AddBroker = () => {
 
   // Mock super brokers
   const mockSuperBrokers = [
-    { id: '1', SBID: 'SB-1001', fullname: 'Rajesh Kumar' },
-    { id: '2', SBID: 'SB-1002', fullname: 'Priya Sharma' },
-    { id: '3', SBID: 'SB-1003', fullname: 'Amit Patel' },
-    { id: '4', SBID: 'SB-1004', fullname: 'Neha Gupta' }
+    {id: '1', SBID: 'SB-1001', fullname: 'Rajesh Kumar'},
+    {id: '2', SBID: 'SB-1002', fullname: 'Priya Sharma'},
+    {id: '3', SBID: 'SB-1003', fullname: 'Amit Patel'},
+    {id: '4', SBID: 'SB-1004', fullname: 'Neha Gupta'},
   ];
 
   const filteredSuperBrokers = mockSuperBrokers.filter(
     (sb) =>
       sb.fullname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      sb.SBID.toLowerCase().includes(searchTerm.toLowerCase())
+      sb.SBID.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const {name, value} = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -147,7 +147,7 @@ const AddBroker = () => {
       BrokerSchema.parse(formData);
 
       const imageErrors = {};
-   
+
       if (Object.keys(imageErrors).length > 0) {
         setErrors(imageErrors);
         const firstError = Object.values(imageErrors)[0];
@@ -212,7 +212,11 @@ const AddBroker = () => {
       await addbroker.mutateAsync(formDataToSend);
       resetForm();
       toast.success('Broker registered successfully!');
-      navigate({ to: isSuperBroker ? '/superbroker/brokerlist' : '/companybroker/displaybroker' });
+      navigate({
+        to: isSuperBroker
+          ? '/superbroker/brokerlist'
+          : '/companybroker/displaybroker',
+      });
     } catch (error) {
       console.error('Submission error:', error);
     } finally {
@@ -220,7 +224,7 @@ const AddBroker = () => {
     }
   };
 
-  const ImageUploadField = ({ label, field, required }) => (
+  const ImageUploadField = ({label, field, required}) => (
     <div className="mb-4">
       <label className="text-gray-700 mb-2 block text-sm font-medium">
         {label} {required && <span className="text-red-500">*</span>}
@@ -300,7 +304,13 @@ const AddBroker = () => {
               </p>
             </div>
             <button
-              onClick={() => navigate({ to: isSuperBroker ? '/superbroker/brokerlist' : '/companybroker/displaybroker' })}
+              onClick={() =>
+                navigate({
+                  to: isSuperBroker
+                    ? '/superbroker/brokerlist'
+                    : '/companybroker/displaybroker',
+                })
+              }
               className="hover:bg-gray-100 rounded-lg bg-white px-4 py-2 text-orange-500 transition-all"
             >
               Back to List
@@ -320,8 +330,9 @@ const AddBroker = () => {
                 name="fullname"
                 value={formData.fullname}
                 onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${errors.fullname ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${
+                  errors.fullname ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="Enter full name"
               />
               {errors.fullname && (
@@ -340,8 +351,9 @@ const AddBroker = () => {
                 value={formData.phoneNumber}
                 onChange={handleInputChange}
                 maxLength={10}
-                className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${errors.phoneNumber ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${
+                  errors.phoneNumber ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="Enter 10-digit phone number"
               />
               {errors.phoneNumber && (
@@ -361,8 +373,9 @@ const AddBroker = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${errors.password ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${
+                  errors.password ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="Enter password (min 6 characters)"
               />
               {errors.password && (
@@ -371,7 +384,7 @@ const AddBroker = () => {
             </div>
 
             {/* Searchable Super Broker Dropdown or locked role input */}
-            <div className="mb-4 relative">
+            <div className="relative mb-4">
               <label className="text-gray-700 mb-2 block text-sm font-medium">
                 Assign to Super Broker <span className="text-red-500">*</span>
               </label>
@@ -380,7 +393,7 @@ const AddBroker = () => {
                   type="text"
                   disabled
                   value={`${user?.fullname || 'Mock Super Broker'} (Super Broker)`}
-                  className="w-full rounded-lg border border-slate-200 bg-slate-100 p-2 text-slate-500 font-semibold cursor-not-allowed"
+                  className="w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-100 p-2 font-semibold text-slate-500"
                 />
               ) : (
                 <div className="relative">
@@ -390,7 +403,9 @@ const AddBroker = () => {
                     value={
                       isDropdownOpen
                         ? searchTerm
-                        : mockSuperBrokers.find((sb) => sb.id === formData.superBrokerId)
+                        : mockSuperBrokers.find(
+                              (sb) => sb.id === formData.superBrokerId,
+                            )
                           ? `${mockSuperBrokers.find((sb) => sb.id === formData.superBrokerId)?.fullname} (${mockSuperBrokers.find((sb) => sb.id === formData.superBrokerId)?.SBID})`
                           : ''
                     }
@@ -402,11 +417,16 @@ const AddBroker = () => {
                       setIsDropdownOpen(true);
                       setSearchTerm(''); // clear search when opening to see all options
                     }}
-                    onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
-                    className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${errors.superBrokerId ? 'border-red-500' : 'border-gray-300'
-                      }`}
+                    onBlur={() =>
+                      setTimeout(() => setIsDropdownOpen(false), 200)
+                    }
+                    className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${
+                      errors.superBrokerId
+                        ? 'border-red-500'
+                        : 'border-gray-300'
+                    }`}
                   />
-                  
+
                   {isDropdownOpen && (
                     <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
                       {filteredSuperBrokers.length > 0 ? (
@@ -415,34 +435,48 @@ const AddBroker = () => {
                             key={sb.id}
                             className="cursor-pointer px-4 py-2 hover:bg-orange-50"
                             onClick={() => {
-                              setFormData((prev) => ({ ...prev, superBrokerId: sb.id }));
+                              setFormData((prev) => ({
+                                ...prev,
+                                superBrokerId: sb.id,
+                              }));
                               setSearchTerm('');
                               setIsDropdownOpen(false);
                               if (errors.superBrokerId) {
-                                setErrors((prev) => ({ ...prev, superBrokerId: '' }));
+                                setErrors((prev) => ({
+                                  ...prev,
+                                  superBrokerId: '',
+                                }));
                               }
                             }}
                           >
-                            <div className="font-medium text-gray-900">{sb.fullname}</div>
-                            <div className="text-xs text-gray-500">{sb.SBID}</div>
+                            <div className="text-gray-900 font-medium">
+                              {sb.fullname}
+                            </div>
+                            <div className="text-gray-500 text-xs">
+                              {sb.SBID}
+                            </div>
                           </div>
                         ))
                       ) : (
-                        <div className="px-4 py-2 text-sm text-gray-500">No Super Brokers found</div>
+                        <div className="text-gray-500 px-4 py-2 text-sm">
+                          No Super Brokers found
+                        </div>
                       )}
                     </div>
                   )}
                 </div>
               )}
               {errors.superBrokerId && !isSuperBroker && (
-                <p className="mt-1 text-xs text-red-500">{errors.superBrokerId}</p>
+                <p className="mt-1 text-xs text-red-500">
+                  {errors.superBrokerId}
+                </p>
               )}
             </div>
 
             {/* Aadhar Card Number */}
             <div className="mb-4">
               <label className="text-gray-700 mb-2 block text-sm font-medium">
-                Aadhar Card Number 
+                Aadhar Card Number
               </label>
               <input
                 type="text"
@@ -450,8 +484,9 @@ const AddBroker = () => {
                 value={formData.aadharCardNumber}
                 onChange={handleInputChange}
                 maxLength={12}
-                className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${errors.aadharCardNumber ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${
+                  errors.aadharCardNumber ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="Enter 12-digit Aadhar number"
               />
               {errors.aadharCardNumber && (
@@ -464,7 +499,7 @@ const AddBroker = () => {
             {/* Area */}
             <div className="mb-4">
               <label className="text-gray-700 mb-2 block text-sm font-medium">
-                Area 
+                Area
               </label>
               <input
                 type="text"
@@ -479,9 +514,9 @@ const AddBroker = () => {
               )}
             </div>
 
-             <div className="mb-4">
+            <div className="mb-4">
               <label className="text-gray-700 mb-2 block text-sm font-medium">
-                Commission % 
+                Commission %
               </label>
               <input
                 type="text"
@@ -512,27 +547,27 @@ const AddBroker = () => {
           </div>
 
           {/* Review Section */}
-          {(imagePreviews.aadharCardF) && (
-              <div className="bg-gray-50 mt-6 rounded-lg p-4">
-                <h3 className="text-md text-gray-800 mb-3 font-semibold">
-                  Review Uploaded Images
-                </h3>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                  {imagePreviews.aadharCardF && (
-                    <div>
-                      <p className="text-gray-600 mb-1 text-sm">
-                        Aadhar Card Front:
-                      </p>
-                      <img
-                        src={imagePreviews.aadharCardF}
-                        alt="Aadhar Front"
-                        className="h-24 w-24 rounded-lg object-cover"
-                      />
-                    </div>
-                  )}
-                </div>
+          {imagePreviews.aadharCardF && (
+            <div className="bg-gray-50 mt-6 rounded-lg p-4">
+              <h3 className="text-md text-gray-800 mb-3 font-semibold">
+                Review Uploaded Images
+              </h3>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                {imagePreviews.aadharCardF && (
+                  <div>
+                    <p className="text-gray-600 mb-1 text-sm">
+                      Aadhar Card Front:
+                    </p>
+                    <img
+                      src={imagePreviews.aadharCardF}
+                      alt="Aadhar Front"
+                      className="h-24 w-24 rounded-lg object-cover"
+                    />
+                  </div>
+                )}
               </div>
-            )}
+            </div>
+          )}
 
           {/* Submit Button */}
           <div className="mt-6 flex gap-4">

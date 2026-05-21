@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 
 const mockLedgerData = [
@@ -106,7 +106,7 @@ const mockLedgerData = [
     brokerCommission: 16763,
     superBrokerCommission: 11175,
     paymentStatus: 'Pending',
-  }
+  },
 ];
 
 export default function BrokerCommissionHistory() {
@@ -115,37 +115,39 @@ export default function BrokerCommissionHistory() {
   const [endDate, setEndDate] = useState('');
 
   const baseLedgerColumns = [
-    { header: 'Sr', accessor: 'sr' },
-    { header: 'Date/Time', accessor: 'dateTime' },
-    { header: 'Transaction ID', accessor: 'transactionId' },
-    { header: 'Stript', accessor: 'stript' },
-    { header: 'Transaction Amount', accessor: 'transactionAmount' },
-    { header: 'Broker Commission', accessor: 'brokerCommission' },
-    { header: 'Status', accessor: 'status' },
+    {header: 'Sr', accessor: 'sr'},
+    {header: 'Date/Time', accessor: 'dateTime'},
+    {header: 'Transaction ID', accessor: 'transactionId'},
+    {header: 'Stript', accessor: 'stript'},
+    {header: 'Transaction Amount', accessor: 'transactionAmount'},
+    {header: 'Broker Commission', accessor: 'brokerCommission'},
+    {header: 'Status', accessor: 'status'},
   ];
 
   const expandedLedgerColumns = [
-    { header: 'Sr', accessor: 'sr' },
-    { header: 'Date/Time', accessor: 'dateTime' },
-    { header: 'Customer Name', accessor: 'customerName' },
-    { header: 'Broker Name', accessor: 'brokerName' },
-    { header: 'Transaction ID', accessor: 'transactionId' },
-    { header: 'Stript', accessor: 'stript' },
-    { header: 'Order Type', accessor: 'orderType' },
-    { header: 'Holding Type', accessor: 'holdingType'},
-    { header: 'Qty' , accessor: 'qty'},
-    { header: 'Price', accessor: 'price' },
-    { header: 'Status', accessor: 'status' },
-    { header: 'Transaction Amount', accessor: 'transactionAmount' },
-    { header: 'Total Amount', accessor: 'totalAmount' },
-    { header: 'Paid Amount', accessor: 'paidAmount' },
-    { header: 'Margin Amount', accessor: 'marginAmount' },
-    { header: 'Total Commission', accessor: 'totalCommission' },
-    { header: 'Broker Commission', accessor: 'brokerCommission' },
-    { header: 'Payment Status', accessor: 'paymentStatus' },
+    {header: 'Sr', accessor: 'sr'},
+    {header: 'Date/Time', accessor: 'dateTime'},
+    {header: 'Customer Name', accessor: 'customerName'},
+    {header: 'Broker Name', accessor: 'brokerName'},
+    {header: 'Transaction ID', accessor: 'transactionId'},
+    {header: 'Stript', accessor: 'stript'},
+    {header: 'Order Type', accessor: 'orderType'},
+    {header: 'Holding Type', accessor: 'holdingType'},
+    {header: 'Qty', accessor: 'qty'},
+    {header: 'Price', accessor: 'price'},
+    {header: 'Status', accessor: 'status'},
+    {header: 'Transaction Amount', accessor: 'transactionAmount'},
+    {header: 'Total Amount', accessor: 'totalAmount'},
+    {header: 'Paid Amount', accessor: 'paidAmount'},
+    {header: 'Margin Amount', accessor: 'marginAmount'},
+    {header: 'Total Commission', accessor: 'totalCommission'},
+    {header: 'Broker Commission', accessor: 'brokerCommission'},
+    {header: 'Payment Status', accessor: 'paymentStatus'},
   ];
 
-  const ledgerColumns = isLedgerExpanded ? expandedLedgerColumns : baseLedgerColumns;
+  const ledgerColumns = isLedgerExpanded
+    ? expandedLedgerColumns
+    : baseLedgerColumns;
 
   // Filter logic based on start and end dates
   const filteredData = mockLedgerData.filter((row) => {
@@ -157,39 +159,55 @@ export default function BrokerCommissionHistory() {
   });
 
   // Calculate totals for Stats Cards
-  const totalBusiness = filteredData.reduce((sum, item) => sum + item.transactionAmount, 0);
-  const totalCommission = filteredData.reduce((sum, item) => sum + item.brokerCommission, 0);
+  const totalBusiness = filteredData.reduce(
+    (sum, item) => sum + item.transactionAmount,
+    0,
+  );
+  const totalCommission = filteredData.reduce(
+    (sum, item) => sum + item.brokerCommission,
+    0,
+  );
   const pendingCommission = filteredData
     .filter((item) => item.paymentStatus === 'Pending')
     .reduce((sum, item) => sum + item.brokerCommission, 0);
 
   return (
-    <div className="w-full p-4 md:p-6 bg-[#f8fafc] min-h-screen">
+    <div className="min-h-screen w-full bg-[#f8fafc] p-4 md:p-6">
       {/* Page Title */}
       <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Broker Commission History</h1>
-          <p className="text-sm text-slate-500">Track and manage generated commission records</p>
+          <h1 className="text-2xl font-bold text-slate-800">
+            Broker Commission History
+          </h1>
+          <p className="text-sm text-slate-500">
+            Track and manage generated commission records
+          </p>
         </div>
       </div>
 
       {/* Stats Cards */}
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="flex flex-col rounded-xl border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark hover:shadow-md transition-shadow">
-          <span className="text-sm font-semibold text-gray-500">Total Business Volume</span>
-          <h4 className="text-2xl font-bold text-slate-900 mt-2">
+        <div className="flex flex-col rounded-xl border border-stroke bg-white p-6 shadow-default transition-shadow hover:shadow-md dark:border-strokedark dark:bg-boxdark">
+          <span className="text-gray-500 text-sm font-semibold">
+            Total Business Volume
+          </span>
+          <h4 className="mt-2 text-2xl font-bold text-slate-900">
             ₹{totalBusiness.toLocaleString()}
           </h4>
         </div>
-        <div className="flex flex-col rounded-xl border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark hover:shadow-md transition-shadow">
-          <span className="text-sm font-semibold text-gray-500">Total Earned Commission</span>
-          <h4 className="text-2xl font-bold text-green-500 mt-2">
+        <div className="flex flex-col rounded-xl border border-stroke bg-white p-6 shadow-default transition-shadow hover:shadow-md dark:border-strokedark dark:bg-boxdark">
+          <span className="text-gray-500 text-sm font-semibold">
+            Total Earned Commission
+          </span>
+          <h4 className="mt-2 text-2xl font-bold text-green-500">
             ₹{totalCommission.toLocaleString()}
           </h4>
         </div>
-        <div className="flex flex-col rounded-xl border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark hover:shadow-md transition-shadow">
-          <span className="text-sm font-semibold text-gray-500">Pending Commission payout</span>
-          <h4 className="text-2xl font-bold text-orange-500 mt-2">
+        <div className="flex flex-col rounded-xl border border-stroke bg-white p-6 shadow-default transition-shadow hover:shadow-md dark:border-strokedark dark:bg-boxdark">
+          <span className="text-gray-500 text-sm font-semibold">
+            Pending Commission payout
+          </span>
+          <h4 className="mt-2 text-2xl font-bold text-orange-500">
             ₹{pendingCommission.toLocaleString()}
           </h4>
         </div>
@@ -199,15 +217,17 @@ export default function BrokerCommissionHistory() {
       <div className="rounded-xl border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <h3 className="text-lg font-bold text-slate-900">Ledger Records</h3>
-          
+
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-slate-700">From:</label>
+              <label className="text-sm font-medium text-slate-700">
+                From:
+              </label>
               <input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="rounded-lg border border-slate-300 bg-transparent px-3 py-1.5 text-sm outline-none transition focus:border-orange-500 active:border-orange-500 focus:ring-1 focus:ring-orange-500"
+                className="rounded-lg border border-slate-300 bg-transparent px-3 py-1.5 text-sm outline-none transition focus:border-orange-500 focus:ring-1 focus:ring-orange-500 active:border-orange-500"
               />
             </div>
             <div className="flex items-center gap-2">
@@ -216,7 +236,7 @@ export default function BrokerCommissionHistory() {
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="rounded-lg border border-slate-300 bg-transparent px-3 py-1.5 text-sm outline-none transition focus:border-orange-500 active:border-orange-500 focus:ring-1 focus:ring-orange-500"
+                className="rounded-lg border border-slate-300 bg-transparent px-3 py-1.5 text-sm outline-none transition focus:border-orange-500 focus:ring-1 focus:ring-orange-500 active:border-orange-500"
               />
             </div>
             {(startDate || endDate) && (
@@ -225,14 +245,14 @@ export default function BrokerCommissionHistory() {
                   setStartDate('');
                   setEndDate('');
                 }}
-                className="rounded-lg bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-300 transition-colors"
+                className="bg-gray-200 text-gray-700 hover:bg-gray-300 rounded-lg px-4 py-2 text-sm font-semibold transition-colors"
               >
                 Clear
               </button>
             )}
             <button
               onClick={() => setIsLedgerExpanded(!isLedgerExpanded)}
-              className="rounded-lg bg-gradient-to-r from-orange-500 to-red-500 px-4 py-2 text-sm font-semibold text-white transition-all hover:from-orange-600 hover:to-red-600 shadow-sm"
+              className="rounded-lg bg-gradient-to-r from-orange-500 to-red-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:from-orange-600 hover:to-red-600"
             >
               {isLedgerExpanded ? 'View Less Columns' : 'View All Columns'}
             </button>

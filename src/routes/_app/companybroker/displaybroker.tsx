@@ -1,6 +1,7 @@
-import Brokerflow from '@/components/company/Brokerflow'
-import { createFileRoute } from '@tanstack/react-router'
+import Brokerflow from '@/components/company/Brokerflow';
+import {createFileRoute} from '@tanstack/react-router';
+import React from 'react';
 
 export const Route = createFileRoute('/_app/companybroker/displaybroker')({
   component: () => <Brokerflow />,
-})
+});

@@ -19,13 +19,13 @@ interface Order {
   id: string;
   time: string;
   client: string;
-  sript:string;
-  holdingType:string;
-  
-  paidAmount:string
-  totalAmount:string
-  marginAmount:string;
- 
+  sript: string;
+  holdingType: string;
+
+  paidAmount: string;
+  totalAmount: string;
+  marginAmount: string;
+
   type: 'BUY' | 'SELL';
   qty: string;
   price: string;
@@ -51,112 +51,112 @@ const LiveMonitoring = () => {
       time: '10:42:05',
       client: 'Capital Alpha',
       type: 'BUY',
-      sript:'Gold Spot',
-      holdingType:'Bullion',
+      sript: 'Gold Spot',
+      holdingType: 'Bullion',
       qty: '50.00',
       price: '1,942.10',
       status: 'Pending',
       statusColor: 'text-slate-400',
       statusBg: 'bg-slate-400',
-      paidAmount:'100',
-      totalAmount:'200',
-      marginAmount:'300',
+      paidAmount: '100',
+      totalAmount: '200',
+      marginAmount: '300',
     },
     {
       id: '#8822',
       time: '10:41:55',
       client: 'Jane Smith',
       type: 'SELL',
-      sript:'Gold Spot',
-      holdingType:'Bullion',
+      sript: 'Gold Spot',
+      holdingType: 'Bullion',
       qty: '1,500.00',
       price: '1,955.00',
       status: 'Flagged',
       statusColor: 'text-orange-500',
       statusIcon: <AlertTriangle className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />,
-      paidAmount:'100',
-      totalAmount:'200',
-      marginAmount:'300',
+      paidAmount: '100',
+      totalAmount: '200',
+      marginAmount: '300',
     },
     {
       id: '#8819',
       time: '10:40:12',
       client: 'Gold Star Inc',
       type: 'BUY',
-      sript:'Gold Spot',
-      holdingType:'Bullion',
+      sript: 'Gold Spot',
+      holdingType: 'Bullion',
       qty: '120.00',
       price: '1,941.80',
       status: 'Executed',
       statusColor: 'text-emerald-500',
       statusIcon: <CheckCircle2 className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />,
-      paidAmount:'100',
-      totalAmount:'200',
-      marginAmount:'300',
+      paidAmount: '100',
+      totalAmount: '200',
+      marginAmount: '300',
     },
     {
       id: '#8815',
       time: '10:38:45',
       client: 'TradeCorp',
       type: 'SELL',
-      sript:'Gold Spot',
-      holdingType:'Bullion',
+      sript: 'Gold Spot',
+      holdingType: 'Bullion',
       qty: '200.00',
       price: '1,958.00',
       status: 'Partial',
       statusColor: 'text-blue-500',
       statusBg: 'bg-blue-500',
-      paidAmount:'100',
-      totalAmount:'200',
-      marginAmount:'300',
+      paidAmount: '100',
+      totalAmount: '200',
+      marginAmount: '300',
     },
     {
       id: '#8811',
       time: '10:35:10',
       client: 'Market Makers Ltd',
       type: 'BUY',
-      sript:'Gold Spot',
-      holdingType:'Bullion',
+      sript: 'Gold Spot',
+      holdingType: 'Bullion',
       qty: '75.00',
       price: '1,942.05',
       status: 'Pending',
       statusColor: 'text-slate-400',
       statusBg: 'bg-slate-400',
-      paidAmount:'100',
-      totalAmount:'200',
-      marginAmount:'300',
+      paidAmount: '100',
+      totalAmount: '200',
+      marginAmount: '300',
     },
     {
       id: '#8808',
       time: '10:32:22',
       client: 'Alpha Investments',
       type: 'BUY',
-      sript:'Gold Spot',
-      holdingType:'Bullion',
+      sript: 'Gold Spot',
+      holdingType: 'Bullion',
       qty: '300.00',
       price: '1,944.50',
       status: 'Pending',
       statusColor: 'text-slate-400',
       statusBg: 'bg-slate-400',
-      paidAmount:'100',
-      totalAmount:'200',
-      marginAmount:'300',
+      paidAmount: '100',
+      totalAmount: '200',
+      marginAmount: '300',
     },
     {
       id: '#8805',
       time: '10:28:15',
       client: 'Beta Trading',
       type: 'SELL',
-      sript:'Gold Spot',
-      holdingType:'Bullion',
+      sript: 'Gold Spot',
+      holdingType: 'Bullion',
       qty: '45.00',
       price: '1,943.20',
       status: 'Executed',
       statusColor: 'text-emerald-500',
       statusIcon: <CheckCircle2 className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />,
-      paidAmount:'100',
-      totalAmount:'200',
-      marginAmount:'300',
+      paidAmount: '100',
+      totalAmount: '200',
+      marginAmount: '300',
     },
   ];
 
@@ -450,10 +450,10 @@ const LiveMonitoring = () => {
             <table className="w-full border-collapse text-left">
               <thead>
                 <tr className="border-b border-slate-100">
-                   <th className="px-4 py-3 text-[9px] font-bold uppercase tracking-widest text-slate-400 xl:px-6 xl:py-4 xl:text-[10px]">
+                  <th className="px-4 py-3 text-[9px] font-bold uppercase tracking-widest text-slate-400 xl:px-6 xl:py-4 xl:text-[10px]">
                     Sr
                   </th>
-                   <th className="px-4 py-3 text-[9px] font-bold uppercase tracking-widest text-slate-400 xl:px-6 xl:py-4 xl:text-[10px]">
+                  <th className="px-4 py-3 text-[9px] font-bold uppercase tracking-widest text-slate-400 xl:px-6 xl:py-4 xl:text-[10px]">
                     Date/Time
                   </th>
                   <th className="px-4 py-3 text-[9px] font-bold uppercase tracking-widest text-slate-400 xl:px-6 xl:py-4 xl:text-[10px]">
@@ -471,7 +471,7 @@ const LiveMonitoring = () => {
                   <th className="px-4 py-3 text-right text-[9px] font-bold uppercase tracking-widest text-slate-400 xl:px-6 xl:py-4 xl:text-[10px]">
                     Qty (OZ)
                   </th>
-                   <th className="px-4 py-3 text-right text-[9px] font-bold uppercase tracking-widest text-slate-400 xl:px-6 xl:py-4 xl:text-[10px]">
+                  <th className="px-4 py-3 text-right text-[9px] font-bold uppercase tracking-widest text-slate-400 xl:px-6 xl:py-4 xl:text-[10px]">
                     Holding Type
                   </th>
                   <th className="px-4 py-3 text-right text-[9px] font-bold uppercase tracking-widest text-slate-400 xl:px-6 xl:py-4 xl:text-[10px]">
@@ -491,122 +491,122 @@ const LiveMonitoring = () => {
                   </th>
                 </tr>
               </thead>
-          <tbody className="divide-y divide-slate-50">
-  {paginatedOrders.length > 0 ? (
-    paginatedOrders.map((order, idx) => (
-      <tr
-        key={idx}
-        className="group transition-colors hover:bg-slate-50/50"
-      >
-        {/* Sr */}
-        <td className="px-4 py-4 text-xs font-medium text-slate-500 xl:px-6 xl:py-5">
-          {idx + 1}
-        </td>
+              <tbody className="divide-y divide-slate-50">
+                {paginatedOrders.length > 0 ? (
+                  paginatedOrders.map((order, idx) => (
+                    <tr
+                      key={idx}
+                      className="group transition-colors hover:bg-slate-50/50"
+                    >
+                      {/* Sr */}
+                      <td className="px-4 py-4 text-xs font-medium text-slate-500 xl:px-6 xl:py-5">
+                        {idx + 1}
+                      </td>
 
-        {/* Date/Time */}
-        <td className="px-4 py-4 text-[10px] font-mono text-slate-500 xl:px-6 xl:py-5 xl:text-xs">
-          {order.time}
-        </td>
+                      {/* Date/Time */}
+                      <td className="font-mono px-4 py-4 text-[10px] text-slate-500 xl:px-6 xl:py-5 xl:text-xs">
+                        {order.time}
+                      </td>
 
-        {/* Order ID */}
-        <td className="px-4 py-4 text-xs font-bold text-slate-700 xl:px-6 xl:py-5 xl:text-sm">
-          {order.id}
-        </td>
+                      {/* Order ID */}
+                      <td className="px-4 py-4 text-xs font-bold text-slate-700 xl:px-6 xl:py-5 xl:text-sm">
+                        {order.id}
+                      </td>
 
-        {/* Client Name */}
-        <td className="px-4 py-4 xl:px-6 xl:py-5">
-          <div className="flex items-center gap-2 xl:gap-3">
-            <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-slate-100 text-[8px] font-bold text-slate-500 xl:h-8 xl:w-8 xl:text-[10px]">
-              {order.client
-                .split(' ')
-                .map((word) => word[0])
-                .join('')
-                .slice(0, 2)}
-            </div>
-            <span className="text-xs font-semibold text-slate-700 xl:text-sm">
-              {order.client}
-            </span>
-          </div>
-        </td>
+                      {/* Client Name */}
+                      <td className="px-4 py-4 xl:px-6 xl:py-5">
+                        <div className="flex items-center gap-2 xl:gap-3">
+                          <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-slate-100 text-[8px] font-bold text-slate-500 xl:h-8 xl:w-8 xl:text-[10px]">
+                            {order.client
+                              .split(' ')
+                              .map((word) => word[0])
+                              .join('')
+                              .slice(0, 2)}
+                          </div>
+                          <span className="text-xs font-semibold text-slate-700 xl:text-sm">
+                            {order.client}
+                          </span>
+                        </div>
+                      </td>
 
-        {/* Script */}
-        <td className="px-4 py-4 text-xs font-semibold text-slate-700 xl:px-6 xl:py-5 xl:text-sm">
-          {order.sript}
-        </td>
+                      {/* Script */}
+                      <td className="px-4 py-4 text-xs font-semibold text-slate-700 xl:px-6 xl:py-5 xl:text-sm">
+                        {order.sript}
+                      </td>
 
-        {/* Type */}
-        <td className="px-4 py-4 text-center xl:px-6 xl:py-5">
-          <div className="flex justify-center">
-            <span
-              className={`rounded px-1.5 py-0.5 text-[8px] font-bold tracking-wider xl:px-2 xl:text-[10px] ${
-                order.type === 'BUY'
-                  ? 'border border-emerald-100 bg-emerald-50 text-emerald-600'
-                  : 'border border-rose-100 bg-rose-50 text-rose-600'
-              }`}
-            >
-              {order.type}
-            </span>
-          </div>
-        </td>
+                      {/* Type */}
+                      <td className="px-4 py-4 text-center xl:px-6 xl:py-5">
+                        <div className="flex justify-center">
+                          <span
+                            className={`rounded px-1.5 py-0.5 text-[8px] font-bold tracking-wider xl:px-2 xl:text-[10px] ${
+                              order.type === 'BUY'
+                                ? 'border border-emerald-100 bg-emerald-50 text-emerald-600'
+                                : 'border border-rose-100 bg-rose-50 text-rose-600'
+                            }`}
+                          >
+                            {order.type}
+                          </span>
+                        </div>
+                      </td>
 
-        {/* Quantity */}
-        <td className="px-4 py-4 text-right font-mono text-xs font-bold xl:px-6 xl:py-5 xl:text-sm">
-          {order.qty}
-        </td>
+                      {/* Quantity */}
+                      <td className="font-mono px-4 py-4 text-right text-xs font-bold xl:px-6 xl:py-5 xl:text-sm">
+                        {order.qty}
+                      </td>
 
-        {/* Holding Type */}
-        <td className="px-4 py-4 text-right text-xs text-slate-500 xl:px-6 xl:py-5">
-          {order.holdingType}
-        </td>
+                      {/* Holding Type */}
+                      <td className="px-4 py-4 text-right text-xs text-slate-500 xl:px-6 xl:py-5">
+                        {order.holdingType}
+                      </td>
 
-        {/* Price */}
-        <td className="px-4 py-4 text-right font-mono text-xs font-bold xl:px-6 xl:py-5 xl:text-sm">
-          ₹ {order.price}
-        </td>
+                      {/* Price */}
+                      <td className="font-mono px-4 py-4 text-right text-xs font-bold xl:px-6 xl:py-5 xl:text-sm">
+                        ₹ {order.price}
+                      </td>
 
-        {/* Total Amount */}
-        <td className="px-4 py-4 text-right font-mono text-xs font-bold text-slate-700 xl:px-6 xl:py-5 xl:text-sm">
-          ₹ {order.totalAmount}
-        </td>
+                      {/* Total Amount */}
+                      <td className="font-mono px-4 py-4 text-right text-xs font-bold text-slate-700 xl:px-6 xl:py-5 xl:text-sm">
+                        ₹ {order.totalAmount}
+                      </td>
 
-        {/* Paid Amount */}
-        <td className="px-4 py-4 text-right font-mono text-xs font-semibold text-emerald-600 xl:px-6 xl:py-5 xl:text-sm">
-          ₹ {order.paidAmount}
-        </td>
+                      {/* Paid Amount */}
+                      <td className="font-mono px-4 py-4 text-right text-xs font-semibold text-emerald-600 xl:px-6 xl:py-5 xl:text-sm">
+                        ₹ {order.paidAmount}
+                      </td>
 
-        {/* Margin Amount */}
-        <td className="px-4 py-4 text-right font-mono text-xs font-semibold text-orange-500 xl:px-6 xl:py-5 xl:text-sm">
-          ₹ {order.marginAmount}
-        </td>
+                      {/* Margin Amount */}
+                      <td className="font-mono px-4 py-4 text-right text-xs font-semibold text-orange-500 xl:px-6 xl:py-5 xl:text-sm">
+                        ₹ {order.marginAmount}
+                      </td>
 
-        {/* Status */}
-        <td className="px-4 py-4 xl:px-6 xl:py-5">
-          <div
-            className={`flex justify-end items-center text-[10px] font-bold xl:text-xs ${order.statusColor}`}
-          >
-            {order.statusIcon ? (
-              order.statusIcon
-            ) : (
-              <div
-                className={`mr-1.5 h-1.5 w-1.5 rounded-full xl:mr-2 xl:h-2 xl:w-2 ${order.statusBg}`}
-              />
-            )}
-            {order.status}
-          </div>
-        </td>
-      </tr>
-    ))
-  ) : (
-    <tr>
-      <td
-        colSpan={13}
-        className="px-6 py-8 text-center text-slate-400"
-      >
-        No orders found matching your criteria
-      </td>
-    </tr>
-  )}
-</tbody>
+                      {/* Status */}
+                      <td className="px-4 py-4 xl:px-6 xl:py-5">
+                        <div
+                          className={`flex items-center justify-end text-[10px] font-bold xl:text-xs ${order.statusColor}`}
+                        >
+                          {order.statusIcon ? (
+                            order.statusIcon
+                          ) : (
+                            <div
+                              className={`mr-1.5 h-1.5 w-1.5 rounded-full xl:mr-2 xl:h-2 xl:w-2 ${order.statusBg}`}
+                            />
+                          )}
+                          {order.status}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan={13}
+                      className="px-6 py-8 text-center text-slate-400"
+                    >
+                      No orders found matching your criteria
+                    </td>
+                  </tr>
+                )}
+              </tbody>
             </table>
           </div>
 

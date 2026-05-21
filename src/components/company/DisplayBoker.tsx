@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import CustomBrokerTable from './CustomBrokerTable';
 import toast from 'react-hot-toast';
-import { useGetBrokerData, useDeleteBroker } from '@/lib/api/addbroker';
-import { FiX } from 'react-icons/fi';
-import { useNavigate } from '@tanstack/react-router';
+import {useGetBrokerData, useDeleteBroker} from '@/lib/api/addbroker';
+import {FiX} from 'react-icons/fi';
+import {useNavigate} from '@tanstack/react-router';
 
-const DisplayBroker = ({ refreshTrigger }) => {
+const DisplayBroker = ({refreshTrigger}) => {
   const [brokers, setBrokers] = useState([]);
-  
-  const { data: responseData, isLoading, error, refetch } = useGetBrokerData();
+
+  const {data: responseData, isLoading, error, refetch} = useGetBrokerData();
   const deleteBrokerMutation = useDeleteBroker();
   const navigate = useNavigate();
 
@@ -18,7 +18,7 @@ const DisplayBroker = ({ refreshTrigger }) => {
       try {
         // Safe data extraction without JSON.stringify
         let brokerList = [];
-        
+
         if (responseData?.data?.data) {
           brokerList = responseData.data.data;
         } else if (responseData?.data) {
@@ -26,7 +26,7 @@ const DisplayBroker = ({ refreshTrigger }) => {
         } else if (Array.isArray(responseData)) {
           brokerList = responseData;
         }
-        
+
         setBrokers(Array.isArray(brokerList) ? brokerList : []);
       } catch (err) {
         console.error('Error processing data:', err);
@@ -43,7 +43,7 @@ const DisplayBroker = ({ refreshTrigger }) => {
   }, [refreshTrigger, refetch]);
 
   const handleView = (broker) => {
-    navigate({ to: '/companybroker/BrokerProfile' });
+    navigate({to: '/companybroker/BrokerProfile'});
   };
 
   const handleEdit = (broker) => {
@@ -52,7 +52,9 @@ const DisplayBroker = ({ refreshTrigger }) => {
   };
 
   const handleDelete = async (broker) => {
-    if (window.confirm(`Are you sure you want to delete ${broker?.fullname}?`)) {
+    if (
+      window.confirm(`Are you sure you want to delete ${broker?.fullname}?`)
+    ) {
       try {
         await deleteBrokerMutation.mutateAsync(broker.id);
         refetch();
@@ -69,7 +71,9 @@ const DisplayBroker = ({ refreshTrigger }) => {
       <div className="flex h-64 items-center justify-center">
         <div className="text-center">
           <div className="mb-2 text-lg font-semibold">Loading...</div>
-          <div className="text-sm text-gray-500">Please wait while we fetch broker data</div>
+          <div className="text-gray-500 text-sm">
+            Please wait while we fetch broker data
+          </div>
         </div>
       </div>
     );
@@ -79,8 +83,12 @@ const DisplayBroker = ({ refreshTrigger }) => {
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="text-center">
-          <div className="mb-2 text-lg font-semibold text-red-600">Error Loading Data</div>
-          <div className="text-sm text-gray-500">Failed to fetch broker data. Please try again.</div>
+          <div className="mb-2 text-lg font-semibold text-red-600">
+            Error Loading Data
+          </div>
+          <div className="text-gray-500 text-sm">
+            Failed to fetch broker data. Please try again.
+          </div>
           <button
             onClick={() => refetch()}
             className="mt-4 rounded-lg bg-orange-500 px-4 py-2 text-white hover:bg-orange-600"
