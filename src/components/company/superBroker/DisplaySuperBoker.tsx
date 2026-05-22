@@ -49,16 +49,6 @@ const DisplaySuperBroker = ({refreshTrigger}) => {
       header: ' Name',
       accessor: 'fullname',
       sortable: true,
-      render: (row) => (
-        <span
-          onClick={() => {
-            navigate({to: `/companybroker/SuperbrockerProfile/${row.id}`});
-          }}
-          className="cursor-pointer text-[#0284C7] hover:underline"
-        >
-          {row.fullname}
-        </span>
-      ),
     },
     {header: 'PhoneNumber', accessor: 'phoneNumber'},
     {header: 'BKId', accessor: 'BKId'},
@@ -78,6 +68,11 @@ const DisplaySuperBroker = ({refreshTrigger}) => {
         onView={handleView}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        onRowClick={(row) => {
+          navigate({
+            to: `/companybroker/SuperbrockerProfile/${row.id}`,
+          });
+        }}
       />
     </div>
   );

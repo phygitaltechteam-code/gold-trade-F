@@ -1,295 +1,3 @@
-// import React, {useState} from 'react';
-// import {FiEdit, FiEye} from 'react-icons/fi';
-// import {GrFormNext, GrFormPrevious} from 'react-icons/gr';
-// import {MdDelete} from 'react-icons/md';
-
-// type Button<T> = {
-//   label: string;
-//   onClick: (item: T) => void;
-//   className?: string;
-//   icon?: React.ReactNode;
-// };
-
-// export type Column<T> = {
-//   header: string;
-//   accessor: keyof T | ((item: T) => React.ReactNode);
-//   render?: (item: T) => React.ReactNode;
-//   className?: string;
-//   buttons?: Button<T>[];
-//   sortable?: boolean;
-//   action?: boolean;
-//   onEdit?: (item: T) => void;
-//   onDelete?: (item: T) => void;
-//   onView?: (item: T) => void;
-// };
-
-// type GenericTableProps<T> = {
-//   data: T[];
-//   columns: Column<T>[];
-//   itemsPerPage?: number;
-//   searchAble?: boolean;
-//   title?: string;
-//   action?: boolean;
-//   onEdit?: (item: T) => void;
-//   onDelete?: (item: T) => void;
-//   onView?: (item: T) => void;
-//   paginationOff?: boolean;
-//   viewTooltip?: string;
-//   editTooltip?: string;
-//   deleteTooltip?: string;
-// };
-
-// const GenericTable = <T,>({
-//   data,
-//   columns,
-//   itemsPerPage = 5,
-//   searchAble,
-//   action,
-//   title,
-//   onEdit: handleEdit,
-//   onDelete: handleDelete,
-//   onView: handleView,
-//   paginationOff = false,
-//   viewTooltip,
-//   editTooltip,
-//   deleteTooltip,
-// }: GenericTableProps<T>) => {
-//   const [currentPage, setCurrentPage] = useState(1);
-//   const [searchQuery, setSearchQuery] = useState('');
-//   const [sortConfig, setSortConfig] = useState<{
-//     key: keyof T;
-//     direction: 'asc' | 'desc';
-//   } | null>(null);
-
-//   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-//     setSearchQuery(e.target.value);
-//     setCurrentPage(1);
-//   };
-
-//   const sortedData = React.useMemo(() => {
-//     const sortableData = [...data];
-//     if (sortConfig !== null) {
-//       sortableData.sort((a, b) => {
-//         const aValue =
-//           typeof sortConfig.key === 'function'
-//             ? (sortConfig.key as (a: T) => string | number | boolean)(a)
-//             : a[sortConfig.key];
-//         const bValue =
-//           typeof sortConfig.key === 'function'
-//             ? (sortConfig.key as (a: T) => string | number | boolean)(b)
-//             : b[sortConfig.key];
-
-//         if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
-//         if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
-//         return 0;
-//       });
-//     }
-//     return sortableData;
-//   }, [data, sortConfig]);
-
-//   const handleSort = (key: keyof T) => {
-//     let direction: 'asc' | 'desc' = 'asc';
-//     if (
-//       sortConfig &&
-//       sortConfig.key === key &&
-//       sortConfig.direction === 'asc'
-//     ) {
-//       direction = 'desc';
-//     }
-//     setSortConfig({key, direction});
-//   };
-
-//   const filteredData = sortedData.filter((item) =>
-//     columns.some((column) => {
-//       const value =
-//         typeof column.accessor === 'function'
-//           ? column.accessor(item)
-//           : item[column.accessor];
-
-//       // Safely convert value to string for search
-//       if (value === null || value === undefined) return false;
-//       if (typeof value === 'object') return false; // Skip objects for search
-//       return value.toString().toLowerCase().includes(searchQuery.toLowerCase());
-//     }),
-//   );
-
-//   const totalItems = filteredData.length;
-//   const totalPages = Math.ceil(totalItems / itemsPerPage);
-//   const startIdx = (currentPage - 1) * itemsPerPage;
-
-//   const paginatedData = paginationOff
-//     ? filteredData
-//     : filteredData.slice(startIdx, startIdx + itemsPerPage);
-
-//   // Helper function to safely render cell content
-//   const renderCellContent = (value: any): React.ReactNode => {
-//     if (value === null || value === undefined) return '-';
-//     if (typeof value === 'string') return value;
-//     if (typeof value === 'number') return value.toString();
-//     if (typeof value === 'boolean') return value ? 'Yes' : 'No';
-//     if (React.isValidElement(value)) return value;
-//     if (typeof value === 'object') {
-//       // For objects, try to stringify safely
-//       try {
-//         return JSON.stringify(value);
-//       } catch {
-//         return '[Complex Data]';
-//       }
-//     }
-//     return String(value);
-//   };
-
-//   return (
-//     <div className="rounded-sm border border-stroke bg-white px-2 pb-2 pt-4 shadow-default dark:border-strokedark dark:bg-boxdark sm:p-1">
-//       {title && <h2 className="mb-3 text-lg font-semibold">{title}</h2>}
-//       {searchAble && (
-//         <div className="mb-3 flex justify-between">
-//           <input
-//             type="text"
-//             placeholder="Search..."
-//             value={searchQuery}
-//             onChange={handleSearch}
-//             className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-//           />
-//         </div>
-//       )}
-//       <div className="max-w-full overflow-x-auto">
-//         <table className="w-full table-auto">
-//           <thead>
-//             <tr className="bg-gray-2 text-left dark:bg-meta-4">
-//               {columns.map((column, index) => (
-//                 <th
-//                   key={index}
-//                   className={`min-w-[120px] px-3 py-2.5 font-medium text-black dark:text-white ${column.className || ''}`}
-//                   onClick={
-//                     column.sortable
-//                       ? () => handleSort(column.accessor as keyof T)
-//                       : undefined
-//                   }
-//                   style={{cursor: column.sortable ? 'pointer' : 'default'}}
-//                 >
-//                   <div className="text-sm">
-//                     {column.header}{' '}
-//                     {sortConfig?.key === column.accessor
-//                       ? sortConfig.direction === 'asc'
-//                         ? '↑'
-//                         : '↓'
-//                       : null}
-//                   </div>
-//                 </th>
-//               ))}
-//               {action && (
-//                 <th className="min-w-[100px] px-3 py-2.5">
-//                   <div className="text-sm">Action</div>
-//                 </th>
-//               )}
-//             </tr>
-//           </thead>
-//           <tbody>
-//             {paginatedData.map((item, rowIndex) => (
-//               <tr key={rowIndex} className="text-sm">
-//                 {columns.map((column, colIndex) => {
-//                   const value =
-//                     typeof column.accessor === 'function'
-//                       ? column.accessor(item)
-//                       : item[column.accessor];
-
-//                   return (
-//                     <td
-//                       key={colIndex}
-//                       className="border-b border-[#eee] px-3 py-2 dark:border-strokedark"
-//                     >
-//                       <div className="py-1.5">
-//                         {column.render
-//                           ? column.render(item)
-//                           : renderCellContent(value)}
-//                         {column.buttons && (
-//                           <div className="mt-1.5 space-x-2">
-//                             {column.buttons.map((button, btnIndex) => (
-//                               <button
-//                                 key={btnIndex}
-//                                 onClick={() => button.onClick(item)}
-//                                 className={`rounded px-2 py-1 text-xs ${button.className || ''}`}
-//                               >
-//                                 {button.icon || button.label}
-//                               </button>
-//                             ))}
-//                           </div>
-//                         )}
-//                       </div>
-//                     </td>
-//                   );
-//                 })}
-//                 {action && (
-//                   <td className="border-b border-[#eee] px-3 py-2 dark:border-strokedark">
-//                     <div className="flex items-center justify-center gap-0.5">
-//                       {handleView && (
-//                         <button
-//                           className="inline-flex items-center justify-center rounded p-1 hover:text-primary dark:hover:text-secondary"
-//                           onClick={() => handleView(item)}
-//                           title={viewTooltip || 'View'}
-//                           aria-label={viewTooltip || 'View'}
-//                         >
-//                           <FiEye className="h-3.5 w-3.5" />
-//                         </button>
-//                       )}
-//                       {handleEdit && (
-//                         <button
-//                           className="inline-flex items-center justify-center rounded p-1 hover:text-primary dark:hover:text-secondary"
-//                           onClick={() => handleEdit(item)}
-//                           title={editTooltip || 'Edit'}
-//                         >
-//                           <FiEdit className="h-3.5 w-3.5" />
-//                         </button>
-//                       )}
-//                       {handleDelete && (
-//                         <button
-//                           className="inline-flex items-center justify-center rounded p-1 hover:text-primary dark:hover:text-secondary"
-//                           onClick={() => handleDelete(item)}
-//                           title={deleteTooltip || 'Delete'}
-//                         >
-//                           <MdDelete className="h-3.5 w-3.5" />
-//                         </button>
-//                       )}
-//                     </div>
-//                   </td>
-//                 )}
-//               </tr>
-//             ))}
-//           </tbody>
-//         </table>
-//       </div>
-
-//       {/* Pagination Controls */}
-//       {!paginationOff && totalPages > 0 && (
-//         <div className="mt-3 flex items-center justify-between">
-//           <span className="text-sm">
-//             Page {currentPage} of {totalPages}
-//           </span>
-//           <div className="space-x-2">
-//             <button
-//               className="hover:bg-gray-100 rounded p-1.5 dark:hover:bg-meta-4"
-//               onClick={() => setCurrentPage(currentPage - 1)}
-//               disabled={currentPage === 1}
-//             >
-//               <GrFormPrevious className="h-4 w-4" />
-//             </button>
-//             <button
-//               className="hover:bg-gray-100 rounded p-1.5 dark:hover:bg-meta-4"
-//               onClick={() => setCurrentPage(currentPage + 1)}
-//               disabled={currentPage === totalPages}
-//             >
-//               <GrFormNext className="h-4 w-4" />
-//             </button>
-//           </div>
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default GenericTable;
-
 import React, {useState, useMemo} from 'react';
 import {ArrowUp, ArrowUpDown, Edit, Trash} from 'lucide-react';
 import {GrFormNext, GrFormPrevious} from 'react-icons/gr';
@@ -307,6 +15,7 @@ interface GenericTableProps<T> {
   onEdit?: (row: T) => void;
   onDelete?: (row: T) => void;
   rowsPerPage?: number;
+  onRowClick?: (row: T) => void;
 }
 
 const GenericTable = <T extends {id?: string}>({
@@ -315,6 +24,7 @@ const GenericTable = <T extends {id?: string}>({
   onEdit,
   onDelete,
   rowsPerPage = 10,
+  onRowClick,
 }: GenericTableProps<T>) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -391,7 +101,7 @@ const GenericTable = <T extends {id?: string}>({
       )}
 
       <table className="min-w-full border-collapse">
-        <thead className="bg-neutral-100 py-2 dark:bg-meta-4 dark:text-white">
+        <thead className="bg-slate-50 py-2 dark:bg-meta-4 dark:text-white">
           <tr>
             <th className="px-4 py-3 text-left font-semibold text-black dark:text-white">
               Sr. No.
@@ -427,17 +137,14 @@ const GenericTable = <T extends {id?: string}>({
             paginatedData.map((row, rowIndex) => (
               <tr
                 key={(row.id as string) || rowIndex}
-                className={` ${
-                  row.isDummy
-                    ? 'border-b border-[#eee] bg-[#eff4ff]'
-                    : row.perticular === 'BREAK'
-                      ? 'bg-[#f5f2e5] text-orange-700'
-                      : rowIndex % 2 === 0
-                        ? 'bg-white dark:bg-boxdark'
-                        : 'bg-neutral-50 dark:bg-meta-4'
-                } `}
+                onClick={() => onRowClick?.(row)}
+                className={`cursor-pointer ${
+                  rowIndex % 2 === 0
+                    ? 'bg-white dark:bg-boxdark'
+                    : 'bg-slate-50 dark:bg-meta-4'
+                }`}
               >
-                <td className="text-gray-700 dark:text-gray-300 px-4 py-3 text-sm">
+                <td className="text-gray-700 dark:text-gray-300 px-4 py-4.5 text-sm">
                   {(currentPage - 1) * rowsPerPage + rowIndex + 1}
                 </td>
                 {columns.map((col, colIndex) => {
@@ -502,7 +209,10 @@ const GenericTable = <T extends {id?: string}>({
                     <div className="flex items-center gap-3">
                       {onEdit && (
                         <button
-                          onClick={() => onEdit(row)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEdit(row);
+                          }}
                           className="text-[#0284C7] transition"
                         >
                           <Edit className="h-4 w-4" />
@@ -510,7 +220,10 @@ const GenericTable = <T extends {id?: string}>({
                       )}
                       {onDelete && (
                         <button
-                          onClick={() => onDelete(row)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete(row);
+                          }}
                           className="text-red-400 transition hover:text-red-600"
                         >
                           <Trash className="h-4 w-4" />
