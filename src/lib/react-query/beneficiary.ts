@@ -18,7 +18,6 @@ export const useGetBeneficiaryByCustomer = (id: string) =>
     queryKey: ['beneficiary', id],
     queryFn: () => getBeneficiaryByCustomer(id),
   });
-
 export const useAcceptBeneficiary = () => {
   const queryClient = useQueryClient();
 
