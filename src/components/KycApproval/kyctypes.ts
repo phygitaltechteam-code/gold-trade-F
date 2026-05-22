@@ -4,73 +4,54 @@ export type KYCStatus =
   | 'Action Required'
   | 'Completed';
 
-export interface User {
-  fullname: string;
-  email: string;
-  phoneNumber: string;
-  isActive: boolean;
-  dob: string | null;
-  isVerified: boolean;
-  isRejected: boolean;
-}
-
-export interface Wallet {
-  id: string;
-  customerId: string;
-  amount: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export interface KYCRequest {
   id: string;
-  userId: string;
-  passport: string | null;
-  aadharCard: string | null;
-  panCard: string | null;
-  passportNumber: string | null;
-  aadharCardNumber: string | null;
-  panCardNumber: string | null;
-  accountNumber: string;
+  userId?: string;
+  CRN?: string;
+  legalName: string;
+  email: string;
+  submissionDate: string;
+  submissionTime: string;
+  aadhaarNumber: string;
+  documentType: string;
+  status: KYCStatus;
+  dob: string;
+  nationality: string;
+  taxId: string;
   address: string;
-  city: string;
-  photo: string;
-  state: string;
-  country: string;
-  pincode: string;
-  rejectedReason: string | null;
-  bank_Name: string | null;
-  Routing_IFSC: string | null;
-  Account_Type: string | null;
-  createdAt: string;
-  updatedAt: string;
-  Nominee_Name: string | null;
-  Relationship: string | null;
-  Contact: string | null;
-  Allocation: string | null;
-  isKycCompleted: boolean | null;
-  user: User;
-  wallets: Wallet;
-  _count: {
-    senderTransactions: number;
+  phoneNumber: string;
+  occupation: string;
+  bankName: string;
+  accountNumber: string;
+  ifscCode: string;
+  nomineeName: string;
+  nomineeRelationship: string;
+  createdAt?: string;
+  aadharCard?: string | null;
+  panCard?: string | null;
+  passport?: string | null;
+  photo?: string | null;
+  user?: {
+    id?: string;
+    fullname: string;
+    email: string;
+    phoneNumber: string;
+    isActive?: boolean;
+    isVerified: boolean;
+    isRejected: boolean;
+    dob?: string | null;
   };
-  // Computed fields for display
-  legalName?: string;
-  email?: string;
-  submissionDate?: string;
-  submissionTime?: string;
-  aadhaarNumber?: string;
-  documentType?: string;
-  status?: KYCStatus;
-  dob?: string;
-  nationality?: string;
-  taxId?: string;
-  phoneNumber?: string;
-  occupation?: string;
-  bankName?: string;
-  ifscCode?: string;
-  nomineeName?: string;
-  nomineeRelationship?: string;
+  aadharCardNumber?: string | null;
+  panCardNumber?: string | null;
+  passportNumber?: string | null;
+  country?: string;
+  city?: string;
+  state?: string;
+  pincode?: string;
+  isKycCompleted?: boolean | null;
+  brokeragePercent?: string;
+  companyId?: string;
+  brokerId?: string;
 }
 
 export interface DashboardStats {

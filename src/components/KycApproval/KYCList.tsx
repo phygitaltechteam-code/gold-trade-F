@@ -9,7 +9,9 @@ import {
   User,
   Loader2,
   RefreshCw,
+  AlertCircle,
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import {KYCRequest, DashboardStats} from './kyctypes';
 import {useGetAllKYCRequests} from './mutationapi';
 
@@ -35,7 +37,7 @@ export const KYCList: React.FC<KYCListProps> = ({onSelectRequest}) => {
     const totalRequests = kycRequests.length;
     const today = new Date().toDateString();
     const newToday = kycRequests.filter(
-      (req) => new Date(req.createdAt).toDateString() === today,
+      (req) => new Date(req.createdAt || '').toDateString() === today,
     ).length;
     const pendingApprovals = kycRequests.filter(
       (req) => req.status === 'Pending' || req.status === 'In-Review',
@@ -112,16 +114,25 @@ export const KYCList: React.FC<KYCListProps> = ({onSelectRequest}) => {
       .substring(0, 2);
   };
 
+  // Show error message
   if (error) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#F8F9FB]">
-        <div className="text-center">
-          <p className="mb-4 text-red-500">Error loading KYC requests</p>
+        <div className="max-w-md p-6 text-center">
+          <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-500" />
+          <h3 className="mb-2 text-lg font-semibold">
+            Failed to Load KYC Requests
+          </h3>
+          <p className="text-gray-500 mb-4">
+            {(error as any)?.response?.data?.message ||
+              (error as any)?.message ||
+              'An error occurred while fetching data'}
+          </p>
           <button
             onClick={() => refetch()}
-            className="rounded-lg bg-orange-500 px-4 py-2 text-white"
+            className="rounded-lg bg-orange-500 px-4 py-2 text-white hover:bg-orange-600"
           >
-            Retry
+            Try Again
           </button>
         </div>
       </div>
@@ -145,7 +156,8 @@ export const KYCList: React.FC<KYCListProps> = ({onSelectRequest}) => {
           <div className="flex items-center gap-2 sm:gap-3">
             <button
               onClick={() => refetch()}
-              className="border-gray-200 hover:bg-gray-50 flex items-center gap-2 rounded-lg border bg-white px-3 py-2 text-xs font-medium transition-colors sm:px-4 sm:text-sm"
+              disabled={isLoading}
+              className="border-gray-200 hover:bg-gray-50 flex items-center gap-2 rounded-lg border bg-white px-3 py-2 text-xs font-medium transition-colors disabled:opacity-50 sm:px-4 sm:text-sm"
             >
               <RefreshCw
                 className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${isLoading ? 'animate-spin' : ''}`}
@@ -264,9 +276,10 @@ export const KYCList: React.FC<KYCListProps> = ({onSelectRequest}) => {
             </div>
           )}
 
-          {/* Mobile Card View */}
+          {/* Content when loaded */}
           {!isLoading && (
             <>
+              {/* Mobile Card View */}
               <div className="block lg:hidden">
                 {filteredRequests.map((request) => (
                   <div
@@ -427,50 +440,6 @@ export const KYCList: React.FC<KYCListProps> = ({onSelectRequest}) => {
                 <div className="py-12 text-center">
                   <User className="text-gray-300 mx-auto mb-4 h-12 w-12" />
                   <p className="text-gray-500">No KYC requests found</p>
-                </div>
-              )}
-
-              {/* Pagination */}
-              {filteredRequests.length > 0 && (
-                <div className="flex flex-col items-center justify-between gap-4 p-3 sm:flex-row sm:p-4">
-                  <p className="text-gray-500 order-2 text-[10px] sm:order-1 sm:text-xs">
-                    Showing <span className="text-gray-900 font-bold">1</span>{' '}
-                    to{' '}
-                    <span className="text-gray-900 font-bold">
-                      {filteredRequests.length}
-                    </span>{' '}
-                    of{' '}
-                    <span className="text-gray-900 font-bold">
-                      {kycRequests.length}
-                    </span>{' '}
-                    results
-                  </p>
-                  <div className="order-1 flex items-center gap-1 sm:order-2">
-                    <button
-                      className="border-gray-200 hover:bg-gray-50 rounded-md border p-1.5 disabled:opacity-50"
-                      disabled
-                    >
-                      <ChevronLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    </button>
-                    <button className="h-7 w-7 rounded-md border border-orange-200 bg-orange-50 text-[10px] font-bold text-orange-600 sm:h-8 sm:w-8 sm:text-xs">
-                      1
-                    </button>
-                    <button className="hover:bg-gray-50 border-gray-200 h-7 w-7 rounded-md border text-[10px] font-medium sm:h-8 sm:w-8 sm:text-xs">
-                      2
-                    </button>
-                    <button className="hover:bg-gray-50 border-gray-200 h-7 w-7 rounded-md border text-[10px] font-medium sm:h-8 sm:w-8 sm:text-xs">
-                      3
-                    </button>
-                    <span className="text-gray-400 px-1 text-xs sm:px-2">
-                      ...
-                    </span>
-                    <button className="hover:bg-gray-50 border-gray-200 h-7 w-7 rounded-md border text-[10px] font-medium sm:h-8 sm:w-8 sm:text-xs">
-                      10
-                    </button>
-                    <button className="border-gray-200 hover:bg-gray-50 rounded-md border p-1.5">
-                      <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    </button>
-                  </div>
                 </div>
               )}
             </>

@@ -1,90 +1,65 @@
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
-import {
-  acceptTheCustomer,
-  getAllCustomer,
-  getCustomerById,
-  rejectTheCustomer,
-  deleteCustomer,
-  updateCustomer,
-} from '../api/customer';
-import toast from 'react-hot-toast';
+// lib/api/customer.ts
+import {api} from '@/utils/axios';
 
-export const useGetCustomer = () =>
-  useQuery({
-    queryKey: ['customer'],
-    queryFn: () => getAllCustomer(),
-  });
-
-export const useGetCustomerById = (id: string) =>
-  useQuery({
-    queryKey: ['customer', id],
-    queryFn: () => getCustomerById(id),
-  });
-
-export const useAcceptCustomer = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (id: string) => acceptTheCustomer(id),
-
-    onSuccess: () => {
-      toast.success('Customer Accepted!');
-      queryClient.invalidateQueries({queryKey: ['customer']});
-      queryClient.invalidateQueries({queryKey: ['accept-customer']});
-    },
-    onError: () => {
-      toast.error('Failed To Accept Customer!');
-    },
-  });
+export const getAllCustomer = async () => {
+  try {
+    const response = await api.get(`company/customer`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching customers:', error);
+    throw error;
+  }
 };
 
-export const useRejectCustomer = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({id, note}: {id: string; note: string}) =>
-      rejectTheCustomer(id, note),
-
-    onSuccess: () => {
-      toast.success('Customer Rejected!');
-      queryClient.invalidateQueries({queryKey: ['customer']});
-      queryClient.invalidateQueries({queryKey: ['reject-customer']});
-    },
-    onError: () => {
-      toast.error('Failed To Reject Customer!');
-    },
-  });
+export const getCustomerById = async (id: string) => {
+  try {
+    const response = await api.get(`company/customer/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching customers:', error);
+    throw error;
+  }
 };
 
-export const useDeleteCustomer = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (id: string) => deleteCustomer(id),
-
-    onSuccess: () => {
-      toast.success('Customer Deleted Successfully!');
-      queryClient.invalidateQueries({queryKey: ['customer']});
-    },
-    onError: () => {
-      toast.error('Failed To Delete Customer!');
-    },
-  });
+// FIXED: Changed from /accept/${id} to /${id}/verify
+export const acceptTheCustomer = async (id: string) => {
+  try {
+    const response = await api.put(`company/customer/${id}/verify`);
+    return response.data;
+  } catch (error) {
+    console.error('Error to accept customer:', error);
+    throw error;
+  }
 };
 
-export const useUpdateCustomer = () => {
-  const queryClient = useQueryClient();
+export const rejectTheCustomer = async (id: string, note: string) => {
+  try {
+    const response = await api.put(`company/customer/reject/${id}`, {
+      note: note,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error to reject customer:', error);
+    throw error;
+  }
+};
 
-  return useMutation({
-    mutationFn: ({id, data}: {id: string; data: any}) =>
-      updateCustomer(id, data),
+export const deleteCustomer = async (id: string) => {
+  try {
+    const response = await api.delete(`company/customer/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting customer:', error);
+    throw error;
+  }
+};
 
-    onSuccess: () => {
-      toast.success('Customer Updated Successfully!');
-      queryClient.invalidateQueries({queryKey: ['customer']});
-    },
-    onError: () => {
-      toast.error('Failed To Update Customer!');
-    },
-  });
+export const updateCustomer = async (id: string, data: any) => {
+  try {
+    const response = await api.put(`company/customer/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating customer:', error);
+    throw error;
+  }
 };

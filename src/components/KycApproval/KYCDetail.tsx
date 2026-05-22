@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import toast from 'react-hot-toast';
 import {
   ArrowLeft,
   CheckCircle2,
@@ -14,6 +15,7 @@ import {
 } from 'lucide-react';
 import {KYCRequest} from './kyctypes';
 import {useGetKYCRequestById, useApproveKYC, useRejectKYC} from './mutationapi';
+import { createFileRoute } from '@tanstack/react-router';
 
 interface KYCDetailProps {
   request: KYCRequest;
@@ -21,10 +23,11 @@ interface KYCDetailProps {
 }
 
 export const KYCDetail: React.FC<KYCDetailProps> = ({request, onBack}) => {
+  const Route = createFileRoute('/_app/KYCApproval/kycdetailes/$id')();
   const [rejectNote, setRejectNote] = useState('');
   const [showRejectConfirm, setShowRejectConfirm] = useState(false);
 
-  const {data: detailedRequest, isLoading} = useGetKYCRequestById(request.id);
+  const {data: detailedRequest, isLoading} = useGetKYCRequestById(Route.id!);
   const approveKYC = useApproveKYC();
   const rejectKYC = useRejectKYC();
 
@@ -76,6 +79,7 @@ export const KYCDetail: React.FC<KYCDetailProps> = ({request, onBack}) => {
   };
 
   const getInitials = (name: string) => {
+    if (!name) return '??';
     return name
       .split(' ')
       .map((n) => n[0])
@@ -110,7 +114,9 @@ export const KYCDetail: React.FC<KYCDetailProps> = ({request, onBack}) => {
             <h1 className="truncate text-lg font-bold">KYC Approval Portal</h1>
             <div className="text-gray-500 flex items-center gap-2 text-xs">
               <span className="truncate">
-                Case #{displayRequest.id.substring(0, 8)}...
+                {displayRequest.CRN
+                  ? `Case #${displayRequest.CRN}`
+                  : `Case #${displayRequest.id?.substring(0, 8)}...`}
               </span>
               <span className="bg-gray-300 h-1 w-1 flex-shrink-0 rounded-full"></span>
               <span className="flex-shrink-0">
@@ -148,9 +154,17 @@ export const KYCDetail: React.FC<KYCDetailProps> = ({request, onBack}) => {
               <div className="grid grid-cols-2 gap-x-8 gap-y-6 p-6">
                 <div className="col-span-2">
                   <div className="mb-4 flex items-center gap-3">
-                    <div className="bg-gray-100 text-gray-400 flex h-12 w-12 items-center justify-center rounded-full text-sm font-bold">
-                      {getInitials(displayRequest.legalName || 'Unknown')}
-                    </div>
+                    {displayRequest.photo ? (
+                      <img
+                        src={displayRequest.photo}
+                        alt={displayRequest.legalName}
+                        className="h-12 w-12 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="bg-gray-100 text-gray-400 flex h-12 w-12 items-center justify-center rounded-full text-sm font-bold">
+                        {getInitials(displayRequest.legalName || 'Unknown')}
+                      </div>
+                    )}
                     <div>
                       <p className="text-gray-900 text-lg font-bold">
                         {displayRequest.legalName}
@@ -158,6 +172,11 @@ export const KYCDetail: React.FC<KYCDetailProps> = ({request, onBack}) => {
                       <p className="text-gray-500 text-sm">
                         {displayRequest.email}
                       </p>
+                      {displayRequest.CRN && (
+                        <p className="text-gray-400 text-xs">
+                          CRN: {displayRequest.CRN}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -210,7 +229,7 @@ export const KYCDetail: React.FC<KYCDetailProps> = ({request, onBack}) => {
                     Residential Address
                   </p>
                   <p className="text-gray-900 break-words text-sm font-bold leading-relaxed">
-                    {displayRequest.address}
+                    {displayRequest.address || 'Not provided'}
                   </p>
                 </div>
               </div>
@@ -240,7 +259,7 @@ export const KYCDetail: React.FC<KYCDetailProps> = ({request, onBack}) => {
                       Bank Name
                     </p>
                     <p className="text-gray-900 break-words text-sm font-bold">
-                      {displayRequest.bankName}
+                      {displayRequest.bankName || 'Not provided'}
                     </p>
                   </div>
                   <div>
@@ -248,7 +267,7 @@ export const KYCDetail: React.FC<KYCDetailProps> = ({request, onBack}) => {
                       Account Number
                     </p>
                     <p className="text-gray-900 font-mono text-sm font-bold tracking-tighter">
-                      {displayRequest.accountNumber}
+                      {displayRequest.accountNumber || 'N/A'}
                     </p>
                   </div>
                   <div>
@@ -256,7 +275,7 @@ export const KYCDetail: React.FC<KYCDetailProps> = ({request, onBack}) => {
                       IFSC Code
                     </p>
                     <p className="text-gray-900 font-mono text-sm font-bold tracking-tighter">
-                      {displayRequest.ifscCode}
+                      {displayRequest.ifscCode || 'N/A'}
                     </p>
                   </div>
                 </div>
@@ -277,7 +296,7 @@ export const KYCDetail: React.FC<KYCDetailProps> = ({request, onBack}) => {
                     Nominee Name
                   </p>
                   <p className="text-gray-900 break-words text-sm font-bold">
-                    {displayRequest.nomineeName}
+                    {displayRequest.nomineeName || 'Not provided'}
                   </p>
                 </div>
                 <div>
@@ -285,7 +304,7 @@ export const KYCDetail: React.FC<KYCDetailProps> = ({request, onBack}) => {
                     Relationship
                   </p>
                   <p className="text-gray-900 text-sm font-bold">
-                    {displayRequest.nomineeRelationship}
+                    {displayRequest.nomineeRelationship || 'Not provided'}
                   </p>
                 </div>
               </div>
@@ -370,9 +389,29 @@ export const KYCDetail: React.FC<KYCDetailProps> = ({request, onBack}) => {
                   </div>
                 )}
 
-                {!displayRequest.aadharCard &&
+                {displayRequest.photo &&
+                  !displayRequest.aadharCard &&
                   !displayRequest.panCard &&
                   !displayRequest.passport && (
+                    <div className="space-y-3">
+                      <p className="text-gray-400 text-xs font-bold uppercase tracking-wider">
+                        Profile Photo
+                      </p>
+                      <div className="group aspect-square w-32 cursor-pointer overflow-hidden rounded-full border border-stroke bg-white">
+                        <img
+                          src={displayRequest.photo}
+                          alt="Profile"
+                          className="h-full w-full object-cover"
+                          referrerPolicy="no-referrer"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                {!displayRequest.aadharCard &&
+                  !displayRequest.panCard &&
+                  !displayRequest.passport &&
+                  !displayRequest.photo && (
                     <div className="py-8 text-center">
                       <AlertCircle className="text-gray-300 mx-auto mb-4 h-12 w-12" />
                       <p className="text-gray-400">No documents uploaded</p>

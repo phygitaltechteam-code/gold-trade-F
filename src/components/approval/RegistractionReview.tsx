@@ -3,13 +3,11 @@ import Header from './Header';
 import SummaryChecklist from './SummaryCheckList';
 import DecisionActions from './DesicionActions';
 import ApplicantDetails from './ApplicantDetails';
-import {Route} from '@/routes/_app/approval/registrationDetails.$id';
-import {
-  useAcceptCustomer,
-  useGetCustomerById,
-  useRejectCustomer,
-} from '@/lib/react-query/Customer';
+import {Route} from '@/routes/_app/Approval/registrationDetails.$id';
+
 import {getRequestStatus} from './methods';
+import { useGetCustomerById } from '@/lib/api/customer';
+import { useAcceptCustomer, useRejectCustomer } from '@/lib/api/customer';
 
 const RegistrationReview: React.FC = () => {
   const {id} = Route.useParams();

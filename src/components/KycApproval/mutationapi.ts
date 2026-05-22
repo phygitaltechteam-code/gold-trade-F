@@ -24,20 +24,23 @@ const mapToKYCRequest = (item: any): KYCRequest => {
     status = 'Completed';
   } else if (item.user?.isRejected) {
     status = 'Action Required';
-  } else if (item.isKycCompleted === false) {
+  } else if (item.isKycCompleted === false || item.isKycCompleted === null) {
     status = 'In-Review';
   }
 
-  // Get document type (prefer aadharCard, then panCard, then passport)
+  // Get document type and number
   let documentType = 'Aadhaar Card';
   let documentNumber = item.aadharCardNumber || 'N/A';
+  let documentImage = item.aadharCard;
 
   if (item.panCard && !item.aadharCard) {
     documentType = 'PAN Card';
     documentNumber = item.panCardNumber || 'N/A';
+    documentImage = item.panCard;
   } else if (item.passport && !item.aadharCard && !item.panCard) {
     documentType = 'Passport';
     documentNumber = item.passportNumber || 'N/A';
+    documentImage = item.passport;
   }
 
   // Format aadhaar number for display (masked)
@@ -46,8 +49,21 @@ const mapToKYCRequest = (item: any): KYCRequest => {
       ? `XXXX XXXX ${documentNumber.slice(-4)}`
       : 'XXXX XXXX XXXX';
 
+  // Build address from components
+  const fullAddress = [
+    item.address,
+    item.city,
+    item.state,
+    item.country,
+    item.pincode,
+  ]
+    .filter(Boolean)
+    .join(', ');
+
   return {
-    ...item,
+    id: item.id,
+    userId: item.userId,
+    CRN: item.CRN,
     legalName: item.user?.fullname || 'Unknown',
     email: item.user?.email || 'N/A',
     submissionDate: formattedDate,
@@ -55,43 +71,87 @@ const mapToKYCRequest = (item: any): KYCRequest => {
     aadhaarNumber: maskedAadhaar,
     documentType: documentType,
     status: status,
-    dob: item.user?.dob || 'N/A',
+    dob: item.user?.dob || 'Not provided',
     nationality: item.country || 'India',
     taxId: item.panCardNumber || 'N/A',
-    address: `${item.address || ''}, ${item.city || ''}, ${item.state || ''}, ${item.country || ''} - ${item.pincode || ''}`,
+    address: fullAddress || 'Not provided',
     phoneNumber: item.user?.phoneNumber || 'N/A',
     occupation: 'N/A',
-    bankName: item.bank_Name || 'N/A',
-    accountNumber: item.accountNumber || 'N/A',
+    bankName: item.bank_Name || 'Not provided',
+    accountNumber: item.Account_Number || 'N/A',
     ifscCode: item.Routing_IFSC || 'N/A',
-    nomineeName: item.Nominee_Name || 'N/A',
-    nomineeRelationship: item.Relationship || 'N/A',
+    nomineeName: item.Nominee_Name || 'Not provided',
+    nomineeRelationship: item.Relationship || 'Not provided',
+    createdAt: item.createdAt,
+    aadharCard: item.aadharCard,
+    panCard: item.panCard,
+    passport: item.passport,
+    user: item.user,
+    isKycCompleted: item.isKycCompleted,
+    photo: item.photo,
+    brokeragePercent: item.brokeragePercent,
+    companyId: item.companyId,
+    brokerId: item.brokerId,
   };
 };
 
 // API function for fetching all KYC requests
 export const getAllKYCRequests = async () => {
   try {
-    const response = await api.get(`/admin/customer`);
+    const response = await api.get(`/company/customer`);
+
+    console.log('API Response:', response.data);
+
+    // Handle the response structure: statusCode 200 with data array
+    if (
+      response.data?.statusCode === 200 &&
+      Array.isArray(response.data?.data)
+    ) {
+      const mappedData = response.data.data.map(mapToKYCRequest);
+      console.log('Mapped KYC Requests:', mappedData.length);
+      return mappedData;
+    }
+
+    // Fallback for other possible response structures
+    if (Array.isArray(response.data)) {
+      return response.data.map(mapToKYCRequest);
+    }
+
+    if (response.data?.data && Array.isArray(response.data.data)) {
+      return response.data.data.map(mapToKYCRequest);
+    }
+
+    console.warn('Unexpected response format:', response.data);
+    return [];
+  } catch (error: any) {
+    console.error('Error fetching KYC requests:', error);
+    throw error;
+  }
+};
+
+// API function for fetching single KYC request by ID
+export const getKYCRequestById = async (id: string) => {
+  try {
+    const response = await api.get(`/company/customer/${id}`);
+
+    console.log('Single KYC Response:', response.data);
 
     // Handle response structure
     if (response.data?.statusCode === 200 && response.data?.data) {
-      const mappedData = response.data.data.map(mapToKYCRequest);
-      return mappedData;
-    } else if (Array.isArray(response.data)) {
-      return response.data.map(mapToKYCRequest);
-    } else if (response.data?.data && Array.isArray(response.data.data)) {
-      return response.data.data.map(mapToKYCRequest);
-    } else {
-      console.error('Unexpected response format:', response.data);
-      return [];
+      return mapToKYCRequest(response.data.data);
     }
+
+    if (response.data?.data) {
+      return mapToKYCRequest(response.data.data);
+    }
+
+    return mapToKYCRequest(response.data);
   } catch (error: any) {
-    console.error('Error fetching KYC requests:', error);
+    console.error('Error fetching KYC request:', error);
     const errorMessage =
       error?.response?.data?.message ||
       error?.message ||
-      'Failed to fetch KYC requests';
+      'Failed to fetch KYC request details';
     toast.error(errorMessage);
     throw error;
   }
@@ -102,30 +162,9 @@ export const useGetAllKYCRequests = () => {
   return useQuery({
     queryKey: KYC_QUERY_KEY,
     queryFn: getAllKYCRequests,
+    retry: 1,
     staleTime: 5 * 60 * 1000,
-    retry: 2,
   });
-};
-
-// API function for fetching single KYC request by ID
-export const getKYCRequestById = async (id: string) => {
-  try {
-    const response = await api.get(`/admin/customer/${id}`);
-
-    if (response.data?.statusCode === 200 && response.data?.data) {
-      return mapToKYCRequest(response.data.data);
-    } else {
-      return mapToKYCRequest(response.data);
-    }
-  } catch (error: any) {
-    console.error('Error fetching KYC request:', error);
-    const errorMessage =
-      error?.response?.data?.message ||
-      error?.message ||
-      'Failed to fetch KYC request details';
-    toast.error(errorMessage);
-    throw error;
-  }
 };
 
 // useQuery hook for fetching single KYC request
@@ -141,7 +180,7 @@ export const useGetKYCRequestById = (id: string) => {
 // API function for approving KYC
 export const approveKYC = async ({id}: {id: string}) => {
   try {
-    const response = await api.put(`/admin/customer/accept/${id}`);
+    const response = await api.put(`/company/customer/accept/${id}`);
 
     toast.success('KYC approved successfully');
     return response.data;
@@ -159,8 +198,8 @@ export const approveKYC = async ({id}: {id: string}) => {
 // API function for rejecting KYC with note
 export const rejectKYC = async ({id, note}: {id: string; note: string}) => {
   try {
-    const response = await api.put(`/admin/customer/reject/${id}`, {
-      note,
+    const response = await api.put(`/company/customer/reject/${id}`, {
+      note: note,
     });
 
     toast.success('KYC rejected successfully');
@@ -183,7 +222,6 @@ export const useApproveKYC = () => {
   return useMutation({
     mutationFn: approveKYC,
     onSuccess: () => {
-      // Invalidate and refetch
       queryClient.invalidateQueries({queryKey: KYC_QUERY_KEY});
     },
   });
@@ -196,7 +234,6 @@ export const useRejectKYC = () => {
   return useMutation({
     mutationFn: rejectKYC,
     onSuccess: () => {
-      // Invalidate and refetch
       queryClient.invalidateQueries({queryKey: KYC_QUERY_KEY});
     },
   });

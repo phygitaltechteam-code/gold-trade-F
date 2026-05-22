@@ -78,7 +78,7 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
           icon: <MdDashboard size={22} />,
         },
         {
-          label: 'TransactionLedger',
+          label: 'Live Monitoring',
           path: '/TransactionLedger',
           icon: <MdDashboard size={22} />,
         },
@@ -92,16 +92,16 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
           path: '/Approval/pendingapprovals',
           icon: <FaUsers size={22} />,
         },
-        {
-          label: 'KYC Approvals',
-          path: '/KYCApproval/kycmain',
-          icon: <MdOutlineVerified size={22} />,
-        },
-        {
-          label: 'Live Monitoring',
-          path: '/KYCApproval/livemonitoring',
-          icon: <MdOutlineMonitor size={22} />,
-        },
+        // {
+        //   label: 'KYC Approvals',
+        //   path: '/KYCApproval/kycmain',
+        //   icon: <MdOutlineVerified size={22} />,
+        // },
+        // {
+        //   label: 'Live Monitoring',
+        //   path: '/KYCApproval/livemonitoring',
+        //   icon: <MdOutlineMonitor size={22} />,
+        // },
         {
           label: 'Withdrawal Requests',
           path: '/withdrawlreq/withdrawlRequest',

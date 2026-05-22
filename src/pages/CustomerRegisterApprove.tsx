@@ -3,7 +3,7 @@ import {UserRequest} from '@/types/approval';
 import {MdMenu, MdSecurity} from 'react-icons/md';
 import RequestList from '@/components/approval/RequestList';
 import DetailPanel from '@/components/approval/DetailPanel';
-import {useGetCustomer} from '@/lib/react-query/Customer';
+import { useGetCustomer } from '@/lib/api/customer';
 
 const CustomerRegisterApprove: React.FC = () => {
   const {data: AllCustomers} = useGetCustomer();

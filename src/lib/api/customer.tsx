@@ -1,61 +1,93 @@
-import {api} from '@/utils/axios';
 
-export const getAllCustomer = async () => {
-  try {
-    const response = await api.get(`admin/customer`);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching customers:', error);
-    throw error;
-  }
+import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
+
+import toast from 'react-hot-toast';
+import { acceptTheCustomer, deleteCustomer, getAllCustomer, getCustomerById, rejectTheCustomer, updateCustomer } from '../react-query/Customer';
+
+export const useGetCustomer = () =>
+  useQuery({
+    queryKey: ['customer'],
+    queryFn: () => getAllCustomer(),
+  });
+
+export const useGetCustomerById = (id: string) =>
+  useQuery({
+    queryKey: ['customer', id],
+    queryFn: () => getCustomerById(id),
+    enabled: !!id,
+  });
+
+// Updated to use the verify endpoint
+export const useAcceptCustomer = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => acceptTheCustomer(id),
+
+    onSuccess: () => {
+      toast.success('Customer Verified Successfully!');
+      queryClient.invalidateQueries({queryKey: ['customer']});
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message || 'Failed To Verify Customer!';
+      toast.error(errorMessage);
+    },
+  });
 };
 
-export const getCustomerById = async (id: string) => {
-  try {
-    const response = await api.get(`admin/customer/${id}`);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching customers:', error);
-    throw error;
-  }
+export const useRejectCustomer = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({id, note}: {id: string; note: string}) =>
+      rejectTheCustomer(id, note),
+
+    onSuccess: () => {
+      toast.success('Customer Rejected Successfully!');
+      queryClient.invalidateQueries({queryKey: ['customer']});
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message || 'Failed To Reject Customer!';
+      toast.error(errorMessage);
+    },
+  });
 };
 
-export const acceptTheCustomer = async (id: string) => {
-  try {
-    const response = await api.put(`admin/customer/accept/${id}`);
-    return response.data;
-  } catch (error) {
-    console.error('Error to accept customer:', error);
-    throw error;
-  }
+export const useDeleteCustomer = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => deleteCustomer(id),
+
+    onSuccess: () => {
+      toast.success('Customer Deleted Successfully!');
+      queryClient.invalidateQueries({queryKey: ['customer']});
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message || 'Failed To Delete Customer!';
+      toast.error(errorMessage);
+    },
+  });
 };
 
-export const rejectTheCustomer = async (id: string, note: string) => {
-  try {
-    const response = await api.put(`admin/customer/reject/${id}`, {note: note});
-    return response.data;
-  } catch (error) {
-    console.error('Error to accept customer:', error);
-    throw error;
-  }
-};
+export const useUpdateCustomer = () => {
+  const queryClient = useQueryClient();
 
-export const deleteCustomer = async (id: string) => {
-  try {
-    const response = await api.delete(`admin/customer/${id}`);
-    return response.data;
-  } catch (error) {
-    console.error('Error deleting customer:', error);
-    throw error;
-  }
-};
+  return useMutation({
+    mutationFn: ({id, data}: {id: string; data: any}) =>
+      updateCustomer(id, data),
 
-export const updateCustomer = async (id: string, data: any) => {
-  try {
-    const response = await api.put(`admin/customer/${id}`, data);
-    return response.data;
-  } catch (error) {
-    console.error('Error updating customer:', error);
-    throw error;
-  }
+    onSuccess: () => {
+      toast.success('Customer Updated Successfully!');
+      queryClient.invalidateQueries({queryKey: ['customer']});
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message || 'Failed To Update Customer!';
+      toast.error(errorMessage);
+    },
+  });
 };

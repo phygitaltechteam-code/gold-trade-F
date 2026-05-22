@@ -93,6 +93,7 @@ import { Route as AppClientBeneficiaryverificationIdImport } from './routes/_app
 import { Route as AppBrokerUpdatebrokerIdImport } from './routes/_app/broker/updatebroker.$id'
 import { Route as AppBrokerTrasactionTransactionledgerImport } from './routes/_app/broker/trasaction/transactionledger'
 import { Route as AppBrokerBrokerprofileIdImport } from './routes/_app/broker/brokerprofile.$id'
+import { Route as AppKYCApprovalKycdetailesIdImport } from './routes/_app/KYCApproval/kycdetailes.$id'
 import { Route as AppApprovalRegistrationDetailsIdImport } from './routes/_app/Approval/registrationDetails.$id'
 
 // Create/Update Routes
@@ -613,6 +614,13 @@ const AppBrokerBrokerprofileIdRoute = AppBrokerBrokerprofileIdImport.update({
   path: '/broker/brokerprofile/$id',
   getParentRoute: () => AppRoute,
 } as any)
+
+const AppKYCApprovalKycdetailesIdRoute =
+  AppKYCApprovalKycdetailesIdImport.update({
+    id: '/KYCApproval/kycdetailes/$id',
+    path: '/KYCApproval/kycdetailes/$id',
+    getParentRoute: () => AppRoute,
+  } as any)
 
 const AppApprovalRegistrationDetailsIdRoute =
   AppApprovalRegistrationDetailsIdImport.update({
@@ -1143,6 +1151,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppApprovalRegistrationDetailsIdImport
       parentRoute: typeof AppImport
     }
+    '/_app/KYCApproval/kycdetailes/$id': {
+      id: '/_app/KYCApproval/kycdetailes/$id'
+      path: '/KYCApproval/kycdetailes/$id'
+      fullPath: '/KYCApproval/kycdetailes/$id'
+      preLoaderRoute: typeof AppKYCApprovalKycdetailesIdImport
+      parentRoute: typeof AppImport
+    }
     '/_app/broker/brokerprofile/$id': {
       id: '/_app/broker/brokerprofile/$id'
       path: '/broker/brokerprofile/$id'
@@ -1276,6 +1291,7 @@ interface AppRouteChildren {
   AppWalletToupscreenRoute: typeof AppWalletToupscreenRoute
   AppWithdrawlreqWithdrawlRequestRoute: typeof AppWithdrawlreqWithdrawlRequestRoute
   AppApprovalRegistrationDetailsIdRoute: typeof AppApprovalRegistrationDetailsIdRoute
+  AppKYCApprovalKycdetailesIdRoute: typeof AppKYCApprovalKycdetailesIdRoute
   AppBrokerBrokerprofileIdRoute: typeof AppBrokerBrokerprofileIdRoute
   AppBrokerTrasactionTransactionledgerRoute: typeof AppBrokerTrasactionTransactionledgerRoute
   AppBrokerUpdatebrokerIdRoute: typeof AppBrokerUpdatebrokerIdRoute
@@ -1354,6 +1370,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppWalletToupscreenRoute: AppWalletToupscreenRoute,
   AppWithdrawlreqWithdrawlRequestRoute: AppWithdrawlreqWithdrawlRequestRoute,
   AppApprovalRegistrationDetailsIdRoute: AppApprovalRegistrationDetailsIdRoute,
+  AppKYCApprovalKycdetailesIdRoute: AppKYCApprovalKycdetailesIdRoute,
   AppBrokerBrokerprofileIdRoute: AppBrokerBrokerprofileIdRoute,
   AppBrokerTrasactionTransactionledgerRoute:
     AppBrokerTrasactionTransactionledgerRoute,
@@ -1472,6 +1489,7 @@ export interface FileRoutesByFullPath {
   '/wallet/toupscreen': typeof AppWalletToupscreenRoute
   '/withdrawlreq/withdrawlRequest': typeof AppWithdrawlreqWithdrawlRequestRoute
   '/Approval/registrationDetails/$id': typeof AppApprovalRegistrationDetailsIdRoute
+  '/KYCApproval/kycdetailes/$id': typeof AppKYCApprovalKycdetailesIdRoute
   '/broker/brokerprofile/$id': typeof AppBrokerBrokerprofileIdRoute
   '/broker/trasaction/transactionledger': typeof AppBrokerTrasactionTransactionledgerRoute
   '/broker/updatebroker/$id': typeof AppBrokerUpdatebrokerIdRoute
@@ -1555,6 +1573,7 @@ export interface FileRoutesByTo {
   '/wallet/toupscreen': typeof AppWalletToupscreenRoute
   '/withdrawlreq/withdrawlRequest': typeof AppWithdrawlreqWithdrawlRequestRoute
   '/Approval/registrationDetails/$id': typeof AppApprovalRegistrationDetailsIdRoute
+  '/KYCApproval/kycdetailes/$id': typeof AppKYCApprovalKycdetailesIdRoute
   '/broker/brokerprofile/$id': typeof AppBrokerBrokerprofileIdRoute
   '/broker/trasaction/transactionledger': typeof AppBrokerTrasactionTransactionledgerRoute
   '/broker/updatebroker/$id': typeof AppBrokerUpdatebrokerIdRoute
@@ -1642,6 +1661,7 @@ export interface FileRoutesById {
   '/_app/wallet/toupscreen': typeof AppWalletToupscreenRoute
   '/_app/withdrawlreq/withdrawlRequest': typeof AppWithdrawlreqWithdrawlRequestRoute
   '/_app/Approval/registrationDetails/$id': typeof AppApprovalRegistrationDetailsIdRoute
+  '/_app/KYCApproval/kycdetailes/$id': typeof AppKYCApprovalKycdetailesIdRoute
   '/_app/broker/brokerprofile/$id': typeof AppBrokerBrokerprofileIdRoute
   '/_app/broker/trasaction/transactionledger': typeof AppBrokerTrasactionTransactionledgerRoute
   '/_app/broker/updatebroker/$id': typeof AppBrokerUpdatebrokerIdRoute
@@ -1727,6 +1747,7 @@ export interface FileRouteTypes {
     | '/wallet/toupscreen'
     | '/withdrawlreq/withdrawlRequest'
     | '/Approval/registrationDetails/$id'
+    | '/KYCApproval/kycdetailes/$id'
     | '/broker/brokerprofile/$id'
     | '/broker/trasaction/transactionledger'
     | '/broker/updatebroker/$id'
@@ -1809,6 +1830,7 @@ export interface FileRouteTypes {
     | '/wallet/toupscreen'
     | '/withdrawlreq/withdrawlRequest'
     | '/Approval/registrationDetails/$id'
+    | '/KYCApproval/kycdetailes/$id'
     | '/broker/brokerprofile/$id'
     | '/broker/trasaction/transactionledger'
     | '/broker/updatebroker/$id'
@@ -1894,6 +1916,7 @@ export interface FileRouteTypes {
     | '/_app/wallet/toupscreen'
     | '/_app/withdrawlreq/withdrawlRequest'
     | '/_app/Approval/registrationDetails/$id'
+    | '/_app/KYCApproval/kycdetailes/$id'
     | '/_app/broker/brokerprofile/$id'
     | '/_app/broker/trasaction/transactionledger'
     | '/_app/broker/updatebroker/$id'
@@ -2005,6 +2028,7 @@ export const routeTree = rootRoute
         "/_app/wallet/toupscreen",
         "/_app/withdrawlreq/withdrawlRequest",
         "/_app/Approval/registrationDetails/$id",
+        "/_app/KYCApproval/kycdetailes/$id",
         "/_app/broker/brokerprofile/$id",
         "/_app/broker/trasaction/transactionledger",
         "/_app/broker/updatebroker/$id",
@@ -2313,6 +2337,10 @@ export const routeTree = rootRoute
     },
     "/_app/Approval/registrationDetails/$id": {
       "filePath": "_app/Approval/registrationDetails.$id.tsx",
+      "parent": "/_app"
+    },
+    "/_app/KYCApproval/kycdetailes/$id": {
+      "filePath": "_app/KYCApproval/kycdetailes.$id.tsx",
       "parent": "/_app"
     },
     "/_app/broker/brokerprofile/$id": {
