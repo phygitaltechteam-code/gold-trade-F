@@ -12,7 +12,7 @@ export const getCommisssion = async () => {
 
 export const setCommission = async (commission: number) => {
   try {
-    const response = await api.post(`company/commision`, {
+    const response = await api.post(`company/commission`, {
       commission: commission,
     });
     return response.data;

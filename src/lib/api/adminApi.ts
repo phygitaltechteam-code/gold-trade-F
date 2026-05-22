@@ -334,3 +334,24 @@ export const adminEditPayment = async (id, data: paymentEditPayload) => {
     throw error;
   }
 };
+
+export type resetPasswordPayload = {
+  currentPassword: string;
+  newPassword: string;
+};
+export const resetPassword = async (data: resetPasswordPayload) => {
+  try {
+    await api.post(`users/change-password`, data);
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      const errorMessage =
+        error.response?.data?.errors?.[0]?.message ||
+        error.response?.data?.message ||
+        'Failed to reset password';
+
+      throw new Error(errorMessage);
+    }
+
+    throw error;
+  }
+};

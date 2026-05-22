@@ -2,14 +2,10 @@ import {api} from '@/utils/axios';
 
 export type SuperBrocker = {
   fullname: string;
-  username: string;
-  email: string;
   password: string;
   phoneNumber: string;
   commission: number;
-  dob: Date;
   aadharCardNumber: string;
-  panCardNumber?: string;
   aadharCardF?: File;
   aadharCardB?: File;
   photo?: File;
@@ -20,17 +16,12 @@ export const addSuperBrocker = async (data: SuperBrocker) => {
     const formData = new FormData();
 
     formData.append('fullname', data.fullname);
-    formData.append('username', data.username);
-    formData.append('email', data.email);
+
     formData.append('password', data.password);
     formData.append('phoneNumber', data.phoneNumber);
-    formData.append('commission', String(data.commission));
-
-    formData.append('dob', data.dob ? new Date(data.dob).toISOString() : '');
+    formData.append('commission', Number(data.commission).toString());
 
     formData.append('aadharCardNumber', data.aadharCardNumber);
-
-    formData.append('panCardNumber', data.panCardNumber || '');
 
     if (data.aadharCardF) {
       formData.append('aadharCardF', data.aadharCardF);
