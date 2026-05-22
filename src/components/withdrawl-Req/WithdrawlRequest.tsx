@@ -519,101 +519,6 @@ export default function WithdrawalRequest() {
             )}
           </AnimatePresence>
 
-          {/* Mobile Card View */}
-          {/* <div className="block divide-y divide-stroke lg:hidden">
-            {paginatedData.length > 0 ? (
-              paginatedData.map((req) => (
-                <div key={req.id} className="hover:bg-gray-50/50 relative p-4">
-                  {req.isHighValue && (
-                    <div className="absolute bottom-0 left-0 top-0 w-1 bg-red-500" />
-                  )}
-
-                  <div className="mb-3 flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="checkbox"
-                        checked={selectedRequests.includes(req.id)}
-                        onChange={() => handleSelect(req.id)}
-                        className="rounded border-stroke text-orange-500 focus:ring-orange-500"
-                      />
-                      <div>
-                        <span className="text-sm font-bold">
-                          {req.requestId}
-                        </span>
-                        <span className="text-gray-500 ml-2 text-[10px]">
-                          {req.date}, {req.time}
-                        </span>
-                      </div>
-                    </div>
-                    <StatusBadge status={req.status} />
-                  </div>
-
-                  <div className="mb-3 flex items-center gap-3">
-                    {req.client.avatar ? (
-                      <img
-                        src={req.client.avatar}
-                        alt={req.client.name}
-                        className="h-8 w-8 rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="bg-gray-100 text-gray-500 flex h-8 w-8 items-center justify-center rounded-full text-[10px] font-bold">
-                        {req.client.initials}
-                      </div>
-                    )}
-                    <div>
-                      <p className="text-sm font-semibold">{req.client.name}</p>
-                      <p className="text-gray-500 text-xs">{req.client.tier}</p>
-                    </div>
-                  </div>
-
-                  <div className="mb-3 grid grid-cols-2 gap-3">
-                    <div>
-                      <p className="text-gray-400 mb-1 text-[10px]">Amount</p>
-                      <p className="text-sm font-bold">
-                        $
-                        {req.amount.toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                        })}
-                      </p>
-                      <p className="text-gray-400 text-[9px]">
-                        Fee: ${req.fee.toFixed(2)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-gray-400 mb-1 text-[10px]">Bank</p>
-                      <div className="flex items-center gap-1">
-                        <Landmark className="text-gray-400 h-3 w-3" />
-                        <span className="text-xs font-medium">{req.bank}</span>
-                      </div>
-                      <p className="text-gray-400 font-mono text-[9px]">
-                        **** {req.accountLast4}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-2 flex items-center justify-end gap-2">
-                    <button
-                      onClick={() => handleReject(req.id)}
-                      className="text-gray-500 hover:bg-gray-100 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
-                    >
-                      Reject
-                    </button>
-                    <button
-                      onClick={() => handleApprove(req.id)}
-                      className="rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm shadow-orange-200 transition-all hover:bg-orange-600"
-                    >
-                      Approve
-                    </button>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="text-gray-400 p-8 text-center">
-                No {activeTab.toLowerCase()} requests found
-              </div>
-            )}
-          </div> */}
-
           {/* Desktop Table View */}
           <div className="overflow-x-auto lg:block">
             <table className="w-full border-collapse text-left">
@@ -639,12 +544,7 @@ export default function WithdrawalRequest() {
                   <th className="text-gray-400 px-3 py-4 text-[11px] font-semibold uppercase tracking-wider">
                     Client Name
                   </th>
-                  <th className="text-gray-400 px-3 py-4 text-[11px] font-semibold uppercase tracking-wider">
-                    Broker Name
-                  </th>
-                  <th className="text-gray-400 px-3 py-4 text-[11px] font-semibold uppercase tracking-wider">
-                    Super Broker Name
-                  </th>
+
                   <th className="text-gray-400 px-3 py-4 text-right text-[11px] font-semibold uppercase tracking-wider">
                     Wallet Balance
                   </th>
@@ -712,12 +612,7 @@ export default function WithdrawalRequest() {
                           </span>
                         </div>
                       </td>
-                      <td className="text-gray-700 whitespace-nowrap px-3 py-4 text-sm font-medium">
-                        {req.brokerName}
-                      </td>
-                      <td className="text-gray-700 whitespace-nowrap px-3 py-4 text-sm font-medium">
-                        {req.superBrokerName}
-                      </td>
+
                       <td className="text-gray-900 whitespace-nowrap px-3 py-4 text-right text-sm font-bold">
                         $
                         {req.walletBalance.toLocaleString('en-US', {

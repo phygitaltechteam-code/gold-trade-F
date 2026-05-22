@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {FiEdit2, FiSave, FiX} from 'react-icons/fi';
+import React, {useState, useMemo} from 'react';
+import {FiEdit2, FiSave, FiX, FiEye} from 'react-icons/fi';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import {useGetAllSuperBrockerById} from '@/lib/react-query/superbrocker';
 import {Route} from '@/routes/_app/companybroker/SuperbrockerProfile.$id';
@@ -15,24 +15,25 @@ const SuperBrokerProfile = () => {
   const [ledgerEndDate, setLedgerEndDate] = useState('');
   const {data: profileData} = useGetAllSuperBrockerById(id);
 
-  console.log('super brockerrrrrrr', profileData);
-  // Mock data for the profile
-  // const [profileData, setProfileData] = useState({
-  //   fullname: 'Rajesh Kumar',
-  //   aadharCardNumber: '123456789012',
-  //   commission: '2.5',
-  //   area: 'Mumbai North',
-  //   password: 'password123',
-  //   totalBusiness: 1500000,
-  //   totalCommission: 37500,
-  //   pendingCommission: 12500,
-  //   totalBrokers: 14,
-  // });
+  console.log('Super Broker Profile:', profileData);
 
   const [editData, setEditData] = useState({...profileData});
 
+  // Get brokers from profileData and add SR number
+  const brokersList = useMemo(() => {
+    const brokers = profileData?.brokers || [];
+    return brokers.map((broker: any, index: number) => ({
+      ...broker,
+      srNo: index + 1,
+    }));
+  }, [profileData?.brokers]);
+
   const baseLedgerColumns = [
-    {header: 'Sr', accessor: 'sr'},
+    {
+      header: 'Sr',
+      accessor: 'sr',
+      className: 'w-16 font-semibold text-gray-600',
+    },
     {header: 'Date/Time', accessor: 'dateTime'},
     {header: 'Transaction ID', accessor: 'transactionId'},
     {header: 'Stript', accessor: 'stript'},
@@ -42,7 +43,11 @@ const SuperBrokerProfile = () => {
   ];
 
   const expandedLedgerColumns = [
-    {header: 'Sr', accessor: 'sr'},
+    {
+      header: 'Sr',
+      accessor: 'sr',
+      className: 'w-16 font-semibold text-gray-600',
+    },
     {header: 'Date/Time', accessor: 'dateTime'},
     {header: 'Customer Name', accessor: 'customerName'},
     {header: 'Broker Name', accessor: 'brokerName'},
@@ -55,11 +60,9 @@ const SuperBrokerProfile = () => {
     {header: 'Status', accessor: 'status'},
     {header: 'Transaction Amount', accessor: 'transactionAmount'},
     {header: 'Total Amount', accessor: 'totalAmount'},
-
     {header: 'Paid Amount', accessor: 'paidAmount'},
     {header: 'Margin Amount', accessor: 'marginAmount'},
     {header: 'Total Commission', accessor: 'totalCommission'},
-
     {header: 'Broker Commission', accessor: 'brokerCommission'},
     {header: 'Super Broker Commission', accessor: 'superBrokerCommission'},
     {header: 'Payment Status', accessor: 'paymentStatus'},
@@ -71,7 +74,11 @@ const SuperBrokerProfile = () => {
 
   // Column definitions for the Payment History table
   const paymentColumns = [
-    {header: 'Sr', accessor: 'sr'},
+    {
+      header: 'Sr',
+      accessor: 'sr',
+      className: 'w-16 font-semibold text-gray-600',
+    },
     {header: 'Date', accessor: 'date'},
     {header: 'Commission Generated', accessor: 'commissionGenerated'},
     {header: 'Paid Amount', accessor: 'paidAmount'},
@@ -79,13 +86,75 @@ const SuperBrokerProfile = () => {
     {header: 'Status', accessor: 'status'},
   ];
 
-  const handleInputChange = (e) => {
+  // Broker Table Columns with all requested fields
+  const brokerColumns = [
+    {
+      header: 'SR No.',
+      accessor: 'srNo',
+      className: 'w-16 font-semibold text-gray-600',
+    },
+    {
+      header: 'Work Name',
+      accessor: 'user.fullname',
+      render: (item: any) => (
+        <div className="font-semibold text-black">
+          {item?.user?.fullname || '-'}
+        </div>
+      ),
+    },
+    {
+      header: 'Phone Number',
+      accessor: 'user.phoneNumber',
+      render: (item: any) => (
+        <span className="text-gray-700">{item?.user?.phoneNumber || '-'}</span>
+      ),
+    },
+    {
+      header: 'BKId',
+      accessor: 'BKId',
+      render: (item: any) => (
+        <span className="font-mono text-gray-600 text-sm font-medium">
+          {item?.BKId || '-'}
+        </span>
+      ),
+    },
+    {
+      header: 'Commission',
+      accessor: 'brokeragePercent',
+      render: (item: any) => (
+        <span className="rounded border border-orange-100 bg-orange-50 px-2 py-1 text-xs font-bold text-orange-600">
+          {item?.brokeragePercent ? `${item.brokeragePercent}%` : '-'}
+        </span>
+      ),
+    },
+    {
+      header: 'Total Brokers',
+      accessor: 'totalBrokers',
+      render: () => <span className="text-gray-700">-</span>,
+    },
+    {
+      header: 'Total Business',
+      accessor: 'totalBusiness',
+      render: () => <span className="text-gray-700">-</span>,
+    },
+    {
+      header: 'Total Commission',
+      accessor: 'totalCommission',
+      render: () => <span className="text-gray-700">-</span>,
+    },
+    {
+      header: 'Pending Commission',
+      accessor: 'pendingCommission',
+      render: () => <span className="text-gray-700">-</span>,
+    },
+  ];
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const {name, value} = e.target;
     setEditData((prev) => ({...prev, [name]: value}));
   };
 
   const handleSave = () => {
-    // setProfileData({...editData});
     setIsEditing(false);
     // TODO: Add API call to save profile details
   };
@@ -138,15 +207,42 @@ const SuperBrokerProfile = () => {
                 <input
                   type="text"
                   name="fullname"
-                  value={editData?.fullname}
+                  value={editData?.fullname || ''}
                   onChange={handleInputChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                 />
               ) : (
                 <p className="text-black dark:text-white">
-                  {profileData?.fullname}
+                  {profileData?.fullname || 'N/A'}
                 </p>
               )}
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-black dark:text-white">
+                BK ID
+              </label>
+              <p className="text-black dark:text-white">
+                {profileData?.BKId || 'N/A'}
+              </p>
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-black dark:text-white">
+                Phone Number
+              </label>
+              <p className="text-black dark:text-white">
+                {profileData?.phoneNumber || 'N/A'}
+              </p>
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-black dark:text-white">
+                Email
+              </label>
+              <p className="text-black dark:text-white">
+                {profileData?.email || 'N/A'}
+              </p>
             </div>
 
             <div>
@@ -157,13 +253,13 @@ const SuperBrokerProfile = () => {
                 <input
                   type="text"
                   name="aadharCardNumber"
-                  value={editData?.aadharCardNumber}
+                  value={editData?.aadharCardNumber || ''}
                   onChange={handleInputChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                 />
               ) : (
                 <p className="text-black dark:text-white">
-                  {profileData?.aadharCardNumber}
+                  {profileData?.aadharCardNumber || 'N/A'}
                 </p>
               )}
             </div>
@@ -175,14 +271,14 @@ const SuperBrokerProfile = () => {
               {isEditing ? (
                 <input
                   type="text"
-                  name="commission"
-                  value={editData?.commission}
+                  name="brokeragePercent"
+                  value={editData?.brokeragePercent || ''}
                   onChange={handleInputChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                 />
               ) : (
                 <p className="text-black dark:text-white">
-                  {profileData?.commission}%
+                  {profileData?.brokeragePercent || '0'}%
                 </p>
               )}
             </div>
@@ -195,32 +291,24 @@ const SuperBrokerProfile = () => {
                 <input
                   type="text"
                   name="area"
-                  value={editData?.area}
+                  value={editData?.area || ''}
                   onChange={handleInputChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                 />
               ) : (
                 <p className="text-black dark:text-white">
-                  {profileData?.area}
+                  {profileData?.area || 'N/A'}
                 </p>
               )}
             </div>
 
             <div>
               <label className="mb-2 block text-sm font-medium text-black dark:text-white">
-                Password
+                Total Brokers
               </label>
-              {isEditing ? (
-                <input
-                  type="text" // using text so it can be viewed and edited easily
-                  name="password"
-                  value={editData?.password}
-                  onChange={handleInputChange}
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
-                />
-              ) : (
-                <p className="text-black dark:text-white">••••••••</p>
-              )}
+              <p className="text-black dark:text-white">
+                {profileData?.brokers?.length || 0}
+              </p>
             </div>
           </div>
         </div>
@@ -230,7 +318,7 @@ const SuperBrokerProfile = () => {
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
           <h4 className="text-2xl font-bold text-black dark:text-white">
-            ₹{profileData?.totalBusiness?.toLocaleString()}
+            ₹{profileData?.totalBusiness?.toLocaleString() || '0'}
           </h4>
           <span className="text-gray-500 mt-1 text-sm font-medium">
             Total Business
@@ -238,7 +326,7 @@ const SuperBrokerProfile = () => {
         </div>
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
           <h4 className="text-2xl font-bold text-green-500">
-            ₹{profileData?.totalCommission?.toLocaleString()}
+            ₹{profileData?.totalCommission?.toLocaleString() || '0'}
           </h4>
           <span className="text-gray-500 mt-1 text-sm font-medium">
             Total Commission
@@ -246,7 +334,7 @@ const SuperBrokerProfile = () => {
         </div>
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
           <h4 className="text-2xl font-bold text-orange-500">
-            ₹{profileData?.pendingCommission?.toLocaleString()}
+            ₹{profileData?.pendingCommission?.toLocaleString() || '0'}
           </h4>
           <span className="text-gray-500 mt-1 text-sm font-medium">
             Pending Commission
@@ -254,10 +342,10 @@ const SuperBrokerProfile = () => {
         </div>
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
           <h4 className="text-2xl font-bold text-blue-500">
-            {profileData?.totalBrokers}
+            {profileData?.brokers?.length || 0}
           </h4>
           <span className="text-gray-500 mt-1 text-sm font-medium">
-            No. Brokers
+            Total Brokers
           </span>
         </div>
       </div>
@@ -285,6 +373,26 @@ const SuperBrokerProfile = () => {
           >
             Payment History
           </button>
+          <button
+            onClick={() => setActiveTab('broker')}
+            className={`px-6 py-4 font-medium transition-colors hover:text-orange-500 ${
+              activeTab === 'broker'
+                ? 'border-b-2 border-orange-500 text-orange-500'
+                : 'text-bodydark2'
+            }`}
+          >
+            Brokers 
+          </button>
+           <button
+            onClick={() => setActiveTab('commission')}
+            className={`px-6 py-4 font-medium transition-colors hover:text-orange-500 ${
+              activeTab === 'commission'
+                ? 'border-b-2 border-orange-500 text-orange-500'
+                : 'text-bodydark2'
+            }`}
+          >
+           Commission 
+          </button> 
         </div>
 
         <div className="p-6">
@@ -342,7 +450,7 @@ const SuperBrokerProfile = () => {
                 paginationOff={true}
               />
             </div>
-          ) : (
+          ) : activeTab === 'payment' ? (
             <div className="overflow-x-auto">
               <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                 <h3 className="text-lg font-semibold text-black dark:text-white">
@@ -389,6 +497,38 @@ const SuperBrokerProfile = () => {
                 columns={paymentColumns}
                 paginationOff={true}
               />
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                <h3 className="text-lg font-semibold text-black dark:text-white">
+                  Brokers List
+                </h3>
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Search brokers..."
+                      className="rounded border border-stroke bg-transparent px-4 py-2 text-sm outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                    />
+                  </div>
+                </div>
+              </div>
+              {brokersList.length > 0 ? (
+                <GenericTable
+                  data={brokersList}
+                  columns={brokerColumns}
+                  searchAble={true}
+                  searchFields={['user.fullname', 'BKId']}
+                  itemsPerPage={10}
+                />
+              ) : (
+                <div className="flex h-64 items-center justify-center">
+                  <p className="text-gray-500">
+                    No brokers found for this super broker
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </div>

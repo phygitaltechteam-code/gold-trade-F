@@ -306,7 +306,7 @@ const PendingApprovals: React.FC = () => {
     clientSelectedBroker,
   ]);
 
-  // BROKER TABLE COLUMNS
+  // BROKER TABLE COLUMNS - Fixed Super Broker display
   const brokerColumns: Column<any>[] = [
     {
       header: 'SR No.',
@@ -336,16 +336,16 @@ const PendingApprovals: React.FC = () => {
     },
     {
       header: 'Super Broker',
-      accessor: 'superBrokerId',
+      accessor: 'superBroker',
       render: (item: any) => {
-        const superBroker = superBrokerList.find(
-          (sb: any) => sb.id === item.superBrokerId,
-        );
+        // Use the superBroker object from the API response
+        const superBrokerName =
+          item.superBroker?.user?.fullname ||
+          item.superBroker?.fullname ||
+          'Unassigned';
         return (
-          <span className="text-gray-700 text-sm">
-            {superBroker?.fullname ||
-              item.superBrokerId?.substring(0, 8) + '...' ||
-              'Unassigned'}
+          <span className="text-gray-700 text-sm font-medium">
+            {superBrokerName}
           </span>
         );
       },
@@ -409,7 +409,6 @@ const PendingApprovals: React.FC = () => {
       },
     },
   ];
-
   // CLIENT TABLE COLUMNS
   const clientColumns: Column<any>[] = [
     {

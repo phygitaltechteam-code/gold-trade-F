@@ -92,6 +92,7 @@ import { Route as AppClientTransactionhistoryIdImport } from './routes/_app/clie
 import { Route as AppClientBeneficiaryverificationIdImport } from './routes/_app/client/beneficiaryverification.$id'
 import { Route as AppBrokerUpdatebrokerIdImport } from './routes/_app/broker/updatebroker.$id'
 import { Route as AppBrokerTrasactionTransactionledgerImport } from './routes/_app/broker/trasaction/transactionledger'
+import { Route as AppBrokerCustomerCustomerdisplayImport } from './routes/_app/broker/customer/customerdisplay'
 import { Route as AppBrokerBrokerprofileIdImport } from './routes/_app/broker/brokerprofile.$id'
 import { Route as AppKYCApprovalKycdetailesIdImport } from './routes/_app/KYCApproval/kycdetailes.$id'
 import { Route as AppApprovalRegistrationDetailsIdImport } from './routes/_app/Approval/registrationDetails.$id'
@@ -606,6 +607,13 @@ const AppBrokerTrasactionTransactionledgerRoute =
   AppBrokerTrasactionTransactionledgerImport.update({
     id: '/broker/trasaction/transactionledger',
     path: '/broker/trasaction/transactionledger',
+    getParentRoute: () => AppRoute,
+  } as any)
+
+const AppBrokerCustomerCustomerdisplayRoute =
+  AppBrokerCustomerCustomerdisplayImport.update({
+    id: '/broker/customer/customerdisplay',
+    path: '/broker/customer/customerdisplay',
     getParentRoute: () => AppRoute,
   } as any)
 
@@ -1165,6 +1173,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBrokerBrokerprofileIdImport
       parentRoute: typeof AppImport
     }
+    '/_app/broker/customer/customerdisplay': {
+      id: '/_app/broker/customer/customerdisplay'
+      path: '/broker/customer/customerdisplay'
+      fullPath: '/broker/customer/customerdisplay'
+      preLoaderRoute: typeof AppBrokerCustomerCustomerdisplayImport
+      parentRoute: typeof AppImport
+    }
     '/_app/broker/trasaction/transactionledger': {
       id: '/_app/broker/trasaction/transactionledger'
       path: '/broker/trasaction/transactionledger'
@@ -1293,6 +1308,7 @@ interface AppRouteChildren {
   AppApprovalRegistrationDetailsIdRoute: typeof AppApprovalRegistrationDetailsIdRoute
   AppKYCApprovalKycdetailesIdRoute: typeof AppKYCApprovalKycdetailesIdRoute
   AppBrokerBrokerprofileIdRoute: typeof AppBrokerBrokerprofileIdRoute
+  AppBrokerCustomerCustomerdisplayRoute: typeof AppBrokerCustomerCustomerdisplayRoute
   AppBrokerTrasactionTransactionledgerRoute: typeof AppBrokerTrasactionTransactionledgerRoute
   AppBrokerUpdatebrokerIdRoute: typeof AppBrokerUpdatebrokerIdRoute
   AppClientBeneficiaryverificationIdRoute: typeof AppClientBeneficiaryverificationIdRoute
@@ -1372,6 +1388,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppApprovalRegistrationDetailsIdRoute: AppApprovalRegistrationDetailsIdRoute,
   AppKYCApprovalKycdetailesIdRoute: AppKYCApprovalKycdetailesIdRoute,
   AppBrokerBrokerprofileIdRoute: AppBrokerBrokerprofileIdRoute,
+  AppBrokerCustomerCustomerdisplayRoute: AppBrokerCustomerCustomerdisplayRoute,
   AppBrokerTrasactionTransactionledgerRoute:
     AppBrokerTrasactionTransactionledgerRoute,
   AppBrokerUpdatebrokerIdRoute: AppBrokerUpdatebrokerIdRoute,
@@ -1491,6 +1508,7 @@ export interface FileRoutesByFullPath {
   '/Approval/registrationDetails/$id': typeof AppApprovalRegistrationDetailsIdRoute
   '/KYCApproval/kycdetailes/$id': typeof AppKYCApprovalKycdetailesIdRoute
   '/broker/brokerprofile/$id': typeof AppBrokerBrokerprofileIdRoute
+  '/broker/customer/customerdisplay': typeof AppBrokerCustomerCustomerdisplayRoute
   '/broker/trasaction/transactionledger': typeof AppBrokerTrasactionTransactionledgerRoute
   '/broker/updatebroker/$id': typeof AppBrokerUpdatebrokerIdRoute
   '/client/beneficiaryverification/$id': typeof AppClientBeneficiaryverificationIdRoute
@@ -1575,6 +1593,7 @@ export interface FileRoutesByTo {
   '/Approval/registrationDetails/$id': typeof AppApprovalRegistrationDetailsIdRoute
   '/KYCApproval/kycdetailes/$id': typeof AppKYCApprovalKycdetailesIdRoute
   '/broker/brokerprofile/$id': typeof AppBrokerBrokerprofileIdRoute
+  '/broker/customer/customerdisplay': typeof AppBrokerCustomerCustomerdisplayRoute
   '/broker/trasaction/transactionledger': typeof AppBrokerTrasactionTransactionledgerRoute
   '/broker/updatebroker/$id': typeof AppBrokerUpdatebrokerIdRoute
   '/client/beneficiaryverification/$id': typeof AppClientBeneficiaryverificationIdRoute
@@ -1663,6 +1682,7 @@ export interface FileRoutesById {
   '/_app/Approval/registrationDetails/$id': typeof AppApprovalRegistrationDetailsIdRoute
   '/_app/KYCApproval/kycdetailes/$id': typeof AppKYCApprovalKycdetailesIdRoute
   '/_app/broker/brokerprofile/$id': typeof AppBrokerBrokerprofileIdRoute
+  '/_app/broker/customer/customerdisplay': typeof AppBrokerCustomerCustomerdisplayRoute
   '/_app/broker/trasaction/transactionledger': typeof AppBrokerTrasactionTransactionledgerRoute
   '/_app/broker/updatebroker/$id': typeof AppBrokerUpdatebrokerIdRoute
   '/_app/client/beneficiaryverification/$id': typeof AppClientBeneficiaryverificationIdRoute
@@ -1749,6 +1769,7 @@ export interface FileRouteTypes {
     | '/Approval/registrationDetails/$id'
     | '/KYCApproval/kycdetailes/$id'
     | '/broker/brokerprofile/$id'
+    | '/broker/customer/customerdisplay'
     | '/broker/trasaction/transactionledger'
     | '/broker/updatebroker/$id'
     | '/client/beneficiaryverification/$id'
@@ -1832,6 +1853,7 @@ export interface FileRouteTypes {
     | '/Approval/registrationDetails/$id'
     | '/KYCApproval/kycdetailes/$id'
     | '/broker/brokerprofile/$id'
+    | '/broker/customer/customerdisplay'
     | '/broker/trasaction/transactionledger'
     | '/broker/updatebroker/$id'
     | '/client/beneficiaryverification/$id'
@@ -1918,6 +1940,7 @@ export interface FileRouteTypes {
     | '/_app/Approval/registrationDetails/$id'
     | '/_app/KYCApproval/kycdetailes/$id'
     | '/_app/broker/brokerprofile/$id'
+    | '/_app/broker/customer/customerdisplay'
     | '/_app/broker/trasaction/transactionledger'
     | '/_app/broker/updatebroker/$id'
     | '/_app/client/beneficiaryverification/$id'
@@ -2030,6 +2053,7 @@ export const routeTree = rootRoute
         "/_app/Approval/registrationDetails/$id",
         "/_app/KYCApproval/kycdetailes/$id",
         "/_app/broker/brokerprofile/$id",
+        "/_app/broker/customer/customerdisplay",
         "/_app/broker/trasaction/transactionledger",
         "/_app/broker/updatebroker/$id",
         "/_app/client/beneficiaryverification/$id",
@@ -2345,6 +2369,10 @@ export const routeTree = rootRoute
     },
     "/_app/broker/brokerprofile/$id": {
       "filePath": "_app/broker/brokerprofile.$id.tsx",
+      "parent": "/_app"
+    },
+    "/_app/broker/customer/customerdisplay": {
+      "filePath": "_app/broker/customer/customerdisplay.tsx",
       "parent": "/_app"
     },
     "/_app/broker/trasaction/transactionledger": {

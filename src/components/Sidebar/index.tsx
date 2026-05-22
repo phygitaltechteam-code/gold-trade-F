@@ -221,6 +221,11 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
                   path: '/broker/trasaction/transactionledger',
                   icon: <FaUsers size={22} />,
                 },
+                {
+                  label: 'Customer Display',
+                  path: '/broker/customer/customerdisplay',
+                  icon: <FaUsers size={22} />,
+                },
                 // {
                 //   label: 'Add Broker',
                 //   path: '/broker/broker',
