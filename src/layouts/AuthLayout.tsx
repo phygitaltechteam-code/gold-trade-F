@@ -1,14 +1,22 @@
 import {Outlet, useNavigate} from '@tanstack/react-router';
 import MenuBook from '../assets/images/logo/Menubook.png';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {useAuthContext} from '@/context/AuthContext';
 
 const AuthLayout = () => {
   const navigate = useNavigate();
   const {isAuthenticated} = useAuthContext();
+  const token = localStorage.getItem('token');
 
-  if (isAuthenticated) {
-    navigate({to: '/dashboard'});
+  useEffect(() => {
+    if (isAuthenticated || token) {
+      navigate({to: '/dashboard'});
+    }
+  }, [isAuthenticated, token, navigate]);
+
+  // If authenticated, don't render the auth layout (will redirect)
+  if (isAuthenticated || token) {
+    return null;
   }
 
   return (

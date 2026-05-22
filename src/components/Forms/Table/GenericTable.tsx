@@ -34,7 +34,6 @@ type GenericTableProps<T> = {
   onDelete?: (item: T) => void;
   onView?: (item: T) => void;
   paginationOff?: boolean;
-  // Add Tooltip Props
   viewTooltip?: string;
   editTooltip?: string;
   deleteTooltip?: string;
@@ -51,8 +50,6 @@ const GenericTable = <T,>({
   onDelete: handleDelete,
   onView: handleView,
   paginationOff = false,
-
-  // Tooltip Props
   viewTooltip,
   editTooltip,
   deleteTooltip,
@@ -108,10 +105,11 @@ const GenericTable = <T,>({
         typeof column.accessor === 'function'
           ? column.accessor(item)
           : item[column.accessor];
-      return value
-        ?.toString()
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
+
+      // Safely convert value to string for search
+      if (value === null || value === undefined) return false;
+      if (typeof value === 'object') return false; // Skip objects for search
+      return value.toString().toLowerCase().includes(searchQuery.toLowerCase());
     }),
   );
 
@@ -122,6 +120,24 @@ const GenericTable = <T,>({
   const paginatedData = paginationOff
     ? filteredData
     : filteredData.slice(startIdx, startIdx + itemsPerPage);
+
+  // Helper function to safely render cell content
+  const renderCellContent = (value: any): React.ReactNode => {
+    if (value === null || value === undefined) return '-';
+    if (typeof value === 'string') return value;
+    if (typeof value === 'number') return value.toString();
+    if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+    if (React.isValidElement(value)) return value;
+    if (typeof value === 'object') {
+      // For objects, try to stringify safely
+      try {
+        return JSON.stringify(value);
+      } catch {
+        return '[Complex Data]';
+      }
+    }
+    return String(value);
+  };
 
   return (
     <div className="rounded-sm border border-stroke bg-white px-2 pb-2 pt-4 shadow-default dark:border-strokedark dark:bg-boxdark sm:p-1">
@@ -186,9 +202,7 @@ const GenericTable = <T,>({
                       <div className="py-1.5">
                         {column.render
                           ? column.render(item)
-                          : typeof value === 'string'
-                            ? value
-                            : JSON.stringify(value)}
+                          : renderCellContent(value)}
                         {column.buttons && (
                           <div className="mt-1.5 space-x-2">
                             {column.buttons.map((button, btnIndex) => (
@@ -247,7 +261,7 @@ const GenericTable = <T,>({
       </div>
 
       {/* Pagination Controls */}
-      {!paginationOff && (
+      {!paginationOff && totalPages > 0 && (
         <div className="mt-3 flex items-center justify-between">
           <span className="text-sm">
             Page {currentPage} of {totalPages}

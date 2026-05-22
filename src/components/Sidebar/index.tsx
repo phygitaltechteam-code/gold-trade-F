@@ -11,12 +11,14 @@ import {
   MdOutlineVerified,
   MdOutlineMonitor,
   MdOutlinePriceChange,
+  MdPersonAdd,
+  MdHistory,
 } from 'react-icons/md';
 import {useAuthContext} from '@/context/AuthContext';
-import {FaUsers} from 'react-icons/fa';
+import {FaUsers, FaUserPlus, FaUserCheck} from 'react-icons/fa';
 import {RiMoneyDollarCircleLine} from 'react-icons/ri';
 import {TbReportAnalytics} from 'react-icons/tb';
-import {LucideBox} from 'lucide-react';
+import {LucideBox, UserPlus, Wallet, FileText} from 'lucide-react';
 
 const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
   const location = useLocation();
@@ -25,18 +27,19 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
 
   const isCompany = user?.role === 'COMPANY';
   const isSuperAdmin = user?.role === 'SUPERADMIN';
-  const isAdmin = user?.role === 'ADMIN'; // Add this back for logo display
+  const isAdmin = user?.role === 'ADMIN';
   const isBroker = user?.role === 'BROKER';
   const isCustomer = user?.role === 'CUSTOMER';
-  const isSuperBroker = user?.role === 'SUPERBROKER';
+  const isSuperBroker =
+    user?.role === 'SUPER_BROKER' || user?.role === 'SUPERBROKER';
 
   console.log('userrrr', user);
+  console.log('isSuperBroker', isSuperBroker);
 
   const isFixedOpenRef = useRef(false);
   const [isFixedOpen, setIsFixedOpen] = useState(false);
   const isExpanded = sidebarOpen || isFixedOpen;
 
-  console.log('isExpandedvbbbn', isExpanded);
   const [hoveredRoute, setHoveredRoute] = useState<string | null>(null);
   const [hoveredRect, setHoveredRect] = useState<{
     top: number;
@@ -49,7 +52,6 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
 
   const handleSignOut = async () => {
     try {
-      // Clear everything
       localStorage.clear();
       sessionStorage.clear();
       window.location.href = '/';
@@ -85,7 +87,6 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
           path: '/clients/mainpage',
           icon: <FaUsers size={22} />,
         },
-
         {
           label: 'Pending Approvals',
           path: '/Approval/pendingapprovals',
@@ -142,6 +143,14 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
             path: '/clients/mainpage',
             icon: <FaUsers size={22} />,
           },
+          {
+            label: 'Settings',
+            icon: <MdSettings size={22} />,
+            subRoutes: [
+              {label: 'Change Password', path: '/change-password'},
+              {label: 'Logout', onClick: () => handleSignOut()},
+            ],
+          },
         ]
       : isBroker
         ? [
@@ -158,12 +167,12 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
             {
               label: 'Commission History',
               path: '/broker/commissionhistory',
-              icon: <FaUsers size={22} />,
+              icon: <RiMoneyDollarCircleLine size={22} />,
             },
             {
               label: 'Payment History',
               path: '/broker/paymenthistory',
-              icon: <FaUsers size={22} />,
+              icon: <RiMoneyDollarCircleLine size={22} />,
             },
             {
               label: 'Settings',
@@ -182,9 +191,17 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
                 icon: <MdDashboard size={22} />,
               },
               {
-                label: 'Clients',
-                path: '/customer/clients',
-                icon: <FaUsers size={22} />,
+                label: 'My Orders',
+                path: '/customer/orders',
+                icon: <LucideBox size={22} />,
+              },
+              {
+                label: 'Settings',
+                icon: <MdSettings size={22} />,
+                subRoutes: [
+                  {label: 'Change Password', path: '/change-password'},
+                  {label: 'Logout', onClick: () => handleSignOut()},
+                ],
               },
             ]
           : isSuperBroker
@@ -196,27 +213,47 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
                 },
                 {
                   label: 'Broker List',
-                  path: '/superbroker/brokerlist',
+                  path: '/broker/displaybroker',
                   icon: <FaUsers size={22} />,
                 },
                 {
-                  label: 'Commission History',
-                  path: '/superbroker/commissionhistory',
+                  label: 'Transaction Ledger',
+                  path: '/broker/trasaction/transactionledger',
                   icon: <FaUsers size={22} />,
                 },
-                {
-                  label: 'Payment History',
-                  path: '/superbroker/paymenthistory',
-                  icon: <FaUsers size={22} />,
-                },
-                {
-                  label: 'Settings',
-                  icon: <MdSettings size={22} />,
-                  subRoutes: [
-                    {label: 'Change Password', path: '/change-password'},
-                    {label: 'Logout', onClick: () => handleSignOut()},
-                  ],
-                },
+                // {
+                //   label: 'Add Broker',
+                //   path: '/broker/broker',
+                //   icon: <UserPlus size={22} />,
+                // },
+                // {
+                //   label: 'Commission History',
+                //   path: '/superbroker/commissionhistory',
+                //   icon: <RiMoneyDollarCircleLine size={22} />,
+                // },
+                // {
+                //   label: 'Payment History',
+                //   path: '/superbroker/paymenthistory',
+                //   icon: <Wallet size={22} />,
+                // },
+                // {
+                //   label: 'Withdrawal Requests',
+                //   path: '/superbroker/withdrawal-requests',
+                //   icon: <RiMoneyDollarCircleLine size={22} />,
+                // },
+                // {
+                //   label: 'Reports',
+                //   path: '/superbroker/reports',
+                //   icon: <TbReportAnalytics size={22} />,
+                // },
+                // {
+                //   label: 'Settings',
+                //   icon: <MdSettings size={22} />,
+                //   subRoutes: [
+                //     {label: 'Change Password', path: '/change-password'},
+                //     {label: 'Logout', onClick: () => handleSignOut()},
+                //   ],
+                // },
               ]
             : [];
 
@@ -281,7 +318,6 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
     };
   }, []);
 
-  // Handle screen resize for responsiveness
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 1024) {
@@ -294,24 +330,24 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Get the correct role display text
   const getRoleText = () => {
-    if (isAdmin) return 'Admin';
     if (isSuperAdmin) return 'Super Admin';
+    if (isAdmin) return 'Admin';
     if (isCompany) return 'Company';
+    if (isSuperBroker) return 'Super Broker';
+    if (isBroker) return 'Broker';
+    if (isCustomer) return 'Customer';
     return 'User';
   };
 
   return (
     <div className="relative z-50">
-      {/* SIDEBAR */}
       <aside
         ref={sidebar}
         className={`fixed inset-y-0 left-0 z-50 flex h-screen flex-col bg-white text-black transition-transform duration-300 ease-in-out ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:static lg:translate-x-0`}
       >
-        {/* Header with Custom Logo Design */}
         <div className="flex items-center justify-between px-4 py-3 lg:px-5 lg:py-6">
           <button
             ref={trigger}
@@ -326,7 +362,6 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
             }}
           >
             <div className="flex items-center gap-3">
-              {/* THE LOGO DESIGN REQUESTED */}
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FF6321] shadow-lg shadow-orange-500/20 transition-transform duration-200 hover:scale-105 active:scale-95">
                 <LucideBox className="h-6 w-6 text-white" />
               </div>
@@ -343,7 +378,6 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
           </button>
         </div>
 
-        {/* SUB-MENUBAR */}
         <div className="no-scrollbar flex flex-col overflow-y-auto px-2 duration-300 ease-linear">
           <nav className="mt-4 space-y-1 p-2">
             <ul>
@@ -495,7 +529,6 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
         </div>
       )}
 
-      {/* Floating Subroute Menu when sidebar is collapsed */}
       {showSubRoutes && hoveredRect && (
         <div
           className="fixed z-[999] w-56 overflow-y-auto rounded-md bg-white p-2 text-black shadow-lg"

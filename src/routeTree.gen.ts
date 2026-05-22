@@ -48,7 +48,6 @@ import { Route as AppSuperbrokerAddbrokerImport } from './routes/_app/superbroke
 import { Route as AppSuperadminSuperadminImport } from './routes/_app/superadmin/superadmin'
 import { Route as AppEprivateStatementImport } from './routes/_app/eprivate/statement'
 import { Route as AppEprivateEprivatereportsImport } from './routes/_app/eprivate/eprivatereports'
-import { Route as AppCompanybrokerSuperBrokerProfileImport } from './routes/_app/companybroker/superBrokerProfile'
 import { Route as AppCompanybrokerDisplaybrokerImport } from './routes/_app/companybroker/displaybroker'
 import { Route as AppCompanybrokerAddbrokerImport } from './routes/_app/companybroker/addbroker'
 import { Route as AppCompanybrokerAddSuperBrockerImport } from './routes/_app/companybroker/addSuperBrocker'
@@ -64,10 +63,13 @@ import { Route as AppClientDisplayclientImport } from './routes/_app/client/disp
 import { Route as AppClientComissionImport } from './routes/_app/client/comission'
 import { Route as AppClientBeneficiaryImport } from './routes/_app/client/beneficiary'
 import { Route as AppClientAddcommisionImport } from './routes/_app/client/addcommision'
+import { Route as AppBrokerReviewconfigImport } from './routes/_app/broker/reviewconfig'
 import { Route as AppBrokerPaymenthistoryImport } from './routes/_app/broker/paymenthistory'
+import { Route as AppBrokerDisplaybrokerImport } from './routes/_app/broker/displaybroker'
 import { Route as AppBrokerDashboardImport } from './routes/_app/broker/dashboard'
 import { Route as AppBrokerCustomerlistImport } from './routes/_app/broker/customerlist'
 import { Route as AppBrokerCommissionhistoryImport } from './routes/_app/broker/commissionhistory'
+import { Route as AppBrokerBrokerImport } from './routes/_app/broker/broker'
 import { Route as AppBrokerAddcustomerImport } from './routes/_app/broker/addcustomer'
 import { Route as AppAccounthubSetnewPinImport } from './routes/_app/accounthub/setnew-pin'
 import { Route as AppAccounthubPersonalInfoImport } from './routes/_app/accounthub/personal-info'
@@ -83,10 +85,14 @@ import { Route as AppKYCApprovalKycmainImport } from './routes/_app/KYCApproval/
 import { Route as AppApprovalPendingapprovalsImport } from './routes/_app/Approval/pendingapprovals'
 import { Route as AppApprovalCustomerregisterapproveImport } from './routes/_app/Approval/customerregisterapprove'
 import { Route as NativeTokenUserPassImport } from './routes/_native/token.$user.$pass'
+import { Route as AppCompanybrokerSuperbrockerProfileIdImport } from './routes/_app/companybroker/SuperbrockerProfile.$id'
 import { Route as AppClientViewbeneficiaryIdImport } from './routes/_app/client/viewbeneficiary.$id'
 import { Route as AppClientUpdatecomissionIdImport } from './routes/_app/client/updatecomission.$id'
 import { Route as AppClientTransactionhistoryIdImport } from './routes/_app/client/transactionhistory.$id'
 import { Route as AppClientBeneficiaryverificationIdImport } from './routes/_app/client/beneficiaryverification.$id'
+import { Route as AppBrokerUpdatebrokerIdImport } from './routes/_app/broker/updatebroker.$id'
+import { Route as AppBrokerTrasactionTransactionledgerImport } from './routes/_app/broker/trasaction/transactionledger'
+import { Route as AppBrokerBrokerprofileIdImport } from './routes/_app/broker/brokerprofile.$id'
 import { Route as AppApprovalRegistrationDetailsIdImport } from './routes/_app/Approval/registrationDetails.$id'
 
 // Create/Update Routes
@@ -316,13 +322,6 @@ const AppEprivateEprivatereportsRoute = AppEprivateEprivatereportsImport.update(
   } as any,
 )
 
-const AppCompanybrokerSuperBrokerProfileRoute =
-  AppCompanybrokerSuperBrokerProfileImport.update({
-    id: '/companybroker/superBrokerProfile',
-    path: '/companybroker/superBrokerProfile',
-    getParentRoute: () => AppRoute,
-  } as any)
-
 const AppCompanybrokerDisplaybrokerRoute =
   AppCompanybrokerDisplaybrokerImport.update({
     id: '/companybroker/displaybroker',
@@ -420,9 +419,21 @@ const AppClientAddcommisionRoute = AppClientAddcommisionImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 
+const AppBrokerReviewconfigRoute = AppBrokerReviewconfigImport.update({
+  id: '/broker/reviewconfig',
+  path: '/broker/reviewconfig',
+  getParentRoute: () => AppRoute,
+} as any)
+
 const AppBrokerPaymenthistoryRoute = AppBrokerPaymenthistoryImport.update({
   id: '/broker/paymenthistory',
   path: '/broker/paymenthistory',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppBrokerDisplaybrokerRoute = AppBrokerDisplaybrokerImport.update({
+  id: '/broker/displaybroker',
+  path: '/broker/displaybroker',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -445,6 +456,12 @@ const AppBrokerCommissionhistoryRoute = AppBrokerCommissionhistoryImport.update(
     getParentRoute: () => AppRoute,
   } as any,
 )
+
+const AppBrokerBrokerRoute = AppBrokerBrokerImport.update({
+  id: '/broker/broker',
+  path: '/broker/broker',
+  getParentRoute: () => AppRoute,
+} as any)
 
 const AppBrokerAddcustomerRoute = AppBrokerAddcustomerImport.update({
   id: '/broker/addcustomer',
@@ -541,6 +558,13 @@ const NativeTokenUserPassRoute = NativeTokenUserPassImport.update({
   getParentRoute: () => NativeRoute,
 } as any)
 
+const AppCompanybrokerSuperbrockerProfileIdRoute =
+  AppCompanybrokerSuperbrockerProfileIdImport.update({
+    id: '/companybroker/SuperbrockerProfile/$id',
+    path: '/companybroker/SuperbrockerProfile/$id',
+    getParentRoute: () => AppRoute,
+  } as any)
+
 const AppClientViewbeneficiaryIdRoute = AppClientViewbeneficiaryIdImport.update(
   {
     id: '/client/viewbeneficiary/$id',
@@ -570,6 +594,25 @@ const AppClientBeneficiaryverificationIdRoute =
     path: '/client/beneficiaryverification/$id',
     getParentRoute: () => AppRoute,
   } as any)
+
+const AppBrokerUpdatebrokerIdRoute = AppBrokerUpdatebrokerIdImport.update({
+  id: '/broker/updatebroker/$id',
+  path: '/broker/updatebroker/$id',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppBrokerTrasactionTransactionledgerRoute =
+  AppBrokerTrasactionTransactionledgerImport.update({
+    id: '/broker/trasaction/transactionledger',
+    path: '/broker/trasaction/transactionledger',
+    getParentRoute: () => AppRoute,
+  } as any)
+
+const AppBrokerBrokerprofileIdRoute = AppBrokerBrokerprofileIdImport.update({
+  id: '/broker/brokerprofile/$id',
+  path: '/broker/brokerprofile/$id',
+  getParentRoute: () => AppRoute,
+} as any)
 
 const AppApprovalRegistrationDetailsIdRoute =
   AppApprovalRegistrationDetailsIdImport.update({
@@ -848,6 +891,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBrokerAddcustomerImport
       parentRoute: typeof AppImport
     }
+    '/_app/broker/broker': {
+      id: '/_app/broker/broker'
+      path: '/broker/broker'
+      fullPath: '/broker/broker'
+      preLoaderRoute: typeof AppBrokerBrokerImport
+      parentRoute: typeof AppImport
+    }
     '/_app/broker/commissionhistory': {
       id: '/_app/broker/commissionhistory'
       path: '/broker/commissionhistory'
@@ -869,11 +919,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBrokerDashboardImport
       parentRoute: typeof AppImport
     }
+    '/_app/broker/displaybroker': {
+      id: '/_app/broker/displaybroker'
+      path: '/broker/displaybroker'
+      fullPath: '/broker/displaybroker'
+      preLoaderRoute: typeof AppBrokerDisplaybrokerImport
+      parentRoute: typeof AppImport
+    }
     '/_app/broker/paymenthistory': {
       id: '/_app/broker/paymenthistory'
       path: '/broker/paymenthistory'
       fullPath: '/broker/paymenthistory'
       preLoaderRoute: typeof AppBrokerPaymenthistoryImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/broker/reviewconfig': {
+      id: '/_app/broker/reviewconfig'
+      path: '/broker/reviewconfig'
+      fullPath: '/broker/reviewconfig'
+      preLoaderRoute: typeof AppBrokerReviewconfigImport
       parentRoute: typeof AppImport
     }
     '/_app/client/addcommision': {
@@ -981,13 +1045,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCompanybrokerDisplaybrokerImport
       parentRoute: typeof AppImport
     }
-    '/_app/companybroker/superBrokerProfile': {
-      id: '/_app/companybroker/superBrokerProfile'
-      path: '/companybroker/superBrokerProfile'
-      fullPath: '/companybroker/superBrokerProfile'
-      preLoaderRoute: typeof AppCompanybrokerSuperBrokerProfileImport
-      parentRoute: typeof AppImport
-    }
     '/_app/eprivate/eprivatereports': {
       id: '/_app/eprivate/eprivatereports'
       path: '/eprivate/eprivatereports'
@@ -1086,6 +1143,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppApprovalRegistrationDetailsIdImport
       parentRoute: typeof AppImport
     }
+    '/_app/broker/brokerprofile/$id': {
+      id: '/_app/broker/brokerprofile/$id'
+      path: '/broker/brokerprofile/$id'
+      fullPath: '/broker/brokerprofile/$id'
+      preLoaderRoute: typeof AppBrokerBrokerprofileIdImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/broker/trasaction/transactionledger': {
+      id: '/_app/broker/trasaction/transactionledger'
+      path: '/broker/trasaction/transactionledger'
+      fullPath: '/broker/trasaction/transactionledger'
+      preLoaderRoute: typeof AppBrokerTrasactionTransactionledgerImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/broker/updatebroker/$id': {
+      id: '/_app/broker/updatebroker/$id'
+      path: '/broker/updatebroker/$id'
+      fullPath: '/broker/updatebroker/$id'
+      preLoaderRoute: typeof AppBrokerUpdatebrokerIdImport
+      parentRoute: typeof AppImport
+    }
     '/_app/client/beneficiaryverification/$id': {
       id: '/_app/client/beneficiaryverification/$id'
       path: '/client/beneficiaryverification/$id'
@@ -1112,6 +1190,13 @@ declare module '@tanstack/react-router' {
       path: '/client/viewbeneficiary/$id'
       fullPath: '/client/viewbeneficiary/$id'
       preLoaderRoute: typeof AppClientViewbeneficiaryIdImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/companybroker/SuperbrockerProfile/$id': {
+      id: '/_app/companybroker/SuperbrockerProfile/$id'
+      path: '/companybroker/SuperbrockerProfile/$id'
+      fullPath: '/companybroker/SuperbrockerProfile/$id'
+      preLoaderRoute: typeof AppCompanybrokerSuperbrockerProfileIdImport
       parentRoute: typeof AppImport
     }
     '/_native/token/$user/$pass': {
@@ -1155,10 +1240,13 @@ interface AppRouteChildren {
   AppAccounthubPersonalInfoRoute: typeof AppAccounthubPersonalInfoRoute
   AppAccounthubSetnewPinRoute: typeof AppAccounthubSetnewPinRoute
   AppBrokerAddcustomerRoute: typeof AppBrokerAddcustomerRoute
+  AppBrokerBrokerRoute: typeof AppBrokerBrokerRoute
   AppBrokerCommissionhistoryRoute: typeof AppBrokerCommissionhistoryRoute
   AppBrokerCustomerlistRoute: typeof AppBrokerCustomerlistRoute
   AppBrokerDashboardRoute: typeof AppBrokerDashboardRoute
+  AppBrokerDisplaybrokerRoute: typeof AppBrokerDisplaybrokerRoute
   AppBrokerPaymenthistoryRoute: typeof AppBrokerPaymenthistoryRoute
+  AppBrokerReviewconfigRoute: typeof AppBrokerReviewconfigRoute
   AppClientAddcommisionRoute: typeof AppClientAddcommisionRoute
   AppClientBeneficiaryRoute: typeof AppClientBeneficiaryRoute
   AppClientComissionRoute: typeof AppClientComissionRoute
@@ -1174,7 +1262,6 @@ interface AppRouteChildren {
   AppCompanybrokerAddSuperBrockerRoute: typeof AppCompanybrokerAddSuperBrockerRoute
   AppCompanybrokerAddbrokerRoute: typeof AppCompanybrokerAddbrokerRoute
   AppCompanybrokerDisplaybrokerRoute: typeof AppCompanybrokerDisplaybrokerRoute
-  AppCompanybrokerSuperBrokerProfileRoute: typeof AppCompanybrokerSuperBrokerProfileRoute
   AppEprivateEprivatereportsRoute: typeof AppEprivateEprivatereportsRoute
   AppEprivateStatementRoute: typeof AppEprivateStatementRoute
   AppSuperadminSuperadminRoute: typeof AppSuperadminSuperadminRoute
@@ -1189,10 +1276,14 @@ interface AppRouteChildren {
   AppWalletToupscreenRoute: typeof AppWalletToupscreenRoute
   AppWithdrawlreqWithdrawlRequestRoute: typeof AppWithdrawlreqWithdrawlRequestRoute
   AppApprovalRegistrationDetailsIdRoute: typeof AppApprovalRegistrationDetailsIdRoute
+  AppBrokerBrokerprofileIdRoute: typeof AppBrokerBrokerprofileIdRoute
+  AppBrokerTrasactionTransactionledgerRoute: typeof AppBrokerTrasactionTransactionledgerRoute
+  AppBrokerUpdatebrokerIdRoute: typeof AppBrokerUpdatebrokerIdRoute
   AppClientBeneficiaryverificationIdRoute: typeof AppClientBeneficiaryverificationIdRoute
   AppClientTransactionhistoryIdRoute: typeof AppClientTransactionhistoryIdRoute
   AppClientUpdatecomissionIdRoute: typeof AppClientUpdatecomissionIdRoute
   AppClientViewbeneficiaryIdRoute: typeof AppClientViewbeneficiaryIdRoute
+  AppCompanybrokerSuperbrockerProfileIdRoute: typeof AppCompanybrokerSuperbrockerProfileIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -1225,10 +1316,13 @@ const AppRouteChildren: AppRouteChildren = {
   AppAccounthubPersonalInfoRoute: AppAccounthubPersonalInfoRoute,
   AppAccounthubSetnewPinRoute: AppAccounthubSetnewPinRoute,
   AppBrokerAddcustomerRoute: AppBrokerAddcustomerRoute,
+  AppBrokerBrokerRoute: AppBrokerBrokerRoute,
   AppBrokerCommissionhistoryRoute: AppBrokerCommissionhistoryRoute,
   AppBrokerCustomerlistRoute: AppBrokerCustomerlistRoute,
   AppBrokerDashboardRoute: AppBrokerDashboardRoute,
+  AppBrokerDisplaybrokerRoute: AppBrokerDisplaybrokerRoute,
   AppBrokerPaymenthistoryRoute: AppBrokerPaymenthistoryRoute,
+  AppBrokerReviewconfigRoute: AppBrokerReviewconfigRoute,
   AppClientAddcommisionRoute: AppClientAddcommisionRoute,
   AppClientBeneficiaryRoute: AppClientBeneficiaryRoute,
   AppClientComissionRoute: AppClientComissionRoute,
@@ -1246,8 +1340,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppCompanybrokerAddSuperBrockerRoute: AppCompanybrokerAddSuperBrockerRoute,
   AppCompanybrokerAddbrokerRoute: AppCompanybrokerAddbrokerRoute,
   AppCompanybrokerDisplaybrokerRoute: AppCompanybrokerDisplaybrokerRoute,
-  AppCompanybrokerSuperBrokerProfileRoute:
-    AppCompanybrokerSuperBrokerProfileRoute,
   AppEprivateEprivatereportsRoute: AppEprivateEprivatereportsRoute,
   AppEprivateStatementRoute: AppEprivateStatementRoute,
   AppSuperadminSuperadminRoute: AppSuperadminSuperadminRoute,
@@ -1262,11 +1354,17 @@ const AppRouteChildren: AppRouteChildren = {
   AppWalletToupscreenRoute: AppWalletToupscreenRoute,
   AppWithdrawlreqWithdrawlRequestRoute: AppWithdrawlreqWithdrawlRequestRoute,
   AppApprovalRegistrationDetailsIdRoute: AppApprovalRegistrationDetailsIdRoute,
+  AppBrokerBrokerprofileIdRoute: AppBrokerBrokerprofileIdRoute,
+  AppBrokerTrasactionTransactionledgerRoute:
+    AppBrokerTrasactionTransactionledgerRoute,
+  AppBrokerUpdatebrokerIdRoute: AppBrokerUpdatebrokerIdRoute,
   AppClientBeneficiaryverificationIdRoute:
     AppClientBeneficiaryverificationIdRoute,
   AppClientTransactionhistoryIdRoute: AppClientTransactionhistoryIdRoute,
   AppClientUpdatecomissionIdRoute: AppClientUpdatecomissionIdRoute,
   AppClientViewbeneficiaryIdRoute: AppClientViewbeneficiaryIdRoute,
+  AppCompanybrokerSuperbrockerProfileIdRoute:
+    AppCompanybrokerSuperbrockerProfileIdRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
@@ -1338,10 +1436,13 @@ export interface FileRoutesByFullPath {
   '/accounthub/personal-info': typeof AppAccounthubPersonalInfoRoute
   '/accounthub/setnew-pin': typeof AppAccounthubSetnewPinRoute
   '/broker/addcustomer': typeof AppBrokerAddcustomerRoute
+  '/broker/broker': typeof AppBrokerBrokerRoute
   '/broker/commissionhistory': typeof AppBrokerCommissionhistoryRoute
   '/broker/customerlist': typeof AppBrokerCustomerlistRoute
   '/broker/dashboard': typeof AppBrokerDashboardRoute
+  '/broker/displaybroker': typeof AppBrokerDisplaybrokerRoute
   '/broker/paymenthistory': typeof AppBrokerPaymenthistoryRoute
+  '/broker/reviewconfig': typeof AppBrokerReviewconfigRoute
   '/client/addcommision': typeof AppClientAddcommisionRoute
   '/client/beneficiary': typeof AppClientBeneficiaryRoute
   '/client/comission': typeof AppClientComissionRoute
@@ -1357,7 +1458,6 @@ export interface FileRoutesByFullPath {
   '/companybroker/addSuperBrocker': typeof AppCompanybrokerAddSuperBrockerRoute
   '/companybroker/addbroker': typeof AppCompanybrokerAddbrokerRoute
   '/companybroker/displaybroker': typeof AppCompanybrokerDisplaybrokerRoute
-  '/companybroker/superBrokerProfile': typeof AppCompanybrokerSuperBrokerProfileRoute
   '/eprivate/eprivatereports': typeof AppEprivateEprivatereportsRoute
   '/eprivate/statement': typeof AppEprivateStatementRoute
   '/superadmin/superadmin': typeof AppSuperadminSuperadminRoute
@@ -1372,10 +1472,14 @@ export interface FileRoutesByFullPath {
   '/wallet/toupscreen': typeof AppWalletToupscreenRoute
   '/withdrawlreq/withdrawlRequest': typeof AppWithdrawlreqWithdrawlRequestRoute
   '/Approval/registrationDetails/$id': typeof AppApprovalRegistrationDetailsIdRoute
+  '/broker/brokerprofile/$id': typeof AppBrokerBrokerprofileIdRoute
+  '/broker/trasaction/transactionledger': typeof AppBrokerTrasactionTransactionledgerRoute
+  '/broker/updatebroker/$id': typeof AppBrokerUpdatebrokerIdRoute
   '/client/beneficiaryverification/$id': typeof AppClientBeneficiaryverificationIdRoute
   '/client/transactionhistory/$id': typeof AppClientTransactionhistoryIdRoute
   '/client/updatecomission/$id': typeof AppClientUpdatecomissionIdRoute
   '/client/viewbeneficiary/$id': typeof AppClientViewbeneficiaryIdRoute
+  '/companybroker/SuperbrockerProfile/$id': typeof AppCompanybrokerSuperbrockerProfileIdRoute
   '/token/$user/$pass': typeof NativeTokenUserPassRoute
 }
 
@@ -1415,10 +1519,13 @@ export interface FileRoutesByTo {
   '/accounthub/personal-info': typeof AppAccounthubPersonalInfoRoute
   '/accounthub/setnew-pin': typeof AppAccounthubSetnewPinRoute
   '/broker/addcustomer': typeof AppBrokerAddcustomerRoute
+  '/broker/broker': typeof AppBrokerBrokerRoute
   '/broker/commissionhistory': typeof AppBrokerCommissionhistoryRoute
   '/broker/customerlist': typeof AppBrokerCustomerlistRoute
   '/broker/dashboard': typeof AppBrokerDashboardRoute
+  '/broker/displaybroker': typeof AppBrokerDisplaybrokerRoute
   '/broker/paymenthistory': typeof AppBrokerPaymenthistoryRoute
+  '/broker/reviewconfig': typeof AppBrokerReviewconfigRoute
   '/client/addcommision': typeof AppClientAddcommisionRoute
   '/client/beneficiary': typeof AppClientBeneficiaryRoute
   '/client/comission': typeof AppClientComissionRoute
@@ -1434,7 +1541,6 @@ export interface FileRoutesByTo {
   '/companybroker/addSuperBrocker': typeof AppCompanybrokerAddSuperBrockerRoute
   '/companybroker/addbroker': typeof AppCompanybrokerAddbrokerRoute
   '/companybroker/displaybroker': typeof AppCompanybrokerDisplaybrokerRoute
-  '/companybroker/superBrokerProfile': typeof AppCompanybrokerSuperBrokerProfileRoute
   '/eprivate/eprivatereports': typeof AppEprivateEprivatereportsRoute
   '/eprivate/statement': typeof AppEprivateStatementRoute
   '/superadmin/superadmin': typeof AppSuperadminSuperadminRoute
@@ -1449,10 +1555,14 @@ export interface FileRoutesByTo {
   '/wallet/toupscreen': typeof AppWalletToupscreenRoute
   '/withdrawlreq/withdrawlRequest': typeof AppWithdrawlreqWithdrawlRequestRoute
   '/Approval/registrationDetails/$id': typeof AppApprovalRegistrationDetailsIdRoute
+  '/broker/brokerprofile/$id': typeof AppBrokerBrokerprofileIdRoute
+  '/broker/trasaction/transactionledger': typeof AppBrokerTrasactionTransactionledgerRoute
+  '/broker/updatebroker/$id': typeof AppBrokerUpdatebrokerIdRoute
   '/client/beneficiaryverification/$id': typeof AppClientBeneficiaryverificationIdRoute
   '/client/transactionhistory/$id': typeof AppClientTransactionhistoryIdRoute
   '/client/updatecomission/$id': typeof AppClientUpdatecomissionIdRoute
   '/client/viewbeneficiary/$id': typeof AppClientViewbeneficiaryIdRoute
+  '/companybroker/SuperbrockerProfile/$id': typeof AppCompanybrokerSuperbrockerProfileIdRoute
   '/token/$user/$pass': typeof NativeTokenUserPassRoute
 }
 
@@ -1496,10 +1606,13 @@ export interface FileRoutesById {
   '/_app/accounthub/personal-info': typeof AppAccounthubPersonalInfoRoute
   '/_app/accounthub/setnew-pin': typeof AppAccounthubSetnewPinRoute
   '/_app/broker/addcustomer': typeof AppBrokerAddcustomerRoute
+  '/_app/broker/broker': typeof AppBrokerBrokerRoute
   '/_app/broker/commissionhistory': typeof AppBrokerCommissionhistoryRoute
   '/_app/broker/customerlist': typeof AppBrokerCustomerlistRoute
   '/_app/broker/dashboard': typeof AppBrokerDashboardRoute
+  '/_app/broker/displaybroker': typeof AppBrokerDisplaybrokerRoute
   '/_app/broker/paymenthistory': typeof AppBrokerPaymenthistoryRoute
+  '/_app/broker/reviewconfig': typeof AppBrokerReviewconfigRoute
   '/_app/client/addcommision': typeof AppClientAddcommisionRoute
   '/_app/client/beneficiary': typeof AppClientBeneficiaryRoute
   '/_app/client/comission': typeof AppClientComissionRoute
@@ -1515,7 +1628,6 @@ export interface FileRoutesById {
   '/_app/companybroker/addSuperBrocker': typeof AppCompanybrokerAddSuperBrockerRoute
   '/_app/companybroker/addbroker': typeof AppCompanybrokerAddbrokerRoute
   '/_app/companybroker/displaybroker': typeof AppCompanybrokerDisplaybrokerRoute
-  '/_app/companybroker/superBrokerProfile': typeof AppCompanybrokerSuperBrokerProfileRoute
   '/_app/eprivate/eprivatereports': typeof AppEprivateEprivatereportsRoute
   '/_app/eprivate/statement': typeof AppEprivateStatementRoute
   '/_app/superadmin/superadmin': typeof AppSuperadminSuperadminRoute
@@ -1530,10 +1642,14 @@ export interface FileRoutesById {
   '/_app/wallet/toupscreen': typeof AppWalletToupscreenRoute
   '/_app/withdrawlreq/withdrawlRequest': typeof AppWithdrawlreqWithdrawlRequestRoute
   '/_app/Approval/registrationDetails/$id': typeof AppApprovalRegistrationDetailsIdRoute
+  '/_app/broker/brokerprofile/$id': typeof AppBrokerBrokerprofileIdRoute
+  '/_app/broker/trasaction/transactionledger': typeof AppBrokerTrasactionTransactionledgerRoute
+  '/_app/broker/updatebroker/$id': typeof AppBrokerUpdatebrokerIdRoute
   '/_app/client/beneficiaryverification/$id': typeof AppClientBeneficiaryverificationIdRoute
   '/_app/client/transactionhistory/$id': typeof AppClientTransactionhistoryIdRoute
   '/_app/client/updatecomission/$id': typeof AppClientUpdatecomissionIdRoute
   '/_app/client/viewbeneficiary/$id': typeof AppClientViewbeneficiaryIdRoute
+  '/_app/companybroker/SuperbrockerProfile/$id': typeof AppCompanybrokerSuperbrockerProfileIdRoute
   '/_native/token/$user/$pass': typeof NativeTokenUserPassRoute
 }
 
@@ -1575,10 +1691,13 @@ export interface FileRouteTypes {
     | '/accounthub/personal-info'
     | '/accounthub/setnew-pin'
     | '/broker/addcustomer'
+    | '/broker/broker'
     | '/broker/commissionhistory'
     | '/broker/customerlist'
     | '/broker/dashboard'
+    | '/broker/displaybroker'
     | '/broker/paymenthistory'
+    | '/broker/reviewconfig'
     | '/client/addcommision'
     | '/client/beneficiary'
     | '/client/comission'
@@ -1594,7 +1713,6 @@ export interface FileRouteTypes {
     | '/companybroker/addSuperBrocker'
     | '/companybroker/addbroker'
     | '/companybroker/displaybroker'
-    | '/companybroker/superBrokerProfile'
     | '/eprivate/eprivatereports'
     | '/eprivate/statement'
     | '/superadmin/superadmin'
@@ -1609,10 +1727,14 @@ export interface FileRouteTypes {
     | '/wallet/toupscreen'
     | '/withdrawlreq/withdrawlRequest'
     | '/Approval/registrationDetails/$id'
+    | '/broker/brokerprofile/$id'
+    | '/broker/trasaction/transactionledger'
+    | '/broker/updatebroker/$id'
     | '/client/beneficiaryverification/$id'
     | '/client/transactionhistory/$id'
     | '/client/updatecomission/$id'
     | '/client/viewbeneficiary/$id'
+    | '/companybroker/SuperbrockerProfile/$id'
     | '/token/$user/$pass'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -1651,10 +1773,13 @@ export interface FileRouteTypes {
     | '/accounthub/personal-info'
     | '/accounthub/setnew-pin'
     | '/broker/addcustomer'
+    | '/broker/broker'
     | '/broker/commissionhistory'
     | '/broker/customerlist'
     | '/broker/dashboard'
+    | '/broker/displaybroker'
     | '/broker/paymenthistory'
+    | '/broker/reviewconfig'
     | '/client/addcommision'
     | '/client/beneficiary'
     | '/client/comission'
@@ -1670,7 +1795,6 @@ export interface FileRouteTypes {
     | '/companybroker/addSuperBrocker'
     | '/companybroker/addbroker'
     | '/companybroker/displaybroker'
-    | '/companybroker/superBrokerProfile'
     | '/eprivate/eprivatereports'
     | '/eprivate/statement'
     | '/superadmin/superadmin'
@@ -1685,10 +1809,14 @@ export interface FileRouteTypes {
     | '/wallet/toupscreen'
     | '/withdrawlreq/withdrawlRequest'
     | '/Approval/registrationDetails/$id'
+    | '/broker/brokerprofile/$id'
+    | '/broker/trasaction/transactionledger'
+    | '/broker/updatebroker/$id'
     | '/client/beneficiaryverification/$id'
     | '/client/transactionhistory/$id'
     | '/client/updatecomission/$id'
     | '/client/viewbeneficiary/$id'
+    | '/companybroker/SuperbrockerProfile/$id'
     | '/token/$user/$pass'
   id:
     | '__root__'
@@ -1730,10 +1858,13 @@ export interface FileRouteTypes {
     | '/_app/accounthub/personal-info'
     | '/_app/accounthub/setnew-pin'
     | '/_app/broker/addcustomer'
+    | '/_app/broker/broker'
     | '/_app/broker/commissionhistory'
     | '/_app/broker/customerlist'
     | '/_app/broker/dashboard'
+    | '/_app/broker/displaybroker'
     | '/_app/broker/paymenthistory'
+    | '/_app/broker/reviewconfig'
     | '/_app/client/addcommision'
     | '/_app/client/beneficiary'
     | '/_app/client/comission'
@@ -1749,7 +1880,6 @@ export interface FileRouteTypes {
     | '/_app/companybroker/addSuperBrocker'
     | '/_app/companybroker/addbroker'
     | '/_app/companybroker/displaybroker'
-    | '/_app/companybroker/superBrokerProfile'
     | '/_app/eprivate/eprivatereports'
     | '/_app/eprivate/statement'
     | '/_app/superadmin/superadmin'
@@ -1764,10 +1894,14 @@ export interface FileRouteTypes {
     | '/_app/wallet/toupscreen'
     | '/_app/withdrawlreq/withdrawlRequest'
     | '/_app/Approval/registrationDetails/$id'
+    | '/_app/broker/brokerprofile/$id'
+    | '/_app/broker/trasaction/transactionledger'
+    | '/_app/broker/updatebroker/$id'
     | '/_app/client/beneficiaryverification/$id'
     | '/_app/client/transactionhistory/$id'
     | '/_app/client/updatecomission/$id'
     | '/_app/client/viewbeneficiary/$id'
+    | '/_app/companybroker/SuperbrockerProfile/$id'
     | '/_native/token/$user/$pass'
   fileRoutesById: FileRoutesById
 }
@@ -1835,10 +1969,13 @@ export const routeTree = rootRoute
         "/_app/accounthub/personal-info",
         "/_app/accounthub/setnew-pin",
         "/_app/broker/addcustomer",
+        "/_app/broker/broker",
         "/_app/broker/commissionhistory",
         "/_app/broker/customerlist",
         "/_app/broker/dashboard",
+        "/_app/broker/displaybroker",
         "/_app/broker/paymenthistory",
+        "/_app/broker/reviewconfig",
         "/_app/client/addcommision",
         "/_app/client/beneficiary",
         "/_app/client/comission",
@@ -1854,7 +1991,6 @@ export const routeTree = rootRoute
         "/_app/companybroker/addSuperBrocker",
         "/_app/companybroker/addbroker",
         "/_app/companybroker/displaybroker",
-        "/_app/companybroker/superBrokerProfile",
         "/_app/eprivate/eprivatereports",
         "/_app/eprivate/statement",
         "/_app/superadmin/superadmin",
@@ -1869,10 +2005,14 @@ export const routeTree = rootRoute
         "/_app/wallet/toupscreen",
         "/_app/withdrawlreq/withdrawlRequest",
         "/_app/Approval/registrationDetails/$id",
+        "/_app/broker/brokerprofile/$id",
+        "/_app/broker/trasaction/transactionledger",
+        "/_app/broker/updatebroker/$id",
         "/_app/client/beneficiaryverification/$id",
         "/_app/client/transactionhistory/$id",
         "/_app/client/updatecomission/$id",
-        "/_app/client/viewbeneficiary/$id"
+        "/_app/client/viewbeneficiary/$id",
+        "/_app/companybroker/SuperbrockerProfile/$id"
       ]
     },
     "/_auth": {
@@ -2031,6 +2171,10 @@ export const routeTree = rootRoute
       "filePath": "_app/broker/addcustomer.tsx",
       "parent": "/_app"
     },
+    "/_app/broker/broker": {
+      "filePath": "_app/broker/broker.tsx",
+      "parent": "/_app"
+    },
     "/_app/broker/commissionhistory": {
       "filePath": "_app/broker/commissionhistory.tsx",
       "parent": "/_app"
@@ -2043,8 +2187,16 @@ export const routeTree = rootRoute
       "filePath": "_app/broker/dashboard.tsx",
       "parent": "/_app"
     },
+    "/_app/broker/displaybroker": {
+      "filePath": "_app/broker/displaybroker.tsx",
+      "parent": "/_app"
+    },
     "/_app/broker/paymenthistory": {
       "filePath": "_app/broker/paymenthistory.tsx",
+      "parent": "/_app"
+    },
+    "/_app/broker/reviewconfig": {
+      "filePath": "_app/broker/reviewconfig.tsx",
       "parent": "/_app"
     },
     "/_app/client/addcommision": {
@@ -2107,10 +2259,6 @@ export const routeTree = rootRoute
       "filePath": "_app/companybroker/displaybroker.tsx",
       "parent": "/_app"
     },
-    "/_app/companybroker/superBrokerProfile": {
-      "filePath": "_app/companybroker/superBrokerProfile.jsx",
-      "parent": "/_app"
-    },
     "/_app/eprivate/eprivatereports": {
       "filePath": "_app/eprivate/eprivatereports.tsx",
       "parent": "/_app"
@@ -2167,6 +2315,18 @@ export const routeTree = rootRoute
       "filePath": "_app/Approval/registrationDetails.$id.tsx",
       "parent": "/_app"
     },
+    "/_app/broker/brokerprofile/$id": {
+      "filePath": "_app/broker/brokerprofile.$id.tsx",
+      "parent": "/_app"
+    },
+    "/_app/broker/trasaction/transactionledger": {
+      "filePath": "_app/broker/trasaction/transactionledger.tsx",
+      "parent": "/_app"
+    },
+    "/_app/broker/updatebroker/$id": {
+      "filePath": "_app/broker/updatebroker.$id.tsx",
+      "parent": "/_app"
+    },
     "/_app/client/beneficiaryverification/$id": {
       "filePath": "_app/client/beneficiaryverification.$id.tsx",
       "parent": "/_app"
@@ -2181,6 +2341,10 @@ export const routeTree = rootRoute
     },
     "/_app/client/viewbeneficiary/$id": {
       "filePath": "_app/client/viewbeneficiary.$id.tsx",
+      "parent": "/_app"
+    },
+    "/_app/companybroker/SuperbrockerProfile/$id": {
+      "filePath": "_app/companybroker/SuperbrockerProfile.$id.tsx",
       "parent": "/_app"
     },
     "/_native/token/$user/$pass": {
