@@ -1,6 +1,12 @@
-import {useMutation, useQueryClient} from '@tanstack/react-query';
+import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import {resetPassword, resetPasswordPayload} from '../api/adminApi';
+import {
+  getProfile,
+  profilePayload,
+  resetPassword,
+  resetPasswordPayload,
+  updateProfile,
+} from '../api/adminApi';
 
 export const useResetPassword = () => {
   const queryClient = useQueryClient();
@@ -16,3 +22,24 @@ export const useResetPassword = () => {
     },
   });
 };
+
+export const useEditProfile = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({data}: {data: profilePayload}) => updateProfile(data),
+    onSuccess: () => {
+      toast.success('Profile edited successfully!');
+      queryClient.invalidateQueries({queryKey: ['profile']});
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+};
+
+export const useGetProfile = () =>
+  useQuery({
+    queryKey: ['profile'],
+    queryFn: () => getProfile(),
+  });

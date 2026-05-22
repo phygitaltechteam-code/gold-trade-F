@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {FiEdit2, FiSave, FiX} from 'react-icons/fi';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import {Route} from '@/routes/_app/broker/brokerprofile.$id';
-import { useGetAllBrockerById } from './brokerapi';
+import {useGetAllBrockerById} from './brokerapi';
 
 const BrokerProfile = () => {
   const {id} = Route.useParams();

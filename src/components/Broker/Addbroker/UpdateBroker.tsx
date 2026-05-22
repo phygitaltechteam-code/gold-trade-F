@@ -46,7 +46,7 @@ const UpdateBroker = () => {
       const broker = brokerData;
       setFormData({
         fullname: broker.fullname || '',
-        password: '', 
+        password: '',
         area: broker.Area || broker.area || '',
         commission:
           broker.brokeragePercent?.toString() || broker.commission || '',
@@ -209,15 +209,15 @@ const UpdateBroker = () => {
   };
 
   // Loading state
-//   if (isLoading) {
-//     return (
-//       <div className="flex h-screen items-center justify-center">
-//         <div className="text-center">
-//           <div className="mb-4 text-2xl">Loading...</div>
-//         </div>
-//       </div>
-//     );
-//   }
+  //   if (isLoading) {
+  //     return (
+  //       <div className="flex h-screen items-center justify-center">
+  //         <div className="text-center">
+  //           <div className="mb-4 text-2xl">Loading...</div>
+  //         </div>
+  //       </div>
+  //     );
+  //   }
 
   // Error state
   if (isError) {

@@ -355,3 +355,41 @@ export const resetPassword = async (data: resetPasswordPayload) => {
     throw error;
   }
 };
+
+export type profilePayload = {
+  fullname: string;
+  photo: File;
+};
+
+export const updateProfile = async (data: profilePayload) => {
+  try {
+    const formData = new FormData();
+
+    formData.append('fullname', data.fullname);
+
+    if (data.photo) {
+      formData.append('photo', data.photo);
+    }
+
+    const response = await api.put(`company/profile`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error while edit profile:', error);
+    throw error;
+  }
+};
+
+export const getProfile = async () => {
+  try {
+    const response = await api.get(`company/profile`);
+    return response.data;
+  } catch (error) {
+    console.error('Error while edit date:', error);
+    throw error;
+  }
+};
