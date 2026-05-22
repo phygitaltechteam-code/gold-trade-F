@@ -193,7 +193,6 @@ export const getAllBrockerById = async (id: string) => {
   }
 };
 
-
 export const useGetBrokersDataApi = () => {
   return useQuery({
     queryKey: ['get-broker'],

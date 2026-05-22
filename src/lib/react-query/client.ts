@@ -8,7 +8,7 @@ export const useGetClients = () => {
     queryKey: ['clients'],
 
     queryFn: async () => {
-      const response = await api.get('/admin/customer');
+      const response = await api.get('company/customer');
       console.log('GET Client', response.data);
       return response.data;
     },
@@ -31,21 +31,24 @@ export const useActivateCustomer = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => activeCustomer(id),
+    mutationFn: ({id, pin}: {id: string; pin: string}) =>
+      activeCustomer(id, pin),
 
     onSuccess: () => {
-      toast.success('Customer Accepted!');
-      queryClient.invalidateQueries({queryKey: ['beneficiary']});
+      toast.success('Status Changes!');
+      queryClient.invalidateQueries({queryKey: ['customer']});
     },
     onError: () => {
-      toast.error('Failed To Accept beneficiary!');
+      toast.error('Failed To Change Status!');
     },
   });
 };
 
-export const activeCustomer = async (id: string) => {
+export const activeCustomer = async (id: string, pin: string) => {
   try {
-    const response = await api.put(`/admin/customer/denied/${id}`);
+    const response = await api.put(`/company/customer/${id}/active`, {
+      securityPin: pin,
+    });
     return response.data;
   } catch (error) {
     console.error('Error accept', error);

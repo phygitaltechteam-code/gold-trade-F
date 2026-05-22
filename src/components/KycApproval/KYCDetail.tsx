@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import {KYCRequest} from './kyctypes';
 import {useGetKYCRequestById, useApproveKYC, useRejectKYC} from './mutationapi';
-import { createFileRoute } from '@tanstack/react-router';
+import {createFileRoute} from '@tanstack/react-router';
 
 interface KYCDetailProps {
   request: KYCRequest;

@@ -1,8 +1,14 @@
-
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
 
 import toast from 'react-hot-toast';
-import { acceptTheCustomer, deleteCustomer, getAllCustomer, getCustomerById, rejectTheCustomer, updateCustomer } from '../react-query/Customer';
+import {
+  acceptTheCustomer,
+  deleteCustomer,
+  getAllCustomer,
+  getCustomerById,
+  rejectTheCustomer,
+  updateCustomer,
+} from '../react-query/Customer';
 
 export const useGetCustomer = () =>
   useQuery({

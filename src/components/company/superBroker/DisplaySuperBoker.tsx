@@ -46,7 +46,7 @@ const DisplaySuperBroker = ({refreshTrigger}) => {
   };
   const columns = [
     {
-      header: 'Work Name',
+      header: ' Name',
       accessor: 'fullname',
       sortable: true,
       render: (row) => (

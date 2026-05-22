@@ -381,9 +381,9 @@ const SuperBrokerProfile = () => {
                 : 'text-bodydark2'
             }`}
           >
-            Brokers 
+            Brokers
           </button>
-           <button
+          <button
             onClick={() => setActiveTab('commission')}
             className={`px-6 py-4 font-medium transition-colors hover:text-orange-500 ${
               activeTab === 'commission'
@@ -391,8 +391,8 @@ const SuperBrokerProfile = () => {
                 : 'text-bodydark2'
             }`}
           >
-           Commission 
-          </button> 
+            Commission
+          </button>
         </div>
 
         <div className="p-6">

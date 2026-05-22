@@ -88,7 +88,10 @@ const DocCard = ({name, type, status, icon: Icon, color, url}: any) => (
   </a>
 );
 
-export const CustomerDetail: React.FC<CustomerDetailProps> = ({client, onBack}) => {
+export const CustomerDetail: React.FC<CustomerDetailProps> = ({
+  client,
+  onBack,
+}) => {
   const [isEditing, setIsEditing] = useState(false);
   // const {data: clientData, isLoading} = useGetClientById(client.id);
   const displayClient = client;

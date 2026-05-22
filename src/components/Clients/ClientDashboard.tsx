@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useNavigate} from '@tanstack/react-router';
 import {useAuthContext} from '@/context/AuthContext';
 import {
@@ -14,10 +14,15 @@ import {
   Filter,
   Loader2,
   RefreshCw,
+  EyeOff,
+  Eye,
 } from 'lucide-react';
 import {Client, ClientStatus} from './types';
 import {motion} from 'framer-motion';
 import {useGetAllClients} from './mutationapi';
+import {useActivateCustomer, useGetClients} from '@/lib/react-query/client';
+import {useGetAllSuperBrocker} from '@/lib/react-query/superbrocker';
+import {set} from 'lodash';
 
 interface ClientDashboardProps {
   onSelectClient: (client: Client) => void;
@@ -91,117 +96,33 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
   const navigate = useNavigate();
   const {user} = useAuthContext();
   const isBroker = user?.role === 'BROKER';
-
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
+  const [showPinModal, setShowPinModal] = useState(false);
+  const [showPin, setShowPin] = useState(false);
+  const [pin, setPin] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [kycFilter, setKycFilter] = useState<string>('all');
   const [brokerFilter, setBrokerFilter] = useState<string>('all');
   const [superBrokerFilter, setSuperBrokerFilter] = useState<string>('all');
+  const {mutateAsync: statusChange, isSuccess} = useActivateCustomer();
+  const {data: allSuperBrocker} = useGetAllSuperBrocker();
+  const {data: clients = [], refetch} = useGetClients();
 
+  console.log('clientsassssssss', clients);
   // Temporarily bypass API call because backend is not ready
   // const {data: clients = [], isLoading, error, refetch} = useGetAllClients();
   const isLoading = false;
-  const error = null;
-  const refetch = () => {};
 
-  const [clients, setClients] = useState<Client[]>([
-    {
-      id: '1',
-      user: {
-        fullname: 'Alex Vane',
-        email: 'alex.vane@example.com',
-        phoneNumber: '+1234567890',
-        isActive: true,
-        isVerified: true,
-        isRejected: false,
-      },
-      address: '123 Main St',
-      area: 'Kolkata',
-      commission: '10%',
-      aadharCardNumber: '1234567890',
-      wallets: {amount: 45230.0},
-      isKycCompleted: true,
-      createdAt: new Date().toISOString(),
-      photo: '',
-      brokerName: 'Apex Broker',
-      superBrokerName: 'Alpha Super',
-    },
-    {
-      id: '2',
-      user: {
-        fullname: 'Jessica Stone',
-        email: 'jessica.s@example.com',
-        phoneNumber: '+1987654321',
-        isActive: true,
-        isVerified: true,
-        isRejected: false,
-      },
-      wallets: {amount: 12050.0},
-      isKycCompleted: false,
-      createdAt: new Date(Date.now() - 86400000).toISOString(),
-      photo: '',
-      brokerName: 'Delta Broker',
-      superBrokerName: 'Alpha Super',
-    },
-    {
-      id: '3',
-      user: {
-        fullname: 'Michael Chen',
-        email: 'm.chen@example.com',
-        phoneNumber: '+1122334455',
-        isActive: false,
-        isVerified: false,
-        isRejected: true,
-      },
-      wallets: {amount: 128900.5},
-      isKycCompleted: true,
-      createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-      photo: '',
-      brokerName: 'Apex Broker',
-      superBrokerName: 'Beta Super',
-    },
-    {
-      id: '4',
-      user: {
-        fullname: 'Emma Larson',
-        email: 'emma.l@example.com',
-        phoneNumber: '+1555666777',
-        isActive: false,
-        isVerified: false,
-        isRejected: false,
-      },
-      wallets: {amount: 0.0},
-      isKycCompleted: false,
-      createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
-      photo: '',
-      brokerName: 'Zeta Broker',
-      superBrokerName: 'Beta Super',
-    },
-    {
-      id: '5',
-      user: {
-        fullname: 'David Ross',
-        email: 'd.ross@example.com',
-        phoneNumber: '+1444333222',
-        isActive: true,
-        isVerified: true,
-        isRejected: false,
-      },
-      wallets: {amount: 2500.0},
-      isKycCompleted: true,
-      createdAt: new Date(Date.now() - 86400000 * 4).toISOString(),
-      photo: '',
-      brokerName: 'Delta Broker',
-      superBrokerName: 'Alpha Super',
-    },
-  ]);
-
-  // Extract unique Brokers and Super Brokers from data dynamically
   const brokers = Array.from(
     new Set(clients.map((c: any) => c.brokerName).filter(Boolean)),
   );
   const superBrokers = Array.from(
-    new Set(clients.map((c: any) => c.superBrokerName).filter(Boolean)),
+    new Set(
+      (allSuperBrocker?.data ?? [])
+        .map((c: any) => c?.fullname)
+        .filter(Boolean),
+    ),
   );
 
   // Calculate stats
@@ -252,6 +173,37 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
     );
   });
 
+  const handleToggleClick = (id: string) => {
+    setSelectedClientId(id);
+    setShowPinModal(true);
+  };
+
+  const handleConfirm = async () => {
+    if (!pin) {
+      alert('Please enter PIN');
+      return;
+    }
+
+    try {
+      await statusChange(
+        {
+          id: selectedClientId!,
+          pin: pin,
+        },
+        {
+          onSuccess: async () => {
+            await refetch();
+            setShowPinModal(false);
+            setPin('');
+            setShowPin(false);
+            setSelectedClientId(null);
+          },
+        },
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const formatCurrency = (amount: number) => {
     if (amount >= 1000000) {
       return `$${(amount / 1000000).toFixed(1)}M`;
@@ -260,20 +212,6 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
     }
     return `$${amount}`;
   };
-
-  if (error) {
-    return (
-      <div className="mx-auto max-w-7xl px-6 py-8 text-center">
-        <p className="mb-4 text-red-500">Error loading clients</p>
-        <button
-          onClick={() => refetch()}
-          className="rounded-lg bg-orange-500 px-4 py-2 text-white"
-        >
-          Retry
-        </button>
-      </div>
-    );
-  }
 
   return (
     <motion.div
@@ -498,10 +436,10 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
                       </div>
                     </td>
                     <td className="whitespace-nowrap px-4 py-4 text-sm font-medium text-slate-600">
-                      {client.brokerName || 'N/A'}
+                      {client?.broker?.user?.fullname || 'N/A'}
                     </td>
                     <td className="whitespace-nowrap px-4 py-4 text-sm font-medium text-slate-600">
-                      {client.superBrokerName || 'N/A'}
+                      {client?.superBroker?.user?.fullname || 'N/A'}
                     </td>
                     <td className="px-4 py-4 text-right">
                       <span className="whitespace-nowrap text-sm font-bold text-slate-900">
@@ -510,7 +448,8 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
                     </td>
                     <td className="px-4 py-4 text-right">
                       <span className="whitespace-nowrap text-sm font-bold text-slate-900">
-                        $0.00
+                        $
+                        {client.wallets?.blockedAmount?.toLocaleString() || '0'}
                       </span>
                     </td>
                     <td className="px-4 py-4 text-right">
@@ -536,33 +475,19 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
                         <input
                           type="checkbox"
                           className="peer sr-only"
-                          checked={client.user?.isActive || false}
-                          onChange={() => {
-                            setClients((prev) =>
-                              prev.map((c) =>
-                                c.id === client.id
-                                  ? {
-                                      ...c,
-                                      user: {
-                                        ...c.user,
-                                        isActive: !c.user.isActive,
-                                      },
-                                    }
-                                  : c,
-                              ),
-                            );
+                          checked={!!client?.user?.isActive}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            handleToggleClick(client?.id);
                           }}
                         />
-                        <div className="peer h-5 w-9 rounded-full bg-slate-200 after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:border after:border-slate-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none"></div>
+
+                        <div className="relative h-5 w-9 rounded-full bg-slate-200 transition-colors after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-4" />
+
                         <span className="ml-2 w-12 text-left text-[10px] font-bold uppercase text-slate-500">
-                          {client.user?.isActive ? 'Active' : 'Inactive'}
+                          {client?.user?.isActive ? 'Active' : 'Inactive'}
                         </span>
                       </label>
-                    </td>
-                    <td className="px-4 py-4 text-right">
-                      <button className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600">
-                        <MoreVertical className="h-4 w-4" />
-                      </button>
                     </td>
                   </tr>
                 ))}
@@ -623,6 +548,50 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {showPinModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-lg">
+            <h2 className="mb-4 text-lg font-semibold">Enter PIN</h2>
+
+            <div className="relative">
+              <input
+                type={showPin ? 'text' : 'password'}
+                placeholder="Enter PIN"
+                value={pin}
+                onChange={(e) => setPin(e.target.value)}
+                className="border-gray-300 w-full rounded-lg border px-4 py-2 pr-10 outline-none focus:border-emerald-500"
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPin(!showPin)}
+                className="text-gray-500 absolute right-3 top-1/2 -translate-y-1/2"
+              >
+                {showPin ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+            <div className="mt-5 flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowPinModal(false);
+                  setPin('');
+                }}
+                className="rounded-lg border px-4 py-2 text-sm"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleConfirm}
+                className="rounded-lg bg-emerald-500 px-4 py-2 text-sm text-white"
+              >
+                OK
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </motion.div>

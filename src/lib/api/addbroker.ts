@@ -1,7 +1,7 @@
 // lib/api/addbroker.ts
-import { api } from '@/utils/axios';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMutation } from '@tanstack/react-query';
+import {api} from '@/utils/axios';
+import {useQuery, useQueryClient} from '@tanstack/react-query';
+import {useMutation} from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 
 export const useAddBroker = () => {
@@ -11,7 +11,7 @@ export const useAddBroker = () => {
     mutationFn: addBroker,
     onSuccess: () => {
       toast.success('Broker Registered Successfully!');
-      queryClient.invalidateQueries({ queryKey: ['get-broker'] });
+      queryClient.invalidateQueries({queryKey: ['get-broker']});
     },
     onError: (error: any) => {
       console.log('errors', error);
@@ -28,7 +28,7 @@ export const useAddBroker = () => {
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['broker'] });
+      queryClient.invalidateQueries({queryKey: ['broker']});
     },
   });
 };
@@ -40,7 +40,7 @@ export const useDeleteBroker = () => {
     mutationFn: deleteBroker,
     onSuccess: () => {
       toast.success('Broker Deleted Successfully!');
-      queryClient.invalidateQueries({ queryKey: ['get-broker'] });
+      queryClient.invalidateQueries({queryKey: ['get-broker']});
     },
     onError: (error: any) => {
       console.error('Delete error:', error);
@@ -111,10 +111,16 @@ const getSuperBrokerData = async () => {
 };
 
 // FIXED: Updated approveBroker to include superBrokerId
-export const approveBroker = async ({ id, superBrokerId }: { id: string; superBrokerId: string }) => {
+export const approveBroker = async ({
+  id,
+  superBrokerId,
+}: {
+  id: string;
+  superBrokerId: string;
+}) => {
   try {
     const response = await api.put(`/company/broker/${id}/verify`, {
-      superBrokerId: superBrokerId
+      superBrokerId: superBrokerId,
     });
     return response.data;
   } catch (error) {
@@ -123,7 +129,7 @@ export const approveBroker = async ({ id, superBrokerId }: { id: string; superBr
   }
 };
 
-export const updateBroker = async ({ id, data }: { id: string; data: any }) => {
+export const updateBroker = async ({id, data}: {id: string; data: any}) => {
   try {
     const response = await api.put(`/company/broker/${id}`, data);
     return response.data;
@@ -140,7 +146,7 @@ export const useApproveBroker = () => {
     mutationFn: approveBroker,
     onSuccess: () => {
       toast.success('Broker Approved Successfully!');
-      queryClient.invalidateQueries({ queryKey: ['get-broker'] });
+      queryClient.invalidateQueries({queryKey: ['get-broker']});
     },
     onError: (error: any) => {
       const backendMessage =
@@ -156,7 +162,7 @@ export const useUpdateBroker = () => {
     mutationFn: updateBroker,
     onSuccess: () => {
       toast.success('Broker Updated Successfully!');
-      queryClient.invalidateQueries({ queryKey: ['get-broker'] });
+      queryClient.invalidateQueries({queryKey: ['get-broker']});
     },
     onError: (error: any) => {
       const backendMessage =

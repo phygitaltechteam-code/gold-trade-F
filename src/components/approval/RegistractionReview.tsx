@@ -6,8 +6,8 @@ import ApplicantDetails from './ApplicantDetails';
 import {Route} from '@/routes/_app/Approval/registrationDetails.$id';
 
 import {getRequestStatus} from './methods';
-import { useGetCustomerById } from '@/lib/api/customer';
-import { useAcceptCustomer, useRejectCustomer } from '@/lib/api/customer';
+import {useGetCustomerById} from '@/lib/api/customer';
+import {useAcceptCustomer, useRejectCustomer} from '@/lib/api/customer';
 
 const RegistrationReview: React.FC = () => {
   const {id} = Route.useParams();

@@ -251,14 +251,6 @@ const AddSuperBroker = () => {
                   ? 'Submitting...'
                   : 'Register Broker'}
               </button>
-
-              <button
-                type="button"
-                onClick={() => methods.reset()}
-                className="border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg border px-4 py-2 transition-all"
-              >
-                Reset
-              </button>
             </div>
           </form>
         </FormProvider>
