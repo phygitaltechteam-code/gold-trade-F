@@ -355,7 +355,26 @@ export const resetPassword = async (data: resetPasswordPayload) => {
     throw error;
   }
 };
+export type resetPinPayload = {
+  currentPin: string;
+  newPin: string;
+};
+export const resetPin = async (data: resetPinPayload) => {
+  try {
+    await api.post(`users/change-pin`, data);
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      const errorMessage =
+        error.response?.data?.errors?.[0]?.message ||
+        error.response?.data?.message ||
+        'Failed to reset pin';
 
+      throw new Error(errorMessage);
+    }
+
+    throw error;
+  }
+};
 export type profilePayload = {
   fullname: string;
   photo: File;

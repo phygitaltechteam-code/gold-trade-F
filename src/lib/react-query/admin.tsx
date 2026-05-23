@@ -4,6 +4,7 @@ import {
   getProfile,
   profilePayload,
   resetPassword,
+  resetPin,
   resetPasswordPayload,
   updateProfile,
 } from '../api/adminApi';
@@ -12,7 +13,7 @@ export const useResetPassword = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({data}: {data: resetPasswordPayload}) => resetPassword(data),
+    mutationFn: resetPassword,
     onSuccess: () => {
       toast.success('Password reset successfully!');
       queryClient.invalidateQueries({queryKey: ['password_reset']});
@@ -22,7 +23,20 @@ export const useResetPassword = () => {
     },
   });
 };
+export const useResetPin = () => {
+  const queryClient = useQueryClient();
 
+  return useMutation({
+    mutationFn: resetPin,
+    onSuccess: () => {
+      toast.success('Pin reset successfully!');
+      queryClient.invalidateQueries({queryKey: ['pin_reset']});
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+};
 export const useEditProfile = () => {
   const queryClient = useQueryClient();
 

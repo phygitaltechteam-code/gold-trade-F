@@ -68,6 +68,11 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
           icon: <MdDashboard size={22} />,
         },
         {
+          label: 'Scripts Management',
+          path: '/scrpitsManagement',
+          icon: <MdDashboard size={22} />,
+        },
+        {
           label: 'Super Broker',
           path: '/companybroker/DisplaySuperBroker',
           icon: <MdDashboard size={22} />,

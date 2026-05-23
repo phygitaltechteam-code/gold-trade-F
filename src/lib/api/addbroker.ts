@@ -57,7 +57,11 @@ export const useGetBrokerData = () =>
     queryFn: () => getBrokerData(),
     staleTime: 5 * 60 * 1000,
   });
-
+export const useGetScriptsData = () =>
+  useQuery({
+    queryKey: ['get-scripts'],
+    queryFn: getScriptsData,
+  });
 export const useGetSuperBrokerData = () =>
   useQuery({
     queryKey: ['get-superbroker'],
@@ -99,7 +103,16 @@ const getBrokerData = async () => {
     throw error;
   }
 };
-
+const getScriptsData = async () => {
+  try {
+    const response = await api.get(`/company/commission/scripts`);
+    console.log('API response for scripts:', response);
+    return response;
+  } catch (error) {
+    console.error('Error fetching scripts data:', error);
+    throw error;
+  }
+};
 const getSuperBrokerData = async () => {
   try {
     const response = await api.get(`/company/broker`);

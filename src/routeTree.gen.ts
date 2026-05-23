@@ -25,6 +25,7 @@ import { Route as AppWithdrawpageImport } from './routes/_app/withdrawpage'
 import { Route as AppWallettopupreportImport } from './routes/_app/wallettopupreport'
 import { Route as AppTransfersReportImport } from './routes/_app/transfersReport'
 import { Route as AppTransactionReportImport } from './routes/_app/transactionReport'
+import { Route as AppScrpitsManagementImport } from './routes/_app/scrpitsManagement'
 import { Route as AppReportCenterImport } from './routes/_app/reportCenter'
 import { Route as AppDashboardImport } from './routes/_app/dashboard'
 import { Route as AppCurrencyconverterImport } from './routes/_app/currencyconverter'
@@ -177,6 +178,12 @@ const AppTransfersReportRoute = AppTransfersReportImport.update({
 const AppTransactionReportRoute = AppTransactionReportImport.update({
   id: '/transactionReport',
   path: '/transactionReport',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppScrpitsManagementRoute = AppScrpitsManagementImport.update({
+  id: '/scrpitsManagement',
+  path: '/scrpitsManagement',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -747,6 +754,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppReportCenterImport
       parentRoute: typeof AppImport
     }
+    '/_app/scrpitsManagement': {
+      id: '/_app/scrpitsManagement'
+      path: '/scrpitsManagement'
+      fullPath: '/scrpitsManagement'
+      preLoaderRoute: typeof AppScrpitsManagementImport
+      parentRoute: typeof AppImport
+    }
     '/_app/transactionReport': {
       id: '/_app/transactionReport'
       path: '/transactionReport'
@@ -1267,6 +1281,7 @@ interface AppRouteChildren {
   AppCurrencyconverterRoute: typeof AppCurrencyconverterRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppReportCenterRoute: typeof AppReportCenterRoute
+  AppScrpitsManagementRoute: typeof AppScrpitsManagementRoute
   AppTransactionReportRoute: typeof AppTransactionReportRoute
   AppTransfersReportRoute: typeof AppTransfersReportRoute
   AppWallettopupreportRoute: typeof AppWallettopupreportRoute
@@ -1345,6 +1360,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCurrencyconverterRoute: AppCurrencyconverterRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppReportCenterRoute: AppReportCenterRoute,
+  AppScrpitsManagementRoute: AppScrpitsManagementRoute,
   AppTransactionReportRoute: AppTransactionReportRoute,
   AppTransfersReportRoute: AppTransfersReportRoute,
   AppWallettopupreportRoute: AppWallettopupreportRoute,
@@ -1463,6 +1479,7 @@ export interface FileRoutesByFullPath {
   '/currencyconverter': typeof AppCurrencyconverterRoute
   '/dashboard': typeof AppDashboardRoute
   '/reportCenter': typeof AppReportCenterRoute
+  '/scrpitsManagement': typeof AppScrpitsManagementRoute
   '/transactionReport': typeof AppTransactionReportRoute
   '/transfersReport': typeof AppTransfersReportRoute
   '/wallettopupreport': typeof AppWallettopupreportRoute
@@ -1549,6 +1566,7 @@ export interface FileRoutesByTo {
   '/currencyconverter': typeof AppCurrencyconverterRoute
   '/dashboard': typeof AppDashboardRoute
   '/reportCenter': typeof AppReportCenterRoute
+  '/scrpitsManagement': typeof AppScrpitsManagementRoute
   '/transactionReport': typeof AppTransactionReportRoute
   '/transfersReport': typeof AppTransfersReportRoute
   '/wallettopupreport': typeof AppWallettopupreportRoute
@@ -1639,6 +1657,7 @@ export interface FileRoutesById {
   '/_app/currencyconverter': typeof AppCurrencyconverterRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/reportCenter': typeof AppReportCenterRoute
+  '/_app/scrpitsManagement': typeof AppScrpitsManagementRoute
   '/_app/transactionReport': typeof AppTransactionReportRoute
   '/_app/transfersReport': typeof AppTransfersReportRoute
   '/_app/wallettopupreport': typeof AppWallettopupreportRoute
@@ -1727,6 +1746,7 @@ export interface FileRouteTypes {
     | '/currencyconverter'
     | '/dashboard'
     | '/reportCenter'
+    | '/scrpitsManagement'
     | '/transactionReport'
     | '/transfersReport'
     | '/wallettopupreport'
@@ -1812,6 +1832,7 @@ export interface FileRouteTypes {
     | '/currencyconverter'
     | '/dashboard'
     | '/reportCenter'
+    | '/scrpitsManagement'
     | '/transactionReport'
     | '/transfersReport'
     | '/wallettopupreport'
@@ -1900,6 +1921,7 @@ export interface FileRouteTypes {
     | '/_app/currencyconverter'
     | '/_app/dashboard'
     | '/_app/reportCenter'
+    | '/_app/scrpitsManagement'
     | '/_app/transactionReport'
     | '/_app/transfersReport'
     | '/_app/wallettopupreport'
@@ -2020,6 +2042,7 @@ export const routeTree = rootRoute
         "/_app/currencyconverter",
         "/_app/dashboard",
         "/_app/reportCenter",
+        "/_app/scrpitsManagement",
         "/_app/transactionReport",
         "/_app/transfersReport",
         "/_app/wallettopupreport",
@@ -2145,6 +2168,10 @@ export const routeTree = rootRoute
     },
     "/_app/reportCenter": {
       "filePath": "_app/reportCenter.tsx",
+      "parent": "/_app"
+    },
+    "/_app/scrpitsManagement": {
+      "filePath": "_app/scrpitsManagement.tsx",
       "parent": "/_app"
     },
     "/_app/transactionReport": {
