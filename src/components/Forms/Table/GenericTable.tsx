@@ -717,7 +717,7 @@ const GenericTable = <T extends { id?: string }>({
                   }
                 `}
               >
-                <td className="text-gray-700 dark:text-gray-300 px-4 py-3 text-sm">
+                <td className="text-gray-700 dark:text-gray-300 px-4 py-4.5 text-sm">
                   {(currentPage - 1) * rowsPerPage + rowIndex + 1}
                 </td>
                 {columns.map((col, colIndex) => {
