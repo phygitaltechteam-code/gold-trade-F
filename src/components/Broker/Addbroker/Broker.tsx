@@ -1,22 +1,24 @@
-import React, {useState, useEffect} from 'react';
-import {useNavigate} from '@tanstack/react-router';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import toast from 'react-hot-toast';
-import {z} from 'zod';
-import {useAuthContext} from '@/context/AuthContext';
-import {useBroker} from './brokerapi';
-import {X, ZoomIn} from 'lucide-react';
+import { z } from 'zod';
+import { useAuthContext } from '@/context/AuthContext';
+import { useBroker } from './brokerapi';
+import { X, ZoomIn } from 'lucide-react';
 
 // Define Zod schema for form data validation
 const BrokerSchema = z.object({
   fullname: z.string().min(1, 'Full name is required'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   phoneNumber: z.string().min(1, 'Phone number is required'),
+  area: z.string().min(1, 'Area is required'),
+  commission: z.coerce.number().min(0, 'Commission must be a valid number'),
 });
 
 const Broker = () => {
   const navigate = useNavigate();
   const addbroker = useBroker();
-  const {user} = useAuthContext();
+  const { user } = useAuthContext();
   const isSuperBroker = user?.role === 'SUPERBROKER';
 
   const [formData, setFormData] = useState({
@@ -26,6 +28,7 @@ const Broker = () => {
     commission: '',
     phoneNumber: '',
     aadharCardNumber: '',
+    panCardNumber: '',
   });
 
   const [images, setImages] = useState({
@@ -50,10 +53,10 @@ const Broker = () => {
 
   // Mock super brokers
   const mockSuperBrokers = [
-    {id: '1', SBID: 'SB-1001', fullname: 'Rajesh Kumar'},
-    {id: '2', SBID: 'SB-1002', fullname: 'Priya Sharma'},
-    {id: '3', SBID: 'SB-1003', fullname: 'Amit Patel'},
-    {id: '4', SBID: 'SB-1004', fullname: 'Neha Gupta'},
+    { id: '1', SBID: 'SB-1001', fullname: 'Rajesh Kumar' },
+    { id: '2', SBID: 'SB-1002', fullname: 'Priya Sharma' },
+    { id: '3', SBID: 'SB-1003', fullname: 'Amit Patel' },
+    { id: '4', SBID: 'SB-1004', fullname: 'Neha Gupta' },
   ];
 
   const filteredSuperBrokers = mockSuperBrokers.filter(
@@ -63,7 +66,7 @@ const Broker = () => {
   );
 
   const handleInputChange = (e) => {
-    const {name, value} = e.target;
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -155,6 +158,7 @@ const Broker = () => {
       commission: '',
       phoneNumber: '',
       aadharCardNumber: '',
+      panCardNumber: '',
     });
     setImages({
       aadharCardF: null,
@@ -172,8 +176,24 @@ const Broker = () => {
     e.preventDefault();
 
     // Validate required fields
-    if (!formData.fullname || !formData.password || !formData.phoneNumber) {
-      toast.error('Please fill all required fields');
+    if (!formData.fullname) {
+      toast.error('Full name is required');
+      return;
+    }
+    if (!formData.password) {
+      toast.error('Password is required');
+      return;
+    }
+    if (formData.password.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+    if (!formData.phoneNumber) {
+      toast.error('Phone number is required');
+      return;
+    }
+    if (!formData.area) {
+      toast.error('Area is required');
       return;
     }
 
@@ -185,6 +205,9 @@ const Broker = () => {
         toast.error('Commission must be a valid number');
         return;
       }
+    } else {
+      toast.error('Commission is required');
+      return;
     }
 
     setIsSubmitting(true);
@@ -194,6 +217,7 @@ const Broker = () => {
     formDataToSend.append('password', formData.password);
     formDataToSend.append('phoneNumber', formData.phoneNumber);
     formDataToSend.append('aadharCardNumber', formData.aadharCardNumber);
+    formDataToSend.append('panCardNumber', formData.panCardNumber);
 
     if (images.aadharCardF) {
       formDataToSend.append('aadharCardF', images.aadharCardF);
@@ -215,7 +239,7 @@ const Broker = () => {
     }
   };
 
-  const ImageUploadField = ({label, field, required}) => (
+  const ImageUploadField = ({ label, field, required }) => (
     <div className="mb-4">
       <label className="text-gray-700 mb-2 block text-sm font-medium">
         {label} {required && <span className="text-red-500">*</span>}
@@ -344,9 +368,7 @@ const Broker = () => {
                 placeholder="Enter 10-digit phone number"
               />
               {errors.phoneNumber && (
-                <p className="mt-1 text-xs text-red-500">
-                  {errors.phoneNumber}
-                </p>
+                <p className="mt-1 text-xs text-red-500">{errors.phoneNumber}</p>
               )}
             </div>
 
@@ -387,23 +409,42 @@ const Broker = () => {
                 placeholder="Enter 12-digit Aadhar number"
               />
               {errors.aadharCardNumber && (
-                <p className="mt-1 text-xs text-red-500">
-                  {errors.aadharCardNumber}
-                </p>
+                <p className="mt-1 text-xs text-red-500">{errors.aadharCardNumber}</p>
               )}
             </div>
 
-            {/* Area */}
+            {/* PAN Card Number */}
             <div className="mb-2 sm:mb-4">
               <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Area
+                PAN Card Number
+              </label>
+              <input
+                type="text"
+                name="panCardNumber"
+                value={formData.panCardNumber}
+                onChange={handleInputChange}
+                maxLength={10}
+                className="border-gray-300 w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base"
+                placeholder="Enter PAN card number (e.g., ABCDE1234F)"
+              />
+              {errors.panCardNumber && (
+                <p className="mt-1 text-xs text-red-500">{errors.panCardNumber}</p>
+              )}
+            </div>
+
+            {/* Area - Required */}
+            <div className="mb-2 sm:mb-4">
+              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
+                Area <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 name="area"
                 value={formData.area}
                 onChange={handleInputChange}
-                className="border-gray-300 w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base"
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
+                  errors.area ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="Enter Area"
               />
               {errors.area && (
@@ -411,10 +452,10 @@ const Broker = () => {
               )}
             </div>
 
-            {/* Commission */}
+            {/* Commission - Required */}
             <div className="mb-2 sm:mb-4">
               <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Commission %
+                Commission % <span className="text-red-500">*</span>
               </label>
               <input
                 type="number"
@@ -423,7 +464,9 @@ const Broker = () => {
                 onChange={handleInputChange}
                 step="0.01"
                 min="0"
-                className="border-gray-300 w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base"
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
+                  errors.commission ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="Enter Commission %"
               />
               {errors.commission && (

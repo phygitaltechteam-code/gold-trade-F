@@ -1,11 +1,17 @@
-import React, {useState, useMemo} from 'react';
-import {FiEdit2, FiSave, FiX, FiEye} from 'react-icons/fi';
+import React, {useState, useMemo, useEffect} from 'react';
+import {FiEdit2, FiSave, FiX, FiArrowLeft} from 'react-icons/fi';
 import GenericTable from '@/components/Forms/Table/GenericTable';
-import {useGetAllSuperBrockerById} from '@/lib/react-query/superbrocker';
+import {
+  useGetAllSuperBrockerById,
+  useUpdateSuperBrokerProfile,
+} from '@/lib/react-query/superbrocker';
 import {Route} from '@/routes/_app/companybroker/SuperbrockerProfile.$id';
+import {useNavigate} from '@tanstack/react-router';
+import toast from 'react-hot-toast';
 
 const SuperBrokerProfile = () => {
   const {id} = Route.useParams();
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('ledger');
   const [isLedgerExpanded, setIsLedgerExpanded] = useState(false);
@@ -13,11 +19,60 @@ const SuperBrokerProfile = () => {
   const [paymentEndDate, setPaymentEndDate] = useState('');
   const [ledgerStartDate, setLedgerStartDate] = useState('');
   const [ledgerEndDate, setLedgerEndDate] = useState('');
-  const {data: profileData} = useGetAllSuperBrockerById(id);
 
-  console.log('Super Broker Profile:', profileData);
+  const {data: profileData, refetch} = useGetAllSuperBrockerById(id);
+  const {mutate: updateSuperBrokerProfile, isPending: isUpdating} =
+    useUpdateSuperBrokerProfile();
 
-  const [editData, setEditData] = useState({...profileData});
+  const [editData, setEditData] = useState({
+    fullname: '',
+    phoneNumber: '',
+    brokeragePercent: '',
+    area: '',
+    aadharCardNumber: '',
+  });
+
+  // Update editData when profileData loads
+  useEffect(() => {
+    if (profileData) {
+      setEditData({
+        fullname: profileData?.fullname || '',
+        phoneNumber: profileData?.phoneNumber || '',
+        brokeragePercent: profileData?.brokeragePercent || '',
+        area: profileData?.area || '',
+        aadharCardNumber: profileData?.aadharCardNumber || '',
+      });
+    }
+  }, [profileData]);
+
+  // Get current week's Monday and Sunday
+  const getCurrentWeekRange = () => {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+
+    const monday = new Date(today);
+    monday.setDate(today.getDate() + diffToMonday);
+    monday.setHours(0, 0, 0, 0);
+
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    sunday.setHours(23, 59, 59, 999);
+
+    return {
+      startDate: monday.toISOString().split('T')[0],
+      endDate: sunday.toISOString().split('T')[0],
+    };
+  };
+
+  // Initialize dates with current week range
+  useEffect(() => {
+    const {startDate, endDate} = getCurrentWeekRange();
+    setLedgerStartDate(startDate);
+    setLedgerEndDate(endDate);
+    setPaymentStartDate(startDate);
+    setPaymentEndDate(endDate);
+  }, []);
 
   // Get brokers from profileData and add SR number
   const brokersList = useMemo(() => {
@@ -28,12 +83,25 @@ const SuperBrokerProfile = () => {
     }));
   }, [profileData?.brokers]);
 
+  // Mock data for ledger (replace with actual API data)
+  const ledgerData = useMemo(() => [], []);
+  const paymentData = useMemo(() => [], []);
+
+  const ledgerDataWithSr = useMemo(() => {
+    return ledgerData.map((item: any, index: number) => ({
+      ...item,
+      sr: index + 1,
+    }));
+  }, [ledgerData]);
+
+  const paymentDataWithSr = useMemo(() => {
+    return paymentData.map((item: any, index: number) => ({
+      ...item,
+      sr: index + 1,
+    }));
+  }, [paymentData]);
+
   const baseLedgerColumns = [
-    {
-      header: 'Sr',
-      accessor: 'sr',
-      className: 'w-16 font-semibold text-gray-600',
-    },
     {header: 'Date/Time', accessor: 'dateTime'},
     {header: 'Transaction ID', accessor: 'transactionId'},
     {header: 'Stript', accessor: 'stript'},
@@ -43,14 +111,8 @@ const SuperBrokerProfile = () => {
   ];
 
   const expandedLedgerColumns = [
-    {
-      header: 'Sr',
-      accessor: 'sr',
-      className: 'w-16 font-semibold text-gray-600',
-    },
     {header: 'Date/Time', accessor: 'dateTime'},
     {header: 'Customer Name', accessor: 'customerName'},
-    {header: 'Broker Name', accessor: 'brokerName'},
     {header: 'Transaction ID', accessor: 'transactionId'},
     {header: 'Stript', accessor: 'stript'},
     {header: 'Order Type', accessor: 'orderType'},
@@ -59,12 +121,10 @@ const SuperBrokerProfile = () => {
     {header: 'Price', accessor: 'price'},
     {header: 'Status', accessor: 'status'},
     {header: 'Transaction Amount', accessor: 'transactionAmount'},
-    {header: 'Total Amount', accessor: 'totalAmount'},
     {header: 'Paid Amount', accessor: 'paidAmount'},
     {header: 'Margin Amount', accessor: 'marginAmount'},
     {header: 'Total Commission', accessor: 'totalCommission'},
     {header: 'Broker Commission', accessor: 'brokerCommission'},
-    {header: 'Super Broker Commission', accessor: 'superBrokerCommission'},
     {header: 'Payment Status', accessor: 'paymentStatus'},
   ];
 
@@ -72,13 +132,7 @@ const SuperBrokerProfile = () => {
     ? expandedLedgerColumns
     : baseLedgerColumns;
 
-  // Column definitions for the Payment History table
   const paymentColumns = [
-    {
-      header: 'Sr',
-      accessor: 'sr',
-      className: 'w-16 font-semibold text-gray-600',
-    },
     {header: 'Date', accessor: 'date'},
     {header: 'Commission Generated', accessor: 'commissionGenerated'},
     {header: 'Paid Amount', accessor: 'paidAmount'},
@@ -86,15 +140,9 @@ const SuperBrokerProfile = () => {
     {header: 'Status', accessor: 'status'},
   ];
 
-  // Broker Table Columns with all requested fields
   const brokerColumns = [
     {
-      header: 'SR No.',
-      accessor: 'srNo',
-      className: 'w-16 font-semibold text-gray-600',
-    },
-    {
-      header: 'Work Name',
+      header: 'Broker Name',
       accessor: 'user.fullname',
       render: (item: any) => (
         <div className="font-semibold text-black">
@@ -155,17 +203,78 @@ const SuperBrokerProfile = () => {
   };
 
   const handleSave = () => {
-    setIsEditing(false);
-    // TODO: Add API call to save profile details
+    if (!id) {
+      toast.error('Super Broker ID is missing');
+      return;
+    }
+
+    // Prepare update data - only include editable fields
+    const updatePayload = {
+      fullname: editData.fullname,
+      phoneNumber: editData.phoneNumber,
+      brokeragePercent: editData.brokeragePercent,
+      area: editData.area,
+      aadharCardNumber: editData.aadharCardNumber,
+    };
+
+    updateSuperBrokerProfile({
+      id: id,
+      data: updatePayload,
+    });
   };
 
   const handleCancel = () => {
-    setEditData({...profileData});
+    if (profileData) {
+      setEditData({
+        fullname: profileData?.fullname || '',
+        phoneNumber: profileData?.phoneNumber || '',
+        brokeragePercent: profileData?.brokeragePercent || '',
+        area: profileData?.area || '',
+        aadharCardNumber: profileData?.aadharCardNumber || '',
+      });
+    }
     setIsEditing(false);
   };
 
+  const handleBack = () => {
+    navigate({to: '/companybroker/DisplaySuperBroker'});
+  };
+
+  // Filter ledger data by date range
+  const filteredLedgerData = useMemo(() => {
+    if (!ledgerStartDate || !ledgerEndDate) return ledgerDataWithSr;
+    return ledgerDataWithSr.filter((item: any) => {
+      const itemDate = new Date(item.dateTime);
+      const startDate = new Date(ledgerStartDate);
+      const endDate = new Date(ledgerEndDate);
+      return itemDate >= startDate && itemDate <= endDate;
+    });
+  }, [ledgerDataWithSr, ledgerStartDate, ledgerEndDate]);
+
+  // Filter payment data by date range
+  const filteredPaymentData = useMemo(() => {
+    if (!paymentStartDate || !paymentEndDate) return paymentDataWithSr;
+    return paymentDataWithSr.filter((item: any) => {
+      const itemDate = new Date(item.date);
+      const startDate = new Date(paymentStartDate);
+      const endDate = new Date(paymentEndDate);
+      return itemDate >= startDate && itemDate <= endDate;
+    });
+  }, [paymentDataWithSr, paymentStartDate, paymentEndDate]);
+
   return (
     <div className="max-w-9xl mx-auto p-4 md:p-6">
+      {/* Back Button */}
+      <div className="mb-4">
+        <button
+          onClick={handleBack}
+          className="text-gray-700 hover:bg-gray-50 flex items-center gap-2 rounded-lg border border-stroke bg-white px-4 py-2 text-sm font-medium transition-all hover:text-orange-500"
+        >
+          <FiArrowLeft className="h-4 w-4" />
+          Back to Super Brokers
+        </button>
+      </div>
+
       {/* Profile Details Section */}
       <div className="mb-6 rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex items-center justify-between rounded-t-lg border-b border-stroke bg-gradient-to-r from-orange-500 to-red-500 px-6 py-4 dark:border-strokedark">
@@ -183,15 +292,18 @@ const SuperBrokerProfile = () => {
             <div className="flex gap-2">
               <button
                 onClick={handleCancel}
-                className="flex items-center gap-2 rounded bg-red-100 px-4 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-200"
+                disabled={isUpdating}
+                className="flex items-center gap-2 rounded bg-red-100 px-4 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-200 disabled:opacity-50"
               >
                 <FiX className="h-4 w-4" /> Cancel
               </button>
               <button
                 onClick={handleSave}
-                className="hover:bg-gray-100 flex items-center gap-2 rounded bg-white px-4 py-2 text-sm font-medium text-orange-500 transition-colors"
+                disabled={isUpdating}
+                className="hover:bg-gray-100 flex items-center gap-2 rounded bg-white px-4 py-2 text-sm font-medium text-orange-500 transition-colors disabled:opacity-50"
               >
-                <FiSave className="h-4 w-4" /> Save
+                <FiSave className="h-4 w-4" />{' '}
+                {isUpdating ? 'Saving...' : 'Save'}
               </button>
             </div>
           )}
@@ -199,6 +311,7 @@ const SuperBrokerProfile = () => {
 
         <div className="p-6">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {/* Full Name - Editable */}
             <div>
               <label className="mb-2 block text-sm font-medium text-black dark:text-white">
                 Full Name
@@ -207,7 +320,7 @@ const SuperBrokerProfile = () => {
                 <input
                   type="text"
                   name="fullname"
-                  value={editData?.fullname || ''}
+                  value={editData.fullname}
                   onChange={handleInputChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                 />
@@ -218,6 +331,7 @@ const SuperBrokerProfile = () => {
               )}
             </div>
 
+            {/* BK ID - Read Only */}
             <div>
               <label className="mb-2 block text-sm font-medium text-black dark:text-white">
                 BK ID
@@ -227,15 +341,27 @@ const SuperBrokerProfile = () => {
               </p>
             </div>
 
+            {/* Phone Number - Editable */}
             <div>
               <label className="mb-2 block text-sm font-medium text-black dark:text-white">
                 Phone Number
               </label>
-              <p className="text-black dark:text-white">
-                {profileData?.phoneNumber || 'N/A'}
-              </p>
+              {isEditing ? (
+                <input
+                  type="tel"
+                  name="phoneNumber"
+                  value={editData.phoneNumber}
+                  onChange={handleInputChange}
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                />
+              ) : (
+                <p className="text-black dark:text-white">
+                  {profileData?.phoneNumber || 'N/A'}
+                </p>
+              )}
             </div>
 
+            {/* Email - Read Only */}
             <div>
               <label className="mb-2 block text-sm font-medium text-black dark:text-white">
                 Email
@@ -245,6 +371,7 @@ const SuperBrokerProfile = () => {
               </p>
             </div>
 
+            {/* Aadhar Number - Editable */}
             <div>
               <label className="mb-2 block text-sm font-medium text-black dark:text-white">
                 Aadhar Number
@@ -253,7 +380,7 @@ const SuperBrokerProfile = () => {
                 <input
                   type="text"
                   name="aadharCardNumber"
-                  value={editData?.aadharCardNumber || ''}
+                  value={editData.aadharCardNumber}
                   onChange={handleInputChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                 />
@@ -264,15 +391,17 @@ const SuperBrokerProfile = () => {
               )}
             </div>
 
+            {/* Commission % - Editable */}
             <div>
               <label className="mb-2 block text-sm font-medium text-black dark:text-white">
                 Commission %
               </label>
               {isEditing ? (
                 <input
-                  type="text"
+                  type="number"
+                  step="0.01"
                   name="brokeragePercent"
-                  value={editData?.brokeragePercent || ''}
+                  value={editData.brokeragePercent}
                   onChange={handleInputChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                 />
@@ -283,6 +412,7 @@ const SuperBrokerProfile = () => {
               )}
             </div>
 
+            {/* Area - Editable */}
             <div>
               <label className="mb-2 block text-sm font-medium text-black dark:text-white">
                 Area
@@ -291,7 +421,7 @@ const SuperBrokerProfile = () => {
                 <input
                   type="text"
                   name="area"
-                  value={editData?.area || ''}
+                  value={editData.area}
                   onChange={handleInputChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                 />
@@ -302,6 +432,7 @@ const SuperBrokerProfile = () => {
               )}
             </div>
 
+            {/* Total Brokers - Read Only */}
             <div>
               <label className="mb-2 block text-sm font-medium text-black dark:text-white">
                 Total Brokers
@@ -381,7 +512,7 @@ const SuperBrokerProfile = () => {
                 : 'text-bodydark2'
             }`}
           >
-            Brokers
+            Brokers ({profileData?.brokers?.length || 0})
           </button>
           <button
             onClick={() => setActiveTab('commission')}
@@ -396,7 +527,7 @@ const SuperBrokerProfile = () => {
         </div>
 
         <div className="p-6">
-          {activeTab === 'ledger' ? (
+          {activeTab === 'ledger' && (
             <div className="overflow-x-auto">
               <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                 <h3 className="text-lg font-semibold text-black dark:text-white">
@@ -405,7 +536,7 @@ const SuperBrokerProfile = () => {
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="flex items-center gap-2">
                     <label className="text-sm font-medium text-black dark:text-white">
-                      From:
+                      From :
                     </label>
                     <input
                       type="date"
@@ -416,7 +547,7 @@ const SuperBrokerProfile = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <label className="text-sm font-medium text-black dark:text-white">
-                      To:
+                      To :
                     </label>
                     <input
                       type="date"
@@ -425,17 +556,6 @@ const SuperBrokerProfile = () => {
                       className="rounded border border-stroke bg-transparent px-3 py-1 text-sm outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                     />
                   </div>
-                  {(ledgerStartDate || ledgerEndDate) && (
-                    <button
-                      onClick={() => {
-                        setLedgerStartDate('');
-                        setLedgerEndDate('');
-                      }}
-                      className="bg-gray-200 text-gray-700 hover:bg-gray-300 rounded px-3 py-1.5 text-sm font-medium transition-colors dark:bg-meta-4 dark:text-white dark:hover:bg-meta-3"
-                    >
-                      Clear
-                    </button>
-                  )}
                   <button
                     onClick={() => setIsLedgerExpanded(!isLedgerExpanded)}
                     className="rounded bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
@@ -445,12 +565,14 @@ const SuperBrokerProfile = () => {
                 </div>
               </div>
               <GenericTable
-                data={[]}
+                data={filteredLedgerData}
                 columns={ledgerColumns}
                 paginationOff={true}
               />
             </div>
-          ) : activeTab === 'payment' ? (
+          )}
+
+          {activeTab === 'payment' && (
             <div className="overflow-x-auto">
               <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                 <h3 className="text-lg font-semibold text-black dark:text-white">
@@ -459,7 +581,7 @@ const SuperBrokerProfile = () => {
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="flex items-center gap-2">
                     <label className="text-sm font-medium text-black dark:text-white">
-                      From:
+                      From :
                     </label>
                     <input
                       type="date"
@@ -470,7 +592,7 @@ const SuperBrokerProfile = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <label className="text-sm font-medium text-black dark:text-white">
-                      To:
+                      To :
                     </label>
                     <input
                       type="date"
@@ -482,23 +604,26 @@ const SuperBrokerProfile = () => {
                   {(paymentStartDate || paymentEndDate) && (
                     <button
                       onClick={() => {
-                        setPaymentStartDate('');
-                        setPaymentEndDate('');
+                        const {startDate, endDate} = getCurrentWeekRange();
+                        setPaymentStartDate(startDate);
+                        setPaymentEndDate(endDate);
                       }}
                       className="bg-gray-200 text-gray-700 hover:bg-gray-300 rounded px-3 py-1.5 text-sm font-medium transition-colors dark:bg-meta-4 dark:text-white dark:hover:bg-meta-3"
                     >
-                      Clear
+                      This Week
                     </button>
                   )}
                 </div>
               </div>
               <GenericTable
-                data={[]}
+                data={filteredPaymentData}
                 columns={paymentColumns}
                 paginationOff={true}
               />
             </div>
-          ) : (
+          )}
+
+          {activeTab === 'broker' && (
             <div className="overflow-x-auto">
               <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                 <h3 className="text-lg font-semibold text-black dark:text-white">
@@ -514,21 +639,23 @@ const SuperBrokerProfile = () => {
                   </div>
                 </div>
               </div>
-              {brokersList.length > 0 ? (
-                <GenericTable
-                  data={brokersList}
-                  columns={brokerColumns}
-                  searchAble={true}
-                  searchFields={['user.fullname', 'BKId']}
-                  itemsPerPage={10}
-                />
-              ) : (
-                <div className="flex h-64 items-center justify-center">
-                  <p className="text-gray-500">
-                    No brokers found for this super broker
-                  </p>
-                </div>
-              )}
+              <GenericTable
+                data={brokersList}
+                columns={brokerColumns}
+                searchAble={true}
+                searchFields={['user.fullname', 'BKId']}
+                itemsPerPage={10}
+              />
+            </div>
+          )}
+
+          {activeTab === 'commission' && (
+            <div className="overflow-x-auto">
+              <div className="flex h-64 items-center justify-center">
+                <p className="text-gray-500">
+                  Commission details coming soon...
+                </p>
+              </div>
             </div>
           )}
         </div>

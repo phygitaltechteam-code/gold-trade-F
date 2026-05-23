@@ -85,6 +85,7 @@ import { Route as AppKYCApprovalKycmainImport } from './routes/_app/KYCApproval/
 import { Route as AppApprovalPendingapprovalsImport } from './routes/_app/Approval/pendingapprovals'
 import { Route as AppApprovalCustomerregisterapproveImport } from './routes/_app/Approval/customerregisterapprove'
 import { Route as NativeTokenUserPassImport } from './routes/_native/token.$user.$pass'
+import { Route as AppCompanybrokerClientdetailIdImport } from './routes/_app/companybroker/clientdetail.$id'
 import { Route as AppCompanybrokerSuperbrockerProfileIdImport } from './routes/_app/companybroker/SuperbrockerProfile.$id'
 import { Route as AppClientViewbeneficiaryIdImport } from './routes/_app/client/viewbeneficiary.$id'
 import { Route as AppClientUpdatecomissionIdImport } from './routes/_app/client/updatecomission.$id'
@@ -559,6 +560,13 @@ const NativeTokenUserPassRoute = NativeTokenUserPassImport.update({
   path: '/token/$user/$pass',
   getParentRoute: () => NativeRoute,
 } as any)
+
+const AppCompanybrokerClientdetailIdRoute =
+  AppCompanybrokerClientdetailIdImport.update({
+    id: '/companybroker/clientdetail/$id',
+    path: '/companybroker/clientdetail/$id',
+    getParentRoute: () => AppRoute,
+  } as any)
 
 const AppCompanybrokerSuperbrockerProfileIdRoute =
   AppCompanybrokerSuperbrockerProfileIdImport.update({
@@ -1229,6 +1237,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCompanybrokerSuperbrockerProfileIdImport
       parentRoute: typeof AppImport
     }
+    '/_app/companybroker/clientdetail/$id': {
+      id: '/_app/companybroker/clientdetail/$id'
+      path: '/companybroker/clientdetail/$id'
+      fullPath: '/companybroker/clientdetail/$id'
+      preLoaderRoute: typeof AppCompanybrokerClientdetailIdImport
+      parentRoute: typeof AppImport
+    }
     '/_native/token/$user/$pass': {
       id: '/_native/token/$user/$pass'
       path: '/token/$user/$pass'
@@ -1316,6 +1331,7 @@ interface AppRouteChildren {
   AppClientUpdatecomissionIdRoute: typeof AppClientUpdatecomissionIdRoute
   AppClientViewbeneficiaryIdRoute: typeof AppClientViewbeneficiaryIdRoute
   AppCompanybrokerSuperbrockerProfileIdRoute: typeof AppCompanybrokerSuperbrockerProfileIdRoute
+  AppCompanybrokerClientdetailIdRoute: typeof AppCompanybrokerClientdetailIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -1399,6 +1415,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppClientViewbeneficiaryIdRoute: AppClientViewbeneficiaryIdRoute,
   AppCompanybrokerSuperbrockerProfileIdRoute:
     AppCompanybrokerSuperbrockerProfileIdRoute,
+  AppCompanybrokerClientdetailIdRoute: AppCompanybrokerClientdetailIdRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
@@ -1516,6 +1533,7 @@ export interface FileRoutesByFullPath {
   '/client/updatecomission/$id': typeof AppClientUpdatecomissionIdRoute
   '/client/viewbeneficiary/$id': typeof AppClientViewbeneficiaryIdRoute
   '/companybroker/SuperbrockerProfile/$id': typeof AppCompanybrokerSuperbrockerProfileIdRoute
+  '/companybroker/clientdetail/$id': typeof AppCompanybrokerClientdetailIdRoute
   '/token/$user/$pass': typeof NativeTokenUserPassRoute
 }
 
@@ -1601,6 +1619,7 @@ export interface FileRoutesByTo {
   '/client/updatecomission/$id': typeof AppClientUpdatecomissionIdRoute
   '/client/viewbeneficiary/$id': typeof AppClientViewbeneficiaryIdRoute
   '/companybroker/SuperbrockerProfile/$id': typeof AppCompanybrokerSuperbrockerProfileIdRoute
+  '/companybroker/clientdetail/$id': typeof AppCompanybrokerClientdetailIdRoute
   '/token/$user/$pass': typeof NativeTokenUserPassRoute
 }
 
@@ -1690,6 +1709,7 @@ export interface FileRoutesById {
   '/_app/client/updatecomission/$id': typeof AppClientUpdatecomissionIdRoute
   '/_app/client/viewbeneficiary/$id': typeof AppClientViewbeneficiaryIdRoute
   '/_app/companybroker/SuperbrockerProfile/$id': typeof AppCompanybrokerSuperbrockerProfileIdRoute
+  '/_app/companybroker/clientdetail/$id': typeof AppCompanybrokerClientdetailIdRoute
   '/_native/token/$user/$pass': typeof NativeTokenUserPassRoute
 }
 
@@ -1777,6 +1797,7 @@ export interface FileRouteTypes {
     | '/client/updatecomission/$id'
     | '/client/viewbeneficiary/$id'
     | '/companybroker/SuperbrockerProfile/$id'
+    | '/companybroker/clientdetail/$id'
     | '/token/$user/$pass'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -1861,6 +1882,7 @@ export interface FileRouteTypes {
     | '/client/updatecomission/$id'
     | '/client/viewbeneficiary/$id'
     | '/companybroker/SuperbrockerProfile/$id'
+    | '/companybroker/clientdetail/$id'
     | '/token/$user/$pass'
   id:
     | '__root__'
@@ -1948,6 +1970,7 @@ export interface FileRouteTypes {
     | '/_app/client/updatecomission/$id'
     | '/_app/client/viewbeneficiary/$id'
     | '/_app/companybroker/SuperbrockerProfile/$id'
+    | '/_app/companybroker/clientdetail/$id'
     | '/_native/token/$user/$pass'
   fileRoutesById: FileRoutesById
 }
@@ -2060,7 +2083,8 @@ export const routeTree = rootRoute
         "/_app/client/transactionhistory/$id",
         "/_app/client/updatecomission/$id",
         "/_app/client/viewbeneficiary/$id",
-        "/_app/companybroker/SuperbrockerProfile/$id"
+        "/_app/companybroker/SuperbrockerProfile/$id",
+        "/_app/companybroker/clientdetail/$id"
       ]
     },
     "/_auth": {
@@ -2284,11 +2308,11 @@ export const routeTree = rootRoute
       "parent": "/_app"
     },
     "/_app/companybroker/BrokerProfile": {
-      "filePath": "_app/companybroker/BrokerProfile.jsx",
+      "filePath": "_app/companybroker/BrokerProfile.tsx",
       "parent": "/_app"
     },
     "/_app/companybroker/DisplaySuperBroker": {
-      "filePath": "_app/companybroker/DisplaySuperBroker.jsx",
+      "filePath": "_app/companybroker/DisplaySuperBroker.tsx",
       "parent": "/_app"
     },
     "/_app/companybroker/SuperBrockerTable": {
@@ -2401,6 +2425,10 @@ export const routeTree = rootRoute
     },
     "/_app/companybroker/SuperbrockerProfile/$id": {
       "filePath": "_app/companybroker/SuperbrockerProfile.$id.tsx",
+      "parent": "/_app"
+    },
+    "/_app/companybroker/clientdetail/$id": {
+      "filePath": "_app/companybroker/clientdetail.$id.tsx",
       "parent": "/_app"
     },
     "/_native/token/$user/$pass": {

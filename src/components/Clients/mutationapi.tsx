@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 export const CLIENTS_QUERY_KEY = ['clients'];
 
 export const getAllClients = async () => {
-  const response = await api.get(`/admin/customer`);
+  const response = await api.get(`/company/customer`);
   return response.data;
 };
 
@@ -17,7 +17,7 @@ export const useGetAllClients = () => {
 };
 
 export const getClientById = async (id: string) => {
-  const response = await api.get(`/admin/customer/${id}`);
+  const response = await api.get(`/company/customer/${id}`);
   return response.data;
 };
 
@@ -26,5 +26,111 @@ export const useGetClientById = (id: string) => {
     queryKey: ['client', id],
     queryFn: () => getClientById(id),
     enabled: !!id,
+  });
+};
+
+export const useSendDeposite = () => {
+  return useMutation({
+    mutationFn: async (data: {
+      amount: number;
+      securityPin: string;
+      customerId: string;
+    }) => {
+      const response = await api.post(
+        `/company/customer/${data.customerId}/deposite`,
+        data,
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success('Deposite sent successfully');
+    },
+    onError: (error: any) => {
+      toast.error(error.response.data.message);
+    },
+  });
+};
+
+
+export const useSendWithdraw = () => {
+  return useMutation({
+    mutationFn: async (data: {
+      amount: number;
+      securityPin: string;
+      customerId: string;
+    }) => {
+      const response = await api.post(
+        `/company/customer/${data.customerId}/withdraw`,
+        data,
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success('Deposite sent successfully');
+    },
+    onError: (error: any) => {
+      toast.error(error.response.data.message);
+    },
+  });
+};
+
+export const addMargin = async (data: {
+  customerId: string;
+  intradayLeverage: number;
+  deliveryLeverage: number;
+  securityPin: string;
+}) => {
+  try {
+    const response = await api.post(
+      `/company/customer/${data.customerId}/margin`,
+      {
+        intradayLeverage: data.intradayLeverage,
+        deliveryLeverage: data.deliveryLeverage,
+        securityPin: data.securityPin,
+      },
+    );
+    return response;
+  } catch (error) {
+    console.error('Error adding margin:', error);
+    throw error;
+  }
+};
+
+export const useAddMargin = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: addMargin,
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ['customer', 'client']});
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message || 'Failed to add margin';
+      toast.error(errorMessage);
+    },
+  });
+};
+
+
+export const useUpdateCustomer = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      const response = await api.put(`/company/customer/${id}`, data);
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success('Customer updated successfully!');
+      queryClient.invalidateQueries({ queryKey: ['customer'] });
+      queryClient.invalidateQueries({ queryKey: ['client'] });
+      queryClient.invalidateQueries({ queryKey: ['get-customer'] });
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message || 'Failed to update customer';
+      toast.error(errorMessage);
+    },
   });
 };

@@ -214,3 +214,24 @@ export const getSuperBrokerDataApi = async () => {
     throw error;
   }
 };
+
+export const useUpdateBrokerProfile = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({id, data}: {id: string; data: any}) =>
+      api.put(`/super-broker/broker/${id}`, data),
+
+    onSuccess: () => {
+      toast.success('Super broker profile updated successfully!');
+      queryClient.invalidateQueries({queryKey: ['super_brocker']});
+      queryClient.invalidateQueries({queryKey: ['get-superbroker']});
+      queryClient.invalidateQueries({queryKey: ['get-superbroker-data']});
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.message || 'Failed to update super broker profile';
+      toast.error(errorMessage);
+    },
+  });
+};

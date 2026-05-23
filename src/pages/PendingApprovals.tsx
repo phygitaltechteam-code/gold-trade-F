@@ -15,6 +15,10 @@ import {
   Trash2,
   X,
   RefreshCw,
+  UserCheck,
+  UserX,
+  Building,
+  Users,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import {
@@ -26,7 +30,9 @@ import {
 
 const PendingApprovals: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'brokers' | 'clients'>('brokers');
-  const [statusFilter, setStatusFilter] = useState<'PENDING' | 'ALL'>('ALL');
+  const [statusFilter, setStatusFilter] = useState<'PENDING' | 'ALL'>(
+    'PENDING',
+  );
 
   // Broker Filters
   const [brokerSearch, setBrokerSearch] = useState('');
@@ -74,7 +80,7 @@ const PendingApprovals: React.FC = () => {
   const deleteCustomerMutation = useDeleteCustomer();
   const updateCustomerMutation = useUpdateCustomer();
 
-  // Extract Broker Lists Safely from the nested data structure
+  // Extract Broker Lists Safely
   const brokerList = useMemo(() => {
     let list: any[] = [];
     if (
@@ -136,12 +142,14 @@ const PendingApprovals: React.FC = () => {
         id: brokerToApprove.id,
         superBrokerId: selectedSuperBrokerForApprove,
       });
+      toast.success('Broker approved successfully');
       setShowApproveModal(false);
       setBrokerToApprove(null);
       setSelectedSuperBrokerForApprove('');
       refetchBrokers();
     } catch (error) {
       console.error(error);
+      toast.error('Failed to approve broker');
     }
   };
 
@@ -153,9 +161,11 @@ const PendingApprovals: React.FC = () => {
     ) {
       try {
         await deleteBrokerMutation.mutateAsync(broker.id);
+        toast.success('Broker deleted successfully');
         refetchBrokers();
       } catch (error) {
         console.error(error);
+        toast.error('Failed to delete broker');
       }
     }
   };
@@ -168,10 +178,12 @@ const PendingApprovals: React.FC = () => {
         id: editingBroker.id,
         data: editingBroker,
       });
+      toast.success('Broker updated successfully');
       setEditingBroker(null);
       refetchBrokers();
     } catch (error) {
       console.error(error);
+      toast.error('Failed to update broker');
     }
   };
 
@@ -179,9 +191,11 @@ const PendingApprovals: React.FC = () => {
   const handleApproveClient = async (client: any) => {
     try {
       await acceptCustomerMutation.mutateAsync(client.id);
+      toast.success('Customer verified successfully');
       refetchCustomers();
     } catch (error) {
       console.error(error);
+      toast.error('Failed to verify customer');
     }
   };
 
@@ -193,9 +207,11 @@ const PendingApprovals: React.FC = () => {
     ) {
       try {
         await deleteCustomerMutation.mutateAsync(client.id);
+        toast.success('Customer deleted successfully');
         refetchCustomers();
       } catch (error) {
         console.error(error);
+        toast.error('Failed to delete customer');
       }
     }
   };
@@ -208,10 +224,12 @@ const PendingApprovals: React.FC = () => {
         id: editingClient.id,
         data: editingClient,
       });
+      toast.success('Customer updated successfully');
       setEditingClient(null);
       refetchCustomers();
     } catch (error) {
       console.error(error);
+      toast.error('Failed to update customer');
     }
   };
 
@@ -306,13 +324,8 @@ const PendingApprovals: React.FC = () => {
     clientSelectedBroker,
   ]);
 
-  // BROKER TABLE COLUMNS - Fixed Super Broker display
+  // BROKER TABLE COLUMNS - with icon actions
   const brokerColumns: Column<any>[] = [
-    {
-      header: 'SR No.',
-      accessor: (item: any) => filteredBrokers.indexOf(item) + 1,
-      className: 'w-16 font-semibold text-gray-600',
-    },
     {
       header: 'Name',
       accessor: 'fullname',
@@ -338,7 +351,6 @@ const PendingApprovals: React.FC = () => {
       header: 'Super Broker',
       accessor: 'superBroker',
       render: (item: any) => {
-        // Use the superBroker object from the API response
         const superBrokerName =
           item.superBroker?.user?.fullname ||
           item.superBroker?.fullname ||
@@ -361,61 +373,61 @@ const PendingApprovals: React.FC = () => {
       header: 'Commission',
       accessor: 'brokeragePercent',
       render: (item: any) => (
-        <span className="rounded border border-orange-100 bg-orange-50 px-2 py-1 text-xs font-bold text-orange-600">
+        <span className="rounded-full border border-orange-100 bg-orange-50 px-2.5 py-1 text-xs font-bold text-orange-600">
           {item.brokeragePercent ? `${item.brokeragePercent}%` : '0%'}
         </span>
       ),
     },
     {
-      header: 'Action',
+      header: 'Actions',
       accessor: 'id',
       render: (item: any) => {
         const isVerified = item.isVerified;
 
         return (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             {!isVerified && (
               <button
                 onClick={() => handleApproveBroker(item)}
                 disabled={approveBrokerMutation.isPending}
-                className="flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-emerald-700 active:scale-95 disabled:opacity-50"
+                className="rounded-lg bg-emerald-50 p-2 text-emerald-600 transition-all hover:bg-emerald-100 hover:text-emerald-700 active:scale-95 disabled:opacity-50"
+                title="Approve Broker"
               >
-                <CheckCircle className="h-3.5 w-3.5" /> Approve
+                <CheckCircle className="h-4 w-4" />
               </button>
             )}
             {isVerified && (
               <button
                 disabled={true}
-                className="bg-gray-400 flex cursor-not-allowed items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold text-white"
+                className="bg-gray-100 text-gray-400 cursor-not-allowed rounded-lg p-2"
+                title="Already Verified"
               >
-                <CheckCircle className="h-3.5 w-3.5" /> Verified
+                <CheckCircle className="h-4 w-4" />
               </button>
             )}
             <button
               onClick={() => setEditingBroker({...item})}
-              className="flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-blue-700 active:scale-95"
+              className="rounded-lg bg-blue-50 p-2 text-blue-600 transition-all hover:bg-blue-100 hover:text-blue-700 active:scale-95"
+              title="Edit Broker"
             >
-              <Edit3 className="h-3.5 w-3.5" /> Edit
+              <Edit3 className="h-4 w-4" />
             </button>
             <button
               onClick={() => handleDeleteBroker(item)}
               disabled={deleteBrokerMutation.isPending}
-              className="flex items-center gap-1 rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-rose-700 active:scale-95 disabled:opacity-50"
+              className="rounded-lg bg-rose-50 p-2 text-rose-600 transition-all hover:bg-rose-100 hover:text-rose-700 active:scale-95 disabled:opacity-50"
+              title="Delete Broker"
             >
-              <Trash2 className="h-3.5 w-3.5" /> Delete
+              <Trash2 className="h-4 w-4" />
             </button>
           </div>
         );
       },
     },
   ];
-  // CLIENT TABLE COLUMNS
+
+  // CLIENT TABLE COLUMNS - with icon actions
   const clientColumns: Column<any>[] = [
-    {
-      header: 'SR No.',
-      accessor: (item: any) => filteredClients.indexOf(item) + 1,
-      className: 'w-16 font-semibold text-gray-600',
-    },
     {
       header: 'Name',
       accessor: (item: any) => item?.user?.fullname || 'N/A',
@@ -477,7 +489,7 @@ const PendingApprovals: React.FC = () => {
       ),
     },
     {
-      header: 'Action',
+      header: 'Actions',
       accessor: 'id',
       render: (item: any) => {
         const isVerified = item?.user?.isVerified;
@@ -485,22 +497,24 @@ const PendingApprovals: React.FC = () => {
         const isPending = !isVerified && !isRejected;
 
         return (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             {isPending && (
               <button
                 onClick={() => handleApproveClient(item)}
                 disabled={acceptCustomerMutation.isPending}
-                className="flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-emerald-700 active:scale-95 disabled:opacity-50"
+                className="rounded-lg bg-emerald-50 p-2 text-emerald-600 transition-all hover:bg-emerald-100 hover:text-emerald-700 active:scale-95 disabled:opacity-50"
+                title="Verify Customer"
               >
-                <CheckCircle className="h-3.5 w-3.5" /> Verify
+                <UserCheck className="h-4 w-4" />
               </button>
             )}
             {isVerified && (
               <button
                 disabled={true}
-                className="bg-gray-400 flex cursor-not-allowed items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold text-white"
+                className="bg-gray-100 text-gray-400 cursor-not-allowed rounded-lg p-2"
+                title="Already Verified"
               >
-                <CheckCircle className="h-3.5 w-3.5" /> Verified
+                <UserCheck className="h-4 w-4" />
               </button>
             )}
             <button
@@ -515,16 +529,18 @@ const PendingApprovals: React.FC = () => {
                   commission: item?.brokeragePercent || '',
                 })
               }
-              className="flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-blue-700 active:scale-95"
+              className="rounded-lg bg-blue-50 p-2 text-blue-600 transition-all hover:bg-blue-100 hover:text-blue-700 active:scale-95"
+              title="Edit Customer"
             >
-              <Edit3 className="h-3.5 w-3.5" /> Edit
+              <Edit3 className="h-4 w-4" />
             </button>
             <button
               onClick={() => handleDeleteClient(item)}
               disabled={deleteCustomerMutation.isPending}
-              className="flex items-center gap-1 rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-rose-700 active:scale-95 disabled:opacity-50"
+              className="rounded-lg bg-rose-50 p-2 text-rose-600 transition-all hover:bg-rose-100 hover:text-rose-700 active:scale-95 disabled:opacity-50"
+              title="Delete Customer"
             >
-              <Trash2 className="h-3.5 w-3.5" /> Delete
+              <Trash2 className="h-4 w-4" />
             </button>
           </div>
         );
@@ -532,50 +548,98 @@ const PendingApprovals: React.FC = () => {
     },
   ];
 
-  return (
-    <div className="bg-gray-50/50 font-inter min-h-screen p-2 md:p-8">
-      <div className="mx-auto max-w-[2000px]">
-        {/* Header & Status Toggle */}
-        <div className="border-gray-200 mb-8 flex flex-col items-start justify-between gap-4 rounded-2xl border border-b border-stroke bg-white p-6 pb-6 shadow-sm md:flex-row md:items-center">
-          <div>
-            <h1 className="text-gray-900 flex items-center gap-3 text-2xl font-extrabold tracking-tight md:text-3xl">
-              <span className="bg-gradient-to-r from-orange-500 to-red-600 bg-clip-text text-transparent">
-                Pending Approvals Dashboard
-              </span>
-            </h1>
-            <p className="text-gray-500 mt-1 text-sm">
-              Review, edit, delete, and approve pending registrations for
-              Brokers and Customers.
-            </p>
-          </div>
+  // Get counts for tabs
+  const pendingBrokersCount = brokerList.filter(
+    (b: any) => !b.isVerified,
+  ).length;
+  const pendingClientsCount = customerList.filter((c: any) => {
+    const user = c?.user;
+    return user && !user.isVerified && !user.isRejected;
+  }).length;
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => {
-                refetchBrokers();
-                refetchCustomers();
-              }}
-              className="border-gray-200 text-gray-700 hover:bg-gray-50 flex items-center gap-2 rounded-xl border bg-white px-4 py-2.5 text-sm font-semibold shadow-sm transition-all active:scale-95"
-            >
-              <RefreshCw className="text-gray-500 h-4 w-4" /> Refresh
-            </button>
-            <div className="bg-gray-100 border-gray-200 flex rounded-xl border p-1">
+  return (
+    <div className="bg-gray-50/50 font-inter min-h-screen p-4 md:p-6 lg:p-8">
+      <div className="mx-auto max-w-[2000px]">
+        {/* Header */}
+        <div className="mb-6 md:mb-8">
+          <h1 className="flex items-center gap-3 text-2xl font-semibold tracking-tight text-slate-900 md:text-3xl">
+            Pending Approvals
+          </h1>
+          <p className="text-gray-500 mt-1 text-sm">
+            Review and manage pending registrations for brokers and customers.
+          </p>
+        </div>
+
+        {/* Tabs with Filter Integration */}
+        <div className="mb-6 border-b border-stroke">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  setActiveTab('brokers');
+                  setStatusFilter('PENDING');
+                }}
+                className={`flex items-center gap-2 rounded-t-lg px-4 py-2.5 text-sm font-medium transition-all md:px-6 ${
+                  activeTab === 'brokers'
+                    ? 'border-b-2 border-orange-500 text-orange-600'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Building className="h-4 w-4" />
+                Brokers
+                <span
+                  className={`ml-1 rounded-full px-2 py-0.5 text-xs ${
+                    activeTab === 'brokers'
+                      ? 'bg-orange-100 text-orange-600'
+                      : 'bg-gray-100 text-gray-600'
+                  }`}
+                >
+                  {pendingBrokersCount}
+                </span>
+              </button>
+              <button
+                onClick={() => {
+                  setActiveTab('clients');
+                  setStatusFilter('PENDING');
+                }}
+                className={`flex items-center gap-2 rounded-t-lg px-4 py-2.5 text-sm font-medium transition-all md:px-6 ${
+                  activeTab === 'clients'
+                    ? 'border-b-2 border-orange-500 text-orange-600'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Users className="h-4 w-4" />
+                Customers
+                <span
+                  className={`ml-1 rounded-full px-2 py-0.5 text-xs ${
+                    activeTab === 'clients'
+                      ? 'bg-orange-100 text-orange-600'
+                      : 'bg-gray-100 text-gray-600'
+                  }`}
+                >
+                  {pendingClientsCount}
+                </span>
+              </button>
+            </div>
+
+            {/* Status Filter Toggle */}
+            <div className="flex items-center gap-2 rounded-lg border border-stroke bg-white p-1">
               <button
                 onClick={() => setStatusFilter('PENDING')}
-                className={`rounded-lg px-4 py-2 text-sm font-bold transition-all ${
+                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all md:px-4 md:text-sm ${
                   statusFilter === 'PENDING'
-                    ? 'bg-white text-orange-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-orange-500 text-white shadow-sm'
+                    : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
                 Pending Only
               </button>
               <button
                 onClick={() => setStatusFilter('ALL')}
-                className={`rounded-lg px-4 py-2 text-sm font-bold transition-all ${
+                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all md:px-4 md:text-sm ${
                   statusFilter === 'ALL'
-                    ? 'bg-white text-orange-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-orange-500 text-white shadow-sm'
+                    : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
                 All Records
@@ -584,94 +648,54 @@ const PendingApprovals: React.FC = () => {
           </div>
         </div>
 
-        {/* Navigation Tabs */}
-        <div className="border-gray-200 mb-6 flex gap-3 border-b pb-4">
-          <button
-            onClick={() => setActiveTab('brokers')}
-            className={`flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold transition-all ${
-              activeTab === 'brokers'
-                ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg shadow-orange-500/20'
-                : 'border-gray-200 text-gray-600 hover:bg-gray-50 border bg-white'
-            }`}
-          >
-            Broker Requests
-            <span
-              className={`rounded-full px-2 py-0.5 text-xs ${
-                activeTab === 'brokers'
-                  ? 'bg-white/20 text-white'
-                  : 'bg-orange-100 text-orange-600'
-              }`}
-            >
-              {filteredBrokers.length}
-            </span>
-          </button>
-          <button
-            onClick={() => setActiveTab('clients')}
-            className={`flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold transition-all ${
-              activeTab === 'clients'
-                ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg shadow-orange-500/20'
-                : 'border-gray-200 text-gray-600 hover:bg-gray-50 border bg-white'
-            }`}
-          >
-            Customer Requests
-            <span
-              className={`rounded-full px-2 py-0.5 text-xs ${
-                activeTab === 'clients'
-                  ? 'bg-white/20 text-white'
-                  : 'bg-orange-100 text-orange-600'
-              }`}
-            >
-              {filteredClients.length}
-            </span>
-          </button>
-        </div>
-
         {/* Tab Content - Brokers */}
         {activeTab === 'brokers' && (
-          <div className="rounded-2xl border border-stroke bg-white p-6 shadow-sm">
+          <div className="rounded-2xl border border-stroke bg-white shadow-sm">
             {/* Broker Filters Toolbar */}
-            <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-              <div className="relative">
-                <Search className="text-gray-400 absolute left-3.5 top-3 h-4 w-4" />
-                <input
-                  type="text"
-                  placeholder="Search broker by name, phone or BK ID..."
-                  value={brokerSearch}
-                  onChange={(e) => setBrokerSearch(e.target.value)}
-                  className="border-gray-200 bg-gray-50/50 text-gray-900 w-full rounded-xl border py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
-                />
-              </div>
+            <div className="border-b border-stroke p-4 md:p-6">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div className="relative">
+                  <Search className="text-gray-400 absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    placeholder="Search by name, phone or BK ID..."
+                    value={brokerSearch}
+                    onChange={(e) => setBrokerSearch(e.target.value)}
+                    className="bg-gray-50/50 text-gray-900 w-full rounded-xl border border-stroke py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
+                  />
+                </div>
 
-              <div className="relative">
-                <Filter className="text-gray-400 absolute left-3.5 top-3 h-4 w-4" />
-                <select
-                  value={selectedSuperBroker}
-                  onChange={(e) => setSelectedSuperBroker(e.target.value)}
-                  className="border-gray-200 bg-gray-50/50 text-gray-900 w-full cursor-pointer appearance-none rounded-xl border py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
-                >
-                  <option value="">Filter by Super Broker (All)</option>
-                  {superBrokerList.map((sb: any) => (
-                    <option key={sb.id} value={sb.id}>
-                      {sb.fullname} ({sb.SBID || sb.id?.substring(0, 6)})
-                    </option>
-                  ))}
-                </select>
-              </div>
+                <div className="relative">
+                  <Filter className="text-gray-400 absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2" />
+                  <select
+                    value={selectedSuperBroker}
+                    onChange={(e) => setSelectedSuperBroker(e.target.value)}
+                    className="bg-gray-50/50 text-gray-900 w-full cursor-pointer appearance-none rounded-xl border border-stroke py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
+                  >
+                    <option value="">All Super Brokers</option>
+                    {superBrokerList.map((sb: any) => (
+                      <option key={sb.id} value={sb.id}>
+                        {sb.fullname} ({sb.SBID || sb.id?.substring(0, 6)})
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-              <div className="relative">
-                <Filter className="text-gray-400 absolute left-3.5 top-3 h-4 w-4" />
-                <select
-                  value={selectedBroker}
-                  onChange={(e) => setSelectedBroker(e.target.value)}
-                  className="border-gray-200 bg-gray-50/50 text-gray-900 w-full cursor-pointer appearance-none rounded-xl border py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
-                >
-                  <option value="">Filter by Broker (All)</option>
-                  {brokerList.map((b: any) => (
-                    <option key={b.id} value={b.id}>
-                      {b.fullname} ({b.BKId || b.id?.substring(0, 6)})
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <Filter className="text-gray-400 absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2" />
+                  <select
+                    value={selectedBroker}
+                    onChange={(e) => setSelectedBroker(e.target.value)}
+                    className="bg-gray-50/50 text-gray-900 w-full cursor-pointer appearance-none rounded-xl border border-stroke py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
+                  >
+                    <option value="">All Brokers</option>
+                    {brokerList.map((b: any) => (
+                      <option key={b.id} value={b.id}>
+                        {b.fullname} ({b.BKId || b.id?.substring(0, 6)})
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -681,63 +705,69 @@ const PendingApprovals: React.FC = () => {
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
               </div>
             ) : (
-              <GenericTable
-                data={filteredBrokers}
-                columns={brokerColumns}
-                action={false}
-                searchAble={false}
-                itemsPerPage={10}
-              />
+              <div className="overflow-x-auto">
+                <GenericTable
+                  data={filteredBrokers}
+                  columns={brokerColumns}
+                  action={false}
+                  searchAble={false}
+                  itemsPerPage={10}
+                />
+              </div>
             )}
           </div>
         )}
 
         {/* Tab Content - Clients */}
         {activeTab === 'clients' && (
-          <div className="rounded-2xl border border-stroke bg-white p-6 shadow-sm">
+          <div className="rounded-2xl border border-stroke bg-white shadow-sm">
             {/* Client Filters Toolbar */}
-            <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-              <div className="relative">
-                <Search className="text-gray-400 absolute left-3.5 top-3 h-4 w-4" />
-                <input
-                  type="text"
-                  placeholder="Search client by name, phone, email or CRN..."
-                  value={clientSearch}
-                  onChange={(e) => setClientSearch(e.target.value)}
-                  className="border-gray-200 bg-gray-50/50 text-gray-900 w-full rounded-xl border py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
-                />
-              </div>
+            <div className="border-b border-stroke p-4 md:p-6">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div className="relative">
+                  <Search className="text-gray-400 absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    placeholder="Search by name, phone, email or CRN..."
+                    value={clientSearch}
+                    onChange={(e) => setClientSearch(e.target.value)}
+                    className="bg-gray-50/50 text-gray-900 w-full rounded-xl border border-stroke py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
+                  />
+                </div>
 
-              <div className="relative">
-                <Filter className="text-gray-400 absolute left-3.5 top-3 h-4 w-4" />
-                <select
-                  value={clientSelectedSuperBroker}
-                  onChange={(e) => setClientSelectedSuperBroker(e.target.value)}
-                  className="border-gray-200 bg-gray-50/50 text-gray-900 w-full cursor-pointer appearance-none rounded-xl border py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
-                >
-                  <option value="">Filter by Super Broker (All)</option>
-                  {superBrokerList.map((sb: any) => (
-                    <option key={sb.id} value={sb.id}>
-                      {sb.fullname} ({sb.SBID || sb.id?.substring(0, 6)})
-                    </option>
-                  ))}
-                </select>
-              </div>
+                <div className="relative">
+                  <Filter className="text-gray-400 absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2" />
+                  <select
+                    value={clientSelectedSuperBroker}
+                    onChange={(e) =>
+                      setClientSelectedSuperBroker(e.target.value)
+                    }
+                    className="bg-gray-50/50 text-gray-900 w-full cursor-pointer appearance-none rounded-xl border border-stroke py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
+                  >
+                    <option value="">All Super Brokers</option>
+                    {superBrokerList.map((sb: any) => (
+                      <option key={sb.id} value={sb.id}>
+                        {sb.fullname} ({sb.SBID || sb.id?.substring(0, 6)})
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-              <div className="relative">
-                <Filter className="text-gray-400 absolute left-3.5 top-3 h-4 w-4" />
-                <select
-                  value={clientSelectedBroker}
-                  onChange={(e) => setClientSelectedBroker(e.target.value)}
-                  className="border-gray-200 bg-gray-50/50 text-gray-900 w-full cursor-pointer appearance-none rounded-xl border py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
-                >
-                  <option value="">Filter by Broker (All)</option>
-                  {brokerList.map((b: any) => (
-                    <option key={b.id} value={b.id}>
-                      {b.fullname} ({b.BKId || b.id?.substring(0, 6)})
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <Filter className="text-gray-400 absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2" />
+                  <select
+                    value={clientSelectedBroker}
+                    onChange={(e) => setClientSelectedBroker(e.target.value)}
+                    className="bg-gray-50/50 text-gray-900 w-full cursor-pointer appearance-none rounded-xl border border-stroke py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
+                  >
+                    <option value="">All Brokers</option>
+                    {brokerList.map((b: any) => (
+                      <option key={b.id} value={b.id}>
+                        {b.fullname} ({b.BKId || b.id?.substring(0, 6)})
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -747,13 +777,15 @@ const PendingApprovals: React.FC = () => {
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
               </div>
             ) : (
-              <GenericTable
-                data={filteredClients}
-                columns={clientColumns}
-                action={false}
-                searchAble={false}
-                itemsPerPage={10}
-              />
+              <div className="overflow-x-auto">
+                <GenericTable
+                  data={filteredClients}
+                  columns={clientColumns}
+                  action={false}
+                  searchAble={false}
+                  itemsPerPage={10}
+                />
+              </div>
             )}
           </div>
         )}
@@ -762,7 +794,7 @@ const PendingApprovals: React.FC = () => {
         {showApproveModal && brokerToApprove && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
             <div className="animate-in fade-in zoom-in-95 w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl duration-200">
-              <div className="border-gray-100 flex items-center justify-between border-b pb-4">
+              <div className="flex items-center justify-between border-b border-stroke pb-4">
                 <h3 className="text-gray-900 text-xl font-bold">
                   Approve Broker
                 </h3>
@@ -793,7 +825,7 @@ const PendingApprovals: React.FC = () => {
                     onChange={(e) =>
                       setSelectedSuperBrokerForApprove(e.target.value)
                     }
-                    className="border-gray-200 text-gray-900 mt-1 w-full cursor-pointer appearance-none rounded-xl border bg-white p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                    className="text-gray-900 mt-1 w-full cursor-pointer appearance-none rounded-xl border border-stroke bg-white p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
                     required
                   >
                     <option value="">Select Super Broker</option>
@@ -805,11 +837,11 @@ const PendingApprovals: React.FC = () => {
                   </select>
                 </div>
 
-                <div className="border-gray-100 flex justify-end gap-3 border-t pt-4">
+                <div className="flex justify-end gap-3 border-t border-stroke pt-4">
                   <button
                     type="button"
                     onClick={() => setShowApproveModal(false)}
-                    className="border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl border px-5 py-2.5 text-sm font-semibold transition-all"
+                    className="text-gray-600 hover:bg-gray-50 rounded-xl border border-stroke px-5 py-2.5 text-sm font-semibold transition-all"
                   >
                     Cancel
                   </button>
@@ -832,7 +864,7 @@ const PendingApprovals: React.FC = () => {
         {editingBroker && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
             <div className="animate-in fade-in zoom-in-95 w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl duration-200">
-              <div className="border-gray-100 flex items-center justify-between border-b pb-4">
+              <div className="flex items-center justify-between border-b border-stroke pb-4">
                 <h3 className="text-gray-900 text-xl font-bold">Edit Broker</h3>
                 <button
                   onClick={() => setEditingBroker(null)}
@@ -856,7 +888,7 @@ const PendingApprovals: React.FC = () => {
                         fullname: e.target.value,
                       })
                     }
-                    className="border-gray-200 text-gray-900 mt-1 w-full rounded-xl border p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                    className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
                     required
                   />
                 </div>
@@ -874,7 +906,7 @@ const PendingApprovals: React.FC = () => {
                         phoneNumber: e.target.value,
                       })
                     }
-                    className="border-gray-200 text-gray-900 mt-1 w-full rounded-xl border p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                    className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
                     required
                   />
                 </div>
@@ -892,7 +924,7 @@ const PendingApprovals: React.FC = () => {
                         area: e.target.value,
                       })
                     }
-                    className="border-gray-200 text-gray-900 mt-1 w-full rounded-xl border p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                    className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
                   />
                 </div>
 
@@ -910,15 +942,15 @@ const PendingApprovals: React.FC = () => {
                         brokeragePercent: parseFloat(e.target.value),
                       })
                     }
-                    className="border-gray-200 text-gray-900 mt-1 w-full rounded-xl border p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                    className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
                   />
                 </div>
 
-                <div className="border-gray-100 flex justify-end gap-3 border-t pt-4">
+                <div className="flex justify-end gap-3 border-t border-stroke pt-4">
                   <button
                     type="button"
                     onClick={() => setEditingBroker(null)}
-                    className="border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl border px-5 py-2.5 text-sm font-semibold transition-all"
+                    className="text-gray-600 hover:bg-gray-50 rounded-xl border border-stroke px-5 py-2.5 text-sm font-semibold transition-all"
                   >
                     Cancel
                   </button>
@@ -941,7 +973,7 @@ const PendingApprovals: React.FC = () => {
         {editingClient && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
             <div className="animate-in fade-in zoom-in-95 w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl duration-200">
-              <div className="border-gray-100 flex items-center justify-between border-b pb-4">
+              <div className="flex items-center justify-between border-b border-stroke pb-4">
                 <h3 className="text-gray-900 text-xl font-bold">
                   Edit Customer
                 </h3>
@@ -967,7 +999,7 @@ const PendingApprovals: React.FC = () => {
                         fullname: e.target.value,
                       })
                     }
-                    className="border-gray-200 text-gray-900 mt-1 w-full rounded-xl border p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                    className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
                     required
                   />
                 </div>
@@ -985,7 +1017,7 @@ const PendingApprovals: React.FC = () => {
                         email: e.target.value,
                       })
                     }
-                    className="border-gray-200 text-gray-900 mt-1 w-full rounded-xl border p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                    className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
                     required
                   />
                 </div>
@@ -1003,7 +1035,7 @@ const PendingApprovals: React.FC = () => {
                         phoneNumber: e.target.value,
                       })
                     }
-                    className="border-gray-200 text-gray-900 mt-1 w-full rounded-xl border p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                    className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
                     required
                   />
                 </div>
@@ -1021,7 +1053,7 @@ const PendingApprovals: React.FC = () => {
                         address: e.target.value,
                       })
                     }
-                    className="border-gray-200 text-gray-900 mt-1 w-full rounded-xl border p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                    className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
                   />
                 </div>
 
@@ -1037,7 +1069,7 @@ const PendingApprovals: React.FC = () => {
                         brokerId: e.target.value,
                       })
                     }
-                    className="border-gray-200 text-gray-900 mt-1 w-full cursor-pointer appearance-none rounded-xl border bg-white p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                    className="text-gray-900 mt-1 w-full cursor-pointer appearance-none rounded-xl border border-stroke bg-white p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
                   >
                     <option value="">Select Broker</option>
                     {brokerList.map((b: any) => (
@@ -1048,11 +1080,11 @@ const PendingApprovals: React.FC = () => {
                   </select>
                 </div>
 
-                <div className="border-gray-100 flex justify-end gap-3 border-t pt-4">
+                <div className="flex justify-end gap-3 border-t border-stroke pt-4">
                   <button
                     type="button"
                     onClick={() => setEditingClient(null)}
-                    className="border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl border px-5 py-2.5 text-sm font-semibold transition-all"
+                    className="text-gray-600 hover:bg-gray-50 rounded-xl border border-stroke px-5 py-2.5 text-sm font-semibold transition-all"
                   >
                     Cancel
                   </button>

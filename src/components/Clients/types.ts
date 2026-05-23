@@ -51,6 +51,16 @@ export interface Client {
   _count: {
     senderTransactions: number;
   };
+  broker: {
+    user: {
+      fullname: string;
+    };
+  };
+  superBroker: {
+    user: {
+      fullname: string;
+    };
+  };
 }
 
 export type ClientStatus = 'Active' | 'Suspended' | 'Pending Review';

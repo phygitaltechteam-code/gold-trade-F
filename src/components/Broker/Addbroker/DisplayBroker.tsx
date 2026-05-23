@@ -29,6 +29,11 @@ const DisplayBroker = ({refreshTrigger, onBrokerAdded}) => {
     }
   }, [refreshTrigger, refetch]);
 
+  // Handle row click - navigate to broker profile
+  const handleRowClick = (broker: any) => {
+    navigate({to: `/broker/brokerprofile/${broker?.id}`});
+  };
+
   const handleView = (broker: any) => {
     navigate({to: `/broker/brokerprofile/${broker?.id}`});
   };
@@ -59,14 +64,7 @@ const DisplayBroker = ({refreshTrigger, onBrokerAdded}) => {
       accessor: 'fullname',
       sortable: true,
       render: (row) => (
-        <span
-          onClick={() => {
-            navigate({to: `/broker/BrokerProfile/${row.id}`});
-          }}
-          className="cursor-pointer text-[#0284C7] hover:underline"
-        >
-          {row.fullname}
-        </span>
+        <span className="text-gray-900 font-medium">{row.fullname}</span>
       ),
     },
     {
@@ -138,9 +136,11 @@ const DisplayBroker = ({refreshTrigger, onBrokerAdded}) => {
       <GenericTable
         columns={columns}
         data={brokers || []}
+        onRowClick={handleRowClick}
         onView={handleView}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        clickable={true}
         viewTooltip="View Broker"
         editTooltip="Edit Broker"
         deleteTooltip="Delete Broker"

@@ -22,10 +22,10 @@ import {motion} from 'framer-motion';
 import {useGetAllClients} from './mutationapi';
 import {useActivateCustomer, useGetClients} from '@/lib/react-query/client';
 import {useGetAllSuperBrocker} from '@/lib/react-query/superbrocker';
-import {set} from 'lodash';
+import GenericTable from '@/components/Forms/Table/GenericTable';
 
 interface ClientDashboardProps {
-  onSelectClient: (client: Client) => void;
+  onSelectClient?: (client: Client) => void;
 }
 
 const StatCard = ({
@@ -55,7 +55,11 @@ const StatCard = ({
     <div className="flex items-center gap-2">
       {trend && !isLoading && (
         <span
-          className={`rounded-full px-2 py-0.5 text-xs font-medium ${trend > 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}
+          className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+            trend > 0
+              ? 'bg-emerald-50 text-emerald-600'
+              : 'bg-rose-50 text-rose-600'
+          }`}
         >
           {trend > 0 ? '↑' : '↓'} {Math.abs(trend)}%
         </span>
@@ -65,34 +69,7 @@ const StatCard = ({
   </div>
 );
 
-const StatusBadge = ({client}: {client: Client}) => {
-  const isActive = client.user?.isActive;
-  const isVerified = client.user?.isVerified;
-  const isRejected = client.user?.isRejected;
-
-  let status: ClientStatus = 'Pending Review';
-  let styles = 'bg-amber-50 text-amber-600 border-amber-100';
-
-  if (isActive && isVerified) {
-    status = 'Active';
-    styles = 'bg-emerald-50 text-emerald-600 border-emerald-100';
-  } else if (isRejected) {
-    status = 'Suspended';
-    styles = 'bg-rose-50 text-rose-600 border-rose-100';
-  }
-
-  return (
-    <span
-      className={`rounded-full border px-3 py-1 text-xs font-medium ${styles}`}
-    >
-      {status}
-    </span>
-  );
-};
-
-export const ClientDashboard: React.FC<ClientDashboardProps> = ({
-  onSelectClient,
-}) => {
+export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
   const navigate = useNavigate();
   const {user} = useAuthContext();
   const isBroker = user?.role === 'BROKER';
@@ -105,22 +82,20 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
   const [kycFilter, setKycFilter] = useState<string>('all');
   const [brokerFilter, setBrokerFilter] = useState<string>('all');
   const [superBrokerFilter, setSuperBrokerFilter] = useState<string>('all');
-  const {mutateAsync: statusChange, isSuccess} = useActivateCustomer();
+  const {mutateAsync: statusChange, isPending} = useActivateCustomer();
   const {data: allSuperBrocker} = useGetAllSuperBrocker();
-  const {data: clients = [], refetch} = useGetClients();
+  const {data: clients = [], refetch, isLoading} = useGetClients();
 
-  console.log('clientsassssssss', clients);
-  // Temporarily bypass API call because backend is not ready
-  // const {data: clients = [], isLoading, error, refetch} = useGetAllClients();
-  const isLoading = false;
-
+  // Extract unique broker names for filter
   const brokers = Array.from(
-    new Set(clients.map((c: any) => c.brokerName).filter(Boolean)),
+    new Set(clients.map((c: any) => c?.broker?.user?.fullname).filter(Boolean)),
   );
+
+  // Extract unique super broker names for filter
   const superBrokers = Array.from(
     new Set(
-      (allSuperBrocker?.data ?? [])
-        .map((c: any) => c?.fullname)
+      clients
+        .map((c: any) => c?.broker?.superBroker?.user?.fullname)
         .filter(Boolean),
     ),
   );
@@ -133,7 +108,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
     (c: Client) => !c.isKycCompleted && !c.user?.isRejected,
   ).length;
   const totalAUM = clients.reduce(
-    (sum: number, c: Client) => sum + (c.wallets?.amount || 0),
+    (sum: number, c: Client) => sum + (parseFloat(c.wallets?.amount) || 0),
     0,
   );
 
@@ -159,10 +134,10 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
     }
 
     const matchesBroker =
-      brokerFilter === 'all' || client.brokerName === brokerFilter;
+      brokerFilter === 'all' || client?.broker?.user?.fullname === brokerFilter;
     const matchesSuperBroker =
       superBrokerFilter === 'all' ||
-      client.superBrokerName === superBrokerFilter;
+      client?.broker?.superBroker?.user?.fullname === superBrokerFilter;
 
     return (
       matchesSearch &&
@@ -173,9 +148,12 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
     );
   });
 
-  const handleToggleClick = (id: string) => {
-    setSelectedClientId(id);
+  const handleToggleClick = (client: Client, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedClientId(client.id);
     setShowPinModal(true);
+    setPin('');
+    setShowPin(false);
   };
 
   const handleConfirm = async () => {
@@ -184,26 +162,30 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
       return;
     }
 
+    if (pin.length < 4) {
+      alert('PIN must be at least 4 digits');
+      return;
+    }
+
     try {
-      await statusChange(
-        {
-          id: selectedClientId!,
-          pin: pin,
-        },
-        {
-          onSuccess: async () => {
-            await refetch();
-            setShowPinModal(false);
-            setPin('');
-            setShowPin(false);
-            setSelectedClientId(null);
-          },
-        },
-      );
+      await statusChange({
+        id: selectedClientId!,
+        pin: pin,
+      });
+      await refetch();
+      setShowPinModal(false);
+      setPin('');
+      setShowPin(false);
+      setSelectedClientId(null);
     } catch (error) {
       console.log(error);
     }
   };
+
+  const handleRowClick = (client: Client) => {
+    navigate({to: '/companybroker/clientdetail/$id', params: {id: client.id}});
+  };
+
   const formatCurrency = (amount: number) => {
     if (amount >= 1000000) {
       return `$${(amount / 1000000).toFixed(1)}M`;
@@ -212,6 +194,143 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
     }
     return `$${amount}`;
   };
+
+  // Get the selected client for PIN modal
+  const selectedClient = clients.find((c) => c.id === selectedClientId);
+
+  const columns = [
+    {
+      header: 'Client Name',
+      accessor: 'user.fullname',
+      render: (row: Client) => (
+        <div className="flex items-center gap-3">
+          <div>
+            <div className="whitespace-nowrap text-sm font-medium text-slate-900">
+              {row.user?.fullname}
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: 'Broker Name',
+      accessor: 'broker.user.fullname',
+      render: (row: Client) => (
+        <span className="whitespace-nowrap text-sm font-medium text-slate-600">
+          {row?.broker?.user?.fullname || 'N/A'}
+        </span>
+      ),
+    },
+    {
+      header: 'Super Broker Name',
+      accessor: 'broker.superBroker.user.fullname',
+      render: (row: Client) => (
+        <span className="whitespace-nowrap text-sm font-medium text-slate-600">
+          {row?.broker?.superBroker?.user?.fullname || 'N/A'}
+        </span>
+      ),
+    },
+    {
+      header: 'Wallet Balance',
+      accessor: 'wallets.amount',
+      render: (row: Client) => {
+        const amount = parseFloat(row.wallets?.amount) || 0;
+        return (
+          <span className="whitespace-nowrap text-sm font-bold text-slate-900">
+            ${amount.toLocaleString()}
+          </span>
+        );
+      },
+    },
+    {
+      header: 'Asset Under Control',
+      accessor: 'wallets.blockedAmount',
+      render: (row: Client) => {
+        const amount = parseFloat(row.wallets?.blockedAmount) || 0;
+        return (
+          <span className="whitespace-nowrap text-sm font-bold text-slate-900">
+            ${amount.toLocaleString()}
+          </span>
+        );
+      },
+    },
+    {
+      header: 'Margin Amount',
+      accessor: 'marginAmount',
+      render: (row: Client) => (
+        <span className="whitespace-nowrap text-sm font-bold text-slate-900">
+          $0.00
+        </span>
+      ),
+    },
+    {
+      header: 'Total Active Trade',
+      accessor: 'totalActiveTrade',
+      render: (row: Client) => (
+        <span className="whitespace-nowrap text-sm font-medium text-slate-600">
+          {row._count?.trades || 0}
+        </span>
+      ),
+    },
+    {
+      header: 'Total Trade',
+      accessor: 'totalTrade',
+      render: (row: Client) => {
+        const amount = parseFloat(row.wallets?.amount) || 0;
+        return (
+          <span className="whitespace-nowrap text-sm font-bold text-orange-500">
+            ${amount.toLocaleString()}
+          </span>
+        );
+      },
+    },
+    {
+      header: 'P&L',
+      accessor: 'pnl',
+      render: (row: Client) => {
+       
+        const pnl = 0; 
+        const isProfit = pnl >= 0;
+        return (
+          <span
+            className={`whitespace-nowrap text-sm font-bold ${
+              isProfit ? 'text-green-600' : 'text-red-600'
+            }`}
+          >
+            {isProfit ? '+' : ''}
+            {pnl >= 0 ? `$${pnl.toLocaleString()}` : `-$${Math.abs(pnl).toLocaleString()}`}
+          </span>
+        );
+      },
+    },
+    {
+      header: 'Status',
+      accessor: 'user.isActive',
+      render: (row: Client) => {
+        const isActive = row.user?.isActive === true;
+        return (
+          <div
+            className="flex items-center gap-2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <label className="relative inline-flex cursor-pointer items-center">
+              <input
+                type="checkbox"
+                className="peer sr-only"
+                checked={isActive}
+                onChange={(e) => handleToggleClick(row, e)}
+                disabled={isPending}
+              />
+              <div className="relative h-5 w-9 rounded-full bg-slate-200 transition-colors after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-4 peer-disabled:opacity-50" />
+              <span className="ml-2 w-12 text-left text-[10px] font-bold uppercase text-slate-500">
+                {isActive ? 'Active' : 'Inactive'}
+              </span>
+            </label>
+          </div>
+        );
+      },
+    },
+  ];
 
   return (
     <motion.div
@@ -353,242 +472,76 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
         </div>
       </div>
 
-      {/* Loading State */}
-      {isLoading && (
-        <div className="rounded-2xl border border-black/5 bg-white p-12 text-center shadow-sm">
-          <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin text-orange-500" />
-          <p className="text-slate-500">Loading clients...</p>
-        </div>
-      )}
+      {/* Client Table */}
+      <GenericTable
+        columns={columns}
+        data={filteredClients}
+        onRowClick={handleRowClick}
+        clickable={true}
+        rowsPerPage={10}
+      />
 
-      {/* Table */}
-      {!isLoading && (
-        <div className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-left">
-              <thead>
-                <tr className="border-bottom border-slate-100 bg-slate-50/50">
-                  <th className="px-4 py-4 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Sr
-                  </th>
-                  <th className="px-4 py-4 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Client Name
-                  </th>
-                  <th className="px-4 py-4 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Broker Name
-                  </th>
-                  <th className="px-4 py-4 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Super Broker Name
-                  </th>
-                  <th className="px-4 py-4 text-right text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Wallet Balance
-                  </th>
-                  <th className="px-4 py-4 text-right text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Asset Under Control
-                  </th>
-                  <th className="px-4 py-4 text-right text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Margin Amount
-                  </th>
-                  <th className="px-4 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Total Active Trade
-                  </th>
-                  <th className="px-4 py-4 text-right text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Total Traid
-                  </th>
-                  <th className="px-4 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Status
-                  </th>
-                  <th className="px-4 py-4"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {filteredClients.map((client: Client, index: number) => (
-                  <tr
-                    key={client.id}
-                    className="group cursor-pointer transition-colors hover:bg-slate-50/80"
-                    onClick={() => onSelectClient(client)}
-                  >
-                    <td className="px-4 py-4 text-sm font-medium text-slate-500">
-                      {index + 1}
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-3">
-                        {client.photo ? (
-                          <img
-                            src={client.photo}
-                            alt={client.user?.fullname}
-                            className="h-8 w-8 rounded-full border border-slate-100 object-cover"
-                            referrerPolicy="no-referrer"
-                          />
-                        ) : (
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-200 font-medium text-slate-600">
-                            {client.user?.fullname?.charAt(0) || 'U'}
-                          </div>
-                        )}
-                        <div>
-                          <div className="whitespace-nowrap text-sm font-medium text-slate-900">
-                            {client.user?.fullname}
-                          </div>
-                          <div className="text-xs text-slate-400">
-                            {client.user?.email}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-4 text-sm font-medium text-slate-600">
-                      {client?.broker?.user?.fullname || 'N/A'}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-4 text-sm font-medium text-slate-600">
-                      {client?.superBroker?.user?.fullname || 'N/A'}
-                    </td>
-                    <td className="px-4 py-4 text-right">
-                      <span className="whitespace-nowrap text-sm font-bold text-slate-900">
-                        ${client.wallets?.amount?.toLocaleString() || '0'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-4 text-right">
-                      <span className="whitespace-nowrap text-sm font-bold text-slate-900">
-                        $
-                        {client.wallets?.blockedAmount?.toLocaleString() || '0'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-4 text-right">
-                      <span className="whitespace-nowrap text-sm font-bold text-slate-900">
-                        $0.00
-                      </span>
-                    </td>
-                    <td className="px-4 py-4 text-center">
-                      <span className="text-sm font-medium text-slate-600">
-                        0
-                      </span>
-                    </td>
-                    <td className="px-4 py-4 text-right">
-                      <span className="whitespace-nowrap text-sm font-bold text-orange-500">
-                        ${client.wallets?.amount?.toLocaleString() || '0'}
-                      </span>
-                    </td>
-                    <td
-                      className="px-4 py-4 text-center"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <label className="relative inline-flex cursor-pointer items-center">
-                        <input
-                          type="checkbox"
-                          className="peer sr-only"
-                          checked={!!client?.user?.isActive}
-                          onChange={(e) => {
-                            e.stopPropagation();
-                            handleToggleClick(client?.id);
-                          }}
-                        />
-
-                        <div className="relative h-5 w-9 rounded-full bg-slate-200 transition-colors after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-4" />
-
-                        <span className="ml-2 w-12 text-left text-[10px] font-bold uppercase text-slate-500">
-                          {client?.user?.isActive ? 'Active' : 'Inactive'}
-                        </span>
-                      </label>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Empty State */}
-          {filteredClients.length === 0 && (
-            <div className="py-12 text-center">
-              <Users className="mx-auto mb-4 h-12 w-12 text-slate-300" />
-              <p className="text-slate-500">No clients found</p>
-            </div>
-          )}
-
-          {/* Pagination */}
-          {filteredClients.length > 0 && (
-            <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/30 px-6 py-4">
-              <div className="flex items-center gap-4">
-                <span className="text-xs text-slate-500">
-                  Showing <span className="font-medium text-slate-900">1</span>{' '}
-                  to{' '}
-                  <span className="font-medium text-slate-900">
-                    {filteredClients.length}
-                  </span>{' '}
-                  of{' '}
-                  <span className="font-medium text-slate-900">
-                    {clients.length}
-                  </span>{' '}
-                  results
-                </span>
-                <select className="rounded border border-slate-200 bg-white px-2 py-1 text-[10px] focus:outline-none">
-                  <option>10</option>
-                  <option>25</option>
-                  <option>50</option>
-                </select>
-              </div>
-              <div className="flex items-center gap-1">
-                <button className="rounded border border-transparent p-1.5 text-slate-400 transition-all hover:border-slate-200 hover:bg-white hover:text-slate-600">
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-                <button className="rounded border border-orange-500 bg-orange-500 px-3 py-1 text-xs font-medium text-white">
-                  1
-                </button>
-                <button className="rounded border border-transparent px-3 py-1 text-xs font-medium text-slate-600 transition-all hover:border-slate-200 hover:bg-white">
-                  2
-                </button>
-                <button className="rounded border border-transparent px-3 py-1 text-xs font-medium text-slate-600 transition-all hover:border-slate-200 hover:bg-white">
-                  3
-                </button>
-                <span className="px-2 text-slate-400">...</span>
-                <button className="rounded border border-transparent px-3 py-1 text-xs font-medium text-slate-600 transition-all hover:border-slate-200 hover:bg-white">
-                  10
-                </button>
-                <button className="rounded border border-transparent p-1.5 text-slate-400 transition-all hover:border-slate-200 hover:bg-white hover:text-slate-600">
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {showPinModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      {/* PIN Modal */}
+      {showPinModal && selectedClient && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-lg">
-            <h2 className="mb-4 text-lg font-semibold">Enter PIN</h2>
+            <h2 className="mb-4 text-lg font-semibold text-slate-900">
+              {selectedClient?.user?.isActive ? 'Deactivate' : 'Activate'}{' '}
+              Client
+            </h2>
+            <p className="mb-4 text-sm text-slate-600">
+              {selectedClient?.user?.isActive
+                ? `Are you sure you want to deactivate ${selectedClient?.user?.fullname}?`
+                : `Are you sure you want to activate ${selectedClient?.user?.fullname}?`}
+            </p>
+            <p className="mb-2 text-sm font-medium text-slate-700">
+              Enter Security PIN to confirm:
+            </p>
 
             <div className="relative">
               <input
                 type={showPin ? 'text' : 'password'}
-                placeholder="Enter PIN"
+                placeholder="Enter Security PIN"
                 value={pin}
                 onChange={(e) => setPin(e.target.value)}
-                className="border-gray-300 w-full rounded-lg border px-4 py-2 pr-10 outline-none focus:border-emerald-500"
+                className="border-gray-300 w-full rounded-lg border px-4 py-2 pr-10 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                autoFocus
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    handleConfirm();
+                  }
+                }}
               />
-
               <button
                 type="button"
                 onClick={() => setShowPin(!showPin)}
-                className="text-gray-500 absolute right-3 top-1/2 -translate-y-1/2"
+                className="text-gray-500 hover:text-gray-700 absolute right-3 top-1/2 -translate-y-1/2"
               >
                 {showPin ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
+
             <div className="mt-5 flex justify-end gap-3">
               <button
                 onClick={() => {
                   setShowPinModal(false);
                   setPin('');
+                  setSelectedClientId(null);
                 }}
-                className="rounded-lg border px-4 py-2 text-sm"
+                className="border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg border px-4 py-2 text-sm font-medium transition-colors"
               >
                 Cancel
               </button>
-
               <button
                 onClick={handleConfirm}
-                className="rounded-lg bg-emerald-500 px-4 py-2 text-sm text-white"
+                disabled={isPending}
+                className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${
+                  selectedClient?.user?.isActive
+                    ? 'bg-red-500 hover:bg-red-600'
+                    : 'bg-emerald-500 hover:bg-emerald-600'
+                } disabled:opacity-50`}
               >
-                OK
+                {isPending ? 'Processing...' : 'Confirm'}
               </button>
             </div>
           </div>

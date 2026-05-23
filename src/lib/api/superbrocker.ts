@@ -5,9 +5,11 @@ export type SuperBrocker = {
   password: string;
   phoneNumber: string;
   commission: number;
-  aadharCardNumber: string;
+  area: string;
+  panCardNumber?: string;
+  aadharCardNumber?: string;
   aadharCardF?: File;
-  aadharCardB?: File;
+  panCard?: File;
   photo?: File;
 };
 
@@ -20,15 +22,22 @@ export const addSuperBrocker = async (data: SuperBrocker) => {
     formData.append('password', data.password);
     formData.append('phoneNumber', data.phoneNumber);
     formData.append('commission', Number(data.commission).toString());
+    formData.append('area', data.area);
 
-    formData.append('aadharCardNumber', data.aadharCardNumber);
+    if (data.aadharCardNumber) {
+      formData.append('aadharCardNumber', data.aadharCardNumber);
+    }
+
+    if (data.panCardNumber) {
+      formData.append('panCardNumber', data.panCardNumber);
+    }
 
     if (data.aadharCardF) {
       formData.append('aadharCardF', data.aadharCardF);
     }
 
-    if (data.aadharCardB) {
-      formData.append('aadharCardB', data.aadharCardB);
+    if (data.panCard) {
+      formData.append('panCard', data.panCard);
     }
 
     if (data.photo) {
