@@ -17,8 +17,24 @@ import {
 import {useAuthContext} from '@/context/AuthContext';
 import {FaUsers, FaUserPlus, FaUserCheck} from 'react-icons/fa';
 import {RiMoneyDollarCircleLine} from 'react-icons/ri';
-import {TbReportAnalytics} from 'react-icons/tb';
-import {LucideBox, UserPlus, Wallet, FileText} from 'lucide-react';
+import {TbReportAnalytics, TbUserStar} from 'react-icons/tb';
+import {
+  LucideBox,
+  UserPlus,
+  Wallet,
+  FileText,
+  LayoutDashboard,
+  UserCog,
+  Activity,
+  Users,
+  Clock,
+  HandCoins,
+  BarChart3,
+  Settings,
+  Receipt,
+  Key,
+  LogOut,
+} from 'lucide-react';
 import {useGetProfile} from '@/lib/react-query/admin';
 
 const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
@@ -66,74 +82,62 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
         {
           label: 'Dashboard',
           path: '/dashboard',
-          icon: <MdDashboard size={22} />,
+          icon: <LayoutDashboard size={22} />,
         },
-        // {
-        //   label: 'Scripts Management',
-        //   path: '/scrpitsManagement',
-        //   icon: <MdDashboard size={22} />,
-        // },
         {
           label: 'Super Broker',
           path: '/companybroker/DisplaySuperBroker',
-          icon: <MdDashboard size={22} />,
+          icon: <TbUserStar size={22} />,
         },
         {
           label: 'Broker',
           path: '/companybroker/displaybroker',
-          icon: <MdDashboard size={22} />,
+          icon: <UserCog size={22} />,
         },
         {
           label: 'Live Monitoring',
           path: '/TransactionLedger',
-          icon: <MdDashboard size={22} />,
+          icon: <Activity size={22} />,
         },
         {
           label: 'Clients',
           path: '/clients/mainpage',
-          icon: <FaUsers size={22} />,
+          icon: <Users size={22} />,
         },
         {
           label: 'Pending Approvals',
           path: '/Approval/pendingapprovals',
-          icon: <FaUsers size={22} />,
+          icon: <Clock size={22} />,
         },
-        // {
-        //   label: 'KYC Approvals',
-        //   path: '/KYCApproval/kycmain',
-        //   icon: <MdOutlineVerified size={22} />,
-        // },
-        // {
-        //   label: 'Live Monitoring',
-        //   path: '/KYCApproval/livemonitoring',
-        //   icon: <MdOutlineMonitor size={22} />,
-        // },
         {
           label: 'Withdrawal Requests',
           path: '/withdrawlreq/withdrawlRequest',
-          icon: <RiMoneyDollarCircleLine size={22} />,
+          icon: <HandCoins size={22} />,
         },
         {
           label: 'Financial Reports',
           path: '/Report/financialReport',
-          icon: <TbReportAnalytics size={22} />,
+          icon: <BarChart3 size={22} />,
         },
-        // {
-        //   label: 'Revenue Config',
-        //   path: '/Report/ReviewConfig',
-        //   icon: <MdOutlinePriceChange size={22} />,
-        // },
         {
           label: 'Admin Registration',
           path: '/superadmin/superadmin',
-          icon: <FaUsers size={22} />,
+          icon: <UserCog size={22} />,
         },
         {
           label: 'Settings',
-          icon: <MdSettings size={22} />,
+          icon: <Settings size={22} />,
           subRoutes: [
-            {label: 'Change Password', path: '/change-password'},
-            {label: 'Logout', onClick: () => handleSignOut()},
+            {
+              label: 'Change Password',
+              path: '/change-password',
+              icon: <Key size={18} />,
+            },
+            {
+              label: 'Logout',
+              onClick: () => handleSignOut(),
+              icon: <LogOut size={18} />,
+            },
           ],
         },
       ]
@@ -142,19 +146,27 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
           {
             label: 'Dashboard',
             path: '/superadmin/superadmin',
-            icon: <MdDashboard size={22} />,
+            icon: <LayoutDashboard size={22} />,
           },
           {
             label: 'Clients',
             path: '/clients/mainpage',
-            icon: <FaUsers size={22} />,
+            icon: <Users size={22} />,
           },
           {
             label: 'Settings',
-            icon: <MdSettings size={22} />,
+            icon: <Settings size={22} />,
             subRoutes: [
-              {label: 'Change Password', path: '/change-password'},
-              {label: 'Logout', onClick: () => handleSignOut()},
+              {
+                label: 'Change Password',
+                path: '/change-password',
+                icon: <Key size={18} />,
+              },
+              {
+                label: 'Logout',
+                onClick: () => handleSignOut(),
+                icon: <LogOut size={18} />,
+              },
             ],
           },
         ]
@@ -163,29 +175,37 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
             {
               label: 'Dashboard',
               path: '/broker/dashboard',
-              icon: <MdDashboard size={22} />,
+              icon: <LayoutDashboard size={22} />,
             },
             {
               label: 'Customer List',
               path: '/broker/customerlist',
-              icon: <FaUsers size={22} />,
+              icon: <Users size={22} />,
             },
             {
               label: 'Commission History',
               path: '/broker/commissionhistory',
-              icon: <RiMoneyDollarCircleLine size={22} />,
+              icon: <HandCoins size={22} />,
             },
             {
               label: 'Payment History',
               path: '/broker/paymenthistory',
-              icon: <RiMoneyDollarCircleLine size={22} />,
+              icon: <Receipt size={22} />,
             },
             {
               label: 'Settings',
-              icon: <MdSettings size={22} />,
+              icon: <Settings size={22} />,
               subRoutes: [
-                {label: 'Change Password', path: '/change-password'},
-                {label: 'Logout', onClick: () => handleSignOut()},
+                {
+                  label: 'Change Password',
+                  path: '/change-password',
+                  icon: <Key size={18} />,
+                },
+                {
+                  label: 'Logout',
+                  onClick: () => handleSignOut(),
+                  icon: <LogOut size={18} />,
+                },
               ],
             },
           ]
@@ -194,7 +214,7 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
               {
                 label: 'Dashboard',
                 path: '/customer/dashboard',
-                icon: <MdDashboard size={22} />,
+                icon: <LayoutDashboard size={22} />,
               },
               {
                 label: 'My Orders',
@@ -203,10 +223,18 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
               },
               {
                 label: 'Settings',
-                icon: <MdSettings size={22} />,
+                icon: <Settings size={22} />,
                 subRoutes: [
-                  {label: 'Change Password', path: '/change-password'},
-                  {label: 'Logout', onClick: () => handleSignOut()},
+                  {
+                    label: 'Change Password',
+                    path: '/change-password',
+                    icon: <Key size={18} />,
+                  },
+                  {
+                    label: 'Logout',
+                    onClick: () => handleSignOut(),
+                    icon: <LogOut size={18} />,
+                  },
                 ],
               },
             ]
@@ -215,56 +243,23 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
                 {
                   label: 'Dashboard',
                   path: '/superbroker/dashboard',
-                  icon: <MdDashboard size={22} />,
+                  icon: <LayoutDashboard size={22} />,
                 },
                 {
                   label: 'Broker List',
                   path: '/broker/displaybroker',
-                  icon: <FaUsers size={22} />,
+                  icon: <UserCog size={22} />,
                 },
                 {
                   label: 'Transaction Ledger',
                   path: '/broker/trasaction/transactionledger',
-                  icon: <FaUsers size={22} />,
+                  icon: <Receipt size={22} />,
                 },
                 {
                   label: 'Customer Display',
                   path: '/broker/customer/customerdisplay',
-                  icon: <FaUsers size={22} />,
+                  icon: <Users size={22} />,
                 },
-                // {
-                //   label: 'Add Broker',
-                //   path: '/broker/broker',
-                //   icon: <UserPlus size={22} />,
-                // },
-                // {
-                //   label: 'Commission History',
-                //   path: '/superbroker/commissionhistory',
-                //   icon: <RiMoneyDollarCircleLine size={22} />,
-                // },
-                // {
-                //   label: 'Payment History',
-                //   path: '/superbroker/paymenthistory',
-                //   icon: <Wallet size={22} />,
-                // },
-                // {
-                //   label: 'Withdrawal Requests',
-                //   path: '/superbroker/withdrawal-requests',
-                //   icon: <RiMoneyDollarCircleLine size={22} />,
-                // },
-                // {
-                //   label: 'Reports',
-                //   path: '/superbroker/reports',
-                //   icon: <TbReportAnalytics size={22} />,
-                // },
-                // {
-                //   label: 'Settings',
-                //   icon: <MdSettings size={22} />,
-                //   subRoutes: [
-                //     {label: 'Change Password', path: '/change-password'},
-                //     {label: 'Logout', onClick: () => handleSignOut()},
-                //   ],
-                // },
               ]
             : [];
 
