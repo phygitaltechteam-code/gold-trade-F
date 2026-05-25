@@ -19,12 +19,13 @@ import {FaUsers, FaUserPlus, FaUserCheck} from 'react-icons/fa';
 import {RiMoneyDollarCircleLine} from 'react-icons/ri';
 import {TbReportAnalytics} from 'react-icons/tb';
 import {LucideBox, UserPlus, Wallet, FileText} from 'lucide-react';
+import {useGetProfile} from '@/lib/react-query/admin';
 
 const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
   const location = useLocation();
   const {pathname} = location;
   const {user} = useAuthContext();
-
+  const {data: profile} = useGetProfile();
   const isCompany = user?.role === 'COMPANY';
   const isSuperAdmin = user?.role === 'SUPERADMIN';
   const isAdmin = user?.role === 'ADMIN';
@@ -67,11 +68,11 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
           path: '/dashboard',
           icon: <MdDashboard size={22} />,
         },
-        {
-          label: 'Scripts Management',
-          path: '/scrpitsManagement',
-          icon: <MdDashboard size={22} />,
-        },
+        // {
+        //   label: 'Scripts Management',
+        //   path: '/scrpitsManagement',
+        //   icon: <MdDashboard size={22} />,
+        // },
         {
           label: 'Super Broker',
           path: '/companybroker/DisplaySuperBroker',
@@ -117,11 +118,11 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
           path: '/Report/financialReport',
           icon: <TbReportAnalytics size={22} />,
         },
-        {
-          label: 'Revenue Config',
-          path: '/Report/ReviewConfig',
-          icon: <MdOutlinePriceChange size={22} />,
-        },
+        // {
+        //   label: 'Revenue Config',
+        //   path: '/Report/ReviewConfig',
+        //   icon: <MdOutlinePriceChange size={22} />,
+        // },
         {
           label: 'Admin Registration',
           path: '/superadmin/superadmin',
@@ -373,7 +374,7 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
           >
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FF6321] shadow-lg shadow-orange-500/20 transition-transform duration-200 hover:scale-105 active:scale-95">
-                <LucideBox className="h-6 w-6 text-white" />
+                <img src={profile?.photo} className="" />
               </div>
 
               {isExpanded && (

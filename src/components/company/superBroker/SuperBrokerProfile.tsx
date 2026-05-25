@@ -1,18 +1,18 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { FiEdit2, FiSave, FiX, FiArrowLeft, FiPlus } from 'react-icons/fi';
+import React, {useState, useMemo, useEffect} from 'react';
+import {FiEdit2, FiSave, FiX, FiArrowLeft, FiPlus} from 'react-icons/fi';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import {
   useGetAllSuperBrockerById,
   useUpdateSuperBrokerProfile,
   useAddCommission,
 } from '@/lib/react-query/superbrocker';
-import { Route } from '@/routes/_app/companybroker/SuperbrockerProfile.$id';
-import { useNavigate } from '@tanstack/react-router';
+import {Route} from '@/routes/_app/companybroker/SuperbrockerProfile.$id';
+import {useNavigate} from '@tanstack/react-router';
 import toast from 'react-hot-toast';
-import { Eye, EyeOff } from 'lucide-react';
+import {Eye, EyeOff} from 'lucide-react';
 
 const SuperBrokerProfile = () => {
-  const { id } = Route.useParams();
+  const {id} = Route.useParams();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('ledger');
@@ -27,12 +27,15 @@ const SuperBrokerProfile = () => {
   const [commissionAmount, setCommissionAmount] = useState('');
   const [commissionPin, setCommissionPin] = useState('');
   const [showCommissionPin, setShowCommissionPin] = useState(false);
-  const [commissionType, setCommissionType] = useState<'credit' | 'debit'>('credit');
+  const [commissionType, setCommissionType] = useState<'credit' | 'debit'>(
+    'credit',
+  );
 
-  const { data: profileData, refetch } = useGetAllSuperBrockerById(id);
-  const { mutate: updateSuperBrokerProfile, isPending: isUpdating } =
+  const {data: profileData, refetch} = useGetAllSuperBrockerById(id);
+  const {mutate: updateSuperBrokerProfile, isPending: isUpdating} =
     useUpdateSuperBrokerProfile();
-  const { mutate: addCommission, isPending: isCommissionPending } = useAddCommission();
+  const {mutate: addCommission, isPending: isCommissionPending} =
+    useAddCommission();
 
   const [editData, setEditData] = useState({
     fullname: '',
@@ -77,7 +80,7 @@ const SuperBrokerProfile = () => {
 
   // Initialize dates with current week range
   useEffect(() => {
-    const { startDate, endDate } = getCurrentWeekRange();
+    const {startDate, endDate} = getCurrentWeekRange();
     setLedgerStartDate(startDate);
     setLedgerEndDate(endDate);
     setPaymentStartDate(startDate);
@@ -112,40 +115,42 @@ const SuperBrokerProfile = () => {
   }, [paymentData]);
 
   const baseLedgerColumns = [
-    { header: 'Date/Time', accessor: 'dateTime' },
-    { header: 'Transaction ID', accessor: 'transactionId' },
-    { header: 'Stript', accessor: 'stript' },
-    { header: 'Transaction Amount', accessor: 'transactionAmount' },
-    { header: 'Super Broker Commission', accessor: 'superBrokerCommission' },
-    { header: 'Status', accessor: 'status' },
+    {header: 'Date/Time', accessor: 'dateTime'},
+    {header: 'Transaction ID', accessor: 'transactionId'},
+    {header: 'Stript', accessor: 'stript'},
+    {header: 'Transaction Amount', accessor: 'transactionAmount'},
+    {header: 'Super Broker Commission', accessor: 'superBrokerCommission'},
+    {header: 'Status', accessor: 'status'},
   ];
 
   const expandedLedgerColumns = [
-    { header: 'Date/Time', accessor: 'dateTime' },
-    { header: 'Customer Name', accessor: 'customerName' },
-    { header: 'Transaction ID', accessor: 'transactionId' },
-    { header: 'Stript', accessor: 'stript' },
-    { header: 'Order Type', accessor: 'orderType' },
-    { header: 'Holding Type', accessor: 'holdingType' },
-    { header: 'Qty', accessor: 'qty' },
-    { header: 'Price', accessor: 'price' },
-    { header: 'Status', accessor: 'status' },
-    { header: 'Transaction Amount', accessor: 'transactionAmount' },
-    { header: 'Paid Amount', accessor: 'paidAmount' },
-    { header: 'Margin Amount', accessor: 'marginAmount' },
-    { header: 'Total Commission', accessor: 'totalCommission' },
-    { header: 'Broker Commission', accessor: 'brokerCommission' },
-    { header: 'Payment Status', accessor: 'paymentStatus' },
+    {header: 'Date/Time', accessor: 'dateTime'},
+    {header: 'Customer Name', accessor: 'customerName'},
+    {header: 'Transaction ID', accessor: 'transactionId'},
+    {header: 'Stript', accessor: 'stript'},
+    {header: 'Order Type', accessor: 'orderType'},
+    {header: 'Holding Type', accessor: 'holdingType'},
+    {header: 'Qty', accessor: 'qty'},
+    {header: 'Price', accessor: 'price'},
+    {header: 'Status', accessor: 'status'},
+    {header: 'Transaction Amount', accessor: 'transactionAmount'},
+    {header: 'Paid Amount', accessor: 'paidAmount'},
+    {header: 'Margin Amount', accessor: 'marginAmount'},
+    {header: 'Total Commission', accessor: 'totalCommission'},
+    {header: 'Broker Commission', accessor: 'brokerCommission'},
+    {header: 'Payment Status', accessor: 'paymentStatus'},
   ];
 
-  const ledgerColumns = isLedgerExpanded ? expandedLedgerColumns : baseLedgerColumns;
+  const ledgerColumns = isLedgerExpanded
+    ? expandedLedgerColumns
+    : baseLedgerColumns;
 
   const paymentColumns = [
-    { header: 'Date', accessor: 'date' },
-    { header: 'Commission Generated', accessor: 'commissionGenerated' },
-    { header: 'Paid Amount', accessor: 'paidAmount' },
-    { header: 'Paid Date', accessor: 'paidDate' },
-    { header: 'Status', accessor: 'status' },
+    {header: 'Date', accessor: 'date'},
+    {header: 'Commission Generated', accessor: 'commissionGenerated'},
+    {header: 'Paid Amount', accessor: 'paidAmount'},
+    {header: 'Paid Date', accessor: 'paidDate'},
+    {header: 'Status', accessor: 'status'},
   ];
 
   const brokerColumns = [
@@ -206,8 +211,8 @@ const SuperBrokerProfile = () => {
   ];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setEditData((prev) => ({ ...prev, [name]: value }));
+    const {name, value} = e.target;
+    setEditData((prev) => ({...prev, [name]: value}));
   };
 
   const handleSave = () => {
@@ -244,7 +249,7 @@ const SuperBrokerProfile = () => {
   };
 
   const handleBack = () => {
-    navigate({ to: '/companybroker/DisplaySuperBroker' });
+    navigate({to: '/companybroker/DisplaySuperBroker'});
   };
 
   // Handle Commission Submit
@@ -281,7 +286,7 @@ const SuperBrokerProfile = () => {
           setShowCommissionPin(false);
           refetch();
         },
-      }
+      },
     );
   };
 
@@ -313,7 +318,7 @@ const SuperBrokerProfile = () => {
       <div className="mb-4">
         <button
           onClick={handleBack}
-          className="flex items-center gap-2 rounded-lg border border-stroke bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50 hover:text-orange-500"
+          className="text-gray-700 hover:bg-gray-50 flex items-center gap-2 rounded-lg border border-stroke bg-white px-4 py-2 text-sm font-medium transition-all hover:text-orange-500"
         >
           <FiArrowLeft className="h-4 w-4" />
           Back to Super Brokers
@@ -329,7 +334,7 @@ const SuperBrokerProfile = () => {
           {!isEditing ? (
             <button
               onClick={() => setIsEditing(true)}
-              className="flex items-center gap-2 rounded bg-white px-3 py-1.5 text-sm font-medium text-orange-500 transition-colors hover:bg-gray-100 md:px-4 md:py-2"
+              className="hover:bg-gray-100 flex items-center gap-2 rounded bg-white px-3 py-1.5 text-sm font-medium text-orange-500 transition-colors md:px-4 md:py-2"
             >
               <FiEdit2 className="h-3 w-3 md:h-4 md:w-4" /> Edit Profile
             </button>
@@ -345,7 +350,7 @@ const SuperBrokerProfile = () => {
               <button
                 onClick={handleSave}
                 disabled={isUpdating}
-                className="flex items-center gap-2 rounded bg-white px-3 py-1.5 text-sm font-medium text-orange-500 transition-colors hover:bg-gray-100 disabled:opacity-50 md:px-4 md:py-2"
+                className="hover:bg-gray-100 flex items-center gap-2 rounded bg-white px-3 py-1.5 text-sm font-medium text-orange-500 transition-colors disabled:opacity-50 md:px-4 md:py-2"
               >
                 <FiSave className="h-3 w-3 md:h-4 md:w-4" />{' '}
                 {isUpdating ? 'Saving...' : 'Save'}
@@ -496,7 +501,7 @@ const SuperBrokerProfile = () => {
           <h4 className="text-xl font-bold text-black dark:text-white md:text-2xl">
             ₹{profileData?.totalBusiness?.toLocaleString() || '0'}
           </h4>
-          <span className="mt-1 text-xs font-medium text-gray-500 sm:text-sm">
+          <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
             Total Business
           </span>
         </div>
@@ -504,7 +509,7 @@ const SuperBrokerProfile = () => {
           <h4 className="text-xl font-bold text-green-500 md:text-2xl">
             ₹{profileData?.totalCommission?.toLocaleString() || '0'}
           </h4>
-          <span className="mt-1 text-xs font-medium text-gray-500 sm:text-sm">
+          <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
             Total Commission
           </span>
         </div>
@@ -512,7 +517,7 @@ const SuperBrokerProfile = () => {
           <h4 className="text-xl font-bold text-orange-500 md:text-2xl">
             ₹{profileData?.pendingCommission?.toLocaleString() || '0'}
           </h4>
-          <span className="mt-1 text-xs font-medium text-gray-500 sm:text-sm">
+          <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
             Pending Commission
           </span>
         </div>
@@ -520,7 +525,7 @@ const SuperBrokerProfile = () => {
           <h4 className="text-xl font-bold text-blue-500 md:text-2xl">
             {profileData?.brokers?.length || 0}
           </h4>
-          <span className="mt-1 text-xs font-medium text-gray-500 sm:text-sm">
+          <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
             Total Brokers
           </span>
         </div>
@@ -650,11 +655,11 @@ const SuperBrokerProfile = () => {
                   {(paymentStartDate || paymentEndDate) && (
                     <button
                       onClick={() => {
-                        const { startDate, endDate } = getCurrentWeekRange();
+                        const {startDate, endDate} = getCurrentWeekRange();
                         setPaymentStartDate(startDate);
                         setPaymentEndDate(endDate);
                       }}
-                      className="rounded bg-gray-200 px-2 py-1 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-300 dark:bg-meta-4 dark:text-white dark:hover:bg-meta-3 md:px-3 md:py-1.5 md:text-sm"
+                      className="bg-gray-200 text-gray-700 hover:bg-gray-300 rounded px-2 py-1 text-xs font-medium transition-colors dark:bg-meta-4 dark:text-white dark:hover:bg-meta-3 md:px-3 md:py-1.5 md:text-sm"
                     >
                       This Week
                     </button>
@@ -749,9 +754,13 @@ const SuperBrokerProfile = () => {
                   <button
                     type="button"
                     onClick={() => setShowCommissionPin(!showCommissionPin)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    className="text-gray-500 hover:text-gray-700 absolute right-3 top-1/2 -translate-y-1/2"
                   >
-                    {showCommissionPin ? <EyeOff size={18} /> : <Eye size={18} />}
+                    {showCommissionPin ? (
+                      <EyeOff size={18} />
+                    ) : (
+                      <Eye size={18} />
+                    )}
                   </button>
                 </div>
               </div>

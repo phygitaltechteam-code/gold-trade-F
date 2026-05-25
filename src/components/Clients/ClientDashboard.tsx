@@ -3,17 +3,10 @@ import {useNavigate} from '@tanstack/react-router';
 import {useAuthContext} from '@/context/AuthContext';
 import {
   Search,
-  Download,
   Plus,
-  MoreVertical,
-  ChevronLeft,
-  ChevronRight,
   TrendingUp,
   Users,
-  Clock,
-  Filter,
   Loader2,
-  RefreshCw,
   EyeOff,
   Eye,
   Wallet,
@@ -21,9 +14,8 @@ import {
   Activity,
   DollarSign,
 } from 'lucide-react';
-import {Client, ClientStatus} from './types';
+import {Client} from './types';
 import {motion} from 'framer-motion';
-import {useGetAllClients} from './mutationapi';
 import {useActivateCustomer, useGetClients} from '@/lib/react-query/client';
 import {useGetAllSuperBrocker} from '@/lib/react-query/superbrocker';
 import GenericTable from '@/components/Forms/Table/GenericTable';

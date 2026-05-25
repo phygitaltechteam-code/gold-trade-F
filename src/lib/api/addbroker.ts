@@ -59,7 +59,7 @@ export const useGetBrokerData = () =>
   });
 export const useGetScriptsData = () =>
   useQuery({
-    queryKey: ['get-scripts'],
+    queryKey: ['scripts'],
     queryFn: getScriptsData,
   });
 export const useGetSuperBrokerData = () =>
@@ -68,6 +68,24 @@ export const useGetSuperBrokerData = () =>
     queryFn: () => getSuperBrokerData(),
     staleTime: 5 * 60 * 1000,
   });
+
+export const useUpdateScriptStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => updateScriptStatus(id),
+    onSuccess: () => {
+      toast.success('Status Updated Successfully!');
+      queryClient.invalidateQueries({queryKey: ['scripts']});
+    },
+    onError: (error: any) => {
+      console.error('Delete error:', error);
+      const backendMessage =
+        error?.response?.data?.message || 'Failed to update Status';
+      toast.error(backendMessage);
+    },
+  });
+};
 
 export const addBroker = async (data: FormData) => {
   try {
@@ -105,11 +123,22 @@ const getBrokerData = async () => {
 };
 const getScriptsData = async () => {
   try {
-    const response = await api.get(`/company/commission/scripts`);
+    const response = await api.get(`/company/profile/assets`);
     console.log('API response for scripts:', response);
     return response;
   } catch (error) {
     console.error('Error fetching scripts data:', error);
+    throw error;
+  }
+};
+
+const updateScriptStatus = async (id: string) => {
+  try {
+    const response = await api.patch(`/company/profile/assets/${id}`);
+    console.log('API response for scripts:', response);
+    return response;
+  } catch (error) {
+    console.error('Error to status change:', error);
     throw error;
   }
 };
