@@ -51,7 +51,6 @@ export const useSendDeposite = () => {
   });
 };
 
-
 export const useSendWithdraw = () => {
   return useMutation({
     mutationFn: async (data: {
@@ -112,20 +111,19 @@ export const useAddMargin = () => {
   });
 };
 
-
 export const useUpdateCustomer = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+    mutationFn: async ({id, data}: {id: string; data: any}) => {
       const response = await api.put(`/company/customer/${id}`, data);
       return response.data;
     },
     onSuccess: () => {
       toast.success('Customer updated successfully!');
-      queryClient.invalidateQueries({ queryKey: ['customer'] });
-      queryClient.invalidateQueries({ queryKey: ['client'] });
-      queryClient.invalidateQueries({ queryKey: ['get-customer'] });
+      queryClient.invalidateQueries({queryKey: ['customer']});
+      queryClient.invalidateQueries({queryKey: ['client']});
+      queryClient.invalidateQueries({queryKey: ['get-customer']});
     },
     onError: (error: any) => {
       const errorMessage =

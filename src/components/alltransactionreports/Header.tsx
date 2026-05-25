@@ -6,12 +6,9 @@ const Header: React.FC = () => {
   return (
     <header className="border-gray-200 sticky top-0 z-10 flex items-center justify-between whitespace-nowrap border-b bg-white px-6 py-3">
       <div className="flex items-center gap-4">
-        {/* Mobile Menu Toggle */}
         <button className="text-secondary-text hover:bg-gray-100 rounded-lg p-2 lg:hidden">
           <FiMenu className="text-xl" />
         </button>
-
-        {/* Breadcrumbs */}
         <div className="flex flex-wrap items-center gap-2">
           <a
             href="#"
