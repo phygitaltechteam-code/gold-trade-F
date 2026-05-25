@@ -5,7 +5,6 @@ import {
   profilePayload,
   resetPassword,
   resetPin,
-  resetPasswordPayload,
   updateProfile,
 } from '../api/adminApi';
 

@@ -1,7 +1,12 @@
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
 import {api} from '@/utils/axios';
 import toast from 'react-hot-toast';
-import {getCommisssion, setCommission} from '../api/commission';
+import {
+  getCommisssion,
+  getTradingTime,
+  setCommission,
+  setTradingTime,
+} from '../api/commission';
 
 interface CommissionFormData {
   name: string;
@@ -74,3 +79,30 @@ export const useSetComission = () => {
     },
   });
 };
+
+export const useSetTradingTime = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      time,
+      holdingStatus,
+    }: {
+      time: number;
+      holdingStatus: boolean;
+    }) => setTradingTime(time, holdingStatus),
+    onSuccess: () => {
+      toast.success('set successfully!');
+      queryClient.invalidateQueries({queryKey: ['trading_time']});
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to set!');
+    },
+  });
+};
+
+export const useGetTradeTime = () =>
+  useQuery({
+    queryKey: ['trading_time'],
+    queryFn: () => getTradingTime(),
+  });

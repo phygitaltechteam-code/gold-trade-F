@@ -546,18 +546,17 @@ export default function ReviewConfig() {
     confirmPin: '',
   });
   const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
-const pinRegex = /^\d{6}$/;
+  const pinRegex = /^\d{6}$/;
   const [showPassword, setShowPassword] = useState({
     currentPassword: false,
     newPassword: false,
     confirmPassword: false,
   });
-const [showPin, setShowPin] = useState({
+  const [showPin, setShowPin] = useState({
     currentPin: false,
     newPin: false,
     confirmPin: false,
   });
-
 
   const togglePassword = (field: keyof typeof showPassword) => {
     setShowPassword((prev) => ({
@@ -570,7 +569,7 @@ const [showPin, setShowPin] = useState({
       ...prev,
       [field]: !prev[field],
     }));
-  }
+  };
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
@@ -602,16 +601,13 @@ const [showPin, setShowPin] = useState({
       return;
     }
 
-    resetPassword(
-      formData,
-      {
-        onSuccess: () => {
-          formData.currentPassword = '';
-          formData.newPassword = '';
-          formData.confirmPassword = '';
-        },
+    resetPassword(formData, {
+      onSuccess: () => {
+        formData.currentPassword = '';
+        formData.newPassword = '';
+        formData.confirmPassword = '';
       },
-    );
+    });
   };
   const handleResetPin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -630,16 +626,13 @@ const [showPin, setShowPin] = useState({
       return;
     }
 
-    resetPin(
-      PinformData,
-      {
-        onSuccess: () => {
-          PinformData.currentPin = '';
-          PinformData.newPin = '';
-          PinformData.confirmPin = '';
-        },
+    resetPin(PinformData, {
+      onSuccess: () => {
+        PinformData.currentPin = '';
+        PinformData.newPin = '';
+        PinformData.confirmPin = '';
       },
-    );
+    });
   };
   const submit = () => {
     setCommission(Number(makerFee));
@@ -914,6 +907,7 @@ const [showPin, setShowPin] = useState({
             </div>
           </form>
         </section>
+
         <section className="overflow-hidden rounded-xl border border-stroke bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-3 border-b border-stroke sm:flex-row sm:items-start sm:justify-between">
             <div>
