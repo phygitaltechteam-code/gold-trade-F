@@ -236,7 +236,6 @@ export const useUpdateBrokerProfile = () => {
   });
 };
 
-
 export const useAddBrokerCommission = () => {
   const queryClient = useQueryClient();
 

@@ -71,7 +71,6 @@ export const useActivateInActiveSuperBrocker = () => {
   });
 };
 
-
 export const useUpdateSuperBrokerProfile = () => {
   const queryClient = useQueryClient();
 
