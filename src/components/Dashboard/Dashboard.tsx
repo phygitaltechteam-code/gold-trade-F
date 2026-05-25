@@ -123,7 +123,7 @@ const Dashboard: React.FC = () => {
     isError,
     error,
     refetch,
-  } = useGetCompanyDashboard(filters);
+  } = useGetCompanyDashboard();
 
   const handlePeriodChange = (period: '30d' | '7d' | '24h' | 'custom') => {
     setSelectedPeriod(period);

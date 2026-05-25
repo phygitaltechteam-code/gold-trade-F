@@ -250,16 +250,6 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
                   path: '/broker/displaybroker',
                   icon: <UserCog size={22} />,
                 },
-                {
-                  label: 'Transaction Ledger',
-                  path: '/broker/trasaction/transactionledger',
-                  icon: <Receipt size={22} />,
-                },
-                {
-                  label: 'Customer Display',
-                  path: '/broker/customer/customerdisplay',
-                  icon: <Users size={22} />,
-                },
               ]
             : [];
 

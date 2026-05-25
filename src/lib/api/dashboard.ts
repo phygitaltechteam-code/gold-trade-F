@@ -120,13 +120,6 @@ export const useGetfeeChart = () =>
     },
   });
 
-export const useDashboardData = (filters: DashboardFilters) => {
-  return useQuery({
-    queryKey: ['dashboard', filters],
-    queryFn: () => getDashboardData(filters),
-  });
-};
-
 export const useGetCompanyDashboard = () => {
   return useQuery({
     queryKey: ['company-dashboard'],
