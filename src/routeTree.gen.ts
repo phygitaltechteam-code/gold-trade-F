@@ -54,7 +54,6 @@ import { Route as AppCompanybrokerAddbrokerImport } from './routes/_app/companyb
 import { Route as AppCompanybrokerAddSuperBrockerImport } from './routes/_app/companybroker/addSuperBrocker'
 import { Route as AppCompanybrokerSuperBrockerTableImport } from './routes/_app/companybroker/SuperBrockerTable'
 import { Route as AppCompanybrokerDisplaySuperBrokerImport } from './routes/_app/companybroker/DisplaySuperBroker'
-import { Route as AppCompanybrokerBrokerProfileImport } from './routes/_app/companybroker/BrokerProfile'
 import { Route as AppClientsMainpageImport } from './routes/_app/clients/mainpage'
 import { Route as AppClientTransferviewImport } from './routes/_app/client/transferview'
 import { Route as AppClientTransferApprovalsImport } from './routes/_app/client/transfer-approvals'
@@ -88,6 +87,7 @@ import { Route as AppApprovalCustomerregisterapproveImport } from './routes/_app
 import { Route as NativeTokenUserPassImport } from './routes/_native/token.$user.$pass'
 import { Route as AppCompanybrokerClientdetailIdImport } from './routes/_app/companybroker/clientdetail.$id'
 import { Route as AppCompanybrokerSuperbrockerProfileIdImport } from './routes/_app/companybroker/SuperbrockerProfile.$id'
+import { Route as AppCompanybrokerBrokerProfileIdImport } from './routes/_app/companybroker/BrokerProfile.$id'
 import { Route as AppClientViewbeneficiaryIdImport } from './routes/_app/client/viewbeneficiary.$id'
 import { Route as AppClientUpdatecomissionIdImport } from './routes/_app/client/updatecomission.$id'
 import { Route as AppClientTransactionhistoryIdImport } from './routes/_app/client/transactionhistory.$id'
@@ -366,13 +366,6 @@ const AppCompanybrokerDisplaySuperBrokerRoute =
     getParentRoute: () => AppRoute,
   } as any)
 
-const AppCompanybrokerBrokerProfileRoute =
-  AppCompanybrokerBrokerProfileImport.update({
-    id: '/companybroker/BrokerProfile',
-    path: '/companybroker/BrokerProfile',
-    getParentRoute: () => AppRoute,
-  } as any)
-
 const AppClientsMainpageRoute = AppClientsMainpageImport.update({
   id: '/clients/mainpage',
   path: '/clients/mainpage',
@@ -579,6 +572,13 @@ const AppCompanybrokerSuperbrockerProfileIdRoute =
   AppCompanybrokerSuperbrockerProfileIdImport.update({
     id: '/companybroker/SuperbrockerProfile/$id',
     path: '/companybroker/SuperbrockerProfile/$id',
+    getParentRoute: () => AppRoute,
+  } as any)
+
+const AppCompanybrokerBrokerProfileIdRoute =
+  AppCompanybrokerBrokerProfileIdImport.update({
+    id: '/companybroker/BrokerProfile/$id',
+    path: '/companybroker/BrokerProfile/$id',
     getParentRoute: () => AppRoute,
   } as any)
 
@@ -1041,13 +1041,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppClientsMainpageImport
       parentRoute: typeof AppImport
     }
-    '/_app/companybroker/BrokerProfile': {
-      id: '/_app/companybroker/BrokerProfile'
-      path: '/companybroker/BrokerProfile'
-      fullPath: '/companybroker/BrokerProfile'
-      preLoaderRoute: typeof AppCompanybrokerBrokerProfileImport
-      parentRoute: typeof AppImport
-    }
     '/_app/companybroker/DisplaySuperBroker': {
       id: '/_app/companybroker/DisplaySuperBroker'
       path: '/companybroker/DisplaySuperBroker'
@@ -1244,6 +1237,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppClientViewbeneficiaryIdImport
       parentRoute: typeof AppImport
     }
+    '/_app/companybroker/BrokerProfile/$id': {
+      id: '/_app/companybroker/BrokerProfile/$id'
+      path: '/companybroker/BrokerProfile/$id'
+      fullPath: '/companybroker/BrokerProfile/$id'
+      preLoaderRoute: typeof AppCompanybrokerBrokerProfileIdImport
+      parentRoute: typeof AppImport
+    }
     '/_app/companybroker/SuperbrockerProfile/$id': {
       id: '/_app/companybroker/SuperbrockerProfile/$id'
       path: '/companybroker/SuperbrockerProfile/$id'
@@ -1316,7 +1316,6 @@ interface AppRouteChildren {
   AppClientTransferApprovalsRoute: typeof AppClientTransferApprovalsRoute
   AppClientTransferviewRoute: typeof AppClientTransferviewRoute
   AppClientsMainpageRoute: typeof AppClientsMainpageRoute
-  AppCompanybrokerBrokerProfileRoute: typeof AppCompanybrokerBrokerProfileRoute
   AppCompanybrokerDisplaySuperBrokerRoute: typeof AppCompanybrokerDisplaySuperBrokerRoute
   AppCompanybrokerSuperBrockerTableRoute: typeof AppCompanybrokerSuperBrockerTableRoute
   AppCompanybrokerAddSuperBrockerRoute: typeof AppCompanybrokerAddSuperBrockerRoute
@@ -1345,6 +1344,7 @@ interface AppRouteChildren {
   AppClientTransactionhistoryIdRoute: typeof AppClientTransactionhistoryIdRoute
   AppClientUpdatecomissionIdRoute: typeof AppClientUpdatecomissionIdRoute
   AppClientViewbeneficiaryIdRoute: typeof AppClientViewbeneficiaryIdRoute
+  AppCompanybrokerBrokerProfileIdRoute: typeof AppCompanybrokerBrokerProfileIdRoute
   AppCompanybrokerSuperbrockerProfileIdRoute: typeof AppCompanybrokerSuperbrockerProfileIdRoute
   AppCompanybrokerClientdetailIdRoute: typeof AppCompanybrokerClientdetailIdRoute
 }
@@ -1396,7 +1396,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppClientTransferApprovalsRoute: AppClientTransferApprovalsRoute,
   AppClientTransferviewRoute: AppClientTransferviewRoute,
   AppClientsMainpageRoute: AppClientsMainpageRoute,
-  AppCompanybrokerBrokerProfileRoute: AppCompanybrokerBrokerProfileRoute,
   AppCompanybrokerDisplaySuperBrokerRoute:
     AppCompanybrokerDisplaySuperBrokerRoute,
   AppCompanybrokerSuperBrockerTableRoute:
@@ -1429,6 +1428,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppClientTransactionhistoryIdRoute: AppClientTransactionhistoryIdRoute,
   AppClientUpdatecomissionIdRoute: AppClientUpdatecomissionIdRoute,
   AppClientViewbeneficiaryIdRoute: AppClientViewbeneficiaryIdRoute,
+  AppCompanybrokerBrokerProfileIdRoute: AppCompanybrokerBrokerProfileIdRoute,
   AppCompanybrokerSuperbrockerProfileIdRoute:
     AppCompanybrokerSuperbrockerProfileIdRoute,
   AppCompanybrokerClientdetailIdRoute: AppCompanybrokerClientdetailIdRoute,
@@ -1520,7 +1520,6 @@ export interface FileRoutesByFullPath {
   '/client/transfer-approvals': typeof AppClientTransferApprovalsRoute
   '/client/transferview': typeof AppClientTransferviewRoute
   '/clients/mainpage': typeof AppClientsMainpageRoute
-  '/companybroker/BrokerProfile': typeof AppCompanybrokerBrokerProfileRoute
   '/companybroker/DisplaySuperBroker': typeof AppCompanybrokerDisplaySuperBrokerRoute
   '/companybroker/SuperBrockerTable': typeof AppCompanybrokerSuperBrockerTableRoute
   '/companybroker/addSuperBrocker': typeof AppCompanybrokerAddSuperBrockerRoute
@@ -1549,6 +1548,7 @@ export interface FileRoutesByFullPath {
   '/client/transactionhistory/$id': typeof AppClientTransactionhistoryIdRoute
   '/client/updatecomission/$id': typeof AppClientUpdatecomissionIdRoute
   '/client/viewbeneficiary/$id': typeof AppClientViewbeneficiaryIdRoute
+  '/companybroker/BrokerProfile/$id': typeof AppCompanybrokerBrokerProfileIdRoute
   '/companybroker/SuperbrockerProfile/$id': typeof AppCompanybrokerSuperbrockerProfileIdRoute
   '/companybroker/clientdetail/$id': typeof AppCompanybrokerClientdetailIdRoute
   '/token/$user/$pass': typeof NativeTokenUserPassRoute
@@ -1607,7 +1607,6 @@ export interface FileRoutesByTo {
   '/client/transfer-approvals': typeof AppClientTransferApprovalsRoute
   '/client/transferview': typeof AppClientTransferviewRoute
   '/clients/mainpage': typeof AppClientsMainpageRoute
-  '/companybroker/BrokerProfile': typeof AppCompanybrokerBrokerProfileRoute
   '/companybroker/DisplaySuperBroker': typeof AppCompanybrokerDisplaySuperBrokerRoute
   '/companybroker/SuperBrockerTable': typeof AppCompanybrokerSuperBrockerTableRoute
   '/companybroker/addSuperBrocker': typeof AppCompanybrokerAddSuperBrockerRoute
@@ -1636,6 +1635,7 @@ export interface FileRoutesByTo {
   '/client/transactionhistory/$id': typeof AppClientTransactionhistoryIdRoute
   '/client/updatecomission/$id': typeof AppClientUpdatecomissionIdRoute
   '/client/viewbeneficiary/$id': typeof AppClientViewbeneficiaryIdRoute
+  '/companybroker/BrokerProfile/$id': typeof AppCompanybrokerBrokerProfileIdRoute
   '/companybroker/SuperbrockerProfile/$id': typeof AppCompanybrokerSuperbrockerProfileIdRoute
   '/companybroker/clientdetail/$id': typeof AppCompanybrokerClientdetailIdRoute
   '/token/$user/$pass': typeof NativeTokenUserPassRoute
@@ -1698,7 +1698,6 @@ export interface FileRoutesById {
   '/_app/client/transfer-approvals': typeof AppClientTransferApprovalsRoute
   '/_app/client/transferview': typeof AppClientTransferviewRoute
   '/_app/clients/mainpage': typeof AppClientsMainpageRoute
-  '/_app/companybroker/BrokerProfile': typeof AppCompanybrokerBrokerProfileRoute
   '/_app/companybroker/DisplaySuperBroker': typeof AppCompanybrokerDisplaySuperBrokerRoute
   '/_app/companybroker/SuperBrockerTable': typeof AppCompanybrokerSuperBrockerTableRoute
   '/_app/companybroker/addSuperBrocker': typeof AppCompanybrokerAddSuperBrockerRoute
@@ -1727,6 +1726,7 @@ export interface FileRoutesById {
   '/_app/client/transactionhistory/$id': typeof AppClientTransactionhistoryIdRoute
   '/_app/client/updatecomission/$id': typeof AppClientUpdatecomissionIdRoute
   '/_app/client/viewbeneficiary/$id': typeof AppClientViewbeneficiaryIdRoute
+  '/_app/companybroker/BrokerProfile/$id': typeof AppCompanybrokerBrokerProfileIdRoute
   '/_app/companybroker/SuperbrockerProfile/$id': typeof AppCompanybrokerSuperbrockerProfileIdRoute
   '/_app/companybroker/clientdetail/$id': typeof AppCompanybrokerClientdetailIdRoute
   '/_native/token/$user/$pass': typeof NativeTokenUserPassRoute
@@ -1787,7 +1787,6 @@ export interface FileRouteTypes {
     | '/client/transfer-approvals'
     | '/client/transferview'
     | '/clients/mainpage'
-    | '/companybroker/BrokerProfile'
     | '/companybroker/DisplaySuperBroker'
     | '/companybroker/SuperBrockerTable'
     | '/companybroker/addSuperBrocker'
@@ -1816,6 +1815,7 @@ export interface FileRouteTypes {
     | '/client/transactionhistory/$id'
     | '/client/updatecomission/$id'
     | '/client/viewbeneficiary/$id'
+    | '/companybroker/BrokerProfile/$id'
     | '/companybroker/SuperbrockerProfile/$id'
     | '/companybroker/clientdetail/$id'
     | '/token/$user/$pass'
@@ -1873,7 +1873,6 @@ export interface FileRouteTypes {
     | '/client/transfer-approvals'
     | '/client/transferview'
     | '/clients/mainpage'
-    | '/companybroker/BrokerProfile'
     | '/companybroker/DisplaySuperBroker'
     | '/companybroker/SuperBrockerTable'
     | '/companybroker/addSuperBrocker'
@@ -1902,6 +1901,7 @@ export interface FileRouteTypes {
     | '/client/transactionhistory/$id'
     | '/client/updatecomission/$id'
     | '/client/viewbeneficiary/$id'
+    | '/companybroker/BrokerProfile/$id'
     | '/companybroker/SuperbrockerProfile/$id'
     | '/companybroker/clientdetail/$id'
     | '/token/$user/$pass'
@@ -1962,7 +1962,6 @@ export interface FileRouteTypes {
     | '/_app/client/transfer-approvals'
     | '/_app/client/transferview'
     | '/_app/clients/mainpage'
-    | '/_app/companybroker/BrokerProfile'
     | '/_app/companybroker/DisplaySuperBroker'
     | '/_app/companybroker/SuperBrockerTable'
     | '/_app/companybroker/addSuperBrocker'
@@ -1991,6 +1990,7 @@ export interface FileRouteTypes {
     | '/_app/client/transactionhistory/$id'
     | '/_app/client/updatecomission/$id'
     | '/_app/client/viewbeneficiary/$id'
+    | '/_app/companybroker/BrokerProfile/$id'
     | '/_app/companybroker/SuperbrockerProfile/$id'
     | '/_app/companybroker/clientdetail/$id'
     | '/_native/token/$user/$pass'
@@ -2077,7 +2077,6 @@ export const routeTree = rootRoute
         "/_app/client/transfer-approvals",
         "/_app/client/transferview",
         "/_app/clients/mainpage",
-        "/_app/companybroker/BrokerProfile",
         "/_app/companybroker/DisplaySuperBroker",
         "/_app/companybroker/SuperBrockerTable",
         "/_app/companybroker/addSuperBrocker",
@@ -2106,6 +2105,7 @@ export const routeTree = rootRoute
         "/_app/client/transactionhistory/$id",
         "/_app/client/updatecomission/$id",
         "/_app/client/viewbeneficiary/$id",
+        "/_app/companybroker/BrokerProfile/$id",
         "/_app/companybroker/SuperbrockerProfile/$id",
         "/_app/companybroker/clientdetail/$id"
       ]
@@ -2334,10 +2334,6 @@ export const routeTree = rootRoute
       "filePath": "_app/clients/mainpage.tsx",
       "parent": "/_app"
     },
-    "/_app/companybroker/BrokerProfile": {
-      "filePath": "_app/companybroker/BrokerProfile.tsx",
-      "parent": "/_app"
-    },
     "/_app/companybroker/DisplaySuperBroker": {
       "filePath": "_app/companybroker/DisplaySuperBroker.tsx",
       "parent": "/_app"
@@ -2448,6 +2444,10 @@ export const routeTree = rootRoute
     },
     "/_app/client/viewbeneficiary/$id": {
       "filePath": "_app/client/viewbeneficiary.$id.tsx",
+      "parent": "/_app"
+    },
+    "/_app/companybroker/BrokerProfile/$id": {
+      "filePath": "_app/companybroker/BrokerProfile.$id.tsx",
       "parent": "/_app"
     },
     "/_app/companybroker/SuperbrockerProfile/$id": {

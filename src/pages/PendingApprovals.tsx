@@ -54,7 +54,6 @@ const PendingApprovals: React.FC = () => {
   const [brokerToApprove, setBrokerToApprove] = useState<any | null>(null);
   const [selectedSuperBrokerForApprove, setSelectedSuperBrokerForApprove] =
     useState<string>('');
-
   // Queries
   const {
     data: brokerResponse,
@@ -62,8 +61,7 @@ const PendingApprovals: React.FC = () => {
     refetch: refetchBrokers,
   } = useGetBrokerData();
 
-  const {data: superBrokerResponse, isLoading: isLoadingSuperBrokers} =
-    useGetSuperBrokerData();
+  const {data: superBrokerResponse} = useGetSuperBrokerData();
 
   const {
     data: customerResponse,

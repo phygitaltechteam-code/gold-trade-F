@@ -9,6 +9,8 @@ import {
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import { Eye, EyeOff } from 'lucide-react';
 
+const STORAGE_KEY = 'super_broker_status';
+
 const DisplaySuperBroker = ({ refreshTrigger }) => {
   const [brokers, setBrokers] = useState([]);
   const [showPinModal, setShowPinModal] = useState(false);
@@ -19,12 +21,25 @@ const DisplaySuperBroker = ({ refreshTrigger }) => {
   const { data: responseData, refetch, isLoading } = useGetAllSuperBrocker();
   const { mutateAsync: activateInActiveSuperBrocker, isPending } = useActivateInActiveSuperBrocker();
   
-  // Use a ref to track if we've manually updated status
-  const manualUpdatesRef = useRef<Record<string, boolean>>({});
+  // Load stored statuses from localStorage on component mount
+  const loadStoredStatuses = () => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch {
+        return {};
+      }
+    }
+    return {};
+  };
 
-  // Load initial data only once when component mounts or responseData changes
+  // Store statuses to localStorage
+  const storeStatuses = (statuses: Record<string, boolean>) => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(statuses));
+  };
+
   useEffect(() => {
-    // Skip if this is a refresh from mutation (we'll handle it separately)
     if (!responseData) return;
     
     let brokerData: any[] = [];
@@ -37,11 +52,12 @@ const DisplaySuperBroker = ({ refreshTrigger }) => {
       brokerData = responseData;
     }
     
+    const storedStatuses = loadStoredStatuses();
+    
     const normalizedData = brokerData?.map((broker) => {
-      // Check if we have a manual update for this broker
-      const manualStatus = manualUpdatesRef.current[broker.id];
-      // Use manual status if available, otherwise default to false
-      const finalStatus = manualStatus !== undefined ? manualStatus : false;
+      // Check localStorage first, then API, then default to false
+      const storedStatus = storedStatuses[broker.id];
+      const finalStatus = storedStatus !== undefined ? storedStatus : (broker.isActive === true);
       
       return {
         ...broker,
@@ -52,7 +68,6 @@ const DisplaySuperBroker = ({ refreshTrigger }) => {
     setBrokers(normalizedData || []);
   }, [responseData]);
 
-  // Handle refresh trigger separately
   useEffect(() => {
     if (refreshTrigger) {
       refetch();
@@ -85,10 +100,12 @@ const DisplaySuperBroker = ({ refreshTrigger }) => {
     const newStatus = !selectedBroker?.isActive;
 
     try {
-      // FIRST: Update the manual ref immediately
-      manualUpdatesRef.current[selectedBroker.id] = newStatus;
+      // Update localStorage immediately
+      const storedStatuses = loadStoredStatuses();
+      storedStatuses[selectedBroker.id] = newStatus;
+      storeStatuses(storedStatuses);
       
-      // SECOND: Update local state immediately for instant UI feedback
+      // Update local state immediately for instant UI feedback
       setBrokers((prevBrokers) =>
         prevBrokers.map((broker) =>
           broker.id === selectedBroker.id
@@ -97,12 +114,12 @@ const DisplaySuperBroker = ({ refreshTrigger }) => {
         ),
       );
       
-      // THIRD: Close modal
+      // Close modal
       setShowPinModal(false);
       setPin('');
       setSelectedBroker(null);
       
-      // FOURTH: Call API (this can take time, but UI already updated)
+      // Call API
       const result = await activateInActiveSuperBrocker({
         id: selectedBroker.id,
         pin: pin,
@@ -110,7 +127,7 @@ const DisplaySuperBroker = ({ refreshTrigger }) => {
       
       toast.success(`Super Broker ${newStatus ? 'activated' : 'deactivated'} successfully!`);
       
-      // OPTIONAL: Refresh in background after 3 seconds (but don't block UI)
+      // Refresh in background to sync with backend
       setTimeout(() => {
         refetch();
       }, 3000);
@@ -118,7 +135,10 @@ const DisplaySuperBroker = ({ refreshTrigger }) => {
     } catch (error: any) {
       // If API fails, revert the status
       const oldStatus = !newStatus;
-      manualUpdatesRef.current[selectedBroker.id] = oldStatus;
+      const storedStatuses = loadStoredStatuses();
+      storedStatuses[selectedBroker.id] = oldStatus;
+      storeStatuses(storedStatuses);
+      
       setBrokers((prevBrokers) =>
         prevBrokers.map((broker) =>
           broker.id === selectedBroker.id

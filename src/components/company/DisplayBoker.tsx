@@ -1,22 +1,51 @@
-import React, {useState, useEffect} from 'react';
-import CustomBrokerTable from './CustomBrokerTable';
+import React, {useState, useEffect, useRef} from 'react';
+import GenericTable from '@/components/Forms/Table/GenericTable';
 import toast from 'react-hot-toast';
-import {useGetBrokerData, useDeleteBroker} from '@/lib/api/addbroker';
-import {FiX} from 'react-icons/fi';
+import {
+  useGetBrokerData,
+  useDeleteBroker,
+  useUpdateBrokerStatus,
+} from '@/lib/api/addbroker';
 import {useNavigate} from '@tanstack/react-router';
+import {Eye, EyeOff} from 'lucide-react';
+
+const STORAGE_KEY = 'broker_statuses';
 
 const DisplayBroker = ({refreshTrigger}) => {
   const [brokers, setBrokers] = useState([]);
+  const [showPinModal, setShowPinModal] = useState(false);
+  const [selectedBroker, setSelectedBroker] = useState<any>(null);
+  const [pin, setPin] = useState('');
+  const [showPin, setShowPin] = useState(false);
 
   const {data: responseData, isLoading, error, refetch} = useGetBrokerData();
   const deleteBrokerMutation = useDeleteBroker();
+  const {mutateAsync: updateBrokerStatus, isPending: isUpdating} =
+    useUpdateBrokerStatus();
   const navigate = useNavigate();
+
+  // Load stored statuses from localStorage
+  const loadStoredStatuses = () => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch {
+        return {};
+      }
+    }
+    return {};
+  };
+
+  // Store statuses to localStorage
+  const storeStatuses = (statuses: Record<string, boolean>) => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(statuses));
+  };
 
   // Process data when it changes
   useEffect(() => {
     if (responseData) {
       try {
-        // Safe data extraction without JSON.stringify
         let brokerList = [];
 
         if (responseData?.data?.data) {
@@ -27,7 +56,19 @@ const DisplayBroker = ({refreshTrigger}) => {
           brokerList = responseData;
         }
 
-        setBrokers(Array.isArray(brokerList) ? brokerList : []);
+        const storedStatuses = loadStoredStatuses();
+
+        const normalizedData = (
+          Array.isArray(brokerList) ? brokerList : []
+        ).map((broker) => ({
+          ...broker,
+          isActive:
+            storedStatuses[broker.id] !== undefined
+              ? storedStatuses[broker.id]
+              : broker.isActive === true || broker.user?.isActive === true,
+        }));
+
+        setBrokers(normalizedData);
       } catch (err) {
         console.error('Error processing data:', err);
         setBrokers([]);
@@ -43,12 +84,11 @@ const DisplayBroker = ({refreshTrigger}) => {
   }, [refreshTrigger, refetch]);
 
   const handleView = (broker) => {
-    navigate({to: '/companybroker/BrokerProfile'});
+    navigate({to: `/companybroker/BrokerProfile/${broker?.id}`});
   };
 
   const handleEdit = (broker) => {
-    toast.success(`Edit ${broker?.fullname || 'Broker'}`);
-    console.log('Edit broker:', broker);
+    navigate({to: `/companybroker/updatebroker/${broker?.id}`});
   };
 
   const handleDelete = async (broker) => {
@@ -65,6 +105,155 @@ const DisplayBroker = ({refreshTrigger}) => {
       }
     }
   };
+
+  const handleStatusToggle = (broker, e) => {
+    e.stopPropagation();
+    setSelectedBroker(broker);
+    setShowPinModal(true);
+    setPin('');
+    setShowPin(false);
+  };
+
+  const handleConfirmStatusChange = async () => {
+    if (!pin) {
+      toast.error('Please enter PIN');
+      return;
+    }
+
+    if (pin.length < 4) {
+      toast.error('PIN must be at least 4 digits');
+      return;
+    }
+
+    const newStatus = !selectedBroker?.isActive;
+
+    try {
+      // Update localStorage immediately
+      const storedStatuses = loadStoredStatuses();
+      storedStatuses[selectedBroker.id] = newStatus;
+      storeStatuses(storedStatuses);
+
+      // Update local state
+      setBrokers((prevBrokers) =>
+        prevBrokers.map((broker) =>
+          broker.id === selectedBroker.id
+            ? {...broker, isActive: newStatus}
+            : broker,
+        ),
+      );
+
+      // Close modal
+      setShowPinModal(false);
+      setPin('');
+      setSelectedBroker(null);
+
+      // Call API to update status
+      await updateBrokerStatus({
+        id: selectedBroker.id,
+        pin: pin,
+        isActive: newStatus,
+      });
+
+      toast.success(
+        `Broker ${newStatus ? 'activated' : 'deactivated'} successfully!`,
+      );
+
+      // Refresh in background
+      setTimeout(() => {
+        refetch();
+      }, 3000);
+    } catch (error: any) {
+      // Revert on error
+      const storedStatuses = loadStoredStatuses();
+      storedStatuses[selectedBroker.id] = !newStatus;
+      storeStatuses(storedStatuses);
+
+      setBrokers((prevBrokers) =>
+        prevBrokers.map((broker) =>
+          broker.id === selectedBroker.id
+            ? {...broker, isActive: !newStatus}
+            : broker,
+        ),
+      );
+
+      toast.error(
+        error?.response?.data?.message ||
+          'Failed to update status. Invalid PIN?',
+      );
+    }
+  };
+
+  const handleRowClick = (broker) => {
+    navigate({to: `/companybroker/BrokerProfile/${broker?.id}`});
+  };
+
+  const columns = [
+    {
+      header: 'Broker Name',
+      accessor: 'fullname',
+      sortable: true,
+      render: (row) => (
+        <span className="text-gray-900 font-medium">
+          {row.fullname || row.user?.fullname || 'N/A'}
+        </span>
+      ),
+    },
+    {
+      header: 'Phone Number',
+      accessor: 'phoneNumber',
+      render: (row) => (
+        <span>{row.phoneNumber || row.user?.phoneNumber || 'N/A'}</span>
+      ),
+    },
+    {
+      header: 'BKId',
+      accessor: 'BKId',
+      render: (row) => (
+        <span className="font-mono text-sm">{row.BKId || 'N/A'}</span>
+      ),
+    },
+    {
+      header: 'Commission',
+      accessor: 'brokeragePercent',
+      render: (row) => (
+        <span className="rounded border border-orange-100 bg-orange-50 px-2 py-1 text-xs font-bold text-orange-600">
+          {row.brokeragePercent ? `${row.brokeragePercent}%` : '0%'}
+        </span>
+      ),
+    },
+    {
+      header: 'Area',
+      accessor: 'area',
+      render: (row) => <span>{row.area || '-'}</span>,
+    },
+    {
+      header: 'Aadhar Number',
+      accessor: 'aadharCardNumber',
+      render: (row) => <span>{row.aadharCardNumber || '-'}</span>,
+    },
+
+    {
+      header: 'Action',
+      accessor: 'id',
+      render: (row) => (
+        <div
+          className="flex items-center gap-2"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <label className="relative inline-flex cursor-pointer items-center">
+            <input
+              type="checkbox"
+              className="peer sr-only"
+              checked={row.isActive || false}
+              onChange={(e) => handleStatusToggle(row, e)}
+              disabled={isUpdating}
+            />
+            <div className="relative h-5 w-9 rounded-full bg-slate-200 transition-colors after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-4 peer-disabled:opacity-50" />
+          </label>
+        </div>
+      ),
+    },
+  ];
 
   if (isLoading) {
     return (
@@ -100,16 +289,89 @@ const DisplayBroker = ({refreshTrigger}) => {
     );
   }
 
+  const selectedBrokerDetails = brokers.find(
+    (b) => b.id === selectedBroker?.id,
+  );
+
   return (
-    <div className="p-4">
-      <CustomBrokerTable
-        data={brokers}
-        onView={handleView}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        refreshTrigger={refreshTrigger}
-      />
-    </div>
+    <>
+      <div className="p-4">
+        <GenericTable
+          columns={columns}
+          data={brokers || []}
+          onRowClick={handleRowClick}
+          clickable={true}
+          rowsPerPage={10}
+        />
+      </div>
+
+      {/* PIN Modal */}
+      {showPinModal && selectedBrokerDetails && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-lg">
+            <h2 className="mb-4 text-lg font-semibold text-slate-900">
+              {selectedBrokerDetails?.isActive ? 'Deactivate' : 'Activate'}{' '}
+              Broker
+            </h2>
+            <p className="mb-4 text-sm text-slate-600">
+              {selectedBrokerDetails?.isActive
+                ? `Are you sure you want to deactivate ${selectedBrokerDetails?.fullname || selectedBrokerDetails?.user?.fullname}?`
+                : `Are you sure you want to activate ${selectedBrokerDetails?.fullname || selectedBrokerDetails?.user?.fullname}?`}
+            </p>
+            <p className="mb-2 text-sm font-medium text-slate-700">
+              Enter Security PIN to confirm:
+            </p>
+
+            <div className="relative">
+              <input
+                type={showPin ? 'text' : 'password'}
+                placeholder="Enter Security PIN"
+                value={pin}
+                onChange={(e) => setPin(e.target.value)}
+                className="border-gray-300 w-full rounded-lg border px-4 py-2 pr-10 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                autoFocus
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    handleConfirmStatusChange();
+                  }
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPin(!showPin)}
+                className="text-gray-500 hover:text-gray-700 absolute right-3 top-1/2 -translate-y-1/2"
+              >
+                {showPin ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+
+            <div className="mt-5 flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowPinModal(false);
+                  setPin('');
+                  setSelectedBroker(null);
+                }}
+                className="border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg border px-4 py-2 text-sm font-medium transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmStatusChange}
+                disabled={isUpdating}
+                className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${
+                  selectedBrokerDetails?.isActive
+                    ? 'bg-red-500 hover:bg-red-600'
+                    : 'bg-emerald-500 hover:bg-emerald-600'
+                } disabled:opacity-50`}
+              >
+                {isUpdating ? 'Processing...' : 'Confirm'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

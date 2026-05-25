@@ -16,6 +16,10 @@ import {
   RefreshCw,
   EyeOff,
   Eye,
+  Wallet,
+  Briefcase,
+  Activity,
+  DollarSign,
 } from 'lucide-react';
 import {Client, ClientStatus} from './types';
 import {motion} from 'framer-motion';
@@ -36,18 +40,18 @@ const StatCard = ({
   icon: Icon,
   isLoading,
 }: any) => (
-  <div className="rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
-    <div className="mb-4 flex items-start justify-between">
-      <div className="text-sm font-medium uppercase tracking-wider text-slate-500">
+  <div className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm transition-all hover:shadow-md md:p-6">
+    <div className="mb-3 flex items-start justify-between md:mb-4">
+      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 md:text-xs">
         {title}
       </div>
-      <div className="rounded-lg bg-slate-50 p-2">
-        <Icon className="h-5 w-5 text-slate-400" />
+      <div className="rounded-lg bg-slate-50 p-1.5 md:p-2">
+        <Icon className="h-4 w-4 text-slate-400 md:h-5 md:w-5" />
       </div>
     </div>
-    <div className="mb-2 text-3xl font-semibold text-slate-900">
+    <div className="mb-1 text-xl font-semibold text-slate-900 md:mb-2 md:text-2xl">
       {isLoading ? (
-        <Loader2 className="h-6 w-6 animate-spin text-slate-300" />
+        <Loader2 className="h-5 w-5 animate-spin text-slate-300 md:h-6 md:w-6" />
       ) : (
         value
       )}
@@ -55,7 +59,7 @@ const StatCard = ({
     <div className="flex items-center gap-2">
       {trend && !isLoading && (
         <span
-          className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+          className={`rounded-full px-1.5 py-0.5 text-[8px] font-medium md:px-2 md:py-0.5 md:text-[10px] ${
             trend > 0
               ? 'bg-emerald-50 text-emerald-600'
               : 'bg-rose-50 text-rose-600'
@@ -64,7 +68,9 @@ const StatCard = ({
           {trend > 0 ? '↑' : '↓'} {Math.abs(trend)}%
         </span>
       )}
-      <span className="text-xs font-medium text-slate-400">{subtext}</span>
+      <span className="text-[9px] font-medium text-slate-400 md:text-[10px]">
+        {subtext}
+      </span>
     </div>
   </div>
 );
@@ -78,8 +84,6 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
   const [showPin, setShowPin] = useState(false);
   const [pin, setPin] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [kycFilter, setKycFilter] = useState<string>('all');
   const [brokerFilter, setBrokerFilter] = useState<string>('all');
   const [superBrokerFilter, setSuperBrokerFilter] = useState<string>('all');
   const {mutateAsync: statusChange, isPending} = useActivateCustomer();
@@ -101,6 +105,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
   );
 
   // Calculate stats
+  const totalClients = clients.length;
   const activeTraders = clients.filter(
     (c: Client) => c.user?.isActive && c.user?.isVerified,
   ).length;
@@ -112,26 +117,30 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
     0,
   );
 
+  // Total active trades count
+  const totalActiveTrades = clients.reduce(
+    (sum: number, c: Client) => sum + (c._count?.trades || 0),
+    0,
+  );
+
+  // Total business generated
+  const totalBusiness = clients.reduce(
+    (sum: number, c: Client) => sum + (parseFloat(c.wallets?.amount) || 0),
+    0,
+  );
+
+  // Last wallet balance (latest client's wallet)
+  const lastWalletBalance =
+    clients.length > 0
+      ? parseFloat(clients[clients.length - 1]?.wallets?.amount) || 0
+      : 0;
+
   const filteredClients = clients.filter((client: Client) => {
     const matchesSearch =
       client.user?.fullname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       client.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      client.user?.phoneNumber?.includes(searchTerm);
-
-    let matchesStatus = true;
-    if (statusFilter !== 'all') {
-      if (statusFilter === 'active')
-        matchesStatus = client.user?.isActive && client.user?.isVerified;
-      else if (statusFilter === 'suspended')
-        matchesStatus = client.user?.isRejected;
-      else if (statusFilter === 'pending')
-        matchesStatus = !client.isKycCompleted && !client.user?.isRejected;
-    }
-
-    let matchesKyc = true;
-    if (kycFilter !== 'all') {
-      matchesKyc = client.isKycCompleted === (kycFilter === 'completed');
-    }
+      client.user?.phoneNumber?.includes(searchTerm) ||
+      client.CRN?.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesBroker =
       brokerFilter === 'all' || client?.broker?.user?.fullname === brokerFilter;
@@ -139,13 +148,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       superBrokerFilter === 'all' ||
       client?.broker?.superBroker?.user?.fullname === superBrokerFilter;
 
-    return (
-      matchesSearch &&
-      matchesStatus &&
-      matchesKyc &&
-      matchesBroker &&
-      matchesSuperBroker
-    );
+    return matchesSearch && matchesBroker && matchesSuperBroker;
   });
 
   const handleToggleClick = (client: Client, e: React.MouseEvent) => {
@@ -187,17 +190,20 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
   };
 
   const formatCurrency = (amount: number) => {
-    if (amount >= 1000000) {
-      return `$${(amount / 1000000).toFixed(1)}M`;
+    if (amount >= 10000000) {
+      return `₹${(amount / 10000000).toFixed(1)}Cr`;
+    } else if (amount >= 100000) {
+      return `₹${(amount / 100000).toFixed(1)}L`;
     } else if (amount >= 1000) {
-      return `$${(amount / 1000).toFixed(1)}k`;
+      return `₹${(amount / 1000).toFixed(1)}k`;
     }
-    return `$${amount}`;
+    return `₹${amount.toLocaleString()}`;
   };
 
   // Get the selected client for PIN modal
   const selectedClient = clients.find((c) => c.id === selectedClientId);
 
+  // Original columns - unchanged
   const columns = [
     {
       header: 'Client Name',
@@ -288,8 +294,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       header: 'P&L',
       accessor: 'pnl',
       render: (row: Client) => {
-       
-        const pnl = 0; 
+        const pnl = 0;
         const isProfit = pnl >= 0;
         return (
           <span
@@ -298,7 +303,9 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
             }`}
           >
             {isProfit ? '+' : ''}
-            {pnl >= 0 ? `$${pnl.toLocaleString()}` : `-$${Math.abs(pnl).toLocaleString()}`}
+            {pnl >= 0
+              ? `$${pnl.toLocaleString()}`
+              : `-$${Math.abs(pnl).toLocaleString()}`}
           </span>
         );
       },
@@ -336,110 +343,89 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
     <motion.div
       initial={{opacity: 0, y: 20}}
       animate={{opacity: 1, y: 0}}
-      className="max-w-9xl mx-auto px-6 py-8"
+      className="max-w-9xl mx-auto px-4 py-6 md:px-6 md:py-8"
     >
       {/* Header */}
-      <div className="mb-8 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-slate-900">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4 md:mb-8">
+        <h1 className="text-xl font-semibold text-slate-900 md:text-2xl">
           Client Management
         </h1>
         {isBroker && (
-          <div className="flex gap-3">
-            <button
-              onClick={() => navigate({to: '/broker/addcustomer'})}
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:scale-[1.02] hover:from-orange-600 hover:to-red-600"
-            >
-              <Plus className="h-4 w-4" />
-              Add Customer
-            </button>
-          </div>
+          <button
+            onClick={() => navigate({to: '/broker/addcustomer'})}
+            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:scale-[1.02] hover:from-orange-600 hover:to-red-600"
+          >
+            <Plus className="h-4 w-4" />
+            Add Customer
+          </button>
         )}
       </div>
 
-      {/* Stats Grid */}
-      <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+      {/* Stats Cards Grid - 6 cards */}
+      <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6 md:gap-4">
         <StatCard
-          title="Active Traders"
-          value={activeTraders.toLocaleString()}
-          subtext={`${clients.length} total clients`}
+          title="Total Clients"
+          value={totalClients.toLocaleString()}
+          subtext="Registered clients"
           icon={Users}
           isLoading={isLoading}
         />
         <StatCard
-          title="Pending KYC"
-          value={pendingKyc.toString()}
-          subtext="Requires attention"
-          icon={Clock}
+          title="Active Traders"
+          value={activeTraders.toLocaleString()}
+          subtext="Active trading"
+          icon={Activity}
           isLoading={isLoading}
         />
         <StatCard
-          title="Total Assets (AUM)"
-          value={formatCurrency(totalAUM)}
-          subtext="Wallet balance"
-          trend={5.3}
+          title="Business Generated"
+          value={formatCurrency(totalBusiness)}
+          subtext="Total volume"
+          icon={Briefcase}
+          isLoading={isLoading}
+        />
+        <StatCard
+          title="Active Trades"
+          value={totalActiveTrades.toLocaleString()}
+          subtext="Total trades"
           icon={TrendingUp}
+          isLoading={isLoading}
+        />
+        <StatCard
+          title="Total AUM"
+          value={formatCurrency(totalAUM)}
+          subtext="Assets under mgmt"
+          icon={Wallet}
+          isLoading={isLoading}
+        />
+        <StatCard
+          title="Last Wallet Bal"
+          value={formatCurrency(lastWalletBalance)}
+          subtext="Latest client"
+          icon={DollarSign}
           isLoading={isLoading}
         />
       </div>
 
-      {/* Filters & Search */}
-      <div className="mb-6 rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
-        <div className="relative mb-6">
-          <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search by Name, Email or Phone..."
-            className="w-full rounded-xl border border-slate-100 bg-slate-50 py-3 pl-12 pr-4 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-          <div className="space-y-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              Account Status
-            </label>
-            <select
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option value="all">All Statuses</option>
-              <option value="active">Active</option>
-              <option value="suspended">Suspended</option>
-              <option value="pending">Pending Review</option>
-            </select>
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              KYC Verification
-            </label>
-            <select
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-              value={kycFilter}
-              onChange={(e) => setKycFilter(e.target.value)}
-            >
-              <option value="all">All Levels</option>
-              <option value="completed">Completed</option>
-              <option value="pending">Pending</option>
-            </select>
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              Joined Date
-            </label>
+      {/* Optimized Filters - Search + 2 Dropdowns in one line */}
+      <div className="mb-6 rounded-2xl border border-black/5 bg-white p-4 shadow-sm md:p-6">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
+          {/* Search Bar */}
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
-              type="date"
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+              type="text"
+              placeholder="Search by Name, Email, Phone or CRN..."
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-4 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 md:py-3 md:pl-10"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
 
-          <div className="space-y-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              Broker
-            </label>
+          {/* Broker Filter */}
+          <div className="w-full md:w-64">
             <select
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 md:py-3"
               value={brokerFilter}
               onChange={(e) => setBrokerFilter(e.target.value)}
             >
@@ -452,12 +438,10 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
             </select>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              Super Broker
-            </label>
+          {/* Super Broker Filter */}
+          <div className="w-full md:w-64">
             <select
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 md:py-3"
               value={superBrokerFilter}
               onChange={(e) => setSuperBrokerFilter(e.target.value)}
             >
@@ -472,7 +456,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
         </div>
       </div>
 
-      {/* Client Table */}
+      {/* Client Table - Original columns unchanged */}
       <GenericTable
         columns={columns}
         data={filteredClients}

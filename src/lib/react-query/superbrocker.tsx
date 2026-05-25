@@ -92,3 +92,24 @@ export const useUpdateSuperBrokerProfile = () => {
     },
   });
 };
+
+export const useAddCommission = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({id, data}: {id: string; data: any}) =>
+      api.post(`/company/super-broker/${id}/commission`, data),
+
+    onSuccess: () => {
+      toast.success('Commission added successfully!');
+      queryClient.invalidateQueries({queryKey: ['super_brocker']});
+      queryClient.invalidateQueries({queryKey: ['get-superbroker']});
+      queryClient.invalidateQueries({queryKey: ['get-superbroker-data']});
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.message || 'Failed to add commission';
+      toast.error(errorMessage);
+    },
+  });
+};

@@ -72,7 +72,7 @@ export const useGetSuperBrokerData = () =>
 export const addBroker = async (data: FormData) => {
   try {
     console.log('Sending FormData to API');
-    const response = await api.post(`/company/customer`, data, {
+    const response = await api.post(`/company/broker`, data, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -86,7 +86,7 @@ export const addBroker = async (data: FormData) => {
 
 export const deleteBroker = async (id: string) => {
   try {
-    const response = await api.delete(`/company/customer/${id}`);
+    const response = await api.delete(`/company/broker/${id}`);
     return response.data;
   } catch (error) {
     console.error('Error deleting broker:', error);
@@ -180,6 +180,93 @@ export const useUpdateBroker = () => {
     onError: (error: any) => {
       const backendMessage =
         error?.response?.data?.message || 'Failed to update broker';
+      toast.error(backendMessage);
+    },
+  });
+};
+
+export const useGetAllAdminBrockerById = (id: string) =>
+  useQuery({
+    queryKey: ['brocker', id],
+    queryFn: () => getAllAdminBrockerById(id),
+  });
+
+export const getAllAdminBrockerById = async (id: string) => {
+  try {
+    const response = await api.get(`/company/broker/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching brockers:', error);
+    throw error;
+  }
+};
+
+export const useUpdateAdminBrokerProfile = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({id, data}: {id: string; data: any}) =>
+      api.put(`/company/broker/${id}`, data),
+
+    onSuccess: () => {
+      toast.success('Broker profile updated successfully!');
+      queryClient.invalidateQueries({queryKey: ['brocker']});
+      queryClient.invalidateQueries({queryKey: ['get-broker']});
+      queryClient.invalidateQueries({queryKey: ['get-broker-data']});
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.message || 'Failed to update  broker profile';
+      toast.error(errorMessage);
+    },
+  });
+};
+
+export const useAddAdminBrokerCommission = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({id, data}: {id: string; data: any}) =>
+      api.post(`/company/broker/${id}/commission`, data),
+
+    onSuccess: () => {
+      toast.success('Commission added successfully!');
+      queryClient.invalidateQueries({queryKey: ['brocker']});
+      queryClient.invalidateQueries({queryKey: ['get-broker']});
+      queryClient.invalidateQueries({queryKey: ['get-broker-data']});
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.message || 'Failed to add commission';
+      toast.error(errorMessage);
+    },
+  });
+};
+
+export const useUpdateBrokerStatus = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      pin,
+      isActive,
+    }: {
+      id: string;
+      pin: string;
+      isActive: boolean;
+    }) => {
+      return api.put(`/company/broker/${id}/status`, {
+        pin: pin,
+        isActive: isActive,
+      });
+    },
+    onSuccess: () => {
+      toast.success('Broker Status Updated Successfully!');
+      queryClient.invalidateQueries({queryKey: ['get-broker']});
+    },
+    onError: (error: any) => {
+      const backendMessage =
+        error?.response?.data?.message || 'Failed to update broker status';
       toast.error(backendMessage);
     },
   });
