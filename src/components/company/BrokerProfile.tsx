@@ -646,7 +646,7 @@ const BrokerProfile = () => {
                   : 'text-bodydark2'
               }`}
             >
-              Customers ({profileData?.customers?.length || 0})
+              Clients ({profileData?.customers?.length || 0})
             </button>
           </div>
           <div className="px-4 py-2">
