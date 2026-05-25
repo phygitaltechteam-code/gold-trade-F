@@ -1,15 +1,15 @@
-import { useAddBroker } from '@/lib/api/addbroker';
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from '@tanstack/react-router';
+import {useAddBroker} from '@/lib/api/addbroker';
+import React, {useState, useEffect} from 'react';
+import {useNavigate} from '@tanstack/react-router';
 import toast from 'react-hot-toast';
-import { z } from 'zod';
-import { useAuthContext } from '@/context/AuthContext';
-import { X, ZoomIn } from 'lucide-react';
-import {useApproveBroker, useUpdateBroker } from '@/lib/api/addbroker';
-import { useParams } from '@tanstack/react-router';
-import { Route } from '@/routes/_app/companybroker/pendingbrokerby.$id';
-import { useGetPendingBrokers } from '@/lib/api/customer';
-import { useGetAllSuperBrocker } from '@/lib/react-query/superbrocker';
+import {z} from 'zod';
+import {useAuthContext} from '@/context/AuthContext';
+import {X, ZoomIn} from 'lucide-react';
+import {useApproveBroker, useUpdateBroker} from '@/lib/api/addbroker';
+import {useParams} from '@tanstack/react-router';
+import {Route} from '@/routes/_app/companybroker/pendingbrokerby.$id';
+import {useGetPendingBrokers} from '@/lib/api/customer';
+import {useGetAllSuperBrocker} from '@/lib/react-query/superbrocker';
 
 // Define Zod schema for form data validation
 const BrokerSchema = z.object({
@@ -24,14 +24,18 @@ const BrokerSchema = z.object({
 });
 
 const PendingBrokerByid = () => {
-  const { id } = Route.useParams();
+  const {id} = Route.useParams();
   const navigate = useNavigate();
-  const { user } = useAuthContext();
+  const {user} = useAuthContext();
   const isSuperBroker = user?.role === 'SUPERBROKER';
-  
+
   // Queries and Mutations
-  const { data: brokerData, isLoading: isLoadingBroker, refetch } = useGetPendingBrokers(id);
-  const { data: superBrokersData } = useGetAllSuperBrocker();
+  const {
+    data: brokerData,
+    isLoading: isLoadingBroker,
+    refetch,
+  } = useGetPendingBrokers(id);
+  const {data: superBrokersData} = useGetAllSuperBrocker();
   const updateBrokerMutation = useUpdateBroker();
   const approveBrokerMutation = useApproveBroker();
 
@@ -67,7 +71,8 @@ const PendingBrokerByid = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Get super brokers from API response
-  const superBrokersList = superBrokersData?.data?.data || superBrokersData?.data || [];
+  const superBrokersList =
+    superBrokersData?.data?.data || superBrokersData?.data || [];
 
   const filteredSuperBrokers = superBrokersList.filter(
     (sb) =>
@@ -92,15 +97,15 @@ const PendingBrokerByid = () => {
 
       // Set image previews if they exist
       if (broker.aadharCardF) {
-        setImagePreviews(prev => ({
+        setImagePreviews((prev) => ({
           ...prev,
-          aadharCardF: broker.aadharCardF
+          aadharCardF: broker.aadharCardF,
         }));
       }
       if (broker.panCard) {
-        setImagePreviews(prev => ({
+        setImagePreviews((prev) => ({
           ...prev,
-          panCard: broker.panCard
+          panCard: broker.panCard,
         }));
       }
     }
@@ -116,7 +121,7 @@ const PendingBrokerByid = () => {
   }, [isSuperBroker, user]);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const {name, value} = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -247,7 +252,7 @@ const PendingBrokerByid = () => {
         id: id,
         data: updateData,
       });
-      
+
       toast.success('Broker updated successfully!');
       setIsEditing(false);
       await refetch();
@@ -272,14 +277,14 @@ const PendingBrokerByid = () => {
         superBrokerId: formData.superBrokerId,
       });
       toast.success('Broker approved successfully!');
-      navigate({ to: '/Approval/pendingapprovals' });
+      navigate({to: '/Approval/pendingapprovals'});
     } catch (error) {
       console.error('Approve error:', error);
       toast.error(error?.response?.data?.message || 'Failed to approve broker');
     }
   };
 
-  const ImageUploadField = ({ label, field, required }) => (
+  const ImageUploadField = ({label, field, required}) => (
     <div className="mb-4">
       <label className="text-gray-700 mb-2 block text-sm font-medium">
         {label} {required && <span className="text-red-500">*</span>}
@@ -366,7 +371,9 @@ const PendingBrokerByid = () => {
                 {isEditing ? 'Edit Broker' : 'Broker Details'}
               </h1>
               <p className="mt-1 text-sm text-orange-100">
-                {isEditing ? 'Edit broker information' : 'Review broker details'}
+                {isEditing
+                  ? 'Edit broker information'
+                  : 'Review broker details'}
               </p>
             </div>
             <div className="flex gap-2">
@@ -379,8 +386,8 @@ const PendingBrokerByid = () => {
                 </button>
               )}
               <button
-                onClick={() => navigate({ to: '/Approval/pendingapprovals' })}
-                className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-orange-500 transition-all hover:bg-gray-100"
+                onClick={() => navigate({to: '/Approval/pendingapprovals'})}
+                className="hover:bg-gray-100 rounded-lg bg-white px-4 py-2 text-sm font-medium text-orange-500 transition-all"
               >
                 Back to List
               </button>
@@ -403,9 +410,7 @@ const PendingBrokerByid = () => {
                 disabled={!isEditing}
                 className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
                   !isEditing ? 'bg-gray-100' : 'bg-white'
-                } ${
-                  errors.fullname ? 'border-red-500' : 'border-gray-300'
-                }`}
+                } ${errors.fullname ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="Enter full name"
               />
               {errors.fullname && (
@@ -427,13 +432,13 @@ const PendingBrokerByid = () => {
                 maxLength={10}
                 className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
                   !isEditing ? 'bg-gray-100' : 'bg-white'
-                } ${
-                  errors.phoneNumber ? 'border-red-500' : 'border-gray-300'
-                }`}
+                } ${errors.phoneNumber ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="Enter 10-digit phone number"
               />
               {errors.phoneNumber && (
-                <p className="mt-1 text-xs text-red-500">{errors.phoneNumber}</p>
+                <p className="mt-1 text-xs text-red-500">
+                  {errors.phoneNumber}
+                </p>
               )}
             </div>
 
@@ -448,7 +453,7 @@ const PendingBrokerByid = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="w-full rounded-lg border border-gray-300 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base"
+                  className="border-gray-300 w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base"
                   placeholder="Enter new password"
                 />
                 {errors.password && (
@@ -490,7 +495,9 @@ const PendingBrokerByid = () => {
                 </select>
               )}
               {errors.superBrokerId && !isSuperBroker && (
-                <p className="mt-1 text-xs text-red-500">{errors.superBrokerId}</p>
+                <p className="mt-1 text-xs text-red-500">
+                  {errors.superBrokerId}
+                </p>
               )}
             </div>
 
@@ -545,9 +552,7 @@ const PendingBrokerByid = () => {
                 disabled={!isEditing}
                 className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
                   !isEditing ? 'bg-gray-100' : 'bg-white'
-                } ${
-                  errors.area ? 'border-red-500' : 'border-gray-300'
-                }`}
+                } ${errors.area ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="Enter Area"
               />
               {errors.area && (
@@ -569,9 +574,7 @@ const PendingBrokerByid = () => {
                 disabled={!isEditing}
                 className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
                   !isEditing ? 'bg-gray-100' : 'bg-white'
-                } ${
-                  errors.commission ? 'border-red-500' : 'border-gray-300'
-                }`}
+                } ${errors.commission ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="Enter Commission %"
               />
               {errors.commission && (
@@ -610,12 +613,16 @@ const PendingBrokerByid = () => {
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     {imagePreviews.aadharCardF && (
                       <div>
-                        <p className="text-gray-600 mb-1 text-sm">Aadhar Card:</p>
+                        <p className="text-gray-600 mb-1 text-sm">
+                          Aadhar Card:
+                        </p>
                         <img
                           src={imagePreviews.aadharCardF}
                           alt="Aadhar Card"
                           className="h-20 w-20 cursor-pointer rounded-lg object-cover sm:h-24 sm:w-24"
-                          onClick={() => openImageModal(imagePreviews.aadharCardF)}
+                          onClick={() =>
+                            openImageModal(imagePreviews.aadharCardF)
+                          }
                         />
                       </div>
                     )}
@@ -643,7 +650,7 @@ const PendingBrokerByid = () => {
                 <button
                   type="button"
                   onClick={() => setIsEditing(false)}
-                  className="rounded-lg border border-gray-300 px-6 py-2.5 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50"
+                  className="border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg border px-6 py-2.5 text-sm font-medium transition-all"
                 >
                   Cancel
                 </button>
