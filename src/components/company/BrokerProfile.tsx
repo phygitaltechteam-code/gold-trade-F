@@ -225,10 +225,11 @@ const BrokerProfile = () => {
 
     addBrokerCommission(
       {
-        brokerId: id,
-        amount: parseFloat(commissionAmount),
-        type: commissionType,
-        securityPin: commissionPin,
+        id: id,
+        data: {
+          amount: parseFloat(commissionAmount),
+          securityPin: commissionPin,
+        },
       },
       {
         onSuccess: () => {

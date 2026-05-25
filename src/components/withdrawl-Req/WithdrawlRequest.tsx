@@ -7,12 +7,15 @@ import {
   TrendingDown,
   Filter,
   Download,
-  Landmark,
   ChevronLeft,
   ChevronRight,
   X,
+  Eye,
+  Edit,
+  Trash,
 } from 'lucide-react';
 import {motion, AnimatePresence} from 'framer-motion';
+import GenericTable from '@/components/Forms/Table/GenericTable';
 
 // Types
 interface WithdrawalRequest {
@@ -27,12 +30,15 @@ interface WithdrawalRequest {
     initials: string;
   };
   brokerName: string;
+  brokerNumber: string;
   superBrokerName: string;
+  superBrokerNumber: string;
   walletBalance: number;
   amount: number;
   withdrawType: string;
   detailAmount: number;
-  paidDate: string;
+  paidAmount: number;
+  paidDateTime: string;
   fee: number;
   bank: string;
   accountLast4: string;
@@ -48,12 +54,15 @@ const MOCK_DATA: WithdrawalRequest[] = [
     time: '10:42 AM',
     client: {name: 'John Doe', tier: 'Gold Tier', initials: 'JD'},
     brokerName: 'Capital Brokerage',
+    brokerNumber: 'BRK-00123',
     superBrokerName: 'Global Markets Group',
+    superBrokerNumber: 'SBR-00456',
     walletBalance: 45000.0,
     amount: 15400.0,
     withdrawType: 'Bank Transfer',
     detailAmount: 15385.0,
-    paidDate: 'Pending',
+    paidAmount: 15385.0,
+    paidDateTime: '2024-01-15 14:30:00',
     fee: 15.0,
     bank: 'Chase Bank',
     accountLast4: '8821',
@@ -66,12 +75,15 @@ const MOCK_DATA: WithdrawalRequest[] = [
     time: '09:15 AM',
     client: {name: 'Alice Smith', tier: 'Standard Tier', initials: 'AS'},
     brokerName: 'TradeCorp',
+    brokerNumber: 'BRK-00456',
     superBrokerName: 'Alpha Financial',
+    superBrokerNumber: 'SBR-00123',
     walletBalance: 12000.0,
     amount: 2100.0,
     withdrawType: 'Crypto Wallet',
     detailAmount: 2095.0,
-    paidDate: 'Pending',
+    paidAmount: 2095.0,
+    paidDateTime: '2024-01-15 11:20:00',
     fee: 5.0,
     bank: 'Wells Fargo',
     accountLast4: '4492',
@@ -89,12 +101,15 @@ const MOCK_DATA: WithdrawalRequest[] = [
       avatar: 'https://picsum.photos/seed/marcus/40/40',
     },
     brokerName: 'Asia Wealth',
+    brokerNumber: 'BRK-00789',
     superBrokerName: 'Global Markets Group',
+    superBrokerNumber: 'SBR-00456',
     walletBalance: 250000.0,
     amount: 85000.0,
     withdrawType: 'Wire Transfer',
     detailAmount: 84950.0,
-    paidDate: 'Reviewing',
+    paidAmount: 0,
+    paidDateTime: 'Pending',
     fee: 50.0,
     bank: 'HSBC Global',
     accountLast4: '1102',
@@ -108,12 +123,15 @@ const MOCK_DATA: WithdrawalRequest[] = [
     time: '11:55 PM',
     client: {name: 'Robert King', tier: 'Standard Tier', initials: 'RK'},
     brokerName: 'King Investments',
+    brokerNumber: 'BRK-00999',
     superBrokerName: 'Alpha Financial',
+    superBrokerNumber: 'SBR-00123',
     walletBalance: 3400.0,
     amount: 850.0,
     withdrawType: 'Bank Transfer',
     detailAmount: 848.0,
-    paidDate: 'Pending',
+    paidAmount: 848.0,
+    paidDateTime: '2024-01-14 09:45:00',
     fee: 2.0,
     bank: 'Bank of America',
     accountLast4: '9931',
@@ -126,12 +144,15 @@ const MOCK_DATA: WithdrawalRequest[] = [
     time: '04:20 PM',
     client: {name: 'Sarah Lee', tier: 'Silver Tier', initials: 'SL'},
     brokerName: 'TradeCorp',
+    brokerNumber: 'BRK-00456',
     superBrokerName: 'Global Markets Group',
+    superBrokerNumber: 'SBR-00456',
     walletBalance: 9800.0,
     amount: 4200.0,
     withdrawType: 'PayPal',
     detailAmount: 4196.0,
-    paidDate: 'Hold',
+    paidAmount: 0,
+    paidDateTime: 'Pending',
     fee: 4.0,
     bank: 'Citibank',
     accountLast4: '2381',
@@ -144,12 +165,15 @@ const MOCK_DATA: WithdrawalRequest[] = [
     time: '02:10 PM',
     client: {name: 'David Brown', tier: 'Gold Tier', initials: 'DB'},
     brokerName: 'Capital Brokerage',
+    brokerNumber: 'BRK-00123',
     superBrokerName: 'Alpha Financial',
+    superBrokerNumber: 'SBR-00123',
     walletBalance: 65000.0,
     amount: 12500.0,
     withdrawType: 'Wire Transfer',
     detailAmount: 12488.0,
-    paidDate: '2023-10-25',
+    paidAmount: 12488.0,
+    paidDateTime: '2024-01-13 16:20:00',
     fee: 12.0,
     bank: 'Chase Bank',
     accountLast4: '5543',
@@ -162,12 +186,15 @@ const MOCK_DATA: WithdrawalRequest[] = [
     time: '11:30 AM',
     client: {name: 'Emma Wilson', tier: 'Standard Tier', initials: 'EW'},
     brokerName: 'King Investments',
+    brokerNumber: 'BRK-00999',
     superBrokerName: 'Global Markets Group',
+    superBrokerNumber: 'SBR-00456',
     walletBalance: 8000.0,
     amount: 3200.0,
     withdrawType: 'Bank Transfer',
     detailAmount: 3197.0,
-    paidDate: 'Rejected',
+    paidAmount: 0,
+    paidDateTime: 'Rejected',
     fee: 3.0,
     bank: 'Wells Fargo',
     accountLast4: '7789',
@@ -175,12 +202,32 @@ const MOCK_DATA: WithdrawalRequest[] = [
   },
 ];
 
+// Status Badge Component
+const StatusBadge = ({status}: {status: WithdrawalRequest['status']}) => {
+  const styles = {
+    Pending: 'bg-orange-50 text-orange-600 border-orange-100',
+    Review: 'bg-yellow-50 text-yellow-600 border-yellow-100',
+    'On Hold': 'bg-blue-50 text-blue-600 border-blue-100',
+    Approved: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+    Rejected: 'bg-red-50 text-red-600 border-red-100',
+  };
+
+  return (
+    <span
+      className={`inline-block whitespace-nowrap rounded-md border px-2 py-1 text-[10px] font-bold uppercase ${styles[status]}`}
+    >
+      {status}
+    </span>
+  );
+};
+
 export default function WithdrawalRequest() {
   const [activeTab, setActiveTab] = useState('Pending');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRequests, setSelectedRequests] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [showMobileFilter, setShowMobileFilter] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false); // View More/View Less state
   const itemsPerPage = 5;
 
   // Filter data based on active tab and search
@@ -232,45 +279,224 @@ export default function WithdrawalRequest() {
     };
   }, []);
 
-  // Pagination
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-  const paginatedData = filteredData.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage,
-  );
+  // Base columns (View Less)
+  const baseColumns = [
+    {
+      header: 'Request ID',
+      accessor: (row: WithdrawalRequest) => (
+        <span className="text-gray-900 text-sm font-bold">{row.requestId}</span>
+      ),
+    },
+    {
+      header: 'Client Name',
+      accessor: (row: WithdrawalRequest) => (
+        <div className="flex items-center gap-3">
+          {row.client.avatar ? (
+            <img
+              src={row.client.avatar}
+              alt={row.client.name}
+              className="h-8 w-8 rounded-full object-cover"
+            />
+          ) : (
+            <div className="bg-gray-100 text-gray-500 flex h-8 w-8 items-center justify-center rounded-full text-[10px] font-bold">
+              {row.client.initials}
+            </div>
+          )}
+          <div>
+            <div className="text-gray-900 text-sm font-semibold">
+              {row.client.name}
+            </div>
+            <div className="text-gray-400 text-xs">{row.client.tier}</div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: 'Broker Number',
+      accessor: (row: WithdrawalRequest) => (
+        <span className="text-gray-600 text-sm">{row.brokerNumber}</span>
+      ),
+    },
+    {
+      header: 'Super Broker Number',
+      accessor: (row: WithdrawalRequest) => (
+        <span className="text-gray-600 text-sm">{row.superBrokerNumber}</span>
+      ),
+    },
+    {
+      header: 'Wallet Balance',
+      accessor: (row: WithdrawalRequest) => (
+        <div className="text-gray-900 text-right text-sm font-bold">
+          ₹{row.walletBalance.toLocaleString('en-IN')}
+        </div>
+      ),
+    },
+    {
+      header: 'Withdraw Amount',
+      accessor: (row: WithdrawalRequest) => (
+        <div className="text-right text-sm font-bold text-orange-500">
+          ₹{row.amount.toLocaleString('en-IN')}
+        </div>
+      ),
+    },
+    {
+      header: 'Withdraw Type',
+      accessor: (row: WithdrawalRequest) => (
+        <span className="bg-gray-100 rounded border border-slate-200 px-2 py-1 text-xs">
+          {row.withdrawType}
+        </span>
+      ),
+    },
+    {
+      header: 'Status',
+      accessor: (row: WithdrawalRequest) => <StatusBadge status={row.status} />,
+    },
+    {
+      header: 'Actions',
+      accessor: (row: WithdrawalRequest) => (
+        <div className="flex items-center justify-end gap-2">
+          <button
+            onClick={() => handleReject(row.id)}
+            className="text-gray-500 hover:bg-gray-100 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
+          >
+            Reject
+          </button>
+          <button
+            onClick={() => handleApprove(row.id)}
+            className="rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm shadow-orange-200 transition-all hover:bg-orange-600"
+          >
+            Approve
+          </button>
+        </div>
+      ),
+    },
+  ];
 
-  // Reset pagination when tab changes
-  React.useEffect(() => {
-    setCurrentPage(1);
-    setSelectedRequests([]);
-  }, [activeTab, searchTerm]);
-
-  // Handle select all
-  const handleSelectAll = () => {
-    if (selectedRequests.length === paginatedData.length) {
-      setSelectedRequests([]);
-    } else {
-      setSelectedRequests(paginatedData.map((r) => r.id));
-    }
-  };
-
-  // Handle single select
-  const handleSelect = (id: string) => {
-    setSelectedRequests((prev) =>
-      prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id],
-    );
-  };
+  // Expanded columns (View More) - includes additional fields
+  const expandedColumns = [
+    {
+      header: 'Request ID',
+      accessor: (row: WithdrawalRequest) => (
+        <span className="text-gray-900 text-sm font-bold">{row.requestId}</span>
+      ),
+    },
+    {
+      header: 'Client Name',
+      accessor: (row: WithdrawalRequest) => (
+        <div className="flex items-center gap-3">
+          {row.client.avatar ? (
+            <img
+              src={row.client.avatar}
+              alt={row.client.name}
+              className="h-8 w-8 rounded-full object-cover"
+            />
+          ) : (
+            <div className="bg-gray-100 text-gray-500 flex h-8 w-8 items-center justify-center rounded-full text-[10px] font-bold">
+              {row.client.initials}
+            </div>
+          )}
+          <div>
+            <div className="text-gray-900 text-sm font-semibold">
+              {row.client.name}
+            </div>
+            <div className="text-gray-400 text-xs">{row.client.tier}</div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: 'Broker Name',
+      accessor: (row: WithdrawalRequest) => (
+        <div>
+          <div className="text-gray-900 text-sm font-medium">
+            {row.brokerName}
+          </div>
+          <div className="text-gray-400 text-xs">{row.brokerNumber}</div>
+        </div>
+      ),
+    },
+    {
+      header: 'Super Broker Name',
+      accessor: (row: WithdrawalRequest) => (
+        <div>
+          <div className="text-gray-900 text-sm font-medium">
+            {row.superBrokerName}
+          </div>
+          <div className="text-gray-400 text-xs">{row.superBrokerNumber}</div>
+        </div>
+      ),
+    },
+    {
+      header: 'Wallet Balance',
+      accessor: (row: WithdrawalRequest) => (
+        <div className="text-gray-900 text-right text-sm font-bold">
+          ₹{row.walletBalance.toLocaleString('en-IN')}
+        </div>
+      ),
+    },
+    {
+      header: 'Withdraw Amount',
+      accessor: (row: WithdrawalRequest) => (
+        <div className="text-right text-sm font-bold text-orange-500">
+          ₹{row.amount.toLocaleString('en-IN')}
+        </div>
+      ),
+    },
+    {
+      header: 'Withdraw Type',
+      accessor: (row: WithdrawalRequest) => (
+        <span className="bg-gray-100 rounded border border-slate-200 px-2 py-1 text-xs">
+          {row.withdrawType}
+        </span>
+      ),
+    },
+    {
+      header: 'Paid Amount',
+      accessor: (row: WithdrawalRequest) => (
+        <div className="text-right text-sm font-bold text-emerald-600">
+          ₹{row.paidAmount.toLocaleString('en-IN')}
+        </div>
+      ),
+    },
+    {
+      header: 'Paid Date/Time',
+      accessor: (row: WithdrawalRequest) => (
+        <span className="text-gray-600 text-sm">{row.paidDateTime}</span>
+      ),
+    },
+    {
+      header: 'Status',
+      accessor: (row: WithdrawalRequest) => <StatusBadge status={row.status} />,
+    },
+    {
+      header: 'Actions',
+      accessor: (row: WithdrawalRequest) => (
+        <div className="flex items-center justify-end gap-2">
+          <button
+            onClick={() => handleReject(row.id)}
+            className="text-gray-500 hover:bg-gray-100 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
+          >
+            Reject
+          </button>
+          <button
+            onClick={() => handleApprove(row.id)}
+            className="rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm shadow-orange-200 transition-all hover:bg-orange-600"
+          >
+            Approve
+          </button>
+        </div>
+      ),
+    },
+  ];
 
   // Handle approve/reject
   const handleApprove = (id: string) => {
     console.log('Approving:', id);
-    // Add your approve logic here
     alert(`Approved request ${id}`);
   };
 
   const handleReject = (id: string) => {
     console.log('Rejecting:', id);
-    // Add your reject logic here
     alert(`Rejected request ${id}`);
   };
 
@@ -287,50 +513,7 @@ export default function WithdrawalRequest() {
     setSelectedRequests([]);
   };
 
-  // Handle export
-  const handleExport = () => {
-    const dataToExport =
-      selectedRequests.length > 0
-        ? MOCK_DATA.filter((r) => selectedRequests.includes(r.id))
-        : filteredData;
-
-    const csvContent = [
-      [
-        'Request ID',
-        'Date',
-        'Time',
-        'Client Name',
-        'Tier',
-        'Amount',
-        'Fee',
-        'Bank',
-        'Account',
-        'Status',
-      ],
-      ...dataToExport.map((req) => [
-        req.requestId,
-        req.date,
-        req.time,
-        req.client.name,
-        req.client.tier,
-        req.amount.toString(),
-        req.fee.toString(),
-        req.bank,
-        req.accountLast4,
-        req.status,
-      ]),
-    ]
-      .map((row) => row.join(','))
-      .join('\n');
-
-    const blob = new Blob([csvContent], {type: 'text/csv'});
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `withdrawals_${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-  };
+  const columns = isExpanded ? expandedColumns : baseColumns;
 
   return (
     <div className="font-sans min-h-screen bg-[#F8F9FB] text-[#1A1D21]">
@@ -380,7 +563,7 @@ export default function WithdrawalRequest() {
           <SummaryCard
             title="Pending Review"
             value={stats.pendingCount.toString()}
-            subValue={`$${stats.pendingAmount.toLocaleString()} total value`}
+            subValue={`₹${stats.pendingAmount.toLocaleString('en-IN')} total value`}
             icon={<Hourglass className="text-gray-500 h-5 w-5" />}
           />
           <SummaryCard
@@ -392,8 +575,8 @@ export default function WithdrawalRequest() {
           />
           <SummaryCard
             title="Liquidity Outflow"
-            value={`$${(stats.totalOutflow / 1000000).toFixed(1)}M`}
-            subValue="Daily cap remaining: $3.8M"
+            value={`₹${(stats.totalOutflow / 100000).toFixed(1)}L`}
+            subValue="Daily cap remaining: ₹3.8L"
             icon={<TrendingDown className="text-gray-500 h-5 w-5" />}
           />
         </div>
@@ -483,12 +666,12 @@ export default function WithdrawalRequest() {
                 <Filter className="text-gray-600 h-4 w-4" />
               </button>
 
+              {/* View More/View Less Button */}
               <button
-                onClick={handleExport}
-                className="text-gray-600 hover:bg-gray-50 flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors sm:text-sm"
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
               >
-                <Download className="h-4 w-4" />
-                <span className="hidden sm:inline">Export</span>
+                {isExpanded ? 'View Less' : 'View More'}
               </button>
             </div>
           </div>
@@ -519,205 +702,13 @@ export default function WithdrawalRequest() {
             )}
           </AnimatePresence>
 
-          {/* Desktop Table View */}
-          <div className="overflow-x-auto lg:block">
-            <table className="w-full border-collapse text-left">
-              <thead>
-                <tr className="bg-gray-50/50 border-y border-stroke">
-                  <th className="py-4 pl-6 pr-2">
-                    <input
-                      type="checkbox"
-                      checked={
-                        selectedRequests.length === paginatedData.length &&
-                        paginatedData.length > 0
-                      }
-                      onChange={handleSelectAll}
-                      className="rounded border-stroke text-orange-500 focus:ring-orange-500"
-                    />
-                  </th>
-                  <th className="text-gray-400 px-3 py-4 text-[11px] font-semibold uppercase tracking-wider">
-                    Sr
-                  </th>
-                  <th className="text-gray-400 px-3 py-4 text-[11px] font-semibold uppercase tracking-wider">
-                    Request ID
-                  </th>
-                  <th className="text-gray-400 px-3 py-4 text-[11px] font-semibold uppercase tracking-wider">
-                    Client Name
-                  </th>
-
-                  <th className="text-gray-400 px-3 py-4 text-right text-[11px] font-semibold uppercase tracking-wider">
-                    Wallet Balance
-                  </th>
-                  <th className="text-gray-400 px-3 py-4 text-right text-[11px] font-semibold uppercase tracking-wider">
-                    Withdraw Amount
-                  </th>
-                  <th className="text-gray-400 px-3 py-4 text-center text-[11px] font-semibold uppercase tracking-wider">
-                    Withdraw Type
-                  </th>
-                  <th className="text-gray-400 px-3 py-4 text-right text-[11px] font-semibold uppercase tracking-wider">
-                    Detail Amount
-                  </th>
-                  <th className="text-gray-400 px-3 py-4 text-[11px] font-semibold uppercase tracking-wider">
-                    Paid Date
-                  </th>
-                  <th className="text-gray-400 px-3 py-4 text-[11px] font-semibold uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="text-gray-400 py-4 pl-2 pr-6 text-right text-[11px] font-semibold uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-gray-100 divide-y">
-                {paginatedData.length > 0 ? (
-                  paginatedData.map((req, idx) => (
-                    <tr
-                      key={req.id}
-                      className="hover:bg-gray-50/50 group relative transition-colors"
-                    >
-                      {req.isHighValue && (
-                        <div className="absolute bottom-0 left-0 top-0 w-1 bg-red-500" />
-                      )}
-                      <td className="py-4 pl-6 pr-2">
-                        <input
-                          type="checkbox"
-                          checked={selectedRequests.includes(req.id)}
-                          onChange={() => handleSelect(req.id)}
-                          className="rounded border-stroke text-orange-500 focus:ring-orange-500"
-                        />
-                      </td>
-                      <td className="text-gray-500 px-3 py-4 text-sm font-medium">
-                        {(currentPage - 1) * itemsPerPage + idx + 1}
-                      </td>
-                      <td className="px-3 py-4">
-                        <span className="text-gray-900 text-sm font-bold">
-                          {req.requestId}
-                        </span>
-                      </td>
-                      <td className="px-3 py-4">
-                        <div className="flex items-center gap-3">
-                          {req.client.avatar ? (
-                            <img
-                              src={req.client.avatar}
-                              alt={req.client.name}
-                              className="h-8 w-8 rounded-full object-cover"
-                            />
-                          ) : (
-                            <div className="bg-gray-100 text-gray-500 flex h-8 w-8 items-center justify-center rounded-full text-[10px] font-bold">
-                              {req.client.initials}
-                            </div>
-                          )}
-                          <span className="text-gray-900 whitespace-nowrap text-sm font-semibold">
-                            {req.client.name}
-                          </span>
-                        </div>
-                      </td>
-
-                      <td className="text-gray-900 whitespace-nowrap px-3 py-4 text-right text-sm font-bold">
-                        $
-                        {req.walletBalance.toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                        })}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-right text-sm font-bold text-orange-500">
-                        $
-                        {req.amount.toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                        })}
-                      </td>
-                      <td className="text-gray-600 whitespace-nowrap px-3 py-4 text-center text-sm font-medium">
-                        <span className="bg-gray-100 rounded border border-slate-200 px-2 py-1 text-xs">
-                          {req.withdrawType}
-                        </span>
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-right text-sm font-bold text-emerald-600">
-                        $
-                        {req.detailAmount.toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                        })}
-                      </td>
-                      <td className="text-gray-500 whitespace-nowrap px-3 py-4 text-sm">
-                        {req.paidDate}
-                      </td>
-                      <td className="px-3 py-4">
-                        <StatusBadge status={req.status} />
-                      </td>
-                      <td className="py-4 pl-2 pr-6 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => handleReject(req.id)}
-                            className="text-gray-500 hover:bg-gray-100 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
-                          >
-                            Reject
-                          </button>
-                          <button
-                            onClick={() => handleApprove(req.id)}
-                            className="rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm shadow-orange-200 transition-all hover:bg-orange-600"
-                          >
-                            Approve
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={13}
-                      className="text-gray-400 px-6 py-8 text-center"
-                    >
-                      No {activeTab.toLowerCase()} requests found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Footer / Pagination */}
-          {filteredData.length > 0 && (
-            <div className="bg-gray-50/30 flex flex-col items-center justify-between gap-3 border-t border-stroke px-4 py-3 sm:flex-row sm:px-6 sm:py-4">
-              <p className="text-gray-500 order-2 text-[10px] sm:order-1 sm:text-xs">
-                Showing{' '}
-                <span className="text-gray-900 font-semibold">
-                  {Math.min(
-                    (currentPage - 1) * itemsPerPage + 1,
-                    filteredData.length,
-                  )}
-                </span>{' '}
-                to{' '}
-                <span className="text-gray-900 font-semibold">
-                  {Math.min(currentPage * itemsPerPage, filteredData.length)}
-                </span>{' '}
-                of{' '}
-                <span className="text-gray-900 font-semibold">
-                  {filteredData.length}
-                </span>{' '}
-                {activeTab.toLowerCase()} requests
-              </p>
-              <div className="order-1 flex items-center gap-2 sm:order-2">
-                <button
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
-                  className="text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg border border-stroke bg-white p-1.5 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-                <span className="text-gray-600 text-xs font-medium">
-                  {currentPage} / {totalPages}
-                </span>
-                <button
-                  onClick={() =>
-                    setCurrentPage((p) => Math.min(totalPages, p + 1))
-                  }
-                  disabled={currentPage === totalPages}
-                  className="text-gray-600 hover:bg-gray-50 rounded-lg border border-stroke bg-white p-1.5 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-          )}
+          {/* Generic Table */}
+          <GenericTable
+            data={filteredData}
+            columns={columns}
+            rowsPerPage={itemsPerPage}
+            paginationOff={false}
+          />
         </div>
       </main>
     </div>
@@ -754,22 +745,5 @@ function SummaryCard({
         {icon}
       </div>
     </div>
-  );
-}
-
-function StatusBadge({status}: {status: WithdrawalRequest['status']}) {
-  const styles = {
-    Pending: 'bg-orange-50 text-orange-600 border-orange-100',
-
-    Approved: 'bg-emerald-50 text-emerald-600 border-emerald-100',
-    Rejected: 'bg-red-50 text-red-600 border-red-100',
-  };
-
-  return (
-    <span
-      className={`inline-block whitespace-nowrap rounded-md border px-2 py-1 text-[9px] font-bold uppercase sm:text-[10px] ${styles[status]}`}
-    >
-      {status}
-    </span>
   );
 }

@@ -9,6 +9,7 @@ import {
   rejectTheCustomer,
   updateCustomer,
 } from '../react-query/Customer';
+import { api } from '@/utils/axios';
 
 export const useGetCustomer = () =>
   useQuery({
@@ -96,4 +97,17 @@ export const useUpdateCustomer = () => {
       toast.error(errorMessage);
     },
   });
+};
+
+
+export const useGetPendingBrokers = (id: string) => {
+  return useQuery({
+    queryKey: ['pending-brokers'],
+    queryFn: () => getPendingBrokers(id),
+  });
+};
+
+export const getPendingBrokers = async (id: string) => {
+  const response = await api.get(`/company/broker/${id}`);
+  return response.data;
 };

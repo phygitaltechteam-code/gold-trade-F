@@ -27,6 +27,7 @@ import { Route as AppTransfersReportImport } from './routes/_app/transfersReport
 import { Route as AppTransactionReportImport } from './routes/_app/transactionReport'
 import { Route as AppScrpitsManagementImport } from './routes/_app/scrpitsManagement'
 import { Route as AppReportCenterImport } from './routes/_app/reportCenter'
+import { Route as AppProfileImport } from './routes/_app/profile'
 import { Route as AppDashboardImport } from './routes/_app/dashboard'
 import { Route as AppCurrencyconverterImport } from './routes/_app/currencyconverter'
 import { Route as AppClientlistreportImport } from './routes/_app/clientlistreport'
@@ -85,6 +86,7 @@ import { Route as AppKYCApprovalKycmainImport } from './routes/_app/KYCApproval/
 import { Route as AppApprovalPendingapprovalsImport } from './routes/_app/Approval/pendingapprovals'
 import { Route as AppApprovalCustomerregisterapproveImport } from './routes/_app/Approval/customerregisterapprove'
 import { Route as NativeTokenUserPassImport } from './routes/_native/token.$user.$pass'
+import { Route as AppCompanybrokerPendingbrokerbyIdImport } from './routes/_app/companybroker/pendingbrokerby.$id'
 import { Route as AppCompanybrokerClientdetailIdImport } from './routes/_app/companybroker/clientdetail.$id'
 import { Route as AppCompanybrokerSuperbrockerProfileIdImport } from './routes/_app/companybroker/SuperbrockerProfile.$id'
 import { Route as AppCompanybrokerBrokerProfileIdImport } from './routes/_app/companybroker/BrokerProfile.$id'
@@ -190,6 +192,12 @@ const AppScrpitsManagementRoute = AppScrpitsManagementImport.update({
 const AppReportCenterRoute = AppReportCenterImport.update({
   id: '/reportCenter',
   path: '/reportCenter',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppProfileRoute = AppProfileImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -561,6 +569,13 @@ const NativeTokenUserPassRoute = NativeTokenUserPassImport.update({
   getParentRoute: () => NativeRoute,
 } as any)
 
+const AppCompanybrokerPendingbrokerbyIdRoute =
+  AppCompanybrokerPendingbrokerbyIdImport.update({
+    id: '/companybroker/pendingbrokerby/$id',
+    path: '/companybroker/pendingbrokerby/$id',
+    getParentRoute: () => AppRoute,
+  } as any)
+
 const AppCompanybrokerClientdetailIdRoute =
   AppCompanybrokerClientdetailIdImport.update({
     id: '/companybroker/clientdetail/$id',
@@ -745,6 +760,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AppDashboardImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/profile': {
+      id: '/_app/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AppProfileImport
       parentRoute: typeof AppImport
     }
     '/_app/reportCenter': {
@@ -1258,6 +1280,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCompanybrokerClientdetailIdImport
       parentRoute: typeof AppImport
     }
+    '/_app/companybroker/pendingbrokerby/$id': {
+      id: '/_app/companybroker/pendingbrokerby/$id'
+      path: '/companybroker/pendingbrokerby/$id'
+      fullPath: '/companybroker/pendingbrokerby/$id'
+      preLoaderRoute: typeof AppCompanybrokerPendingbrokerbyIdImport
+      parentRoute: typeof AppImport
+    }
     '/_native/token/$user/$pass': {
       id: '/_native/token/$user/$pass'
       path: '/token/$user/$pass'
@@ -1280,6 +1309,7 @@ interface AppRouteChildren {
   AppClientlistreportRoute: typeof AppClientlistreportRoute
   AppCurrencyconverterRoute: typeof AppCurrencyconverterRoute
   AppDashboardRoute: typeof AppDashboardRoute
+  AppProfileRoute: typeof AppProfileRoute
   AppReportCenterRoute: typeof AppReportCenterRoute
   AppScrpitsManagementRoute: typeof AppScrpitsManagementRoute
   AppTransactionReportRoute: typeof AppTransactionReportRoute
@@ -1347,6 +1377,7 @@ interface AppRouteChildren {
   AppCompanybrokerBrokerProfileIdRoute: typeof AppCompanybrokerBrokerProfileIdRoute
   AppCompanybrokerSuperbrockerProfileIdRoute: typeof AppCompanybrokerSuperbrockerProfileIdRoute
   AppCompanybrokerClientdetailIdRoute: typeof AppCompanybrokerClientdetailIdRoute
+  AppCompanybrokerPendingbrokerbyIdRoute: typeof AppCompanybrokerPendingbrokerbyIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -1359,6 +1390,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppClientlistreportRoute: AppClientlistreportRoute,
   AppCurrencyconverterRoute: AppCurrencyconverterRoute,
   AppDashboardRoute: AppDashboardRoute,
+  AppProfileRoute: AppProfileRoute,
   AppReportCenterRoute: AppReportCenterRoute,
   AppScrpitsManagementRoute: AppScrpitsManagementRoute,
   AppTransactionReportRoute: AppTransactionReportRoute,
@@ -1432,6 +1464,8 @@ const AppRouteChildren: AppRouteChildren = {
   AppCompanybrokerSuperbrockerProfileIdRoute:
     AppCompanybrokerSuperbrockerProfileIdRoute,
   AppCompanybrokerClientdetailIdRoute: AppCompanybrokerClientdetailIdRoute,
+  AppCompanybrokerPendingbrokerbyIdRoute:
+    AppCompanybrokerPendingbrokerbyIdRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
@@ -1478,6 +1512,7 @@ export interface FileRoutesByFullPath {
   '/clientlistreport': typeof AppClientlistreportRoute
   '/currencyconverter': typeof AppCurrencyconverterRoute
   '/dashboard': typeof AppDashboardRoute
+  '/profile': typeof AppProfileRoute
   '/reportCenter': typeof AppReportCenterRoute
   '/scrpitsManagement': typeof AppScrpitsManagementRoute
   '/transactionReport': typeof AppTransactionReportRoute
@@ -1551,6 +1586,7 @@ export interface FileRoutesByFullPath {
   '/companybroker/BrokerProfile/$id': typeof AppCompanybrokerBrokerProfileIdRoute
   '/companybroker/SuperbrockerProfile/$id': typeof AppCompanybrokerSuperbrockerProfileIdRoute
   '/companybroker/clientdetail/$id': typeof AppCompanybrokerClientdetailIdRoute
+  '/companybroker/pendingbrokerby/$id': typeof AppCompanybrokerPendingbrokerbyIdRoute
   '/token/$user/$pass': typeof NativeTokenUserPassRoute
 }
 
@@ -1565,6 +1601,7 @@ export interface FileRoutesByTo {
   '/clientlistreport': typeof AppClientlistreportRoute
   '/currencyconverter': typeof AppCurrencyconverterRoute
   '/dashboard': typeof AppDashboardRoute
+  '/profile': typeof AppProfileRoute
   '/reportCenter': typeof AppReportCenterRoute
   '/scrpitsManagement': typeof AppScrpitsManagementRoute
   '/transactionReport': typeof AppTransactionReportRoute
@@ -1638,6 +1675,7 @@ export interface FileRoutesByTo {
   '/companybroker/BrokerProfile/$id': typeof AppCompanybrokerBrokerProfileIdRoute
   '/companybroker/SuperbrockerProfile/$id': typeof AppCompanybrokerSuperbrockerProfileIdRoute
   '/companybroker/clientdetail/$id': typeof AppCompanybrokerClientdetailIdRoute
+  '/companybroker/pendingbrokerby/$id': typeof AppCompanybrokerPendingbrokerbyIdRoute
   '/token/$user/$pass': typeof NativeTokenUserPassRoute
 }
 
@@ -1656,6 +1694,7 @@ export interface FileRoutesById {
   '/_app/clientlistreport': typeof AppClientlistreportRoute
   '/_app/currencyconverter': typeof AppCurrencyconverterRoute
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/profile': typeof AppProfileRoute
   '/_app/reportCenter': typeof AppReportCenterRoute
   '/_app/scrpitsManagement': typeof AppScrpitsManagementRoute
   '/_app/transactionReport': typeof AppTransactionReportRoute
@@ -1729,6 +1768,7 @@ export interface FileRoutesById {
   '/_app/companybroker/BrokerProfile/$id': typeof AppCompanybrokerBrokerProfileIdRoute
   '/_app/companybroker/SuperbrockerProfile/$id': typeof AppCompanybrokerSuperbrockerProfileIdRoute
   '/_app/companybroker/clientdetail/$id': typeof AppCompanybrokerClientdetailIdRoute
+  '/_app/companybroker/pendingbrokerby/$id': typeof AppCompanybrokerPendingbrokerbyIdRoute
   '/_native/token/$user/$pass': typeof NativeTokenUserPassRoute
 }
 
@@ -1745,6 +1785,7 @@ export interface FileRouteTypes {
     | '/clientlistreport'
     | '/currencyconverter'
     | '/dashboard'
+    | '/profile'
     | '/reportCenter'
     | '/scrpitsManagement'
     | '/transactionReport'
@@ -1818,6 +1859,7 @@ export interface FileRouteTypes {
     | '/companybroker/BrokerProfile/$id'
     | '/companybroker/SuperbrockerProfile/$id'
     | '/companybroker/clientdetail/$id'
+    | '/companybroker/pendingbrokerby/$id'
     | '/token/$user/$pass'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -1831,6 +1873,7 @@ export interface FileRouteTypes {
     | '/clientlistreport'
     | '/currencyconverter'
     | '/dashboard'
+    | '/profile'
     | '/reportCenter'
     | '/scrpitsManagement'
     | '/transactionReport'
@@ -1904,6 +1947,7 @@ export interface FileRouteTypes {
     | '/companybroker/BrokerProfile/$id'
     | '/companybroker/SuperbrockerProfile/$id'
     | '/companybroker/clientdetail/$id'
+    | '/companybroker/pendingbrokerby/$id'
     | '/token/$user/$pass'
   id:
     | '__root__'
@@ -1920,6 +1964,7 @@ export interface FileRouteTypes {
     | '/_app/clientlistreport'
     | '/_app/currencyconverter'
     | '/_app/dashboard'
+    | '/_app/profile'
     | '/_app/reportCenter'
     | '/_app/scrpitsManagement'
     | '/_app/transactionReport'
@@ -1993,6 +2038,7 @@ export interface FileRouteTypes {
     | '/_app/companybroker/BrokerProfile/$id'
     | '/_app/companybroker/SuperbrockerProfile/$id'
     | '/_app/companybroker/clientdetail/$id'
+    | '/_app/companybroker/pendingbrokerby/$id'
     | '/_native/token/$user/$pass'
   fileRoutesById: FileRoutesById
 }
@@ -2041,6 +2087,7 @@ export const routeTree = rootRoute
         "/_app/clientlistreport",
         "/_app/currencyconverter",
         "/_app/dashboard",
+        "/_app/profile",
         "/_app/reportCenter",
         "/_app/scrpitsManagement",
         "/_app/transactionReport",
@@ -2107,7 +2154,8 @@ export const routeTree = rootRoute
         "/_app/client/viewbeneficiary/$id",
         "/_app/companybroker/BrokerProfile/$id",
         "/_app/companybroker/SuperbrockerProfile/$id",
-        "/_app/companybroker/clientdetail/$id"
+        "/_app/companybroker/clientdetail/$id",
+        "/_app/companybroker/pendingbrokerby/$id"
       ]
     },
     "/_auth": {
@@ -2164,6 +2212,10 @@ export const routeTree = rootRoute
     },
     "/_app/dashboard": {
       "filePath": "_app/dashboard.tsx",
+      "parent": "/_app"
+    },
+    "/_app/profile": {
+      "filePath": "_app/profile.tsx",
       "parent": "/_app"
     },
     "/_app/reportCenter": {
@@ -2456,6 +2508,10 @@ export const routeTree = rootRoute
     },
     "/_app/companybroker/clientdetail/$id": {
       "filePath": "_app/companybroker/clientdetail.$id.tsx",
+      "parent": "/_app"
+    },
+    "/_app/companybroker/pendingbrokerby/$id": {
+      "filePath": "_app/companybroker/pendingbrokerby.$id.tsx",
       "parent": "/_app"
     },
     "/_native/token/$user/$pass": {

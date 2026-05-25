@@ -126,3 +126,10 @@ export const useDashboardData = (filters: DashboardFilters) => {
     queryFn: () => getDashboardData(filters),
   });
 };
+
+export const useGetCompanyDashboard = () => {
+  return useQuery({
+    queryKey: ['company-dashboard'],
+    queryFn: () => api.get('admin/dashboard/stats'),
+  });
+};

@@ -98,7 +98,7 @@ export const useAddCommission = () => {
 
   return useMutation({
     mutationFn: ({id, data}: {id: string; data: any}) =>
-      api.post(`/company/super-broker/${id}/commission`, data),
+      api.put(`/company/super-broker/${id}/pay`, data),
 
     onSuccess: () => {
       toast.success('Commission added successfully!');

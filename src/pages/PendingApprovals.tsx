@@ -27,8 +27,10 @@ import {
   useGetCustomer,
   useUpdateCustomer,
 } from '@/lib/api/customer';
+import {useNavigate} from '@tanstack/react-router';
 
 const PendingApprovals: React.FC = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'brokers' | 'clients'>('brokers');
   const [statusFilter, setStatusFilter] = useState<'PENDING' | 'ALL'>(
     'PENDING',
@@ -54,6 +56,7 @@ const PendingApprovals: React.FC = () => {
   const [brokerToApprove, setBrokerToApprove] = useState<any | null>(null);
   const [selectedSuperBrokerForApprove, setSelectedSuperBrokerForApprove] =
     useState<string>('');
+
   // Queries
   const {
     data: brokerResponse,
@@ -121,6 +124,15 @@ const PendingApprovals: React.FC = () => {
     }
     return list;
   }, [customerResponse]);
+
+  // Row click handlers for navigation
+  const handleBrokerRowClick = (broker: any) => {
+    navigate({to: `/companybroker/pendingbrokerby/${broker.id}`});
+  };
+
+  const handleClientRowClick = (client: any) => {
+    navigate({to: `/companybroker/clientdetail/${client.id}`});
+  };
 
   // Handlers for Broker
   const handleApproveBroker = (broker: any) => {
@@ -322,7 +334,7 @@ const PendingApprovals: React.FC = () => {
     clientSelectedBroker,
   ]);
 
-  // BROKER TABLE COLUMNS - with icon actions
+  // BROKER TABLE COLUMNS
   const brokerColumns: Column<any>[] = [
     {
       header: 'Name',
@@ -376,55 +388,9 @@ const PendingApprovals: React.FC = () => {
         </span>
       ),
     },
-    {
-      header: 'Actions',
-      accessor: 'id',
-      render: (item: any) => {
-        const isVerified = item.isVerified;
-
-        return (
-          <div className="flex items-center gap-1.5">
-            {!isVerified && (
-              <button
-                onClick={() => handleApproveBroker(item)}
-                disabled={approveBrokerMutation.isPending}
-                className="rounded-lg bg-emerald-50 p-2 text-emerald-600 transition-all hover:bg-emerald-100 hover:text-emerald-700 active:scale-95 disabled:opacity-50"
-                title="Approve Broker"
-              >
-                <CheckCircle className="h-4 w-4" />
-              </button>
-            )}
-            {isVerified && (
-              <button
-                disabled={true}
-                className="bg-gray-100 text-gray-400 cursor-not-allowed rounded-lg p-2"
-                title="Already Verified"
-              >
-                <CheckCircle className="h-4 w-4" />
-              </button>
-            )}
-            <button
-              onClick={() => setEditingBroker({...item})}
-              className="rounded-lg bg-blue-50 p-2 text-blue-600 transition-all hover:bg-blue-100 hover:text-blue-700 active:scale-95"
-              title="Edit Broker"
-            >
-              <Edit3 className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => handleDeleteBroker(item)}
-              disabled={deleteBrokerMutation.isPending}
-              className="rounded-lg bg-rose-50 p-2 text-rose-600 transition-all hover:bg-rose-100 hover:text-rose-700 active:scale-95 disabled:opacity-50"
-              title="Delete Broker"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
-          </div>
-        );
-      },
-    },
   ];
 
-  // CLIENT TABLE COLUMNS - with icon actions
+  // CLIENT TABLE COLUMNS
   const clientColumns: Column<any>[] = [
     {
       header: 'Name',
@@ -498,7 +464,10 @@ const PendingApprovals: React.FC = () => {
           <div className="flex items-center gap-1.5">
             {isPending && (
               <button
-                onClick={() => handleApproveClient(item)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleApproveClient(item);
+                }}
                 disabled={acceptCustomerMutation.isPending}
                 className="rounded-lg bg-emerald-50 p-2 text-emerald-600 transition-all hover:bg-emerald-100 hover:text-emerald-700 active:scale-95 disabled:opacity-50"
                 title="Verify Customer"
@@ -516,7 +485,8 @@ const PendingApprovals: React.FC = () => {
               </button>
             )}
             <button
-              onClick={() =>
+              onClick={(e) => {
+                e.stopPropagation();
                 setEditingClient({
                   id: item.id,
                   fullname: item?.user?.fullname || '',
@@ -525,15 +495,18 @@ const PendingApprovals: React.FC = () => {
                   brokerId: item?.brokerId || '',
                   area: item?.area || '',
                   commission: item?.brokeragePercent || '',
-                })
-              }
+                });
+              }}
               className="rounded-lg bg-blue-50 p-2 text-blue-600 transition-all hover:bg-blue-100 hover:text-blue-700 active:scale-95"
               title="Edit Customer"
             >
               <Edit3 className="h-4 w-4" />
             </button>
             <button
-              onClick={() => handleDeleteClient(item)}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteClient(item);
+              }}
               disabled={deleteCustomerMutation.isPending}
               className="rounded-lg bg-rose-50 p-2 text-rose-600 transition-all hover:bg-rose-100 hover:text-rose-700 active:scale-95 disabled:opacity-50"
               title="Delete Customer"
@@ -697,7 +670,7 @@ const PendingApprovals: React.FC = () => {
               </div>
             </div>
 
-            {/* Broker Table */}
+            {/* Broker Table with Row Click */}
             {isLoadingBrokers ? (
               <div className="flex h-64 items-center justify-center">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
@@ -707,7 +680,8 @@ const PendingApprovals: React.FC = () => {
                 <GenericTable
                   data={filteredBrokers}
                   columns={brokerColumns}
-                  action={false}
+                  onRowClick={handleBrokerRowClick}
+                  clickable={true}
                   searchAble={false}
                   itemsPerPage={10}
                 />
@@ -769,7 +743,7 @@ const PendingApprovals: React.FC = () => {
               </div>
             </div>
 
-            {/* Client Table */}
+            {/* Client Table with Row Click */}
             {isLoadingCustomers ? (
               <div className="flex h-64 items-center justify-center">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
@@ -779,7 +753,8 @@ const PendingApprovals: React.FC = () => {
                 <GenericTable
                   data={filteredClients}
                   columns={clientColumns}
-                  action={false}
+                  onRowClick={handleClientRowClick}
+                  clickable={true}
                   searchAble={false}
                   itemsPerPage={10}
                 />
