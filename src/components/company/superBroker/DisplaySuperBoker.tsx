@@ -1,26 +1,27 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import toast from 'react-hot-toast';
-import { useDeleteBroker } from '@/lib/api/addbroker';
-import { useNavigate } from '@tanstack/react-router';
+import {useDeleteBroker} from '@/lib/api/addbroker';
+import {useNavigate} from '@tanstack/react-router';
 import {
   useGetAllSuperBrocker,
   useActivateInActiveSuperBrocker,
 } from '@/lib/react-query/superbrocker';
 import GenericTable from '@/components/Forms/Table/GenericTable';
-import { Eye, EyeOff } from 'lucide-react';
+import {Eye, EyeOff} from 'lucide-react';
 
 const STORAGE_KEY = 'super_broker_status';
 
-const DisplaySuperBroker = ({ refreshTrigger }) => {
+const DisplaySuperBroker = ({refreshTrigger}) => {
   const [brokers, setBrokers] = useState([]);
   const [showPinModal, setShowPinModal] = useState(false);
   const [selectedBroker, setSelectedBroker] = useState<any>(null);
   const [pin, setPin] = useState('');
   const [showPin, setShowPin] = useState(false);
   const navigate = useNavigate();
-  const { data: responseData, refetch, isLoading } = useGetAllSuperBrocker();
-  const { mutateAsync: activateInActiveSuperBrocker, isPending } = useActivateInActiveSuperBrocker();
-  
+  const {data: responseData, refetch, isLoading} = useGetAllSuperBrocker();
+  const {mutateAsync: activateInActiveSuperBrocker, isPending} =
+    useActivateInActiveSuperBrocker();
+
   // Load stored statuses from localStorage on component mount
   const loadStoredStatuses = () => {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -41,9 +42,9 @@ const DisplaySuperBroker = ({ refreshTrigger }) => {
 
   useEffect(() => {
     if (!responseData) return;
-    
+
     let brokerData: any[] = [];
-    
+
     if (responseData?.data?.data) {
       brokerData = responseData.data.data;
     } else if (responseData?.data) {
@@ -51,14 +52,15 @@ const DisplaySuperBroker = ({ refreshTrigger }) => {
     } else if (Array.isArray(responseData)) {
       brokerData = responseData;
     }
-    
+
     const storedStatuses = loadStoredStatuses();
-    
+
     const normalizedData = brokerData?.map((broker) => {
       // Check localStorage first, then API, then default to false
       const storedStatus = storedStatuses[broker.id];
-      const finalStatus = storedStatus !== undefined ? storedStatus : (broker.isActive === true);
-      
+      const finalStatus =
+        storedStatus !== undefined ? storedStatus : broker.isActive === true;
+
       return {
         ...broker,
         isActive: finalStatus,
@@ -75,7 +77,7 @@ const DisplaySuperBroker = ({ refreshTrigger }) => {
   }, [refreshTrigger, refetch]);
 
   const handleRowClick = (broker) => {
-    navigate({ to: `/companybroker/SuperbrockerProfile/${broker?.id}` });
+    navigate({to: `/companybroker/SuperbrockerProfile/${broker?.id}`});
   };
 
   const handleStatusToggle = (broker, e) => {
@@ -104,49 +106,53 @@ const DisplaySuperBroker = ({ refreshTrigger }) => {
       const storedStatuses = loadStoredStatuses();
       storedStatuses[selectedBroker.id] = newStatus;
       storeStatuses(storedStatuses);
-      
+
       // Update local state immediately for instant UI feedback
       setBrokers((prevBrokers) =>
         prevBrokers.map((broker) =>
           broker.id === selectedBroker.id
-            ? { ...broker, isActive: newStatus }
+            ? {...broker, isActive: newStatus}
             : broker,
         ),
       );
-      
+
       // Close modal
       setShowPinModal(false);
       setPin('');
       setSelectedBroker(null);
-      
+
       // Call API
       const result = await activateInActiveSuperBrocker({
         id: selectedBroker.id,
         pin: pin,
       });
-      
-      toast.success(`Super Broker ${newStatus ? 'activated' : 'deactivated'} successfully!`);
-      
+
+      toast.success(
+        `Super Broker ${newStatus ? 'activated' : 'deactivated'} successfully!`,
+      );
+
       // Refresh in background to sync with backend
       setTimeout(() => {
         refetch();
       }, 3000);
-      
     } catch (error: any) {
       // If API fails, revert the status
       const oldStatus = !newStatus;
       const storedStatuses = loadStoredStatuses();
       storedStatuses[selectedBroker.id] = oldStatus;
       storeStatuses(storedStatuses);
-      
+
       setBrokers((prevBrokers) =>
         prevBrokers.map((broker) =>
           broker.id === selectedBroker.id
-            ? { ...broker, isActive: oldStatus }
+            ? {...broker, isActive: oldStatus}
             : broker,
         ),
       );
-      toast.error(error?.response?.data?.message || 'Failed to update status. Invalid PIN?');
+      toast.error(
+        error?.response?.data?.message ||
+          'Failed to update status. Invalid PIN?',
+      );
     }
   };
 
@@ -242,7 +248,9 @@ const DisplaySuperBroker = ({ refreshTrigger }) => {
   ];
 
   // Get the selected broker for PIN modal
-  const selectedBrokerDetails = brokers.find(b => b.id === selectedBroker?.id);
+  const selectedBrokerDetails = brokers.find(
+    (b) => b.id === selectedBroker?.id,
+  );
 
   return (
     <>
@@ -261,7 +269,8 @@ const DisplaySuperBroker = ({ refreshTrigger }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-lg">
             <h2 className="mb-4 text-lg font-semibold text-slate-900">
-              {selectedBrokerDetails?.isActive ? 'Deactivate' : 'Activate'} Super Broker
+              {selectedBrokerDetails?.isActive ? 'Deactivate' : 'Activate'}{' '}
+              Super Broker
             </h2>
             <p className="mb-4 text-sm text-slate-600">
               {selectedBrokerDetails?.isActive
@@ -278,7 +287,7 @@ const DisplaySuperBroker = ({ refreshTrigger }) => {
                 placeholder="Enter Security PIN"
                 value={pin}
                 onChange={(e) => setPin(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-4 py-2 pr-10 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                className="border-gray-300 w-full rounded-lg border px-4 py-2 pr-10 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                 autoFocus
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
@@ -289,7 +298,7 @@ const DisplaySuperBroker = ({ refreshTrigger }) => {
               <button
                 type="button"
                 onClick={() => setShowPin(!showPin)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                className="text-gray-500 hover:text-gray-700 absolute right-3 top-1/2 -translate-y-1/2"
               >
                 {showPin ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -302,7 +311,7 @@ const DisplaySuperBroker = ({ refreshTrigger }) => {
                   setPin('');
                   setSelectedBroker(null);
                 }}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                className="border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg border px-4 py-2 text-sm font-medium transition-colors"
               >
                 Cancel
               </button>
