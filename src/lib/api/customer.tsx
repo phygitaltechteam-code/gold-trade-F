@@ -9,7 +9,7 @@ import {
   rejectTheCustomer,
   updateCustomer,
 } from '../react-query/Customer';
-import { api } from '@/utils/axios';
+import {api} from '@/utils/axios';
 
 export const useGetCustomer = () =>
   useQuery({
@@ -98,7 +98,6 @@ export const useUpdateCustomer = () => {
     },
   });
 };
-
 
 export const useGetPendingBrokers = (id: string) => {
   return useQuery({

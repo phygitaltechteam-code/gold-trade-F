@@ -16,6 +16,11 @@ import {
 } from 'lucide-react';
 import {motion, AnimatePresence} from 'framer-motion';
 import GenericTable from '@/components/Forms/Table/GenericTable';
+import {
+  useApproveWithdrawal,
+  useGetWithdrawal,
+  useRejectWithdrawal,
+} from '@/lib/react-query/withdrawal';
 
 // Types
 interface WithdrawalRequest {
@@ -223,6 +228,10 @@ const StatusBadge = ({status}: {status: WithdrawalRequest['status']}) => {
 
 export default function WithdrawalRequest() {
   const [activeTab, setActiveTab] = useState('Pending');
+  const {data: withdrawal} = useGetWithdrawal();
+  const {mutateAsync: approve} = useApproveWithdrawal();
+  const {mutateAsync: reject} = useRejectWithdrawal();
+  console.log('withdrawallll', withdrawal);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRequests, setSelectedRequests] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -230,9 +239,66 @@ export default function WithdrawalRequest() {
   const [isExpanded, setIsExpanded] = useState(false); // View More/View Less state
   const itemsPerPage = 5;
 
-  // Filter data based on active tab and search
+  const MOCK_DATA: WithdrawalRequest[] =
+    withdrawal?.map((item: any, index: number) => ({
+      id: item.id,
+      requestId: `REQ${String(index + 1).padStart(3, '0')}`,
+
+      date: 'Today',
+      time: new Date(item.createdAt).toLocaleTimeString('en-IN', {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+
+      client: {
+        name: item.customer?.user?.fullname || 'N/A',
+        avatar: item.customer?.photo || '',
+        initials:
+          item.customer?.user?.fullname
+            ?.split(' ')
+            .map((n: string) => n[0])
+            .join('')
+            .toUpperCase() || 'NA',
+      },
+
+      brokerName: '-',
+      brokerNumber: '-',
+
+      superBrokerName: '-',
+      superBrokerNumber: '-',
+
+      walletBalance: 0,
+
+      amount: item.amount || 0,
+
+      withdrawType: 'Bank Transfer',
+
+      detailAmount: item.amount || 0,
+      paidAmount: 0,
+      paidDateTime: '-',
+
+      fee: 0,
+
+      bank: item.customer?.bank_Name || '-',
+      accountLast4: '----',
+
+      status:
+        item.status === 'PENDING'
+          ? 'Pending'
+          : item.status === 'APPROVED'
+            ? 'Approved'
+            : item.status === 'REJECTED'
+              ? 'Rejected'
+              : 'Review',
+
+      isHighValue: item.amount > 100000,
+
+      customer: item.customer,
+    })) || [];
+  // Filter d
+  // ata based on active tab and search
   const filteredData = useMemo(() => {
-    return MOCK_DATA.filter((req) => {
+    return MOCK_DATA?.filter((req) => {
       // Tab filter
       const matchesTab = activeTab === req.status;
 
@@ -250,18 +316,18 @@ export default function WithdrawalRequest() {
 
   // Calculate dynamic stats
   const stats = useMemo(() => {
-    const pendingAmount = MOCK_DATA.filter(
+    const pendingAmount = MOCK_DATA?.filter(
       (r) => r.status === 'Pending',
     ).reduce((sum, r) => sum + r.amount, 0);
 
-    const processedToday = MOCK_DATA.filter(
+    const processedToday = MOCK_DATA?.filter(
       (r) => r.date === 'Today' && r.status === 'Approved',
     ).length;
 
-    const totalOutflow = MOCK_DATA.reduce((sum, r) => sum + r.amount, 0);
+    const totalOutflow = MOCK_DATA?.reduce((sum, r) => sum + r.amount, 0);
 
     return {
-      pendingCount: MOCK_DATA.filter((r) => r.status === 'Pending').length,
+      pendingCount: MOCK_DATA?.filter((r) => r.status === 'Pending').length,
       pendingAmount,
       processedToday,
       totalOutflow,
@@ -271,11 +337,11 @@ export default function WithdrawalRequest() {
   // Get counts for each status
   const statusCounts = useMemo(() => {
     return {
-      Pending: MOCK_DATA.filter((r) => r.status === 'Pending').length,
-      Review: MOCK_DATA.filter((r) => r.status === 'Review').length,
-      'On Hold': MOCK_DATA.filter((r) => r.status === 'On Hold').length,
-      Approved: MOCK_DATA.filter((r) => r.status === 'Approved').length,
-      Rejected: MOCK_DATA.filter((r) => r.status === 'Rejected').length,
+      Pending: MOCK_DATA?.filter((r) => r.status === 'Pending').length,
+      Review: MOCK_DATA?.filter((r) => r.status === 'Review').length,
+      'On Hold': MOCK_DATA?.filter((r) => r.status === 'On Hold').length,
+      Approved: MOCK_DATA?.filter((r) => r.status === 'Approved').length,
+      Rejected: MOCK_DATA?.filter((r) => r.status === 'Rejected').length,
     };
   }, []);
 
@@ -291,22 +357,10 @@ export default function WithdrawalRequest() {
       header: 'Client Name',
       accessor: (row: WithdrawalRequest) => (
         <div className="flex items-center gap-3">
-          {row.client.avatar ? (
-            <img
-              src={row.client.avatar}
-              alt={row.client.name}
-              className="h-8 w-8 rounded-full object-cover"
-            />
-          ) : (
-            <div className="bg-gray-100 text-gray-500 flex h-8 w-8 items-center justify-center rounded-full text-[10px] font-bold">
-              {row.client.initials}
-            </div>
-          )}
           <div>
             <div className="text-gray-900 text-sm font-semibold">
-              {row.client.name}
+              {row?.client?.name}
             </div>
-            <div className="text-gray-400 text-xs">{row.client.tier}</div>
           </div>
         </div>
       ),
@@ -384,22 +438,10 @@ export default function WithdrawalRequest() {
       header: 'Client Name',
       accessor: (row: WithdrawalRequest) => (
         <div className="flex items-center gap-3">
-          {row.client.avatar ? (
-            <img
-              src={row.client.avatar}
-              alt={row.client.name}
-              className="h-8 w-8 rounded-full object-cover"
-            />
-          ) : (
-            <div className="bg-gray-100 text-gray-500 flex h-8 w-8 items-center justify-center rounded-full text-[10px] font-bold">
-              {row.client.initials}
-            </div>
-          )}
           <div>
             <div className="text-gray-900 text-sm font-semibold">
               {row.client.name}
             </div>
-            <div className="text-gray-400 text-xs">{row.client.tier}</div>
           </div>
         </div>
       ),
@@ -491,8 +533,7 @@ export default function WithdrawalRequest() {
 
   // Handle approve/reject
   const handleApprove = (id: string) => {
-    console.log('Approving:', id);
-    alert(`Approved request ${id}`);
+    approve(id);
   };
 
   const handleReject = (id: string) => {
@@ -562,20 +603,20 @@ export default function WithdrawalRequest() {
         <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 lg:gap-6">
           <SummaryCard
             title="Pending Review"
-            value={stats.pendingCount.toString()}
-            subValue={`₹${stats.pendingAmount.toLocaleString('en-IN')} total value`}
+            value={stats?.pendingCount?.toString()}
+            subValue={`₹${stats?.pendingAmount?.toLocaleString('en-IN')} total value`}
             icon={<Hourglass className="text-gray-500 h-5 w-5" />}
           />
           <SummaryCard
             title="Processed Today"
-            value={stats.processedToday.toString()}
+            value={stats?.processedToday?.toString()}
             subValue="+12% vs yesterday"
             subValueColor="text-emerald-500"
             icon={<CheckCircle2 className="text-gray-500 h-5 w-5" />}
           />
           <SummaryCard
             title="Liquidity Outflow"
-            value={`₹${(stats.totalOutflow / 100000).toFixed(1)}L`}
+            value={`₹${(stats?.totalOutflow / 100000).toFixed(1)}L`}
             subValue="Daily cap remaining: ₹3.8L"
             icon={<TrendingDown className="text-gray-500 h-5 w-5" />}
           />
@@ -627,7 +668,7 @@ export default function WithdrawalRequest() {
                     setActiveTab(tab);
                     setCurrentPage(1);
                   }}
-                  className={`relative whitespace-nowrap pb-4 text-xs font-medium transition-all sm:text-sm ${
+                  className={`relative whitespace-nowrap pb-2 text-xs font-medium transition-all sm:text-sm ${
                     activeTab === tab
                       ? 'text-orange-500'
                       : 'text-gray-500 hover:text-gray-700'
@@ -657,7 +698,7 @@ export default function WithdrawalRequest() {
               ))}
             </div>
 
-            <div className="flex items-center gap-2 pb-4 sm:pb-0">
+            <div className="mb-2 flex items-center gap-2 pb-4 sm:pb-0">
               {/* Mobile Filter Button */}
               <button
                 onClick={() => setShowMobileFilter(!showMobileFilter)}
