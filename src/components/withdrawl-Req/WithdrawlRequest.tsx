@@ -565,9 +565,6 @@ export default function WithdrawalRequest() {
             <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
               Withdrawal Requests
             </h1>
-            <span className="text-gray-500 rounded-full border border-stroke bg-white px-2.5 py-0.5 text-[10px] font-medium shadow-sm sm:text-[11px]">
-              Live Updates
-            </span>
           </div>
 
           <div className="flex items-center gap-3 sm:gap-4">
@@ -592,10 +589,6 @@ export default function WithdrawalRequest() {
                 </button>
               )}
             </div>
-            <button className="hover:bg-gray-50 relative rounded-lg border border-stroke bg-white p-2 transition-colors">
-              <Bell className="text-gray-600 h-5 w-5" />
-              <span className="absolute right-2 top-2 h-2 w-2 rounded-full border-2 border-white bg-red-500"></span>
-            </button>
           </div>
         </div>
 

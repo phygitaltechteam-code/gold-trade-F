@@ -50,7 +50,6 @@ export default function BrokerPaymentHistory() {
   const [statusFilter, setStatusFilter] = useState('ALL');
 
   const paymentColumns = [
-    {header: 'Sr', accessor: 'sr'},
     {header: 'Date', accessor: 'date'},
     {
       header: 'Commission Generated',

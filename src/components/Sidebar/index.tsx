@@ -178,11 +178,6 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
               icon: <LayoutDashboard size={22} />,
             },
             {
-              label: 'Customer List',
-              path: '/broker/customerlist',
-              icon: <Users size={22} />,
-            },
-            {
               label: 'Commission History',
               path: '/broker/commissionhistory',
               icon: <HandCoins size={22} />,
@@ -200,6 +195,11 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
                   label: 'Change Password',
                   path: '/change-password',
                   icon: <Key size={18} />,
+                },
+                {
+                  label: 'Profile',
+                  path: '/broker/superbrokerprofile',
+                  icon: <UserCog size={22} />,
                 },
                 {
                   label: 'Logout',
@@ -248,6 +248,21 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
                 {
                   label: 'Broker List',
                   path: '/broker/displaybroker',
+                  icon: <UserCog size={22} />,
+                },
+                {
+                  label: 'Commission History',
+                  path: '/superbrokercommissionhistory',
+                  icon: <HandCoins size={22} />,
+                },
+                {
+                  label: 'Payment History',
+                  path: '/broker/paymenthistory',
+                  icon: <Receipt size={22} />,
+                },
+                {
+                  label: 'Profile',
+                  path: '/superbroker/profile',
                   icon: <UserCog size={22} />,
                 },
               ]

@@ -11,6 +11,26 @@ import {
 } from '@/lib/api/addbroker';
 import {Route} from '@/routes/_app/companybroker/BrokerProfile.$id';
 
+// Format date function
+const formatDateTime = (dateString: string) => {
+  if (!dateString) return 'N/A';
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'N/A';
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    let hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    return `${day}/${month}/${year}, ${hours}:${minutes} ${ampm}`;
+  } catch (error) {
+    return 'N/A';
+  }
+};
+
 const BrokerProfile = () => {
   const {id} = Route.useParams();
   const navigate = useNavigate();
@@ -105,6 +125,18 @@ const BrokerProfile = () => {
     }));
   }, [profileData?.customers]);
 
+  // Commission History Data
+  const commissionHistoryList = useMemo(() => {
+    const histories = profileData?.commissionHistories || [];
+    return histories.map((item: any, index: number) => ({
+      sr: index + 1,
+      id: item.id,
+      amount: item.amount,
+      type: item.type,
+      createdAt: formatDateTime(item.createdAt),
+    }));
+  }, [profileData?.commissionHistories]);
+
   // Add SR numbers to ledger data
   const ledgerDataWithSr = useMemo(() => {
     return ledgerData.map((item: any, index: number) => ({
@@ -136,7 +168,6 @@ const BrokerProfile = () => {
       return;
     }
 
-    // Prepare update payload - only send fields that have changed
     const updatePayload: any = {};
 
     if (editData.fullname !== profileData?.fullname) {
@@ -151,7 +182,6 @@ const BrokerProfile = () => {
     if (editData.aadharCardNumber !== profileData?.aadharCardNumber) {
       updatePayload.aadharCardNumber = editData.aadharCardNumber;
     }
-    // CRITICAL FIX: Send commission as brokeragePercent or commission based on API expectation
     if (
       editData.brokeragePercent !== profileData?.brokeragePercent?.toString()
     ) {
@@ -245,7 +275,6 @@ const BrokerProfile = () => {
 
   // Base Ledger Columns
   const baseLedgerColumns = [
-    {header: 'Sr', accessor: 'sr'},
     {header: 'Date/Time', accessor: 'dateTime'},
     {header: 'Transaction ID', accessor: 'transactionId'},
     {header: 'Stript', accessor: 'stript'},
@@ -256,7 +285,6 @@ const BrokerProfile = () => {
 
   // Expanded Ledger Columns
   const expandedLedgerColumns = [
-    {header: 'Sr', accessor: 'sr'},
     {header: 'Date/Time', accessor: 'dateTime'},
     {header: 'Customer Name', accessor: 'customerName'},
     {header: 'Transaction ID', accessor: 'transactionId'},
@@ -281,12 +309,49 @@ const BrokerProfile = () => {
 
   // Column definitions for the Payment History table
   const paymentColumns = [
-    {header: 'Sr', accessor: 'sr'},
     {header: 'Date', accessor: 'date'},
     {header: 'Commission Generated', accessor: 'commissionGenerated'},
     {header: 'Paid Amount', accessor: 'paidAmount'},
     {header: 'Paid Date', accessor: 'paidDate'},
     {header: 'Status', accessor: 'status'},
+  ];
+
+  // Commission History Columns
+  const commissionColumns = [
+    {header: 'Date & Time', accessor: 'createdAt'},
+    {
+      header: 'Type',
+      accessor: 'type',
+      render: (item: any) => (
+        <span
+          className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
+            item.type === 'TRANSFER'
+              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
+              : item.type === 'CREDIT'
+                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+          }`}
+        >
+          {item.type}
+        </span>
+      ),
+    },
+    {
+      header: 'Amount',
+      accessor: 'amount',
+      render: (item: any) => (
+        <span
+          className={`font-semibold ${
+            item.type === 'CREDIT' || item.type === 'TRANSFER'
+              ? 'text-green-600'
+              : 'text-red-600'
+          }`}
+        >
+          {item.type === 'CREDIT' || item.type === 'TRANSFER' ? '+' : '-'} ₹
+          {parseFloat(item.amount).toLocaleString('en-IN')}
+        </span>
+      ),
+    },
   ];
 
   // Customer Table Columns
@@ -617,7 +682,7 @@ const BrokerProfile = () => {
       {/* Tabs Section */}
       <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex flex-wrap items-center justify-between border-b border-stroke dark:border-strokedark">
-          <div className="flex">
+          <div className="flex flex-wrap">
             <button
               onClick={() => setActiveTab('ledger')}
               className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
@@ -647,6 +712,16 @@ const BrokerProfile = () => {
               }`}
             >
               Clients ({profileData?.customers?.length || 0})
+            </button>
+            <button
+              onClick={() => setActiveTab('commission')}
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
+                activeTab === 'commission'
+                  ? 'border-b-2 border-orange-500 text-orange-500'
+                  : 'text-bodydark2'
+              }`}
+            >
+              Commission History
             </button>
           </div>
           <div className="px-4 py-2">
@@ -763,6 +838,20 @@ const BrokerProfile = () => {
                 data={filteredPaymentData}
                 columns={paymentColumns}
                 paginationOff={true}
+              />
+            </div>
+          ) : activeTab === 'commission' ? (
+            <div className="overflow-x-auto">
+              <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                <h3 className="text-base font-semibold text-black dark:text-white md:text-lg">
+                  Commission History
+                </h3>
+              </div>
+              <GenericTable
+                data={commissionHistoryList}
+                columns={commissionColumns}
+                paginationOff={true}
+                itemsPerPage={10}
               />
             </div>
           ) : (

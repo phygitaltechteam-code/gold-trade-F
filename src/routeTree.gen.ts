@@ -25,6 +25,7 @@ import { Route as AppWithdrawpageImport } from './routes/_app/withdrawpage'
 import { Route as AppWallettopupreportImport } from './routes/_app/wallettopupreport'
 import { Route as AppTransfersReportImport } from './routes/_app/transfersReport'
 import { Route as AppTransactionReportImport } from './routes/_app/transactionReport'
+import { Route as AppSuperbrokercommissionhistoryImport } from './routes/_app/superbrokercommissionhistory'
 import { Route as AppScrpitsManagementImport } from './routes/_app/scrpitsManagement'
 import { Route as AppReportCenterImport } from './routes/_app/reportCenter'
 import { Route as AppProfileImport } from './routes/_app/profile'
@@ -51,6 +52,7 @@ import { Route as AppSuperadminSuperadminImport } from './routes/_app/superadmin
 import { Route as AppEprivateStatementImport } from './routes/_app/eprivate/statement'
 import { Route as AppEprivateEprivatereportsImport } from './routes/_app/eprivate/eprivatereports'
 import { Route as AppCompanybrokerDisplaybrokerImport } from './routes/_app/companybroker/displaybroker'
+import { Route as AppCompanybrokerBrokerprofileImport } from './routes/_app/companybroker/brokerprofile'
 import { Route as AppCompanybrokerAddbrokerImport } from './routes/_app/companybroker/addbroker'
 import { Route as AppCompanybrokerAddSuperBrockerImport } from './routes/_app/companybroker/addSuperBrocker'
 import { Route as AppCompanybrokerSuperBrockerTableImport } from './routes/_app/companybroker/SuperBrockerTable'
@@ -64,6 +66,7 @@ import { Route as AppClientDisplayclientImport } from './routes/_app/client/disp
 import { Route as AppClientComissionImport } from './routes/_app/client/comission'
 import { Route as AppClientBeneficiaryImport } from './routes/_app/client/beneficiary'
 import { Route as AppClientAddcommisionImport } from './routes/_app/client/addcommision'
+import { Route as AppBrokerSuperbrokerprofileImport } from './routes/_app/broker/superbrokerprofile'
 import { Route as AppBrokerReviewconfigImport } from './routes/_app/broker/reviewconfig'
 import { Route as AppBrokerPaymenthistoryImport } from './routes/_app/broker/paymenthistory'
 import { Route as AppBrokerDisplaybrokerImport } from './routes/_app/broker/displaybroker'
@@ -182,6 +185,13 @@ const AppTransactionReportRoute = AppTransactionReportImport.update({
   path: '/transactionReport',
   getParentRoute: () => AppRoute,
 } as any)
+
+const AppSuperbrokercommissionhistoryRoute =
+  AppSuperbrokercommissionhistoryImport.update({
+    id: '/superbrokercommissionhistory',
+    path: '/superbrokercommissionhistory',
+    getParentRoute: () => AppRoute,
+  } as any)
 
 const AppScrpitsManagementRoute = AppScrpitsManagementImport.update({
   id: '/scrpitsManagement',
@@ -347,6 +357,13 @@ const AppCompanybrokerDisplaybrokerRoute =
     getParentRoute: () => AppRoute,
   } as any)
 
+const AppCompanybrokerBrokerprofileRoute =
+  AppCompanybrokerBrokerprofileImport.update({
+    id: '/companybroker/brokerprofile',
+    path: '/companybroker/brokerprofile',
+    getParentRoute: () => AppRoute,
+  } as any)
+
 const AppCompanybrokerAddbrokerRoute = AppCompanybrokerAddbrokerImport.update({
   id: '/companybroker/addbroker',
   path: '/companybroker/addbroker',
@@ -429,6 +446,13 @@ const AppClientAddcommisionRoute = AppClientAddcommisionImport.update({
   path: '/client/addcommision',
   getParentRoute: () => AppRoute,
 } as any)
+
+const AppBrokerSuperbrokerprofileRoute =
+  AppBrokerSuperbrokerprofileImport.update({
+    id: '/broker/superbrokerprofile',
+    path: '/broker/superbrokerprofile',
+    getParentRoute: () => AppRoute,
+  } as any)
 
 const AppBrokerReviewconfigRoute = AppBrokerReviewconfigImport.update({
   id: '/broker/reviewconfig',
@@ -783,6 +807,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppScrpitsManagementImport
       parentRoute: typeof AppImport
     }
+    '/_app/superbrokercommissionhistory': {
+      id: '/_app/superbrokercommissionhistory'
+      path: '/superbrokercommissionhistory'
+      fullPath: '/superbrokercommissionhistory'
+      preLoaderRoute: typeof AppSuperbrokercommissionhistoryImport
+      parentRoute: typeof AppImport
+    }
     '/_app/transactionReport': {
       id: '/_app/transactionReport'
       path: '/transactionReport'
@@ -1000,6 +1031,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBrokerReviewconfigImport
       parentRoute: typeof AppImport
     }
+    '/_app/broker/superbrokerprofile': {
+      id: '/_app/broker/superbrokerprofile'
+      path: '/broker/superbrokerprofile'
+      fullPath: '/broker/superbrokerprofile'
+      preLoaderRoute: typeof AppBrokerSuperbrokerprofileImport
+      parentRoute: typeof AppImport
+    }
     '/_app/client/addcommision': {
       id: '/_app/client/addcommision'
       path: '/client/addcommision'
@@ -1089,6 +1127,13 @@ declare module '@tanstack/react-router' {
       path: '/companybroker/addbroker'
       fullPath: '/companybroker/addbroker'
       preLoaderRoute: typeof AppCompanybrokerAddbrokerImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/companybroker/brokerprofile': {
+      id: '/_app/companybroker/brokerprofile'
+      path: '/companybroker/brokerprofile'
+      fullPath: '/companybroker/brokerprofile'
+      preLoaderRoute: typeof AppCompanybrokerBrokerprofileImport
       parentRoute: typeof AppImport
     }
     '/_app/companybroker/displaybroker': {
@@ -1312,6 +1357,7 @@ interface AppRouteChildren {
   AppProfileRoute: typeof AppProfileRoute
   AppReportCenterRoute: typeof AppReportCenterRoute
   AppScrpitsManagementRoute: typeof AppScrpitsManagementRoute
+  AppSuperbrokercommissionhistoryRoute: typeof AppSuperbrokercommissionhistoryRoute
   AppTransactionReportRoute: typeof AppTransactionReportRoute
   AppTransfersReportRoute: typeof AppTransfersReportRoute
   AppWallettopupreportRoute: typeof AppWallettopupreportRoute
@@ -1337,6 +1383,7 @@ interface AppRouteChildren {
   AppBrokerDisplaybrokerRoute: typeof AppBrokerDisplaybrokerRoute
   AppBrokerPaymenthistoryRoute: typeof AppBrokerPaymenthistoryRoute
   AppBrokerReviewconfigRoute: typeof AppBrokerReviewconfigRoute
+  AppBrokerSuperbrokerprofileRoute: typeof AppBrokerSuperbrokerprofileRoute
   AppClientAddcommisionRoute: typeof AppClientAddcommisionRoute
   AppClientBeneficiaryRoute: typeof AppClientBeneficiaryRoute
   AppClientComissionRoute: typeof AppClientComissionRoute
@@ -1350,6 +1397,7 @@ interface AppRouteChildren {
   AppCompanybrokerSuperBrockerTableRoute: typeof AppCompanybrokerSuperBrockerTableRoute
   AppCompanybrokerAddSuperBrockerRoute: typeof AppCompanybrokerAddSuperBrockerRoute
   AppCompanybrokerAddbrokerRoute: typeof AppCompanybrokerAddbrokerRoute
+  AppCompanybrokerBrokerprofileRoute: typeof AppCompanybrokerBrokerprofileRoute
   AppCompanybrokerDisplaybrokerRoute: typeof AppCompanybrokerDisplaybrokerRoute
   AppEprivateEprivatereportsRoute: typeof AppEprivateEprivatereportsRoute
   AppEprivateStatementRoute: typeof AppEprivateStatementRoute
@@ -1393,6 +1441,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppProfileRoute: AppProfileRoute,
   AppReportCenterRoute: AppReportCenterRoute,
   AppScrpitsManagementRoute: AppScrpitsManagementRoute,
+  AppSuperbrokercommissionhistoryRoute: AppSuperbrokercommissionhistoryRoute,
   AppTransactionReportRoute: AppTransactionReportRoute,
   AppTransfersReportRoute: AppTransfersReportRoute,
   AppWallettopupreportRoute: AppWallettopupreportRoute,
@@ -1419,6 +1468,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppBrokerDisplaybrokerRoute: AppBrokerDisplaybrokerRoute,
   AppBrokerPaymenthistoryRoute: AppBrokerPaymenthistoryRoute,
   AppBrokerReviewconfigRoute: AppBrokerReviewconfigRoute,
+  AppBrokerSuperbrokerprofileRoute: AppBrokerSuperbrokerprofileRoute,
   AppClientAddcommisionRoute: AppClientAddcommisionRoute,
   AppClientBeneficiaryRoute: AppClientBeneficiaryRoute,
   AppClientComissionRoute: AppClientComissionRoute,
@@ -1434,6 +1484,7 @@ const AppRouteChildren: AppRouteChildren = {
     AppCompanybrokerSuperBrockerTableRoute,
   AppCompanybrokerAddSuperBrockerRoute: AppCompanybrokerAddSuperBrockerRoute,
   AppCompanybrokerAddbrokerRoute: AppCompanybrokerAddbrokerRoute,
+  AppCompanybrokerBrokerprofileRoute: AppCompanybrokerBrokerprofileRoute,
   AppCompanybrokerDisplaybrokerRoute: AppCompanybrokerDisplaybrokerRoute,
   AppEprivateEprivatereportsRoute: AppEprivateEprivatereportsRoute,
   AppEprivateStatementRoute: AppEprivateStatementRoute,
@@ -1515,6 +1566,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AppProfileRoute
   '/reportCenter': typeof AppReportCenterRoute
   '/scrpitsManagement': typeof AppScrpitsManagementRoute
+  '/superbrokercommissionhistory': typeof AppSuperbrokercommissionhistoryRoute
   '/transactionReport': typeof AppTransactionReportRoute
   '/transfersReport': typeof AppTransfersReportRoute
   '/wallettopupreport': typeof AppWallettopupreportRoute
@@ -1546,6 +1598,7 @@ export interface FileRoutesByFullPath {
   '/broker/displaybroker': typeof AppBrokerDisplaybrokerRoute
   '/broker/paymenthistory': typeof AppBrokerPaymenthistoryRoute
   '/broker/reviewconfig': typeof AppBrokerReviewconfigRoute
+  '/broker/superbrokerprofile': typeof AppBrokerSuperbrokerprofileRoute
   '/client/addcommision': typeof AppClientAddcommisionRoute
   '/client/beneficiary': typeof AppClientBeneficiaryRoute
   '/client/comission': typeof AppClientComissionRoute
@@ -1559,6 +1612,7 @@ export interface FileRoutesByFullPath {
   '/companybroker/SuperBrockerTable': typeof AppCompanybrokerSuperBrockerTableRoute
   '/companybroker/addSuperBrocker': typeof AppCompanybrokerAddSuperBrockerRoute
   '/companybroker/addbroker': typeof AppCompanybrokerAddbrokerRoute
+  '/companybroker/brokerprofile': typeof AppCompanybrokerBrokerprofileRoute
   '/companybroker/displaybroker': typeof AppCompanybrokerDisplaybrokerRoute
   '/eprivate/eprivatereports': typeof AppEprivateEprivatereportsRoute
   '/eprivate/statement': typeof AppEprivateStatementRoute
@@ -1604,6 +1658,7 @@ export interface FileRoutesByTo {
   '/profile': typeof AppProfileRoute
   '/reportCenter': typeof AppReportCenterRoute
   '/scrpitsManagement': typeof AppScrpitsManagementRoute
+  '/superbrokercommissionhistory': typeof AppSuperbrokercommissionhistoryRoute
   '/transactionReport': typeof AppTransactionReportRoute
   '/transfersReport': typeof AppTransfersReportRoute
   '/wallettopupreport': typeof AppWallettopupreportRoute
@@ -1635,6 +1690,7 @@ export interface FileRoutesByTo {
   '/broker/displaybroker': typeof AppBrokerDisplaybrokerRoute
   '/broker/paymenthistory': typeof AppBrokerPaymenthistoryRoute
   '/broker/reviewconfig': typeof AppBrokerReviewconfigRoute
+  '/broker/superbrokerprofile': typeof AppBrokerSuperbrokerprofileRoute
   '/client/addcommision': typeof AppClientAddcommisionRoute
   '/client/beneficiary': typeof AppClientBeneficiaryRoute
   '/client/comission': typeof AppClientComissionRoute
@@ -1648,6 +1704,7 @@ export interface FileRoutesByTo {
   '/companybroker/SuperBrockerTable': typeof AppCompanybrokerSuperBrockerTableRoute
   '/companybroker/addSuperBrocker': typeof AppCompanybrokerAddSuperBrockerRoute
   '/companybroker/addbroker': typeof AppCompanybrokerAddbrokerRoute
+  '/companybroker/brokerprofile': typeof AppCompanybrokerBrokerprofileRoute
   '/companybroker/displaybroker': typeof AppCompanybrokerDisplaybrokerRoute
   '/eprivate/eprivatereports': typeof AppEprivateEprivatereportsRoute
   '/eprivate/statement': typeof AppEprivateStatementRoute
@@ -1697,6 +1754,7 @@ export interface FileRoutesById {
   '/_app/profile': typeof AppProfileRoute
   '/_app/reportCenter': typeof AppReportCenterRoute
   '/_app/scrpitsManagement': typeof AppScrpitsManagementRoute
+  '/_app/superbrokercommissionhistory': typeof AppSuperbrokercommissionhistoryRoute
   '/_app/transactionReport': typeof AppTransactionReportRoute
   '/_app/transfersReport': typeof AppTransfersReportRoute
   '/_app/wallettopupreport': typeof AppWallettopupreportRoute
@@ -1728,6 +1786,7 @@ export interface FileRoutesById {
   '/_app/broker/displaybroker': typeof AppBrokerDisplaybrokerRoute
   '/_app/broker/paymenthistory': typeof AppBrokerPaymenthistoryRoute
   '/_app/broker/reviewconfig': typeof AppBrokerReviewconfigRoute
+  '/_app/broker/superbrokerprofile': typeof AppBrokerSuperbrokerprofileRoute
   '/_app/client/addcommision': typeof AppClientAddcommisionRoute
   '/_app/client/beneficiary': typeof AppClientBeneficiaryRoute
   '/_app/client/comission': typeof AppClientComissionRoute
@@ -1741,6 +1800,7 @@ export interface FileRoutesById {
   '/_app/companybroker/SuperBrockerTable': typeof AppCompanybrokerSuperBrockerTableRoute
   '/_app/companybroker/addSuperBrocker': typeof AppCompanybrokerAddSuperBrockerRoute
   '/_app/companybroker/addbroker': typeof AppCompanybrokerAddbrokerRoute
+  '/_app/companybroker/brokerprofile': typeof AppCompanybrokerBrokerprofileRoute
   '/_app/companybroker/displaybroker': typeof AppCompanybrokerDisplaybrokerRoute
   '/_app/eprivate/eprivatereports': typeof AppEprivateEprivatereportsRoute
   '/_app/eprivate/statement': typeof AppEprivateStatementRoute
@@ -1788,6 +1848,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/reportCenter'
     | '/scrpitsManagement'
+    | '/superbrokercommissionhistory'
     | '/transactionReport'
     | '/transfersReport'
     | '/wallettopupreport'
@@ -1819,6 +1880,7 @@ export interface FileRouteTypes {
     | '/broker/displaybroker'
     | '/broker/paymenthistory'
     | '/broker/reviewconfig'
+    | '/broker/superbrokerprofile'
     | '/client/addcommision'
     | '/client/beneficiary'
     | '/client/comission'
@@ -1832,6 +1894,7 @@ export interface FileRouteTypes {
     | '/companybroker/SuperBrockerTable'
     | '/companybroker/addSuperBrocker'
     | '/companybroker/addbroker'
+    | '/companybroker/brokerprofile'
     | '/companybroker/displaybroker'
     | '/eprivate/eprivatereports'
     | '/eprivate/statement'
@@ -1876,6 +1939,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/reportCenter'
     | '/scrpitsManagement'
+    | '/superbrokercommissionhistory'
     | '/transactionReport'
     | '/transfersReport'
     | '/wallettopupreport'
@@ -1907,6 +1971,7 @@ export interface FileRouteTypes {
     | '/broker/displaybroker'
     | '/broker/paymenthistory'
     | '/broker/reviewconfig'
+    | '/broker/superbrokerprofile'
     | '/client/addcommision'
     | '/client/beneficiary'
     | '/client/comission'
@@ -1920,6 +1985,7 @@ export interface FileRouteTypes {
     | '/companybroker/SuperBrockerTable'
     | '/companybroker/addSuperBrocker'
     | '/companybroker/addbroker'
+    | '/companybroker/brokerprofile'
     | '/companybroker/displaybroker'
     | '/eprivate/eprivatereports'
     | '/eprivate/statement'
@@ -1967,6 +2033,7 @@ export interface FileRouteTypes {
     | '/_app/profile'
     | '/_app/reportCenter'
     | '/_app/scrpitsManagement'
+    | '/_app/superbrokercommissionhistory'
     | '/_app/transactionReport'
     | '/_app/transfersReport'
     | '/_app/wallettopupreport'
@@ -1998,6 +2065,7 @@ export interface FileRouteTypes {
     | '/_app/broker/displaybroker'
     | '/_app/broker/paymenthistory'
     | '/_app/broker/reviewconfig'
+    | '/_app/broker/superbrokerprofile'
     | '/_app/client/addcommision'
     | '/_app/client/beneficiary'
     | '/_app/client/comission'
@@ -2011,6 +2079,7 @@ export interface FileRouteTypes {
     | '/_app/companybroker/SuperBrockerTable'
     | '/_app/companybroker/addSuperBrocker'
     | '/_app/companybroker/addbroker'
+    | '/_app/companybroker/brokerprofile'
     | '/_app/companybroker/displaybroker'
     | '/_app/eprivate/eprivatereports'
     | '/_app/eprivate/statement'
@@ -2090,6 +2159,7 @@ export const routeTree = rootRoute
         "/_app/profile",
         "/_app/reportCenter",
         "/_app/scrpitsManagement",
+        "/_app/superbrokercommissionhistory",
         "/_app/transactionReport",
         "/_app/transfersReport",
         "/_app/wallettopupreport",
@@ -2115,6 +2185,7 @@ export const routeTree = rootRoute
         "/_app/broker/displaybroker",
         "/_app/broker/paymenthistory",
         "/_app/broker/reviewconfig",
+        "/_app/broker/superbrokerprofile",
         "/_app/client/addcommision",
         "/_app/client/beneficiary",
         "/_app/client/comission",
@@ -2128,6 +2199,7 @@ export const routeTree = rootRoute
         "/_app/companybroker/SuperBrockerTable",
         "/_app/companybroker/addSuperBrocker",
         "/_app/companybroker/addbroker",
+        "/_app/companybroker/brokerprofile",
         "/_app/companybroker/displaybroker",
         "/_app/eprivate/eprivatereports",
         "/_app/eprivate/statement",
@@ -2224,6 +2296,10 @@ export const routeTree = rootRoute
     },
     "/_app/scrpitsManagement": {
       "filePath": "_app/scrpitsManagement.tsx",
+      "parent": "/_app"
+    },
+    "/_app/superbrokercommissionhistory": {
+      "filePath": "_app/superbrokercommissionhistory.tsx",
       "parent": "/_app"
     },
     "/_app/transactionReport": {
@@ -2350,6 +2426,10 @@ export const routeTree = rootRoute
       "filePath": "_app/broker/reviewconfig.tsx",
       "parent": "/_app"
     },
+    "/_app/broker/superbrokerprofile": {
+      "filePath": "_app/broker/superbrokerprofile.tsx",
+      "parent": "/_app"
+    },
     "/_app/client/addcommision": {
       "filePath": "_app/client/addcommision.tsx",
       "parent": "/_app"
@@ -2400,6 +2480,10 @@ export const routeTree = rootRoute
     },
     "/_app/companybroker/addbroker": {
       "filePath": "_app/companybroker/addbroker.tsx",
+      "parent": "/_app"
+    },
+    "/_app/companybroker/brokerprofile": {
+      "filePath": "_app/companybroker/brokerprofile.tsx",
       "parent": "/_app"
     },
     "/_app/companybroker/displaybroker": {

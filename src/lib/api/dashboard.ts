@@ -123,6 +123,6 @@ export const useGetfeeChart = () =>
 export const useGetCompanyDashboard = () => {
   return useQuery({
     queryKey: ['company-dashboard'],
-    queryFn: () => api.get('admin/dashboard/stats'),
+    queryFn: () => api.get('company/profile/stats'),
   });
 };

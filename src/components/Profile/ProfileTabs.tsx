@@ -10,6 +10,7 @@ import ChamkiTrading from './ChamkiTrading';
 
 const ProfileTabs = () => {
   const {user} = useAuthContext();
+  console.log("userrrr",user);
   const [activeComponent, setActiveComponent] = useState('Profile');
   console.log('active tab', activeComponent);
 
