@@ -27,13 +27,24 @@ export default function SuperBrokerCommissionHistory() {
     'commission',
   );
 
-  const {data: apiData, isLoading} = useGetSuperBrokerHistory();
+  const {
+    data: apiData,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useGetSuperBrokerHistory();
 
-  console.log('API Response:', apiData);
+  console.log('Query Status - isLoading:', isLoading);
+  console.log('Query Status - isError:', isError);
+  console.log('Query Status - error:', error);
+  console.log('Full API Response:', apiData);
 
   // Process commission history from API
   const commissionHistoryList = useMemo(() => {
-    const history = apiData?.history || [];
+    // Check different possible data structures
+    const history = apiData?.data?.history || apiData?.history || [];
+    console.log('Commission History Raw:', history);
     return history.map((item: any, index: number) => ({
       sr: index + 1,
       id: item.id,
@@ -48,7 +59,9 @@ export default function SuperBrokerCommissionHistory() {
 
   // Process paid history from API
   const paidHistoryList = useMemo(() => {
-    const paidHistory = apiData?.paidHistory || [];
+    const paidHistory =
+      apiData?.data?.paidHistory || apiData?.paidHistory || [];
+    console.log('Paid History Raw:', paidHistory);
     return paidHistory.map((item: any, index: number) => ({
       sr: index + 1,
       id: item.id,
@@ -108,7 +121,6 @@ export default function SuperBrokerCommissionHistory() {
 
   // Paid History Columns
   const paidColumns = [
-    {header: 'Sr', accessor: 'sr'},
     {header: 'Date & Time', accessor: 'createdAt'},
     {
       header: 'Type',
@@ -145,6 +157,24 @@ export default function SuperBrokerCommissionHistory() {
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex h-64 flex-col items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-500">
+            Error loading data: {error?.message || 'Something went wrong'}
+          </p>
+          <button
+            onClick={() => refetch()}
+            className="mt-4 rounded-lg bg-orange-500 px-4 py-2 text-white hover:bg-orange-600"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
@@ -230,6 +260,12 @@ export default function SuperBrokerCommissionHistory() {
             ) : (
               <div className="py-12 text-center">
                 <p className="text-gray-500">No commission history found</p>
+                <button
+                  onClick={() => refetch()}
+                  className="mt-4 rounded-lg bg-orange-500 px-4 py-2 text-sm text-white hover:bg-orange-600"
+                >
+                  Refresh
+                </button>
               </div>
             )
           ) : paidHistoryList.length > 0 ? (
@@ -244,6 +280,12 @@ export default function SuperBrokerCommissionHistory() {
           ) : (
             <div className="py-12 text-center">
               <p className="text-gray-500">No paid history found</p>
+              <button
+                onClick={() => refetch()}
+                className="mt-4 rounded-lg bg-orange-500 px-4 py-2 text-sm text-white hover:bg-orange-600"
+              >
+                Refresh
+              </button>
             </div>
           )}
         </div>

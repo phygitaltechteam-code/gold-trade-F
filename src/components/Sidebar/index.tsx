@@ -182,20 +182,15 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
               path: '/broker/commissionhistory',
               icon: <HandCoins size={22} />,
             },
-            {
-              label: 'Payment History',
-              path: '/broker/paymenthistory',
-              icon: <Receipt size={22} />,
-            },
+            // {
+            //   label: 'Payment History',
+            //   path: '/broker/paymenthistory',
+            //   icon: <Receipt size={22} />,
+            // },
             {
               label: 'Settings',
               icon: <Settings size={22} />,
               subRoutes: [
-                {
-                  label: 'Change Password',
-                  path: '/change-password',
-                  icon: <Key size={18} />,
-                },
                 {
                   label: 'Profile',
                   path: '/broker/superbrokerprofile',
@@ -255,11 +250,11 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
                   path: '/superbrokercommissionhistory',
                   icon: <HandCoins size={22} />,
                 },
-                {
-                  label: 'Payment History',
-                  path: '/broker/paymenthistory',
-                  icon: <Receipt size={22} />,
-                },
+                // {
+                //   label: 'Payment History',
+                //   path: '/broker/paymenthistory',
+                //   icon: <Receipt size={22} />,
+                // },
                 {
                   label: 'Profile',
                   path: '/superbroker/profile',

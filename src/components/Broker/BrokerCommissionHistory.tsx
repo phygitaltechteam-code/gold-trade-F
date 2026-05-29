@@ -1,175 +1,184 @@
-import React, {useState} from 'react';
+import React, {useState, useMemo} from 'react';
 import GenericTable from '@/components/Forms/Table/GenericTable';
+import {useGetSuperBrokerHistory} from './SBHistoryApi';
+import {useGetBrokerHistory} from './setting/SBHistoryApi';
 
-const mockLedgerData = [
-  {
-    sr: 1,
-    dateTime: '2026-05-18 10:30:15',
-    customerName: 'Aarav Mehta',
-    brokerName: 'Rajesh Kumar',
-    transactionId: 'TXN-908123',
-    stript: 'GOLD-2026',
-    orderType: 'BUY',
-    holdingType: 'DELIVERY',
-    qty: 5,
-    price: 61250,
-    status: 'Completed',
-    transactionAmount: 306250,
-    totalAmount: 306500,
-    paidAmount: 306500,
-    marginAmount: 0,
-    totalCommission: 7656,
-    brokerCommission: 4593,
-    superBrokerCommission: 3063,
-    paymentStatus: 'Paid',
-  },
-  {
-    sr: 2,
-    dateTime: '2026-05-17 14:15:22',
-    customerName: 'Isha Patel',
-    brokerName: 'Rajesh Kumar',
-    transactionId: 'TXN-908124',
-    stript: 'SILVER-2026',
-    orderType: 'BUY',
-    holdingType: 'MARGIN',
-    qty: 10,
-    price: 74200,
-    status: 'Completed',
-    transactionAmount: 742000,
-    totalAmount: 742500,
-    paidAmount: 148500,
-    marginAmount: 594000,
-    totalCommission: 18550,
-    brokerCommission: 11130,
-    superBrokerCommission: 7420,
-    paymentStatus: 'Pending',
-  },
-  {
-    sr: 3,
-    dateTime: '2026-05-15 11:45:10',
-    customerName: 'Karan Singh',
-    brokerName: 'Rajesh Kumar',
-    transactionId: 'TXN-908125',
-    stript: 'GOLD-2026',
-    orderType: 'SELL',
-    holdingType: 'INTRADAY',
-    qty: 2,
-    price: 61400,
-    status: 'Completed',
-    transactionAmount: 122800,
-    totalAmount: 122900,
-    paidAmount: 122900,
-    marginAmount: 0,
-    totalCommission: 3070,
-    brokerCommission: 1842,
-    superBrokerCommission: 1228,
-    paymentStatus: 'Paid',
-  },
-  {
-    sr: 4,
-    dateTime: '2026-05-14 09:20:05',
-    customerName: 'Rohan Sharma',
-    brokerName: 'Rajesh Kumar',
-    transactionId: 'TXN-908126',
-    stript: 'GOLD-2026',
-    orderType: 'BUY',
-    holdingType: 'DELIVERY',
-    qty: 8,
-    price: 61100,
-    status: 'Completed',
-    transactionAmount: 488800,
-    totalAmount: 489200,
-    paidAmount: 489200,
-    marginAmount: 0,
-    totalCommission: 12220,
-    brokerCommission: 7332,
-    superBrokerCommission: 4888,
-    paymentStatus: 'Paid',
-  },
-  {
-    sr: 5,
-    dateTime: '2026-05-12 16:35:40',
-    customerName: 'Sneha Reddy',
-    brokerName: 'Rajesh Kumar',
-    transactionId: 'TXN-908127',
-    stript: 'SILVER-2026',
-    orderType: 'SELL',
-    holdingType: 'DELIVERY',
-    qty: 15,
-    price: 74500,
-    status: 'Completed',
-    transactionAmount: 1117500,
-    totalAmount: 1118250,
-    paidAmount: 1118250,
-    marginAmount: 0,
-    totalCommission: 27938,
-    brokerCommission: 16763,
-    superBrokerCommission: 11175,
-    paymentStatus: 'Pending',
-  },
-];
+// Format date function
+const formatDateTime = (dateString: string) => {
+  if (!dateString) return 'N/A';
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'N/A';
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    let hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    return `${day}/${month}/${year}, ${hours}:${minutes} ${ampm}`;
+  } catch (error) {
+    return 'N/A';
+  }
+};
 
 export default function BrokerCommissionHistory() {
-  const [isLedgerExpanded, setIsLedgerExpanded] = useState(false);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [activeTab, setActiveTab] = useState<'commission' | 'paid'>(
+    'commission',
+  );
 
-  const baseLedgerColumns = [
-    {header: 'Sr', accessor: 'sr'},
-    {header: 'Date/Time', accessor: 'dateTime'},
-    {header: 'Transaction ID', accessor: 'transactionId'},
-    {header: 'Stript', accessor: 'stript'},
-    {header: 'Transaction Amount', accessor: 'transactionAmount'},
-    {header: 'Broker Commission', accessor: 'brokerCommission'},
-    {header: 'Status', accessor: 'status'},
+  const {
+    data: apiData,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useGetBrokerHistory();
+
+  console.log('Query Status - isLoading:', isLoading);
+  console.log('Query Status - isError:', isError);
+  console.log('Query Status - error:', error);
+  console.log('Full API Response:', apiData);
+
+  // Process commission history from API
+  const commissionHistoryList = useMemo(() => {
+    // Check different possible data structures
+    const history = apiData?.data?.history || apiData?.history || [];
+    console.log('Commission History Raw:', history);
+    return history.map((item: any, index: number) => ({
+      sr: index + 1,
+      id: item.id,
+      amount: item.amount,
+      type: item.type || 'TRANSFER',
+      createdAt: formatDateTime(item.createdAt),
+      superBrokerId: item.superBrokerId,
+      brokerId: item.brokerId,
+      companyId: item.companyId,
+    }));
+  }, [apiData]);
+
+  // Process paid history from API
+  const paidHistoryList = useMemo(() => {
+    const paidHistory =
+      apiData?.data?.paidHistory || apiData?.paidHistory || [];
+    console.log('Paid History Raw:', paidHistory);
+    return paidHistory.map((item: any, index: number) => ({
+      sr: index + 1,
+      id: item.id,
+      amount: item.amount,
+      type: 'PAID',
+      createdAt: formatDateTime(item.createdAt),
+      superBrokerId: item.superBrokerId,
+      brokerId: item.brokerId,
+    }));
+  }, [apiData]);
+
+  // Commission History Columns
+  const commissionColumns = [
+    {header: 'Date & Time', accessor: 'createdAt'},
+    {
+      header: 'Type',
+      accessor: 'type',
+      render: (item: any) => (
+        <span
+          className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
+            item.type === 'TRANSFER'
+              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
+              : item.type === 'CREDIT'
+                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                : item.type === 'DEBIT'
+                  ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+                  : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300'
+          }`}
+        >
+          {item.type}
+        </span>
+      ),
+    },
+    {
+      header: 'Amount',
+      accessor: 'amount',
+      render: (item: any) => (
+        <span
+          className={`font-semibold ${
+            item.type === 'CREDIT' || item.type === 'TRANSFER'
+              ? 'text-green-600'
+              : item.type === 'DEBIT'
+                ? 'text-red-600'
+                : 'text-blue-600'
+          }`}
+        >
+          {item.type === 'CREDIT' || item.type === 'TRANSFER'
+            ? '+'
+            : item.type === 'DEBIT'
+              ? '-'
+              : ''}{' '}
+          ₹{parseFloat(item.amount).toLocaleString('en-IN')}
+        </span>
+      ),
+    },
   ];
 
-  const expandedLedgerColumns = [
-    {header: 'Sr', accessor: 'sr'},
-    {header: 'Date/Time', accessor: 'dateTime'},
-    {header: 'Customer Name', accessor: 'customerName'},
-    {header: 'Broker Name', accessor: 'brokerName'},
-    {header: 'Transaction ID', accessor: 'transactionId'},
-    {header: 'Stript', accessor: 'stript'},
-    {header: 'Order Type', accessor: 'orderType'},
-    {header: 'Holding Type', accessor: 'holdingType'},
-    {header: 'Qty', accessor: 'qty'},
-    {header: 'Price', accessor: 'price'},
-    {header: 'Status', accessor: 'status'},
-    {header: 'Transaction Amount', accessor: 'transactionAmount'},
-    {header: 'Total Amount', accessor: 'totalAmount'},
-    {header: 'Paid Amount', accessor: 'paidAmount'},
-    {header: 'Margin Amount', accessor: 'marginAmount'},
-    {header: 'Total Commission', accessor: 'totalCommission'},
-    {header: 'Broker Commission', accessor: 'brokerCommission'},
-    {header: 'Payment Status', accessor: 'paymentStatus'},
+  // Paid History Columns
+  const paidColumns = [
+    {header: 'Date & Time', accessor: 'createdAt'},
+    {
+      header: 'Type',
+      accessor: 'type',
+      render: () => (
+        <span className="inline-flex rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-800 dark:bg-green-900 dark:text-green-300">
+          PAID
+        </span>
+      ),
+    },
+    {
+      header: 'Amount',
+      accessor: 'amount',
+      render: (item: any) => (
+        <span className="font-semibold text-green-600">
+          ₹{parseFloat(item.amount).toLocaleString('en-IN')}
+        </span>
+      ),
+    },
   ];
 
-  const ledgerColumns = isLedgerExpanded
-    ? expandedLedgerColumns
-    : baseLedgerColumns;
-
-  // Filter logic based on start and end dates
-  const filteredData = mockLedgerData.filter((row) => {
-    if (!startDate && !endDate) return true;
-    const rowDate = row.dateTime.split(' ')[0];
-    if (startDate && rowDate < startDate) return false;
-    if (endDate && rowDate > endDate) return false;
-    return true;
-  });
-
-  // Calculate totals for Stats Cards
-  const totalBusiness = filteredData.reduce(
-    (sum, item) => sum + item.transactionAmount,
+  // Calculate totals from API data
+  const totalCommission = commissionHistoryList.reduce(
+    (sum, item) => sum + parseFloat(item.amount),
     0,
   );
-  const totalCommission = filteredData.reduce(
-    (sum, item) => sum + item.brokerCommission,
+  const totalPaid = paidHistoryList.reduce(
+    (sum, item) => sum + parseFloat(item.amount),
     0,
   );
-  const pendingCommission = filteredData
-    .filter((item) => item.paymentStatus === 'Pending')
-    .reduce((sum, item) => sum + item.brokerCommission, 0);
+  const pendingCommission = totalCommission - totalPaid;
+
+  if (isLoading) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex h-64 flex-col items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-500">
+            Error loading data: {error?.message || 'Something went wrong'}
+          </p>
+          <button
+            onClick={() => refetch()}
+            className="mt-4 rounded-lg bg-orange-500 px-4 py-2 text-white hover:bg-orange-600"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full bg-[#f8fafc] p-4 md:p-6">
@@ -189,15 +198,7 @@ export default function BrokerCommissionHistory() {
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="flex flex-col rounded-xl border border-stroke bg-white p-6 shadow-default transition-shadow hover:shadow-md dark:border-strokedark dark:bg-boxdark">
           <span className="text-gray-500 text-sm font-semibold">
-            Total Business Volume
-          </span>
-          <h4 className="mt-2 text-2xl font-bold text-slate-900">
-            ₹{totalBusiness.toLocaleString()}
-          </h4>
-        </div>
-        <div className="flex flex-col rounded-xl border border-stroke bg-white p-6 shadow-default transition-shadow hover:shadow-md dark:border-strokedark dark:bg-boxdark">
-          <span className="text-gray-500 text-sm font-semibold">
-            Total Earned Commission
+            Total Commission
           </span>
           <h4 className="mt-2 text-2xl font-bold text-green-500">
             ₹{totalCommission.toLocaleString()}
@@ -205,7 +206,15 @@ export default function BrokerCommissionHistory() {
         </div>
         <div className="flex flex-col rounded-xl border border-stroke bg-white p-6 shadow-default transition-shadow hover:shadow-md dark:border-strokedark dark:bg-boxdark">
           <span className="text-gray-500 text-sm font-semibold">
-            Pending Commission payout
+            Total Paid
+          </span>
+          <h4 className="mt-2 text-2xl font-bold text-blue-500">
+            ₹{totalPaid.toLocaleString()}
+          </h4>
+        </div>
+        <div className="flex flex-col rounded-xl border border-stroke bg-white p-6 shadow-default transition-shadow hover:shadow-md dark:border-strokedark dark:bg-boxdark">
+          <span className="text-gray-500 text-sm font-semibold">
+            Pending Commission
           </span>
           <h4 className="mt-2 text-2xl font-bold text-orange-500">
             ₹{pendingCommission.toLocaleString()}
@@ -213,58 +222,73 @@ export default function BrokerCommissionHistory() {
         </div>
       </div>
 
-      {/* Table Section */}
-      <div className="rounded-xl border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
-        <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-          <h3 className="text-lg font-bold text-slate-900">Ledger Records</h3>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-slate-700">
-                From:
-              </label>
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="rounded-lg border border-slate-300 bg-transparent px-3 py-1.5 text-sm outline-none transition focus:border-orange-500 focus:ring-1 focus:ring-orange-500 active:border-orange-500"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-slate-700">To:</label>
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="rounded-lg border border-slate-300 bg-transparent px-3 py-1.5 text-sm outline-none transition focus:border-orange-500 focus:ring-1 focus:ring-orange-500 active:border-orange-500"
-              />
-            </div>
-            {(startDate || endDate) && (
-              <button
-                onClick={() => {
-                  setStartDate('');
-                  setEndDate('');
-                }}
-                className="bg-gray-200 text-gray-700 hover:bg-gray-300 rounded-lg px-4 py-2 text-sm font-semibold transition-colors"
-              >
-                Clear
-              </button>
-            )}
-            <button
-              onClick={() => setIsLedgerExpanded(!isLedgerExpanded)}
-              className="rounded-lg bg-gradient-to-r from-orange-500 to-red-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:from-orange-600 hover:to-red-600"
-            >
-              {isLedgerExpanded ? 'View Less Columns' : 'View All Columns'}
-            </button>
-          </div>
+      {/* Tabs Section */}
+      <div className="rounded-xl border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+        <div className="flex border-b border-stroke dark:border-strokedark">
+          <button
+            onClick={() => setActiveTab('commission')}
+            className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
+              activeTab === 'commission'
+                ? 'border-b-2 border-orange-500 text-orange-500'
+                : 'text-bodydark2'
+            }`}
+          >
+            Commission History ({commissionHistoryList.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('paid')}
+            className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
+              activeTab === 'paid'
+                ? 'border-b-2 border-orange-500 text-orange-500'
+                : 'text-bodydark2'
+            }`}
+          >
+            Paid History ({paidHistoryList.length})
+          </button>
         </div>
 
-        <div className="overflow-x-auto">
-          <GenericTable
-            data={filteredData}
-            columns={ledgerColumns}
-            paginationOff={true}
-          />
+        <div className="p-6">
+          {activeTab === 'commission' ? (
+            commissionHistoryList.length > 0 ? (
+              <div className="overflow-x-auto">
+                <GenericTable
+                  data={commissionHistoryList}
+                  columns={commissionColumns}
+                  paginationOff={true}
+                  itemsPerPage={10}
+                />
+              </div>
+            ) : (
+              <div className="py-12 text-center">
+                <p className="text-gray-500">No commission history found</p>
+                <button
+                  onClick={() => refetch()}
+                  className="mt-4 rounded-lg bg-orange-500 px-4 py-2 text-sm text-white hover:bg-orange-600"
+                >
+                  Refresh
+                </button>
+              </div>
+            )
+          ) : paidHistoryList.length > 0 ? (
+            <div className="overflow-x-auto">
+              <GenericTable
+                data={paidHistoryList}
+                columns={paidColumns}
+                paginationOff={true}
+                itemsPerPage={10}
+              />
+            </div>
+          ) : (
+            <div className="py-12 text-center">
+              <p className="text-gray-500">No paid history found</p>
+              <button
+                onClick={() => refetch()}
+                className="mt-4 rounded-lg bg-orange-500 px-4 py-2 text-sm text-white hover:bg-orange-600"
+              >
+                Refresh
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
