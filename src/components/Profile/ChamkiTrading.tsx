@@ -3,27 +3,37 @@ import {Database, Clock3, ChevronUp, ChevronDown} from 'lucide-react';
 import {useGetTradeTime, useSetTradingTime} from '@/lib/react-query/commission';
 
 const ChamkiTrading = () => {
-  const [tradeTime, setTime] = useState<number>(1);
+  const [stockHoldingLimit, setStockHoldingLimit] = useState<number>(1);
   const [isEnabled, setIsEnabled] = useState(false);
+  const [isGttEnabled, setIsGttEnabled] = useState(false);
+  const [isStopLossEnabled, setIsStopLossEnabled] = useState(false);
+  const [isLimitEnabled, setIsLimitEnabled] = useState(false);
+  const [isTargetEnabled, setIsTargetEnabled] = useState(false);
+  const [isStopLossTargetEnabled, setIsStopLossTargetEnabled] = useState(false);
   const {data: tradeData} = useGetTradeTime();
   console.log('tradeee', tradeData);
   const {mutateAsync: setTradeTime} = useSetTradingTime();
 
   useEffect(() => {
     if (tradeData) {
-      setIsEnabled(tradeData?.holdingStatus);
-      setTime(tradeData?.tradingTime);
+    setIsEnabled(tradeData?.holdingStatus);
+    setStockHoldingLimit(tradeData?.stockHoldingLimit);
+     setIsGttEnabled(tradeData?.gttStatus);
+     setIsStopLossEnabled(tradeData?.stoplossStatus);
+     setIsLimitEnabled(tradeData?.limitStatus);
+     setIsTargetEnabled(tradeData?.targetStatus);
+     setIsStopLossTargetEnabled(tradeData?.stoplossAndTargetStatus);
     }
   }, [tradeData]);
   const increaseTime = () => {
-    if (tradeTime < 60) {
-      setTime((prev) => prev + 1);
+    if (stockHoldingLimit < 60) {
+      setStockHoldingLimit((prev) => prev + 1);
     }
   };
 
   const decreaseTime = () => {
-    if (tradeTime > 1) {
-      setTime((prev) => prev - 1);
+    if (stockHoldingLimit > 1) {
+      setStockHoldingLimit((prev) => prev - 1);
     }
   };
 
@@ -32,13 +42,14 @@ const ChamkiTrading = () => {
 
     if (!isNaN(value)) {
       if (value >= 1 && value <= 60) {
-        setTime(value);
+        setStockHoldingLimit(value);
       }
     }
   };
 
   const submit = () => {
-    setTradeTime({holdingStatus: isEnabled, time: tradeTime});
+
+    setTradeTime({holdingStatus: isEnabled, stockHoldingLimit: stockHoldingLimit , gttStatus: isGttEnabled, stoplossStatus: isStopLossEnabled, limitStatus: isLimitEnabled, targetStatus: isTargetEnabled, stoplossAndTargetStatus: isStopLossTargetEnabled});
   };
   return (
     <div className="font-sans min-h-screen bg-[#F8F9FA] text-[#1A1A1A]">
@@ -69,7 +80,7 @@ const ChamkiTrading = () => {
                   type="number"
                   min={1}
                   max={60}
-                  value={tradeTime}
+                  value={stockHoldingLimit}
                   onChange={handleTimeChange}
                   className="w-full rounded-xl border border-stroke bg-white py-2 pl-10 pr-12 text-sm font-medium outline-none transition-all focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
                 />
@@ -103,6 +114,7 @@ const ChamkiTrading = () => {
                 Holding Status
               </label>
 
+              {/* // Toggle Button */}
               <div className="flex items-center gap-3">
                 <button
                   type="button"
@@ -120,6 +132,150 @@ const ChamkiTrading = () => {
 
                 <span className="text-sm font-medium">
                   {isEnabled ? 'Enabled' : 'Disabled'}
+                </span>
+              </div>
+            </div>
+
+            {/* GTT Toggle */}
+            <div className="space-y-2">
+              <label className="text-gray-500 text-xs font-semibold uppercase tracking-wider">
+                GTT
+              </label>
+
+              {/* // Toggle Button */}
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsGttEnabled(!isGttEnabled)}
+                  className={`relative h-7 w-14 rounded-full transition-all duration-300 ${
+                    isGttEnabled ? 'bg-green-500' : 'bg-neutral-600'
+                  }`}
+                >
+                  <span
+                    className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${
+                      isGttEnabled ? 'left-8' : 'left-1'
+                    }`}
+                  />
+                </button>
+
+                <span className="text-sm font-medium">
+                  {isGttEnabled ? 'Enabled' : 'Disabled'}
+                </span>
+              </div>
+            </div>
+
+            {/* StopLoss Toggle */}
+            <div className="space-y-2">
+              <label className="text-gray-500 text-xs font-semibold uppercase tracking-wider">
+                Stop Loss
+              </label>
+
+              {/* // Toggle Button */}
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsStopLossEnabled(!isStopLossEnabled)}
+                  className={`relative h-7 w-14 rounded-full transition-all duration-300 ${
+                    isStopLossEnabled ? 'bg-green-500' : 'bg-neutral-600'
+                  }`}
+                >
+                  <span
+                    className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${
+                      isStopLossEnabled ? 'left-8' : 'left-1'
+                    }`}
+                  />
+                </button>
+
+                <span className="text-sm font-medium">
+                  {isStopLossEnabled ? 'Enabled' : 'Disabled'}
+                </span>
+              </div>
+            </div>
+
+            {/* Limit */}
+
+            <div className="space-y-2">
+              <label className="text-gray-500 text-xs font-semibold uppercase tracking-wider">
+                Limit
+              </label>
+
+              {/* // Toggle Button */}
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsLimitEnabled(!isLimitEnabled)}
+                  className={`relative h-7 w-14 rounded-full transition-all duration-300 ${
+                    isLimitEnabled ? 'bg-green-500' : 'bg-neutral-600'
+                  }`}
+                >
+                  <span
+                    className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${
+                      isLimitEnabled ? 'left-8' : 'left-1'
+                    }`}
+                  />
+                </button>
+
+                <span className="text-sm font-medium">
+                  {isLimitEnabled ? 'Enabled' : 'Disabled'}
+                </span>
+              </div>
+            </div>
+
+            {/* Target */}
+            <div className="space-y-2">
+              <label className="text-gray-500 text-xs font-semibold uppercase tracking-wider">
+                Target
+              </label>
+
+              {/* // Toggle Button */}
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsTargetEnabled(!isTargetEnabled)}
+                  className={`relative h-7 w-14 rounded-full transition-all duration-300 ${
+                    isTargetEnabled ? 'bg-green-500' : 'bg-neutral-600'
+                  }`}
+                >
+                  <span
+                    className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${
+                      isTargetEnabled ? 'left-8' : 'left-1'
+                    }`}
+                  />
+                </button>
+
+                <span className="text-sm font-medium">
+                  {isTargetEnabled ? 'Enabled' : 'Disabled'}
+                </span>
+              </div>
+            </div>
+
+            {/* Stoploss and Target */}
+
+            <div className="space-y-2">
+              <label className="text-gray-500 text-xs font-semibold uppercase tracking-wider">
+                Stop Loss + Target
+              </label>
+
+              {/* // Toggle Button */}
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setIsStopLossTargetEnabled(!isStopLossTargetEnabled)
+                  }
+                  className={`relative h-7 w-14 rounded-full transition-all duration-300 ${
+                    isStopLossTargetEnabled ? 'bg-green-500' : 'bg-neutral-600'
+                  }`}
+                >
+                  <span
+                    className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${
+                      isStopLossTargetEnabled ? 'left-8' : 'left-1'
+                    }`}
+                  />
+                </button>
+
+                <span className="text-sm font-medium">
+                  {isStopLossTargetEnabled ? 'Enabled' : 'Disabled'}
                 </span>
               </div>
             </div>

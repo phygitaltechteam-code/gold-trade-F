@@ -23,11 +23,18 @@ export const setCommission = async (commission: number) => {
   }
 };
 
-export const setTradingTime = async (time: number, holdingStatus: boolean) => {
+export const setTradingTime = async (stockHoldingLimit: number, holdingStatus: boolean , gttStatus?: boolean, stoplossStatus?: boolean, limitStatus?: boolean, targetStatus?: boolean, stoplossAndTargetStatus?: boolean ) => {
   try {
     const response = await api.put(`company/profile/site`, {
-      tradingTime: time,
+      stockHoldingLimit: stockHoldingLimit,
       holdingStatus: holdingStatus,
+      gttStatus: gttStatus,
+      stoplossStatus: stoplossStatus,
+      limitStatus: limitStatus,
+      targetStatus: targetStatus,
+      stoplossAndTargetStatus: stoplossAndTargetStatus,
+
+
     });
     return response.data;
   } catch (error) {
