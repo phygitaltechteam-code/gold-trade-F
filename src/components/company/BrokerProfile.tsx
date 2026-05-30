@@ -78,7 +78,7 @@ const BrokerProfile = () => {
         phoneNumber: profileData?.phoneNumber || '',
         email: profileData?.email || '',
         aadharCardNumber: profileData?.aadharCardNumber || '',
-        commission: profileData?.upcomingBrokeragePercent?.toString() || '',
+        commission: profileData?.brokeragePercent?.toString() || '',
         area: profileData?.area || '',
         password: '',
       });
@@ -199,7 +199,7 @@ const BrokerProfile = () => {
       updatePayload.aadharCardNumber = editData.aadharCardNumber;
     }
     if (
-      editData.commission !== profileData?.upcomingBrokeragePercent?.toString()
+      editData.commission !== profileData?.brokeragePercent?.toString()
     ) {
       updatePayload.commission = parseFloat(editData.commission);
     }
@@ -245,7 +245,7 @@ const BrokerProfile = () => {
         phoneNumber: profileData?.phoneNumber || '',
         email: profileData?.email || '',
         aadharCardNumber: profileData?.aadharCardNumber || '',
-        commission: profileData?.upcomingBrokeragePercent?.toString() || '',
+        commission: profileData?.brokeragePercent?.toString() || '',
         area: profileData?.area || '',
         password: '',
       });
@@ -628,7 +628,7 @@ const BrokerProfile = () => {
                 />
               ) : (
                 <p className="text-sm font-semibold text-orange-600 dark:text-white md:text-base">
-                  {profileData?.upcomingBrokeragePercent || '0'}%
+                  {profileData?.brokeragePercent  || '0'}%
                 </p>
               )}
             </div>

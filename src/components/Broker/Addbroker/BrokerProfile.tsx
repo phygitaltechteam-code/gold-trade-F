@@ -22,6 +22,7 @@ const BrokerProfile = () => {
   const [ledgerEndDate, setLedgerEndDate] = useState('');
 
   const {data: profileData, refetch} = useGetAllBrockerById(id);
+  console.log('PROFILE DATA:', profileData);
   const {data: brokerData} = useGetBrokersDataApi();
   const {mutate: updateBrokerProfile, isPending: isUpdating} =
     useUpdateBrokerProfile();

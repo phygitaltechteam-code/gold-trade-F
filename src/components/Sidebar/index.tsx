@@ -124,22 +124,22 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
           path: '/superadmin/superadmin',
           icon: <UserCog size={22} />,
         },
-        {
-          label: 'Settings',
-          icon: <Settings size={22} />,
-          subRoutes: [
-            // {
-            //   label: 'Change Password',
-            //   path: '/change-password',
-            //   icon: <Key size={18} />,
-            // },
-            // {
-            //   label: 'Logout',
-            //   onClick: () => handleSignOut(),
-            //   icon: <LogOut size={18} />,
-            // },
-          ],
-        },
+        // {
+        //   label: 'Settings',
+        //   icon: <Settings size={22} />,
+        //   subRoutes: [
+        //     // {
+        //     //   label: 'Change Password',
+        //     //   path: '/change-password',
+        //     //   icon: <Key size={18} />,
+        //     // },
+        //     // {
+        //     //   label: 'Logout',
+        //     //   onClick: () => handleSignOut(),
+        //     //   icon: <LogOut size={18} />,
+        //     // },
+        //   ],
+        // },
       ]
     : isSuperAdmin
       ? [

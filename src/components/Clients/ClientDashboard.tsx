@@ -27,31 +27,38 @@ interface ClientDashboardProps {
 const StatCard = ({
   title,
   value,
-  subtext,
   trend,
   icon: Icon,
   isLoading,
 }: any) => (
-  <div className="rounded-2xl border border-black/5 bg-white p-5 shadow-sm transition-all hover:shadow-md md:p-6">
-    <div className="mb-3 flex items-start justify-between md:mb-4">
-      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 md:text-xs">
-        {title}
+  <div className="group relative overflow-hidden rounded-lg border border-stroke bg-white p-4 shadow-sm transition-all hover:shadow-md md:p-5">
+
+    <div className="flex items-start justify-between">
+      
+      <div className="flex-1">
+        <p className="text-xs font-medium uppercase tracking-wider text-gray-500">
+          {title}
+        </p>
+
+        <h4 className="mt-2 text-xl font-semibold text-black dark:text-white md:text-2xl">
+          {isLoading ? (
+            <Loader2 className="h-5 w-5 animate-spin text-slate-300 md:h-6 md:w-6" />
+          ) : (
+            value
+          )}
+        </h4>
       </div>
-      <div className="rounded-lg bg-slate-50 p-1.5 md:p-2">
-        <Icon className="h-4 w-4 text-slate-400 md:h-5 md:w-5" />
+
+      <div className="rounded-lg bg-slate-50 p-2">
+        {Icon && <Icon className="h-5 w-5 text-slate-400 md:h-6 md:w-6" />}
       </div>
+
     </div>
-    <div className="mb-1 text-xl font-semibold text-slate-900 md:mb-2 md:text-2xl">
-      {isLoading ? (
-        <Loader2 className="h-5 w-5 animate-spin text-slate-300 md:h-6 md:w-6" />
-      ) : (
-        value
-      )}
-    </div>
-    <div className="flex items-center gap-2">
-      {trend && !isLoading && (
+
+    {trend && !isLoading && (
+      <div className="mt-2 flex items-center gap-2">
         <span
-          className={`rounded-full px-1.5 py-0.5 text-[8px] font-medium md:px-2 md:py-0.5 md:text-[10px] ${
+          className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
             trend > 0
               ? 'bg-emerald-50 text-emerald-600'
               : 'bg-rose-50 text-rose-600'
@@ -59,11 +66,8 @@ const StatCard = ({
         >
           {trend > 0 ? '↑' : '↓'} {Math.abs(trend)}%
         </span>
-      )}
-      <span className="text-[9px] font-medium text-slate-400 md:text-[10px]">
-        {subtext}
-      </span>
-    </div>
+      </div>
+    )}
   </div>
 );
 
@@ -235,7 +239,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
         const amount = parseFloat(row.wallets?.amount) || 0;
         return (
           <span className="whitespace-nowrap text-sm font-bold text-slate-900">
-            ${amount.toLocaleString()}
+            ₹{amount.toLocaleString()}
           </span>
         );
       },
@@ -247,7 +251,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
         const amount = parseFloat(row.wallets?.blockedAmount) || 0;
         return (
           <span className="whitespace-nowrap text-sm font-bold text-slate-900">
-            ${amount.toLocaleString()}
+            ₹{amount.toLocaleString()}
           </span>
         );
       },
@@ -257,7 +261,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       accessor: 'marginAmount',
       render: (row: Client) => (
         <span className="whitespace-nowrap text-sm font-bold text-slate-900">
-          $0.00
+          ₹0.00
         </span>
       ),
     },
@@ -277,7 +281,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
         const amount = parseFloat(row.wallets?.amount) || 0;
         return (
           <span className="whitespace-nowrap text-sm font-bold text-orange-500">
-            ${amount.toLocaleString()}
+            ₹{amount.toLocaleString()}
           </span>
         );
       },
@@ -355,42 +359,42 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
         <StatCard
           title="Total Clients"
           value={totalClients.toLocaleString()}
-          subtext="Registered clients"
+          // subtext="Registered clients"
           icon={Users}
           isLoading={isLoading}
         />
         <StatCard
           title="Active Traders"
           value={activeTraders.toLocaleString()}
-          subtext="Active trading"
+          // subtext="Active trading"
           icon={Activity}
           isLoading={isLoading}
         />
         <StatCard
           title="Business Generated"
           value={formatCurrency(totalBusiness)}
-          subtext="Total volume"
+          // subtext="Total volume"
           icon={Briefcase}
           isLoading={isLoading}
         />
         <StatCard
           title="Active Trades"
           value={totalActiveTrades.toLocaleString()}
-          subtext="Total trades"
+          // subtext="Total trades"
           icon={TrendingUp}
           isLoading={isLoading}
         />
         <StatCard
           title="Total AUM"
           value={formatCurrency(totalAUM)}
-          subtext="Assets under mgmt"
+          // subtext="Assets under mgmt"
           icon={Wallet}
           isLoading={isLoading}
         />
         <StatCard
           title="Last Wallet Bal"
           value={formatCurrency(lastWalletBalance)}
-          subtext="Latest client"
+          // subtext="Latest client"
           icon={DollarSign}
           isLoading={isLoading}
         />
