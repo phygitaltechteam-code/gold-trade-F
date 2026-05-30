@@ -42,7 +42,6 @@ const itemVariants = {
 const StatCard = ({
   title,
   value,
-  subValue,
   icon: Icon,
   iconColor = 'text-orange-500',
 }) => (
@@ -55,7 +54,7 @@ const StatCard = ({
         <h4 className="mt-2 text-xl font-bold text-black dark:text-white md:text-2xl">
           {value}
         </h4>
-        {subValue && <p className="text-gray-500 mt-1 text-xs">{subValue}</p>}
+        {/* {subValue && <p className="text-gray-500 mt-1 text-xs">{subValue}</p>} */}
       </div>
       <div className={`rounded-lg p-2 ${iconColor.replace('text', 'bg')}/10`}>
         {Icon && <Icon className={`h-5 w-5 ${iconColor} md:h-6 md:w-6`} />}
@@ -70,7 +69,6 @@ const FinancialStatCard = ({
   amount,
   icon: Icon,
   iconColor = 'text-orange-500',
-  subtext,
 }) => (
   <div className="group relative overflow-hidden rounded-lg border border-stroke bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-strokedark dark:bg-boxdark md:p-5">
     <div className="flex items-start justify-between">
@@ -81,7 +79,7 @@ const FinancialStatCard = ({
         <h4 className="mt-2 text-lg font-bold text-black dark:text-white md:text-xl">
           {amount}
         </h4>
-        {subtext && <p className="text-gray-500 mt-1 text-xs">{subtext}</p>}
+        {/* {subtext && <p className="text-gray-500 mt-1 text-xs">{subtext}</p>} */}
       </div>
       <div className={`rounded-lg p-2 ${iconColor.replace('text', 'bg')}/10`}>
         {Icon && <Icon className={`h-5 w-5 ${iconColor} md:h-6 md:w-6`} />}
@@ -200,14 +198,14 @@ const SuperBrokerDashboard: React.FC = () => {
           <StatCard
             title="My Brokers"
             value={formatNumber(dashboardStats.noOfBroker)}
-            subValue={`${dashboardStats.activeBrokers} Active`}
+            // subValue={`${dashboardStats.activeBrokers} Active`}
             icon={Briefcase}
             iconColor="text-blue-500"
           />
           <StatCard
             title="My Customers"
             value={formatNumber(dashboardStats.noOfCustomer)}
-            subValue={`${dashboardStats.activeCustomers} Active`}
+            // subValue={`${dashboardStats.activeCustomers} Active`}
             icon={Users}
             iconColor="text-green-500"
           />
@@ -226,21 +224,21 @@ const SuperBrokerDashboard: React.FC = () => {
             amount={formatCurrency(dashboardStats.superBrokerTotalCommission)}
             icon={Wallet}
             iconColor="text-emerald-500"
-            subtext="Total commission earned"
+            // subtext="Total commission earned"
           />
           <FinancialStatCard
             title="Pending Commission"
             amount={formatCurrency(dashboardStats.pendingSuperBrokerCommission)}
             icon={Clock}
             iconColor="text-orange-500"
-            subtext="Awaiting settlement"
+            // subtext="Awaiting settlement"
           />
           <FinancialStatCard
             title="Total Broker Commission"
             amount={formatCurrency(dashboardStats.totalBrokerCommission)}
             icon={Landmark}
             iconColor="text-indigo-500"
-            subtext="Commission earned by brokers under me"
+            // subtext="Commission earned by brokers under me"
           />
         </div>
 
@@ -251,21 +249,21 @@ const SuperBrokerDashboard: React.FC = () => {
             amount={formatCurrency(dashboardStats.totalCustomerWalletBalance)}
             icon={IndianRupee}
             iconColor="text-purple-500"
-            subtext="Total balance across all customers"
+            // subtext="Total balance across all customers"
           />
           <FinancialStatCard
             title="Total Deposits"
             amount={formatCurrency(dashboardStats.totalDeposits)}
             icon={TrendingUp}
             iconColor="text-green-500"
-            subtext="Total customer deposits"
+            // subtext="Total customer deposits"
           />
           <FinancialStatCard
             title="Total Withdrawals"
             amount={formatCurrency(dashboardStats.totalWithdrawals)}
             icon={ArrowDownRight}
             iconColor="text-red-500"
-            subtext="Total customer withdrawals"
+            // subtext="Total customer withdrawals"
           />
         </div>
       </div>

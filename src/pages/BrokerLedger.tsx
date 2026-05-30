@@ -10,7 +10,7 @@ const BrokerLedger = () => {
 
   // Simplified view columns
   const baseColumns = [
-    {header: 'Transaction Type', accessor: 'sr'},
+    // {header: 'Transaction Type', accessor: 'sr'},
     {header: 'Date/Time', accessor: 'dateTime'},
     {header: 'Transaction ID', accessor: 'transactionId'},
     {header: 'Stript', accessor: 'stript'},
@@ -20,7 +20,7 @@ const BrokerLedger = () => {
 
   // Full detailed view columns
   const expandedColumns = [
-    {header: 'Transaction Type', accessor: 'sr'},
+    // {header: 'Transaction Type', accessor: 'sr'},
     {header: 'Date/Time', accessor: 'dateTime'},
     {header: 'Customer Name', accessor: 'customerName'},
     {header: 'Transaction ID', accessor: 'transactionId'},

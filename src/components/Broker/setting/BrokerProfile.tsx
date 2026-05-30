@@ -97,9 +97,8 @@ const SuperBrokerProfile = () => {
                   <input
                     type="text"
                     value={fullname}
-                    onChange={(e) => setFullname(e.target.value)}
-                    className="w-full rounded-lg border border-stroke bg-white px-3 py-1 text-xs font-medium outline-none transition-all focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 sm:rounded-xl sm:px-4 sm:py-2 sm:text-sm"
-                    placeholder="Enter your name"
+                    disabled
+                    className="bg-gray-50 text-gray-500 w-full cursor-not-allowed rounded-lg border border-stroke px-3 py-1 text-xs font-medium sm:rounded-xl sm:px-4 sm:py-2 sm:text-sm"
                   />
                 </div>
               </div>
@@ -194,7 +193,7 @@ const SuperBrokerProfile = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <label className="text-gray-500 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider sm:text-xs">
                   Photo
                 </label>
@@ -211,9 +210,9 @@ const SuperBrokerProfile = () => {
                     className="w-full rounded-lg border border-stroke bg-white px-3 py-1 text-xs font-medium outline-none transition-all focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 sm:rounded-xl sm:px-4 sm:py-2 sm:text-sm"
                   />
                 </div>
-              </div>
+              </div> */}
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <label className="text-gray-500 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider sm:text-xs">
                   Preview
                 </label>
@@ -230,10 +229,10 @@ const SuperBrokerProfile = () => {
                     No image
                   </div>
                 )}
-              </div>
+              </div> */}
             </div>
 
-            <div className="flex justify-end">
+            {/* <div className="flex justify-end">
               <button
                 type="button"
                 className="flex items-center gap-2 rounded-lg bg-[#F27D26] px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-[#E06D1F]"
@@ -242,7 +241,7 @@ const SuperBrokerProfile = () => {
                 <Database className="h-4 w-4" />
                 <span>Save Changes</span>
               </button>
-            </div>
+            </div> */}
           </section>
         </main>
       </div>

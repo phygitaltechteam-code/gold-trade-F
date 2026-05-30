@@ -1,5 +1,5 @@
-import React, {useState, useEffect, useRef} from 'react';
-import {motion} from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import {
   CalendarDays,
   RefreshCw,
@@ -15,15 +15,15 @@ import {
   DollarSign,
   PieChart,
 } from 'lucide-react';
-import {useAuthContext} from '@/context/AuthContext';
+import { useAuthContext } from '@/context/AuthContext';
 import toast from 'react-hot-toast';
 import GenericButton from '@/components/Forms/Buttons/GenericButton';
-import {useGetBrokerDashboard} from '@/lib/api/dashboard';
-import {cn} from '@/utils/utilities';
+import { useGetBrokerDashboard } from '@/lib/api/dashboard';
+import { cn } from '@/utils/utilities';
 
 // Animation variants
 const containerVariants = {
-  hidden: {opacity: 0},
+  hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
@@ -33,7 +33,7 @@ const containerVariants = {
 };
 
 const itemVariants = {
-  hidden: {opacity: 0, y: 20},
+  hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
@@ -49,7 +49,6 @@ const itemVariants = {
 const StatCard = ({
   title,
   value,
-  subValue,
   icon: Icon,
   iconColor = 'text-orange-500',
 }) => (
@@ -62,7 +61,7 @@ const StatCard = ({
         <h4 className="mt-2 text-xl font-bold text-black dark:text-white md:text-2xl">
           {value}
         </h4>
-        {subValue && <p className="text-gray-500 mt-1 text-xs">{subValue}</p>}
+        {/* {subValue && <p className="text-gray-500 mt-1 text-xs">{subValue}</p>} */}
       </div>
       <div className={`rounded-lg p-2 ${iconColor.replace('text', 'bg')}/10`}>
         {Icon && <Icon className={`h-5 w-5 ${iconColor} md:h-6 md:w-6`} />}
@@ -77,7 +76,7 @@ const FinancialStatCard = ({
   amount,
   icon: Icon,
   iconColor = 'text-orange-500',
-  subtext,
+
 }) => (
   <div className="group relative overflow-hidden rounded-lg border border-stroke bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-strokedark dark:bg-boxdark md:p-5">
     <div className="flex items-start justify-between">
@@ -88,7 +87,7 @@ const FinancialStatCard = ({
         <h4 className="mt-2 text-lg font-bold text-black dark:text-white md:text-xl">
           {amount}
         </h4>
-        {subtext && <p className="text-gray-500 mt-1 text-xs">{subtext}</p>}
+        {/* {subtext && <p className="text-gray-500 mt-1 text-xs">{subtext}</p>} */}
       </div>
       <div className={`rounded-lg p-2 ${iconColor.replace('text', 'bg')}/10`}>
         {Icon && <Icon className={`h-5 w-5 ${iconColor} md:h-6 md:w-6`} />}
@@ -98,13 +97,13 @@ const FinancialStatCard = ({
 );
 
 const BrokerDashboard: React.FC = () => {
-  const {user} = useAuthContext();
-  const [selectedPeriod, setSelectedPeriod] = useState<
-    '30d' | '7d' | '24h' | 'custom'
-  >('30d');
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [customDateRange, setCustomDateRange] = useState({start: '', end: ''});
-  const datePickerRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuthContext();
+  // const [selectedPeriod, setSelectedPeriod] = useState<
+  //   '30d' | '7d' | '24h' | 'custom'
+  // >('30d');
+  // const [showDatePicker, setShowDatePicker] = useState(false);
+  // const [customDateRange, setCustomDateRange] = useState({ start: '', end: '' });
+  // const datePickerRef = useRef<HTMLDivElement>(null);
 
   const {
     data: dashboardData,
@@ -113,65 +112,65 @@ const BrokerDashboard: React.FC = () => {
     refetch,
   } = useGetBrokerDashboard();
   console.log('dashboardData', dashboardData);
-  
 
-  const handlePeriodChange = (period: '30d' | '7d' | '24h' | 'custom') => {
-    setSelectedPeriod(period);
-    if (period === 'custom') {
-      setShowDatePicker(true);
-    } else {
-      setShowDatePicker(false);
-    }
-  };
 
-  const handleCustomDateChange = (type: 'start' | 'end', value: string) => {
-    setCustomDateRange((prev) => ({
-      ...prev,
-      [type]: value,
-    }));
-  };
+  // const handlePeriodChange = (period: '30d' | '7d' | '24h' | 'custom') => {
+  //   setSelectedPeriod(period);
+  //   if (period === 'custom') {
+  //     setShowDatePicker(true);
+  //   } else {
+  //     setShowDatePicker(false);
+  //   }
+  // };
 
-  const handleApplyCustomFilter = () => {
-    if (customDateRange.start && customDateRange.end) {
-      setShowDatePicker(false);
-      refetch();
-    } else {
-      toast.error('Please select both start and end dates');
-    }
-  };
+  // const handleCustomDateChange = (type: 'start' | 'end', value: string) => {
+  //   setCustomDateRange((prev) => ({
+  //     ...prev,
+  //     [type]: value,
+  //   }));
+  // };
+
+  // const handleApplyCustomFilter = () => {
+  //   if (customDateRange.start && customDateRange.end) {
+  //     setShowDatePicker(false);
+  //     refetch();
+  //   } else {
+  //     toast.error('Please select both start and end dates');
+  //   }
+  // };
 
   // Close date picker when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        datePickerRef.current &&
-        !datePickerRef.current.contains(event.target as Node)
-      ) {
-        setShowDatePicker(false);
-      }
-    };
+  // useEffect(() => {
+  //   const handleClickOutside = (event: MouseEvent) => {
+  //     if (
+  //       datePickerRef.current &&
+  //       !datePickerRef.current.contains(event.target as Node)
+  //     ) {
+  //       setShowDatePicker(false);
+  //     }
+  //   };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  //   document.addEventListener('mousedown', handleClickOutside);
+  //   return () => document.removeEventListener('mousedown', handleClickOutside);
+  // }, []);
 
   // Set default custom dates when switching to custom
-  useEffect(() => {
-    if (
-      selectedPeriod === 'custom' &&
-      !customDateRange.start &&
-      !customDateRange.end
-    ) {
-      const end = new Date();
-      const start = new Date();
-      start.setDate(start.getDate() - 30);
+  // useEffect(() => {
+  //   if (
+  //     selectedPeriod === 'custom' &&
+  //     !customDateRange.start &&
+  //     !customDateRange.end
+  //   ) {
+  //     const end = new Date();
+  //     const start = new Date();
+  //     start.setDate(start.getDate() - 30);
 
-      setCustomDateRange({
-        start: start.toISOString().split('T')[0],
-        end: end.toISOString().split('T')[0],
-      });
-    }
-  }, [selectedPeriod]);
+  //     setCustomDateRange({
+  //       start: start.toISOString().split('T')[0],
+  //       end: end.toISOString().split('T')[0],
+  //     });
+  //   }
+  // }, [selectedPeriod]);
 
   // Format functions
   const formatNumber = (num: number) => {
@@ -193,36 +192,36 @@ const BrokerDashboard: React.FC = () => {
 
   // Extract data from API response - Only Broker relevant data
 
-const dashboardStats = {
-  // Broker's Downline Customers
-  noOfCustomer: dashboardData?.data?.cards?.customers?.total ?? 0,
-  activeCustomers: dashboardData?.data?.cards?.customers?.active ?? 0,
-  totalActiveTrends: dashboardData?.data?.cards?.activeTrends?.total ?? 0,
+  const dashboardStats = {
+    // Broker's Downline Customers
+    noOfCustomer: dashboardData?.data?.cards?.customers?.total ?? 0,
+    activeCustomers: dashboardData?.data?.cards?.customers?.active ?? 0,
+    totalActiveTrends: dashboardData?.data?.cards?.activeTrends?.total ?? 0,
 
-  // Broker's Commission & Earnings
-  brokerTotalCommission:
-    dashboardData?.data?.cards?.totalCommission ?? 0,
+    // Broker's Commission & Earnings
+    brokerTotalCommission:
+      dashboardData?.data?.cards?.totalCommission ?? 0,
 
-  pendingBrokerCommission:
-    dashboardData?.data?.cards?.pendingCommission ?? 0,
+    pendingBrokerCommission:
+      dashboardData?.data?.cards?.pendingCommission ?? 0,
 
-  // Customer Financials (Broker's clients)
-  totalCustomerWalletBalance:
-    dashboardData?.data?.cards?.totalCustomerWalletBalance ?? 0,
+    // Customer Financials (Broker's clients)
+    totalCustomerWalletBalance:
+      dashboardData?.data?.cards?.totalCustomerWalletBalance ?? 0,
 
-  totalDeposits:
-    dashboardData?.data?.financials?.totalDeposits ?? 0,
+    totalDeposits:
+      dashboardData?.data?.financials?.totalDeposits ?? 0,
 
-  totalWithdrawals:
-    dashboardData?.data?.financials?.totalWithdrawals ?? 0,
+    totalWithdrawals:
+      dashboardData?.data?.financials?.totalWithdrawals ?? 0,
 
-  // Performance Metrics
-  totalTrades:
-    dashboardData?.data?.cards?.totalTrades ?? 0,
+    // Performance Metrics
+    totalTrades:
+      dashboardData?.data?.cards?.totalTrades ?? 0,
 
-  winRate:
-    dashboardData?.data?.cards?.winRate ?? 0,
-};
+    winRate:
+      dashboardData?.data?.cards?.winRate ?? 0,
+  };
 
   // Error state
   if (isError || error) {
@@ -273,112 +272,7 @@ const dashboardStats = {
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={() => refetch()}
-              className="text-gray-700 hover:bg-gray-50 flex items-center gap-2 rounded-lg border border-stroke bg-white px-4 py-2 text-sm font-medium transition-all"
-              title="Refresh Data"
-            >
-              <RefreshCw className="h-4 w-4" />
-              <span className="hidden sm:inline">Refresh</span>
-            </button>
-
-            {/* Period Selector */}
-            <div className="relative" ref={datePickerRef}>
-              <div className="flex max-w-full items-center gap-1 overflow-x-auto rounded-lg border border-stroke bg-white p-1 shadow-sm">
-                <button
-                  onClick={() => handlePeriodChange('30d')}
-                  className={cn(
-                    'whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors',
-                    selectedPeriod === '30d'
-                      ? 'bg-orange-500 text-white shadow-sm hover:bg-orange-600'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
-                  )}
-                >
-                  <span className="hidden sm:inline">30 Days</span>
-                  <span className="sm:hidden">30D</span>
-                </button>
-                <button
-                  onClick={() => handlePeriodChange('7d')}
-                  className={cn(
-                    'whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors',
-                    selectedPeriod === '7d'
-                      ? 'bg-orange-500 text-white shadow-sm hover:bg-orange-600'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
-                  )}
-                >
-                  <span className="hidden sm:inline">7 Days</span>
-                  <span className="sm:hidden">7D</span>
-                </button>
-                <button
-                  onClick={() => handlePeriodChange('24h')}
-                  className={cn(
-                    'whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors',
-                    selectedPeriod === '24h'
-                      ? 'bg-orange-500 text-white shadow-sm hover:bg-orange-600'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
-                  )}
-                >
-                  <span className="hidden sm:inline">24 Hours</span>
-                  <span className="sm:hidden">24H</span>
-                </button>
-                <div className="bg-gray-200 mx-1 h-5 w-px"></div>
-                <button
-                  onClick={() => handlePeriodChange('custom')}
-                  className={cn(
-                    'flex items-center gap-2 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors',
-                    selectedPeriod === 'custom'
-                      ? 'bg-orange-500 text-white shadow-sm hover:bg-orange-600'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
-                  )}
-                >
-                  <CalendarDays className="h-4 w-4" />
-                  <span className="hidden sm:inline">Custom</span>
-                </button>
-              </div>
-
-              {/* Custom Date Range Picker */}
-              {selectedPeriod === 'custom' && showDatePicker && (
-                <div className="absolute right-0 top-full z-40 mt-2 w-full min-w-[300px] rounded-lg border border-stroke bg-white p-4 shadow-lg sm:w-auto">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center">
-                      <label className="text-gray-700 text-sm font-medium sm:w-12">
-                        From:
-                      </label>
-                      <input
-                        type="date"
-                        value={customDateRange.start}
-                        onChange={(e) =>
-                          handleCustomDateChange('start', e.target.value)
-                        }
-                        className="border-gray-300 w-full rounded border px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
-                      />
-                    </div>
-                    <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center">
-                      <label className="text-gray-700 text-sm font-medium sm:w-8">
-                        To:
-                      </label>
-                      <input
-                        type="date"
-                        value={customDateRange.end}
-                        onChange={(e) =>
-                          handleCustomDateChange('end', e.target.value)
-                        }
-                        className="border-gray-300 w-full rounded border px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
-                      />
-                    </div>
-                    <button
-                      onClick={handleApplyCustomFilter}
-                      className="mt-2 rounded bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50 sm:ml-2 sm:mt-0"
-                      disabled={!customDateRange.start || !customDateRange.end}
-                    >
-                      Apply
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+          
         </motion.div>
 
         {/* Row 1: Customer Statistics - Broker's Downline */}
@@ -386,7 +280,7 @@ const dashboardStats = {
           <StatCard
             title="My Customers"
             value={formatNumber(dashboardStats.noOfCustomer)}
-            subValue={`${dashboardStats.activeCustomers} Active`}
+            // subValue={`${dashboardStats.activeCustomers} Active`}
             icon={Users}
             iconColor="text-green-500"
           />
@@ -411,21 +305,21 @@ const dashboardStats = {
             amount={formatCurrency(dashboardStats.brokerTotalCommission)}
             icon={Wallet}
             iconColor="text-emerald-500"
-            subtext="Total commission earned"
+          // subtext="Total commission earned"
           />
           <FinancialStatCard
             title="Pending Commission"
             amount={formatCurrency(dashboardStats.pendingBrokerCommission)}
             icon={Clock}
             iconColor="text-orange-500"
-            subtext="Awaiting settlement"
+          // subtext="Awaiting settlement"
           />
           <FinancialStatCard
             title="Win Rate"
             amount={`${dashboardStats.winRate || 0}%`}
             icon={Target}
             iconColor="text-purple-500"
-            subtext="Success rate"
+          // subtext="Success rate"
           />
         </div>
 
@@ -436,21 +330,21 @@ const dashboardStats = {
             amount={formatCurrency(dashboardStats.totalCustomerWalletBalance)}
             icon={Wallet}
             iconColor="text-blue-500"
-            subtext="Total client funds"
+          // subtext="Total client funds"
           />
           <FinancialStatCard
             title="Total Deposits"
             amount={formatCurrency(dashboardStats.totalDeposits)}
             icon={TrendingUp}
             iconColor="text-green-500"
-            subtext="From my customers"
+          // subtext="From my customers"
           />
           <FinancialStatCard
             title="Total Withdrawals"
             amount={formatCurrency(dashboardStats.totalWithdrawals)}
             icon={ArrowDownRight}
             iconColor="text-red-500"
-            subtext="By my customers"
+          // subtext="By my customers"
           />
         </div>
       </div>

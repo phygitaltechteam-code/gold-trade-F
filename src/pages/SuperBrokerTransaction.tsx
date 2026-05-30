@@ -10,18 +10,18 @@ const SuperBrokerTransactionLedger = () => {
 
   // Simplified view columns
   const baseColumns = [
-    {header: 'Transaction Type', accessor: 'sr'},
+    // {header: 'Transaction Type', accessor: 'sr'},
     {header: 'Date/Time', accessor: 'dateTime'},
     {header: 'Admin', accessor: 'admin'},
     {header: 'Transaction ID', accessor: 'transactionId'},
     {header: 'Stript', accessor: 'stript'},
     {header: 'Transaction Amount', accessor: 'transactionAmount'},
-    {header: 'Status', accessor: 'status'},
+    // {header: 'Status', accessor: 'status'},
   ];
 
   // Full detailed view columns
   const expandedColumns = [
-    {header: 'Transaction Type', accessor: 'sr'},
+    // {header: 'Transaction Type', accessor: 'sr'},
     {header: 'Date/Time', accessor: 'dateTime'},
     {header: 'Admin', accessor: 'admin'},
     {header: 'Customer Name', accessor: 'customerName'},
@@ -32,7 +32,7 @@ const SuperBrokerTransactionLedger = () => {
     {header: 'Holding Type', accessor: 'holdingType'},
     {header: 'Qty', accessor: 'qty'},
     {header: 'Price', accessor: 'price'},
-    {header: 'Status', accessor: 'status'},
+    // {header: 'Status', accessor: 'status'},
     {header: 'Transaction Amount', accessor: 'transactionAmount'},
     {header: 'Paid Amount', accessor: 'paidAmount'},
     {header: 'Margin Amount', accessor: 'marginAmount'},

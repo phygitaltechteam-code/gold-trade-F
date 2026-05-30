@@ -193,7 +193,7 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
               subRoutes: [
                 {
                   label: 'Profile',
-                  path: '/broker/brokerprofile',
+                  path: '/broker/brokerprofiles',
                   icon: <UserCog size={22} />,
                 },
                 {

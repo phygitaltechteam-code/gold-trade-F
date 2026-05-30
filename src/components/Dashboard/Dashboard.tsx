@@ -54,7 +54,6 @@ const itemVariants = {
 const StatCard = ({
   title,
   value,
-  subValue,
   icon: Icon,
   iconColor = 'text-orange-500',
 }) => (
@@ -67,7 +66,7 @@ const StatCard = ({
         <h4 className="mt-2 text-xl font-bold text-black dark:text-white md:text-2xl">
           {value}
         </h4>
-        {subValue && <p className="text-gray-500 mt-1 text-xs">{subValue}</p>}
+        {/* {subValue && <p className="text-gray-500 mt-1 text-xs">{subValue}</p>} */}
       </div>
       <div className={`rounded-lg p-2 ${iconColor.replace('text', 'bg')}/10`}>
         {Icon && <Icon className={`h-5 w-5 ${iconColor} md:h-6 md:w-6`} />}
@@ -289,21 +288,21 @@ const Dashboard: React.FC = () => {
           <StatCard
             title="No. of Super Brokers"
             value={formatNumber(dashboardStats.noOfSuperBroker)}
-            subValue={`${dashboardStats.activeSuperBrokers} Active`}
+            // subValue={`${dashboardStats.activeSuperBrokers} Active`}
             icon={Award}
             iconColor="text-purple-500"
           />
           <StatCard
             title="No. of Brokers"
             value={formatNumber(dashboardStats.noOfBroker)}
-            subValue={`${dashboardStats.activeBrokers} Active`}
+            // subValue={`${dashboardStats.activeBrokers} Active`}
             icon={Briefcase}
             iconColor="text-blue-500"
           />
           <StatCard
             title="No. of Customers"
             value={formatNumber(dashboardStats.noOfCustomer)}
-            subValue={`${dashboardStats.activeCustomers} Active`}
+            // subValue={`${dashboardStats.activeCustomers} Active`}
             icon={Users}
             iconColor="text-green-500"
           />
@@ -348,7 +347,7 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Row 3: Wallet & Pending Commissions */}
-        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
           <FinancialStatCard
             title="Total Customer Wallet Balance"
             amount={formatCurrency(dashboardStats.totalCustomerWalletBalance)}
