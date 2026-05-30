@@ -296,8 +296,8 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
           >
             {isProfit ? '+' : ''}
             {pnl >= 0
-              ? `$${pnl.toLocaleString()}`
-              : `-$${Math.abs(pnl).toLocaleString()}`}
+              ? `${pnl.toLocaleString()}`
+              : `-${Math.abs(pnl).toLocaleString()}`}
           </span>
         );
       },
@@ -321,9 +321,6 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
                 disabled={isPending}
               />
               <div className="relative h-5 w-9 rounded-full bg-slate-200 transition-colors after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-4 peer-disabled:opacity-50" />
-              <span className="ml-2 w-12 text-left text-[10px] font-bold uppercase text-slate-500">
-                {isActive ? 'Active' : 'Inactive'}
-              </span>
             </label>
           </div>
         );

@@ -100,7 +100,6 @@ export const ClientDetail: React.FC = () => {
   const tradingLedgerData = useMemo(() => {
     const tradingLedgers = displayClient?.tradingLedgers || [];
     return tradingLedgers.map((item: any, index: number) => ({
-      sr: index + 1,
       dateTime: new Date(item.createdAt).toLocaleString('en-IN', {
         day: '2-digit',
         month: '2-digit',
@@ -116,7 +115,6 @@ export const ClientDetail: React.FC = () => {
   }, [displayClient?.tradingLedgers]);
 
   const ledgerColumns = [
-    {header: 'Sr', accessor: 'sr'},
     {header: 'Date/Time', accessor: 'dateTime'},
     {header: 'Customer Name', accessor: 'customerName'},
     {header: 'Broker Name', accessor: 'brokerName'},
@@ -137,13 +135,12 @@ export const ClientDetail: React.FC = () => {
   ];
 
   const paymentColumns = [
-    {header: 'Sr', accessor: 'sr'},
     {header: 'Date/Time', accessor: 'dateTime'},
     {header: 'Amount', accessor: 'amount'},
     {header: 'Wallet Amount', accessor: 'walletAmount'},
   ];
 
-  // Trading Ledger Columns
+  // Trading Ledger Columns - No Sr column
   const tradingLedgerColumns = [
     {
       header: 'Date & Time',
@@ -242,7 +239,6 @@ export const ClientDetail: React.FC = () => {
       setIsEditing(false);
       await refetch();
 
-      // Reset edit data after successful update
       setEditData({
         fullname: '',
         phoneNumber: '',
@@ -273,7 +269,6 @@ export const ClientDetail: React.FC = () => {
     navigate({to: '/clients/mainpage'});
   };
 
-  // Handle Edit click - populate edit data
   const handleEditClick = () => {
     setEditData({
       fullname: fullName,
@@ -484,8 +479,8 @@ export const ClientDetail: React.FC = () => {
       <div className="grid grid-cols-1 gap-6 lg:gap-8">
         {/* Main Content */}
         <div className="space-y-6 lg:col-span-2">
-          {/* Quick Stats */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Quick Stats - Removed Commission % card */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-3">
             <div className="group relative overflow-hidden rounded-2xl border border-black/5 bg-white p-5 shadow-sm md:p-6">
               <div className="absolute right-0 top-0 p-4 opacity-5 transition-opacity group-hover:opacity-10">
                 <Building2 className="h-16 w-16" />
@@ -513,22 +508,6 @@ export const ClientDetail: React.FC = () => {
               </div>
               <div className="mt-1 flex items-center gap-1 text-xs font-medium text-orange-600">
                 <div className="h-2 w-2 rounded-full bg-orange-500" /> Blocked
-              </div>
-            </div>
-
-            <div className="group relative overflow-hidden rounded-2xl border border-black/5 bg-white p-5 shadow-sm md:p-6">
-              <div className="absolute right-0 top-0 p-4 opacity-5 transition-opacity group-hover:opacity-10">
-                <TrendingUp className="h-16 w-16" />
-              </div>
-              <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                Brokerage %
-              </div>
-              <div className="text-xl font-semibold text-slate-900 md:text-2xl">
-                {displayClient?.brokeragePercent || '0'}%
-              </div>
-              <div className="mt-1 flex items-center gap-1 text-xs font-medium text-orange-500">
-                <div className="h-2 w-2 rounded-full bg-orange-500" />{' '}
-                Commission Rate
               </div>
             </div>
 
@@ -885,6 +864,16 @@ export const ClientDetail: React.FC = () => {
               {walletActionType === 'add' ? 'Deposit Money' : 'Withdraw Money'}
             </h3>
 
+            {/* Show current wallet balance */}
+            <div>
+              <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
+                Current Wallet Balance
+              </label>
+              <div className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-900">
+                ₹{walletAmountValue.toLocaleString()}
+              </div>
+            </div>
+
             <div className="mb-6 grid grid-cols-2 gap-2 rounded-xl bg-slate-100 p-1">
               <button
                 type="button"
@@ -987,15 +976,6 @@ export const ClientDetail: React.FC = () => {
             </h3>
 
             <form onSubmit={handleMarginSubmit} className="space-y-4">
-              <div>
-                <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
-                  Current Wallet Balance
-                </label>
-                <div className="rounded-xl bg-slate-50 px-4 py-2.5 text-sm font-semibold text-slate-900">
-                  ₹{walletAmountValue.toLocaleString()}
-                </div>
-              </div>
-
               <div>
                 <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
                   Intraday Margin

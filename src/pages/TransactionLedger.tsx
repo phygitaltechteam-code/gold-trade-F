@@ -10,7 +10,6 @@ const TransactionLedger = () => {
 
   // Simplified view columns
   const baseColumns = [
-    {header: 'Transaction Type', accessor: 'sr'},
     {header: 'Date/Time', accessor: 'dateTime'},
     {header: 'Admin', accessor: 'admin'},
     {header: 'Transaction ID', accessor: 'transactionId'},
@@ -21,7 +20,6 @@ const TransactionLedger = () => {
 
   // Full detailed view columns
   const expandedColumns = [
-    {header: 'Transaction Type', accessor: 'sr'},
     {header: 'Date/Time', accessor: 'dateTime'},
     {header: 'Admin', accessor: 'admin'},
     {header: 'Customer Name', accessor: 'customerName'},
@@ -38,7 +36,6 @@ const TransactionLedger = () => {
     {header: 'Margin Amount', accessor: 'marginAmount'},
     {header: 'Broker Commission', accessor: 'brokerCommission'},
     {header: 'Super Broker Commission', accessor: 'superBrokerCommission'},
-    {header: 'Payment Status', accessor: 'paymentStatus'},
   ];
 
   // Extract data array safely

@@ -42,6 +42,9 @@ const BrokerProfile = () => {
   const [ledgerStartDate, setLedgerStartDate] = useState('');
   const [ledgerEndDate, setLedgerEndDate] = useState('');
 
+  // Password visibility state
+  const [showPassword, setShowPassword] = useState(false);
+
   // Commission Modal State
   const [isCommissionModalOpen, setIsCommissionModalOpen] = useState(false);
   const [commissionAmount, setCommissionAmount] = useState('');
@@ -62,8 +65,9 @@ const BrokerProfile = () => {
     phoneNumber: '',
     email: '',
     aadharCardNumber: '',
-    brokeragePercent: '',
+    commission: '',
     area: '',
+    password: '',
   });
 
   // Update editData when profileData loads
@@ -74,8 +78,9 @@ const BrokerProfile = () => {
         phoneNumber: profileData?.phoneNumber || '',
         email: profileData?.email || '',
         aadharCardNumber: profileData?.aadharCardNumber || '',
-        brokeragePercent: profileData?.brokeragePercent?.toString() || '',
+        commission: profileData?.upcomingBrokeragePercent?.toString() || '',
         area: profileData?.area || '',
+        password: '',
       });
     }
   }, [profileData]);
@@ -109,9 +114,6 @@ const BrokerProfile = () => {
     setPaymentEndDate(endDate);
   }, []);
 
-  console.log('Profile Data:', profileData);
-  console.log('Edit Data:', editData);
-
   // Sample data for ledger (replace with actual API data)
   const ledgerData = useMemo(() => [], []);
   const paymentData = useMemo(() => [], []);
@@ -132,10 +134,19 @@ const BrokerProfile = () => {
       sr: index + 1,
       id: item.id,
       amount: item.amount,
+      amountValue: parseFloat(item.amount),
       type: item.type,
       createdAt: formatDateTime(item.createdAt),
     }));
   }, [profileData?.commissionHistories]);
+
+  // Calculate total commission from history
+  const totalCommissionFromHistory = useMemo(() => {
+    return commissionHistoryList.reduce((total, item) => {
+      const amount = parseFloat(item.amount);
+      return total + amount;
+    }, 0);
+  }, [commissionHistoryList]);
 
   // Add SR numbers to ledger data
   const ledgerDataWithSr = useMemo(() => {
@@ -168,6 +179,11 @@ const BrokerProfile = () => {
       return;
     }
 
+    if (editData.password && editData.password.length < 6) {
+      toast.error('Password must be at least 6 characters long');
+      return;
+    }
+
     const updatePayload: any = {};
 
     if (editData.fullname !== profileData?.fullname) {
@@ -183,15 +199,16 @@ const BrokerProfile = () => {
       updatePayload.aadharCardNumber = editData.aadharCardNumber;
     }
     if (
-      editData.brokeragePercent !== profileData?.brokeragePercent?.toString()
+      editData.commission !== profileData?.upcomingBrokeragePercent?.toString()
     ) {
-      updatePayload.brokeragePercent = parseFloat(editData.brokeragePercent);
+      updatePayload.commission = parseFloat(editData.commission);
     }
     if (editData.area !== profileData?.area) {
       updatePayload.area = editData.area;
     }
-
-    console.log('Update Payload being sent:', updatePayload);
+    if (editData.password) {
+      updatePayload.password = editData.password;
+    }
 
     if (Object.keys(updatePayload).length === 0) {
       toast.error('No changes to save');
@@ -208,6 +225,7 @@ const BrokerProfile = () => {
         onSuccess: () => {
           toast.success('Profile updated successfully!');
           setIsEditing(false);
+          setShowPassword(false);
           refetch();
         },
         onError: (error: any) => {
@@ -227,11 +245,13 @@ const BrokerProfile = () => {
         phoneNumber: profileData?.phoneNumber || '',
         email: profileData?.email || '',
         aadharCardNumber: profileData?.aadharCardNumber || '',
-        brokeragePercent: profileData?.brokeragePercent?.toString() || '',
+        commission: profileData?.upcomingBrokeragePercent?.toString() || '',
         area: profileData?.area || '',
+        password: '',
       });
     }
     setIsEditing(false);
+    setShowPassword(false);
   };
 
   // Handle Commission Submit
@@ -258,6 +278,7 @@ const BrokerProfile = () => {
         id: id,
         data: {
           amount: parseFloat(commissionAmount),
+          type: commissionType.toUpperCase(),
           securityPin: commissionPin,
         },
       },
@@ -267,10 +288,26 @@ const BrokerProfile = () => {
           setCommissionAmount('');
           setCommissionPin('');
           setShowCommissionPin(false);
+          toast.success(
+            `Commission ${commissionType === 'credit' ? 'added' : 'deducted'} successfully`,
+          );
           refetch();
+        },
+        onError: (error: any) => {
+          toast.error(
+            error?.response?.data?.message || 'Failed to process commission',
+          );
         },
       },
     );
+  };
+
+  // Open commission modal with pre-filled amount
+  const handleOpenCommissionModal = () => {
+    if (profileData?.pendingCommission && profileData.pendingCommission > 0) {
+      setCommissionAmount(profileData.pendingCommission.toString());
+    }
+    setIsCommissionModalOpen(true);
   };
 
   // Base Ledger Columns
@@ -316,8 +353,9 @@ const BrokerProfile = () => {
     {header: 'Status', accessor: 'status'},
   ];
 
-  // Commission History Columns
+  // Commission History Columns with clickable amount
   const commissionColumns = [
+    {header: 'S.No', accessor: 'sr'},
     {header: 'Date & Time', accessor: 'createdAt'},
     {
       header: 'Type',
@@ -332,23 +370,20 @@ const BrokerProfile = () => {
                 : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
           }`}
         >
-          {item.type}
+          {item.type === 'TRANSFER'
+            ? 'Transfer'
+            : item.type === 'CREDIT'
+              ? 'Credit'
+              : 'Debit'}
         </span>
       ),
     },
     {
-      header: 'Amount',
-      accessor: 'amount',
+      header: 'Amount (₹)',
+      accessor: 'amountValue',
       render: (item: any) => (
-        <span
-          className={`font-semibold ${
-            item.type === 'CREDIT' || item.type === 'TRANSFER'
-              ? 'text-green-600'
-              : 'text-red-600'
-          }`}
-        >
-          {item.type === 'CREDIT' || item.type === 'TRANSFER' ? '+' : '-'} ₹
-          {parseFloat(item.amount).toLocaleString('en-IN')}
+        <span className="text-gray-900 text-sm font-semibold">
+          ₹{item.amountValue.toLocaleString('en-IN')}
         </span>
       ),
     },
@@ -580,20 +615,20 @@ const BrokerProfile = () => {
             {/* Commission % - Editable */}
             <div>
               <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-                Commission %
+                Commission (%)
               </label>
               {isEditing ? (
                 <input
                   type="number"
                   step="0.01"
-                  name="brokeragePercent"
-                  value={editData.brokeragePercent}
+                  name="commission"
+                  value={editData.commission}
                   onChange={handleInputChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
                 />
               ) : (
-                <p className="text-sm text-black dark:text-white md:text-base">
-                  {profileData?.brokeragePercent || '0'}%
+                <p className="text-sm font-semibold text-orange-600 dark:text-white md:text-base">
+                  {profileData?.upcomingBrokeragePercent || '0'}%
                 </p>
               )}
             </div>
@@ -639,6 +674,36 @@ const BrokerProfile = () => {
                 {profileData?.customers?.length || 0}
               </p>
             </div>
+
+            {/* Password Field - Only visible in edit mode */}
+            {isEditing && (
+              <div>
+                <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
+                  Password
+                  <span className="text-gray-400 ml-1 text-xs">(Optional)</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    name="password"
+                    placeholder="Enter new password"
+                    value={editData.password}
+                    onChange={handleInputChange}
+                    className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 pr-10 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-gray-500 hover:text-gray-700 absolute right-3 top-1/2 -translate-y-1/2"
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                <p className="text-gray-400 mt-1 text-xs">
+                  Leave blank to keep current password
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -655,10 +720,10 @@ const BrokerProfile = () => {
         </div>
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-green-500 md:text-2xl">
-            ₹{profileData?.totalCommission?.toLocaleString() || '0'}
+            ₹{totalCommissionFromHistory.toLocaleString() || '0'}
           </h4>
           <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
-            Total Commission
+            Total Commission (History)
           </span>
         </div>
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
@@ -721,12 +786,12 @@ const BrokerProfile = () => {
                   : 'text-bodydark2'
               }`}
             >
-              Commission History
+              Commission History ({commissionHistoryList.length})
             </button>
           </div>
           <div className="px-4 py-2">
             <button
-              onClick={() => setIsCommissionModalOpen(true)}
+              onClick={handleOpenCommissionModal}
               className="flex items-center gap-2 rounded-lg bg-orange-500 px-3 py-1.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-orange-600 md:px-4 md:py-2"
             >
               <FiPlus className="h-4 w-4" />
@@ -847,12 +912,18 @@ const BrokerProfile = () => {
                   Commission History
                 </h3>
               </div>
-              <GenericTable
-                data={commissionHistoryList}
-                columns={commissionColumns}
-                paginationOff={true}
-                itemsPerPage={10}
-              />
+              {commissionHistoryList.length > 0 ? (
+                <GenericTable
+                  data={commissionHistoryList}
+                  columns={commissionColumns}
+                  paginationOff={false}
+                  itemsPerPage={10}
+                />
+              ) : (
+                <div className="py-8 text-center">
+                  <p className="text-gray-500">No commission history found</p>
+                </div>
+              )}
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -878,8 +949,49 @@ const BrokerProfile = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-2xl border border-slate-100 bg-white p-5 shadow-xl md:p-6">
             <h3 className="mb-4 text-lg font-bold text-slate-900">
-              Add Commission
+              Commission Transaction
             </h3>
+
+            {/* Show current financial summary */}
+            <div className="mb-4 space-y-2 rounded-lg border border-blue-100 bg-blue-50 p-3">
+              <p className="text-sm font-medium text-blue-800">
+                Current Financial Summary
+              </p>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div>
+                  <span className="text-blue-600">Total Commission:</span>
+                  <br />
+                  <strong className="text-blue-900">
+                    ₹{totalCommissionFromHistory.toLocaleString('en-IN')}
+                  </strong>
+                </div>
+                <div>
+                  <span className="text-blue-600">Pending Amount:</span>
+                  <br />
+                  <strong className="text-orange-600">
+                    ₹
+                    {(profileData?.pendingCommission || 0).toLocaleString(
+                      'en-IN',
+                    )}
+                  </strong>
+                </div>
+              </div>
+            </div>
+
+            {/* Show pending commission info for this transaction */}
+            {profileData?.pendingCommission > 0 && (
+              <div className="mb-4 rounded-lg border border-orange-100 bg-orange-50 p-3">
+                <p className="text-sm text-orange-700">
+                  Current Pending Amount:{' '}
+                  <strong>
+                    ₹{profileData.pendingCommission.toLocaleString('en-IN')}
+                  </strong>
+                </p>
+                <p className="mt-1 text-xs text-orange-600">
+                  This transaction will update the pending amount
+                </p>
+              </div>
+            )}
 
             <div className="mb-6 grid grid-cols-2 gap-2 rounded-xl bg-slate-100 p-1">
               <button
@@ -909,14 +1021,14 @@ const BrokerProfile = () => {
             <form onSubmit={handleCommissionSubmit} className="space-y-4">
               <div>
                 <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
-                  Commission Amount (₹)
+                  Amount (₹)
                 </label>
                 <input
                   type="number"
                   required
                   step="0.01"
                   min="0"
-                  placeholder="Enter Commission Amount"
+                  placeholder="Enter amount"
                   value={commissionAmount}
                   onChange={(e) => setCommissionAmount(e.target.value)}
                   className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
@@ -968,7 +1080,7 @@ const BrokerProfile = () => {
                   disabled={isCommissionPending}
                   className="flex-1 rounded-xl bg-orange-500 py-2.5 text-sm font-medium text-white shadow-md shadow-orange-200 transition-colors hover:bg-orange-600 disabled:opacity-50"
                 >
-                  {isCommissionPending ? 'Processing...' : 'Add Commission'}
+                  {isCommissionPending ? 'Processing...' : 'Add Transaction'}
                 </button>
               </div>
             </form>
