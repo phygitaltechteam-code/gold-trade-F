@@ -128,16 +128,16 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
           label: 'Settings',
           icon: <Settings size={22} />,
           subRoutes: [
-            {
-              label: 'Change Password',
-              path: '/change-password',
-              icon: <Key size={18} />,
-            },
-            {
-              label: 'Logout',
-              onClick: () => handleSignOut(),
-              icon: <LogOut size={18} />,
-            },
+            // {
+            //   label: 'Change Password',
+            //   path: '/change-password',
+            //   icon: <Key size={18} />,
+            // },
+            // {
+            //   label: 'Logout',
+            //   onClick: () => handleSignOut(),
+            //   icon: <LogOut size={18} />,
+            // },
           ],
         },
       ]
@@ -174,7 +174,7 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
         ? [
             {
               label: 'Dashboard',
-              path: '/broker/dashboard',
+              path: '/broker/brokerdashboard',
               icon: <LayoutDashboard size={22} />,
             },
             {
@@ -237,7 +237,7 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
             ? [
                 {
                   label: 'Dashboard',
-                  path: '/superbroker/dashboard',
+                  path: '/superbroker/superbrokerdashbaord',
                   icon: <LayoutDashboard size={22} />,
                 },
                 {
