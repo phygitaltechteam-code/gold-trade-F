@@ -18,10 +18,7 @@ import {
 import {useAuthContext} from '@/context/AuthContext';
 import toast from 'react-hot-toast';
 import GenericButton from '@/components/Forms/Buttons/GenericButton';
-import {
-  buildDashboardFilters,
-  useGetCompanyDashboard,
-} from '@/lib/api/dashboard';
+import {useGetBrokerDashboard} from '@/lib/api/dashboard';
 import {cn} from '@/utils/utilities';
 
 // Animation variants
@@ -109,17 +106,12 @@ const BrokerDashboard: React.FC = () => {
   const [customDateRange, setCustomDateRange] = useState({start: '', end: ''});
   const datePickerRef = useRef<HTMLDivElement>(null);
 
-  const filters = buildDashboardFilters(
-    selectedPeriod,
-    selectedPeriod === 'custom' ? customDateRange : undefined,
-  );
-
   const {
     data: dashboardData,
     isError,
     error,
     refetch,
-  } = useGetCompanyDashboard();
+  } = useGetBrokerDashboard();
 
   const handlePeriodChange = (period: '30d' | '7d' | '24h' | 'custom') => {
     setSelectedPeriod(period);
@@ -203,16 +195,17 @@ const BrokerDashboard: React.FC = () => {
     noOfCustomer: dashboardData?.cards?.customers?.total ?? 0,
     activeCustomers: dashboardData?.cards?.customers?.active ?? 0,
     totalActiveTrends: dashboardData?.cards?.activeTrends?.total ?? 0,
-    
+
     // Broker's Commission & Earnings
     brokerTotalCommission: dashboardData?.cards?.totalBrokerCommission ?? 0,
     pendingBrokerCommission: dashboardData?.cards?.pendingBrokerCommission ?? 0,
-    
+
     // Customer Financials (Broker's clients)
-    totalCustomerWalletBalance: dashboardData?.cards?.totalCustomerWalletBalance ?? 0,
+    totalCustomerWalletBalance:
+      dashboardData?.cards?.totalCustomerWalletBalance ?? 0,
     totalDeposits: dashboardData?.financials?.totalDeposits ?? 0,
     totalWithdrawals: dashboardData?.financials?.totalWithdrawals ?? 0,
-    
+
     // Performance Metrics
     totalTrades: dashboardData?.cards?.totalTrades ?? 0,
     winRate: dashboardData?.cards?.winRate ?? 0,
@@ -262,7 +255,8 @@ const BrokerDashboard: React.FC = () => {
               Broker Dashboard
             </h1>
             <p className="mt-1 text-sm text-slate-500">
-              Welcome back, {user?.name || 'Broker'}! Here's your business overview
+              Welcome back, {user?.name || 'Broker'}! Here's your business
+              overview
             </p>
           </div>
 

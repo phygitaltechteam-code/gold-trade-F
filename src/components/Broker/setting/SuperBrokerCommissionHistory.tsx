@@ -185,7 +185,7 @@ export default function SuperBrokerCommissionHistory() {
       <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">
-            Broker Commission History
+            Super Broker Commission History
           </h1>
           <p className="text-sm text-slate-500">
             Track and manage generated commission records
@@ -248,44 +248,24 @@ export default function SuperBrokerCommissionHistory() {
 
         <div className="p-6">
           {activeTab === 'commission' ? (
-            commissionHistoryList.length > 0 ? (
-              <div className="overflow-x-auto">
-                <GenericTable
-                  data={commissionHistoryList}
-                  columns={commissionColumns}
-                  paginationOff={true}
-                  itemsPerPage={10}
-                />
-              </div>
-            ) : (
-              <div className="py-12 text-center">
-                <p className="text-gray-500">No commission history found</p>
-                <button
-                  onClick={() => refetch()}
-                  className="mt-4 rounded-lg bg-orange-500 px-4 py-2 text-sm text-white hover:bg-orange-600"
-                >
-                  Refresh
-                </button>
-              </div>
-            )
-          ) : paidHistoryList.length > 0 ? (
+            <div className="overflow-x-auto">
+              <GenericTable
+                data={commissionHistoryList}
+                columns={commissionColumns}
+                paginationOff={true}
+                itemsPerPage={10}
+                emptyMessage="No commission history found"
+              />
+            </div>
+          ) : (
             <div className="overflow-x-auto">
               <GenericTable
                 data={paidHistoryList}
                 columns={paidColumns}
                 paginationOff={true}
                 itemsPerPage={10}
+                emptyMessage="No paid history found"
               />
-            </div>
-          ) : (
-            <div className="py-12 text-center">
-              <p className="text-gray-500">No paid history found</p>
-              <button
-                onClick={() => refetch()}
-                className="mt-4 rounded-lg bg-orange-500 px-4 py-2 text-sm text-white hover:bg-orange-600"
-              >
-                Refresh
-              </button>
             </div>
           )}
         </div>

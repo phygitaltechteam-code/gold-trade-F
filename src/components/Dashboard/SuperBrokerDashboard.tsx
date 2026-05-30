@@ -23,10 +23,7 @@ import {
 import {useAuthContext} from '@/context/AuthContext';
 import toast from 'react-hot-toast';
 import GenericButton from '@/components/Forms/Buttons/GenericButton';
-import {
-  buildDashboardFilters,
-  useGetCompanyDashboard,
-} from '@/lib/api/dashboard';
+import {useGetSuperBrokerDashboard} from '@/lib/api/dashboard';
 import {cn} from '@/utils/utilities';
 
 // Animation variants
@@ -112,18 +109,13 @@ const SuperBrokerDashboard: React.FC = () => {
   const [customDateRange, setCustomDateRange] = useState({start: '', end: ''});
   const datePickerRef = useRef<HTMLDivElement>(null);
 
-  const filters = buildDashboardFilters(
-    selectedPeriod,
-    selectedPeriod === 'custom' ? customDateRange : undefined,
-  );
-
   const {
     data: dashboardData,
     isLoading,
-    isError,
+    isError,    
     error,
     refetch,
-  } = useGetCompanyDashboard();
+  } = useGetSuperBrokerDashboard();
 
   const handlePeriodChange = (period: '30d' | '7d' | '24h' | 'custom') => {
     setSelectedPeriod(period);
