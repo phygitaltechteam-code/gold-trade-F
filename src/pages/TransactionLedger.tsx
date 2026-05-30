@@ -1,11 +1,13 @@
 import React, {useState} from 'react';
 import GenericTable from '@/components/Forms/Table/GenericTable';
+import { useGetTransactionLedger } from '@/lib/react-query/transactionledger';
 
 const TransactionLedger = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [ledgerStartDate, setLedgerStartDate] = useState('');
   const [ledgerEndDate, setLedgerEndDate] = useState('');
-
+  const {data: transactionLedgerData} = useGetTransactionLedger();
+  
   // Simplified view columns
   const baseColumns = [
     {header: 'Sr', accessor: 'sr'},

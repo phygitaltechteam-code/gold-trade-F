@@ -9,7 +9,6 @@ import {result} from 'lodash';
 
 import toast from 'react-hot-toast';
 
-
 export const useGetCompanyDashboard = () => {
   return useQuery({
     queryKey: ['company-dashboard'],
@@ -20,7 +19,7 @@ export const useGetCompanyDashboard = () => {
 export const useGetSuperBrokerDashboard = () => {
   return useQuery({
     queryKey: ['super-broker-dashboard'],
-    queryFn: () => api.get('super-broker/profile/stats'),
+    queryFn: () => api.get('/super-broker/dashboard'),
   });
 };
 
