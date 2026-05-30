@@ -112,6 +112,8 @@ const BrokerDashboard: React.FC = () => {
     error,
     refetch,
   } = useGetBrokerDashboard();
+  console.log('dashboardData', dashboardData);
+  
 
   const handlePeriodChange = (period: '30d' | '7d' | '24h' | 'custom') => {
     setSelectedPeriod(period);
@@ -190,26 +192,37 @@ const BrokerDashboard: React.FC = () => {
   };
 
   // Extract data from API response - Only Broker relevant data
-  const dashboardStats = {
-    // Broker's Downline Customers
-    noOfCustomer: dashboardData?.cards?.customers?.total ?? 0,
-    activeCustomers: dashboardData?.cards?.customers?.active ?? 0,
-    totalActiveTrends: dashboardData?.cards?.activeTrends?.total ?? 0,
 
-    // Broker's Commission & Earnings
-    brokerTotalCommission: dashboardData?.cards?.totalBrokerCommission ?? 0,
-    pendingBrokerCommission: dashboardData?.cards?.pendingBrokerCommission ?? 0,
+const dashboardStats = {
+  // Broker's Downline Customers
+  noOfCustomer: dashboardData?.data?.cards?.customers?.total ?? 0,
+  activeCustomers: dashboardData?.data?.cards?.customers?.active ?? 0,
+  totalActiveTrends: dashboardData?.data?.cards?.activeTrends?.total ?? 0,
 
-    // Customer Financials (Broker's clients)
-    totalCustomerWalletBalance:
-      dashboardData?.cards?.totalCustomerWalletBalance ?? 0,
-    totalDeposits: dashboardData?.financials?.totalDeposits ?? 0,
-    totalWithdrawals: dashboardData?.financials?.totalWithdrawals ?? 0,
+  // Broker's Commission & Earnings
+  brokerTotalCommission:
+    dashboardData?.data?.cards?.totalCommission ?? 0,
 
-    // Performance Metrics
-    totalTrades: dashboardData?.cards?.totalTrades ?? 0,
-    winRate: dashboardData?.cards?.winRate ?? 0,
-  };
+  pendingBrokerCommission:
+    dashboardData?.data?.cards?.pendingCommission ?? 0,
+
+  // Customer Financials (Broker's clients)
+  totalCustomerWalletBalance:
+    dashboardData?.data?.cards?.totalCustomerWalletBalance ?? 0,
+
+  totalDeposits:
+    dashboardData?.data?.financials?.totalDeposits ?? 0,
+
+  totalWithdrawals:
+    dashboardData?.data?.financials?.totalWithdrawals ?? 0,
+
+  // Performance Metrics
+  totalTrades:
+    dashboardData?.data?.cards?.totalTrades ?? 0,
+
+  winRate:
+    dashboardData?.data?.cards?.winRate ?? 0,
+};
 
   // Error state
   if (isError || error) {

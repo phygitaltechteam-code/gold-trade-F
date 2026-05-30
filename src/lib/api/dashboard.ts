@@ -26,6 +26,7 @@ export const useGetSuperBrokerDashboard = () => {
 export const useGetBrokerDashboard = () => {
   return useQuery({
     queryKey: ['broker-dashboard'],
-    queryFn: () => api.get('broker/profile/stats'),
+    queryFn: () => api.get('broker/dashboard'),
   });
 };
+

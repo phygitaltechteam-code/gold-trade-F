@@ -219,14 +219,14 @@ export const useUpdateBrokerProfile = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({id, data}: {id: string; data: any}) =>
-      api.put(`/super-broker/broker/${id}`, data),
+    mutationFn: () =>
+      api.put(`/broker/profile`),
 
     onSuccess: () => {
       toast.success('Super broker profile updated successfully!');
-      queryClient.invalidateQueries({queryKey: ['super_brocker']});
-      queryClient.invalidateQueries({queryKey: ['get-superbroker']});
-      queryClient.invalidateQueries({queryKey: ['get-superbroker-data']});
+      queryClient.invalidateQueries({queryKey: ['brocker']});
+      queryClient.invalidateQueries({queryKey: ['get-broker']});
+      queryClient.invalidateQueries({queryKey: ['getbroker-data']});
     },
     onError: (error: any) => {
       const errorMessage =

@@ -76,6 +76,7 @@ import { Route as AppBrokerDisplaybrokerImport } from './routes/_app/broker/disp
 import { Route as AppBrokerDashboardImport } from './routes/_app/broker/dashboard'
 import { Route as AppBrokerCustomerlistImport } from './routes/_app/broker/customerlist'
 import { Route as AppBrokerCommissionhistoryImport } from './routes/_app/broker/commissionhistory'
+import { Route as AppBrokerBrokerprofilesImport } from './routes/_app/broker/brokerprofiles'
 import { Route as AppBrokerBrokerdashboardImport } from './routes/_app/broker/brokerdashboard'
 import { Route as AppBrokerBrokerImport } from './routes/_app/broker/broker'
 import { Route as AppBrokerAddcustomerImport } from './routes/_app/broker/addcustomer'
@@ -514,6 +515,12 @@ const AppBrokerCommissionhistoryRoute = AppBrokerCommissionhistoryImport.update(
     getParentRoute: () => AppRoute,
   } as any,
 )
+
+const AppBrokerBrokerprofilesRoute = AppBrokerBrokerprofilesImport.update({
+  id: '/broker/brokerprofiles',
+  path: '/broker/brokerprofiles',
+  getParentRoute: () => AppRoute,
+} as any)
 
 const AppBrokerBrokerdashboardRoute = AppBrokerBrokerdashboardImport.update({
   id: '/broker/brokerdashboard',
@@ -1039,6 +1046,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBrokerBrokerdashboardImport
       parentRoute: typeof AppImport
     }
+    '/_app/broker/brokerprofiles': {
+      id: '/_app/broker/brokerprofiles'
+      path: '/broker/brokerprofiles'
+      fullPath: '/broker/brokerprofiles'
+      preLoaderRoute: typeof AppBrokerBrokerprofilesImport
+      parentRoute: typeof AppImport
+    }
     '/_app/broker/commissionhistory': {
       id: '/_app/broker/commissionhistory'
       path: '/broker/commissionhistory'
@@ -1437,6 +1451,7 @@ interface AppRouteChildren {
   AppBrokerAddcustomerRoute: typeof AppBrokerAddcustomerRoute
   AppBrokerBrokerRoute: typeof AppBrokerBrokerRoute
   AppBrokerBrokerdashboardRoute: typeof AppBrokerBrokerdashboardRoute
+  AppBrokerBrokerprofilesRoute: typeof AppBrokerBrokerprofilesRoute
   AppBrokerCommissionhistoryRoute: typeof AppBrokerCommissionhistoryRoute
   AppBrokerCustomerlistRoute: typeof AppBrokerCustomerlistRoute
   AppBrokerDashboardRoute: typeof AppBrokerDashboardRoute
@@ -1526,6 +1541,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppBrokerAddcustomerRoute: AppBrokerAddcustomerRoute,
   AppBrokerBrokerRoute: AppBrokerBrokerRoute,
   AppBrokerBrokerdashboardRoute: AppBrokerBrokerdashboardRoute,
+  AppBrokerBrokerprofilesRoute: AppBrokerBrokerprofilesRoute,
   AppBrokerCommissionhistoryRoute: AppBrokerCommissionhistoryRoute,
   AppBrokerCustomerlistRoute: AppBrokerCustomerlistRoute,
   AppBrokerDashboardRoute: AppBrokerDashboardRoute,
@@ -1661,6 +1677,7 @@ export interface FileRoutesByFullPath {
   '/broker/addcustomer': typeof AppBrokerAddcustomerRoute
   '/broker/broker': typeof AppBrokerBrokerRoute
   '/broker/brokerdashboard': typeof AppBrokerBrokerdashboardRoute
+  '/broker/brokerprofiles': typeof AppBrokerBrokerprofilesRoute
   '/broker/commissionhistory': typeof AppBrokerCommissionhistoryRoute
   '/broker/customerlist': typeof AppBrokerCustomerlistRoute
   '/broker/dashboard': typeof AppBrokerDashboardRoute
@@ -1757,6 +1774,7 @@ export interface FileRoutesByTo {
   '/broker/addcustomer': typeof AppBrokerAddcustomerRoute
   '/broker/broker': typeof AppBrokerBrokerRoute
   '/broker/brokerdashboard': typeof AppBrokerBrokerdashboardRoute
+  '/broker/brokerprofiles': typeof AppBrokerBrokerprofilesRoute
   '/broker/commissionhistory': typeof AppBrokerCommissionhistoryRoute
   '/broker/customerlist': typeof AppBrokerCustomerlistRoute
   '/broker/dashboard': typeof AppBrokerDashboardRoute
@@ -1857,6 +1875,7 @@ export interface FileRoutesById {
   '/_app/broker/addcustomer': typeof AppBrokerAddcustomerRoute
   '/_app/broker/broker': typeof AppBrokerBrokerRoute
   '/_app/broker/brokerdashboard': typeof AppBrokerBrokerdashboardRoute
+  '/_app/broker/brokerprofiles': typeof AppBrokerBrokerprofilesRoute
   '/_app/broker/commissionhistory': typeof AppBrokerCommissionhistoryRoute
   '/_app/broker/customerlist': typeof AppBrokerCustomerlistRoute
   '/_app/broker/dashboard': typeof AppBrokerDashboardRoute
@@ -1955,6 +1974,7 @@ export interface FileRouteTypes {
     | '/broker/addcustomer'
     | '/broker/broker'
     | '/broker/brokerdashboard'
+    | '/broker/brokerprofiles'
     | '/broker/commissionhistory'
     | '/broker/customerlist'
     | '/broker/dashboard'
@@ -2050,6 +2070,7 @@ export interface FileRouteTypes {
     | '/broker/addcustomer'
     | '/broker/broker'
     | '/broker/brokerdashboard'
+    | '/broker/brokerprofiles'
     | '/broker/commissionhistory'
     | '/broker/customerlist'
     | '/broker/dashboard'
@@ -2148,6 +2169,7 @@ export interface FileRouteTypes {
     | '/_app/broker/addcustomer'
     | '/_app/broker/broker'
     | '/_app/broker/brokerdashboard'
+    | '/_app/broker/brokerprofiles'
     | '/_app/broker/commissionhistory'
     | '/_app/broker/customerlist'
     | '/_app/broker/dashboard'
@@ -2272,6 +2294,7 @@ export const routeTree = rootRoute
         "/_app/broker/addcustomer",
         "/_app/broker/broker",
         "/_app/broker/brokerdashboard",
+        "/_app/broker/brokerprofiles",
         "/_app/broker/commissionhistory",
         "/_app/broker/customerlist",
         "/_app/broker/dashboard",
@@ -2506,6 +2529,10 @@ export const routeTree = rootRoute
     },
     "/_app/broker/brokerdashboard": {
       "filePath": "_app/broker/brokerdashboard.tsx",
+      "parent": "/_app"
+    },
+    "/_app/broker/brokerprofiles": {
+      "filePath": "_app/broker/brokerprofiles.tsx",
       "parent": "/_app"
     },
     "/_app/broker/commissionhistory": {
