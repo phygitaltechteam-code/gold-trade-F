@@ -85,12 +85,23 @@ export const useSetTradingTime = () => {
 
   return useMutation({
     mutationFn: ({
-      time,
+      stockHoldingLimit,
       holdingStatus,
+      gttStatus,
+      stoplossStatus,
+      limitStatus,
+      targetStatus,
+      stoplossAndTargetStatus,
+
     }: {
       time: number;
       holdingStatus: boolean;
-    }) => setTradingTime(time, holdingStatus),
+      gttStatus?: boolean;
+      stoplossStatus?: boolean;
+      limitStatus?: boolean;
+      targetStatus?: boolean;
+      stoplossAndTargetStatus?: boolean;
+    }) => setTradingTime(stockHoldingLimit, holdingStatus , gttStatus, stoplossStatus, limitStatus, targetStatus, stoplossAndTargetStatus),
     onSuccess: () => {
       toast.success('set successfully!');
       queryClient.invalidateQueries({queryKey: ['trading_time']});
