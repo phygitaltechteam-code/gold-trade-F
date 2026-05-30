@@ -25,6 +25,7 @@ import { Route as AppWithdrawpageImport } from './routes/_app/withdrawpage'
 import { Route as AppWallettopupreportImport } from './routes/_app/wallettopupreport'
 import { Route as AppTransfersReportImport } from './routes/_app/transfersReport'
 import { Route as AppTransactionReportImport } from './routes/_app/transactionReport'
+import { Route as AppSuperbrokertransactionImport } from './routes/_app/superbrokertransaction'
 import { Route as AppSuperbrokercommissionhistoryImport } from './routes/_app/superbrokercommissionhistory'
 import { Route as AppScrpitsManagementImport } from './routes/_app/scrpitsManagement'
 import { Route as AppReportCenterImport } from './routes/_app/reportCenter'
@@ -34,6 +35,7 @@ import { Route as AppCurrencyconverterImport } from './routes/_app/currencyconve
 import { Route as AppClientlistreportImport } from './routes/_app/clientlistreport'
 import { Route as AppChangepasswordImport } from './routes/_app/changepassword'
 import { Route as AppCashflowreportImport } from './routes/_app/cashflowreport'
+import { Route as AppBrokerledgerImport } from './routes/_app/brokerledger'
 import { Route as AppBeneficiaryreportImport } from './routes/_app/beneficiaryreport'
 import { Route as AppAlltransactionImport } from './routes/_app/alltransaction'
 import { Route as AppAddclientImport } from './routes/_app/addclient'
@@ -188,6 +190,12 @@ const AppTransactionReportRoute = AppTransactionReportImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 
+const AppSuperbrokertransactionRoute = AppSuperbrokertransactionImport.update({
+  id: '/superbrokertransaction',
+  path: '/superbrokertransaction',
+  getParentRoute: () => AppRoute,
+} as any)
+
 const AppSuperbrokercommissionhistoryRoute =
   AppSuperbrokercommissionhistoryImport.update({
     id: '/superbrokercommissionhistory',
@@ -242,6 +250,12 @@ const AppChangepasswordRoute = AppChangepasswordImport.update({
 const AppCashflowreportRoute = AppCashflowreportImport.update({
   id: '/cashflowreport',
   path: '/cashflowreport',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppBrokerledgerRoute = AppBrokerledgerImport.update({
+  id: '/brokerledger',
+  path: '/brokerledger',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -766,6 +780,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBeneficiaryreportImport
       parentRoute: typeof AppImport
     }
+    '/_app/brokerledger': {
+      id: '/_app/brokerledger'
+      path: '/brokerledger'
+      fullPath: '/brokerledger'
+      preLoaderRoute: typeof AppBrokerledgerImport
+      parentRoute: typeof AppImport
+    }
     '/_app/cashflowreport': {
       id: '/_app/cashflowreport'
       path: '/cashflowreport'
@@ -827,6 +848,13 @@ declare module '@tanstack/react-router' {
       path: '/superbrokercommissionhistory'
       fullPath: '/superbrokercommissionhistory'
       preLoaderRoute: typeof AppSuperbrokercommissionhistoryImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/superbrokertransaction': {
+      id: '/_app/superbrokertransaction'
+      path: '/superbrokertransaction'
+      fullPath: '/superbrokertransaction'
+      preLoaderRoute: typeof AppSuperbrokertransactionImport
       parentRoute: typeof AppImport
     }
     '/_app/transactionReport': {
@@ -1378,6 +1406,7 @@ interface AppRouteChildren {
   AppAddclientRoute: typeof AppAddclientRoute
   AppAlltransactionRoute: typeof AppAlltransactionRoute
   AppBeneficiaryreportRoute: typeof AppBeneficiaryreportRoute
+  AppBrokerledgerRoute: typeof AppBrokerledgerRoute
   AppCashflowreportRoute: typeof AppCashflowreportRoute
   AppChangepasswordRoute: typeof AppChangepasswordRoute
   AppClientlistreportRoute: typeof AppClientlistreportRoute
@@ -1387,6 +1416,7 @@ interface AppRouteChildren {
   AppReportCenterRoute: typeof AppReportCenterRoute
   AppScrpitsManagementRoute: typeof AppScrpitsManagementRoute
   AppSuperbrokercommissionhistoryRoute: typeof AppSuperbrokercommissionhistoryRoute
+  AppSuperbrokertransactionRoute: typeof AppSuperbrokertransactionRoute
   AppTransactionReportRoute: typeof AppTransactionReportRoute
   AppTransfersReportRoute: typeof AppTransfersReportRoute
   AppWallettopupreportRoute: typeof AppWallettopupreportRoute
@@ -1464,6 +1494,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAddclientRoute: AppAddclientRoute,
   AppAlltransactionRoute: AppAlltransactionRoute,
   AppBeneficiaryreportRoute: AppBeneficiaryreportRoute,
+  AppBrokerledgerRoute: AppBrokerledgerRoute,
   AppCashflowreportRoute: AppCashflowreportRoute,
   AppChangepasswordRoute: AppChangepasswordRoute,
   AppClientlistreportRoute: AppClientlistreportRoute,
@@ -1473,6 +1504,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppReportCenterRoute: AppReportCenterRoute,
   AppScrpitsManagementRoute: AppScrpitsManagementRoute,
   AppSuperbrokercommissionhistoryRoute: AppSuperbrokercommissionhistoryRoute,
+  AppSuperbrokertransactionRoute: AppSuperbrokertransactionRoute,
   AppTransactionReportRoute: AppTransactionReportRoute,
   AppTransfersReportRoute: AppTransfersReportRoute,
   AppWallettopupreportRoute: AppWallettopupreportRoute,
@@ -1592,6 +1624,7 @@ export interface FileRoutesByFullPath {
   '/addclient': typeof AppAddclientRoute
   '/alltransaction': typeof AppAlltransactionRoute
   '/beneficiaryreport': typeof AppBeneficiaryreportRoute
+  '/brokerledger': typeof AppBrokerledgerRoute
   '/cashflowreport': typeof AppCashflowreportRoute
   '/changepassword': typeof AppChangepasswordRoute
   '/clientlistreport': typeof AppClientlistreportRoute
@@ -1601,6 +1634,7 @@ export interface FileRoutesByFullPath {
   '/reportCenter': typeof AppReportCenterRoute
   '/scrpitsManagement': typeof AppScrpitsManagementRoute
   '/superbrokercommissionhistory': typeof AppSuperbrokercommissionhistoryRoute
+  '/superbrokertransaction': typeof AppSuperbrokertransactionRoute
   '/transactionReport': typeof AppTransactionReportRoute
   '/transfersReport': typeof AppTransfersReportRoute
   '/wallettopupreport': typeof AppWallettopupreportRoute
@@ -1686,6 +1720,7 @@ export interface FileRoutesByTo {
   '/addclient': typeof AppAddclientRoute
   '/alltransaction': typeof AppAlltransactionRoute
   '/beneficiaryreport': typeof AppBeneficiaryreportRoute
+  '/brokerledger': typeof AppBrokerledgerRoute
   '/cashflowreport': typeof AppCashflowreportRoute
   '/changepassword': typeof AppChangepasswordRoute
   '/clientlistreport': typeof AppClientlistreportRoute
@@ -1695,6 +1730,7 @@ export interface FileRoutesByTo {
   '/reportCenter': typeof AppReportCenterRoute
   '/scrpitsManagement': typeof AppScrpitsManagementRoute
   '/superbrokercommissionhistory': typeof AppSuperbrokercommissionhistoryRoute
+  '/superbrokertransaction': typeof AppSuperbrokertransactionRoute
   '/transactionReport': typeof AppTransactionReportRoute
   '/transfersReport': typeof AppTransfersReportRoute
   '/wallettopupreport': typeof AppWallettopupreportRoute
@@ -1784,6 +1820,7 @@ export interface FileRoutesById {
   '/_app/addclient': typeof AppAddclientRoute
   '/_app/alltransaction': typeof AppAlltransactionRoute
   '/_app/beneficiaryreport': typeof AppBeneficiaryreportRoute
+  '/_app/brokerledger': typeof AppBrokerledgerRoute
   '/_app/cashflowreport': typeof AppCashflowreportRoute
   '/_app/changepassword': typeof AppChangepasswordRoute
   '/_app/clientlistreport': typeof AppClientlistreportRoute
@@ -1793,6 +1830,7 @@ export interface FileRoutesById {
   '/_app/reportCenter': typeof AppReportCenterRoute
   '/_app/scrpitsManagement': typeof AppScrpitsManagementRoute
   '/_app/superbrokercommissionhistory': typeof AppSuperbrokercommissionhistoryRoute
+  '/_app/superbrokertransaction': typeof AppSuperbrokertransactionRoute
   '/_app/transactionReport': typeof AppTransactionReportRoute
   '/_app/transfersReport': typeof AppTransfersReportRoute
   '/_app/wallettopupreport': typeof AppWallettopupreportRoute
@@ -1880,6 +1918,7 @@ export interface FileRouteTypes {
     | '/addclient'
     | '/alltransaction'
     | '/beneficiaryreport'
+    | '/brokerledger'
     | '/cashflowreport'
     | '/changepassword'
     | '/clientlistreport'
@@ -1889,6 +1928,7 @@ export interface FileRouteTypes {
     | '/reportCenter'
     | '/scrpitsManagement'
     | '/superbrokercommissionhistory'
+    | '/superbrokertransaction'
     | '/transactionReport'
     | '/transfersReport'
     | '/wallettopupreport'
@@ -1973,6 +2013,7 @@ export interface FileRouteTypes {
     | '/addclient'
     | '/alltransaction'
     | '/beneficiaryreport'
+    | '/brokerledger'
     | '/cashflowreport'
     | '/changepassword'
     | '/clientlistreport'
@@ -1982,6 +2023,7 @@ export interface FileRouteTypes {
     | '/reportCenter'
     | '/scrpitsManagement'
     | '/superbrokercommissionhistory'
+    | '/superbrokertransaction'
     | '/transactionReport'
     | '/transfersReport'
     | '/wallettopupreport'
@@ -2069,6 +2111,7 @@ export interface FileRouteTypes {
     | '/_app/addclient'
     | '/_app/alltransaction'
     | '/_app/beneficiaryreport'
+    | '/_app/brokerledger'
     | '/_app/cashflowreport'
     | '/_app/changepassword'
     | '/_app/clientlistreport'
@@ -2078,6 +2121,7 @@ export interface FileRouteTypes {
     | '/_app/reportCenter'
     | '/_app/scrpitsManagement'
     | '/_app/superbrokercommissionhistory'
+    | '/_app/superbrokertransaction'
     | '/_app/transactionReport'
     | '/_app/transfersReport'
     | '/_app/wallettopupreport'
@@ -2197,6 +2241,7 @@ export const routeTree = rootRoute
         "/_app/addclient",
         "/_app/alltransaction",
         "/_app/beneficiaryreport",
+        "/_app/brokerledger",
         "/_app/cashflowreport",
         "/_app/changepassword",
         "/_app/clientlistreport",
@@ -2206,6 +2251,7 @@ export const routeTree = rootRoute
         "/_app/reportCenter",
         "/_app/scrpitsManagement",
         "/_app/superbrokercommissionhistory",
+        "/_app/superbrokertransaction",
         "/_app/transactionReport",
         "/_app/transfersReport",
         "/_app/wallettopupreport",
@@ -2314,6 +2360,10 @@ export const routeTree = rootRoute
       "filePath": "_app/beneficiaryreport.tsx",
       "parent": "/_app"
     },
+    "/_app/brokerledger": {
+      "filePath": "_app/brokerledger.tsx",
+      "parent": "/_app"
+    },
     "/_app/cashflowreport": {
       "filePath": "_app/cashflowreport.tsx",
       "parent": "/_app"
@@ -2348,6 +2398,10 @@ export const routeTree = rootRoute
     },
     "/_app/superbrokercommissionhistory": {
       "filePath": "_app/superbrokercommissionhistory.tsx",
+      "parent": "/_app"
+    },
+    "/_app/superbrokertransaction": {
+      "filePath": "_app/superbrokertransaction.tsx",
       "parent": "/_app"
     },
     "/_app/transactionReport": {
