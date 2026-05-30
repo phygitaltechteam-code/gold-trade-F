@@ -112,3 +112,59 @@ export const useAddCommission = () => {
     },
   });
 };
+
+
+export const useGetSuperbrokerProfile = () =>
+  useQuery({
+    queryKey: ['super_brocker_profile'],
+    queryFn: () => getSuperbrokerProfile(),
+  });
+
+export const getSuperbrokerProfile = async () => {
+  const response = await api.get('/super-broker/profile');
+  return response.data;
+};
+
+export type SuperBrokerProfilePayload = {
+  fullname: string;
+  photo: File;
+};
+export const useEditSuperBrokerProfile = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({data}: {data: SuperBrokerProfilePayload}) => updateSuperBrokerProfile(data),
+    onSuccess: () => {
+      toast.success('Profile edited successfully!');
+      queryClient.invalidateQueries({queryKey: ['profile']});
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+};
+
+
+
+export const updateSuperBrokerProfile = async (data: SuperBrokerProfilePayload) => {
+  try {
+    const formData = new FormData();
+
+    formData.append('fullname', data.fullname);
+
+    if (data.photo) {
+      formData.append('photo', data.photo);
+    }
+
+    const response = await api.put(`/super-broker/profile`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error while edit profile:', error);
+    throw error;
+  }
+};

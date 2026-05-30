@@ -8,28 +8,45 @@ import {
   useResetPin,
 } from '@/lib/react-query/admin';
 import {set} from 'lodash';
+import {
+  useEditSuperBrokerProfile,
+  useGetSuperbrokerProfile,
+} from '@/lib/react-query/superbrocker';
+import {useAuthContext} from '@/context/AuthContext';
 
 const SuperBrokerProfile = () => {
-  const {data: commission} = useGetComission();
-  const [fullname, setName] = useState('');
-  const [photo, setphoto] = useState<File | null>(null);
+  const {user} = useAuthContext();
+
+  const [fullname, setFullname] = useState('');
+  const [photo, setPhoto] = useState<File | null>(null);
   const [preview, setPreview] = useState<string>('');
-  const {data: profile} = useGetProfile();
+  const [existingPhoto, setExistingPhoto] = useState<string>('');
+  const {data: profile} = useGetSuperbrokerProfile();
+  const {mutate: editProfile} = useEditSuperBrokerProfile();
 
-  const {mutate: editProfile} = useEditProfile();
-
+  // Set name and existing photo from profile data
   useEffect(() => {
-    if (profile) {
-      setName(profile.fullname);
-
-      // existing image from backend
+    if (profile?.data) {
+      if (profile.data.fullname) {
+        setFullname(profile.data.fullname);
+      }
+      if (profile.data.photo) {
+        setExistingPhoto(profile.data.photo);
+        setPreview(profile.data.photo);
+      }
+    } else if (profile && profile.fullname) {
+      // Fallback if data is not nested
+      setFullname(profile.fullname);
       if (profile.photo) {
+        setExistingPhoto(profile.photo);
         setPreview(profile.photo);
       }
+    } else if (user && user.fullname) {
+      setFullname(user.fullname);
     }
-  }, [profile]);
+  }, [profile, user]);
 
-  // preview selected image
+  // Preview selected image (overrides existing photo when new one is selected)
   useEffect(() => {
     if (photo) {
       const objectUrl = URL.createObjectURL(photo);
@@ -38,17 +55,25 @@ const SuperBrokerProfile = () => {
       return () => URL.revokeObjectURL(objectUrl);
     }
   }, [photo]);
+
   const profileEdit = () => {
-    if (!photo) return;
+    const formData = new FormData();
+
+    if (fullname) {
+      formData.append('fullname', fullname);
+    }
+
+    if (photo) {
+      formData.append('photo', photo);
+    }
 
     editProfile({
       data: {
         fullname,
-        photo,
+        photo: photo || undefined,
       },
     });
   };
-  console.log('commisssionnn', commission);
 
   return (
     <>
@@ -66,22 +91,113 @@ const SuperBrokerProfile = () => {
             <div className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-3 sm:gap-6 sm:py-6 lg:gap-8">
               <div className="space-y-2">
                 <label className="text-gray-500 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider sm:text-xs">
-                  name
+                  Name
                 </label>
 
                 <div className="relative">
                   <input
                     type="text"
                     value={fullname}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e) => setFullname(e.target.value)}
                     className="w-full rounded-lg border border-stroke bg-white px-3 py-1 text-xs font-medium outline-none transition-all focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 sm:rounded-xl sm:px-4 sm:py-2 sm:text-sm"
+                    placeholder="Enter your name"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
                 <label className="text-gray-500 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider sm:text-xs">
-                  photo
+                  Username
+                </label>
+
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={
+                      profile?.data?.username ||
+                      profile?.username ||
+                      user?.username ||
+                      ''
+                    }
+                    disabled
+                    className="bg-gray-50 text-gray-500 w-full cursor-not-allowed rounded-lg border border-stroke px-3 py-1 text-xs font-medium sm:rounded-xl sm:px-4 sm:py-2 sm:text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-gray-500 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider sm:text-xs">
+                  Email
+                </label>
+
+                <div className="relative">
+                  <input
+                    type="email"
+                    value={
+                      profile?.data?.email ||
+                      profile?.email ||
+                      user?.email ||
+                      ''
+                    }
+                    disabled
+                    className="bg-gray-50 text-gray-500 w-full cursor-not-allowed rounded-lg border border-stroke px-3 py-1 text-xs font-medium sm:rounded-xl sm:px-4 sm:py-2 sm:text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-gray-500 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider sm:text-xs">
+                  Phone Number
+                </label>
+
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={
+                      profile?.data?.phoneNumber ||
+                      profile?.phoneNumber ||
+                      user?.phoneNumber ||
+                      ''
+                    }
+                    disabled
+                    className="bg-gray-50 text-gray-500 w-full cursor-not-allowed rounded-lg border border-stroke px-3 py-1 text-xs font-medium sm:rounded-xl sm:px-4 sm:py-2 sm:text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-gray-500 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider sm:text-xs">
+                  Broker ID
+                </label>
+
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={profile?.data?.BKId || profile?.BKId || ''}
+                    disabled
+                    className="bg-gray-50 text-gray-500 w-full cursor-not-allowed rounded-lg border border-stroke px-3 py-1 text-xs font-medium sm:rounded-xl sm:px-4 sm:py-2 sm:text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-gray-500 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider sm:text-xs">
+                  Role
+                </label>
+
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={profile?.data?.role || profile?.role || ''}
+                    disabled
+                    className="bg-gray-50 text-gray-500 w-full cursor-not-allowed rounded-lg border border-stroke px-3 py-1 text-xs font-medium sm:rounded-xl sm:px-4 sm:py-2 sm:text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-gray-500 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider sm:text-xs">
+                  Photo
                 </label>
 
                 <div className="space-y-3">
@@ -90,7 +206,7 @@ const SuperBrokerProfile = () => {
                     accept="image/*"
                     onChange={(e) => {
                       if (e.target.files?.[0]) {
-                        setphoto(e.target.files[0]);
+                        setPhoto(e.target.files[0]);
                       }
                     }}
                     className="w-full rounded-lg border border-stroke bg-white px-3 py-1 text-xs font-medium outline-none transition-all focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 sm:rounded-xl sm:px-4 sm:py-2 sm:text-sm"
@@ -99,15 +215,20 @@ const SuperBrokerProfile = () => {
               </div>
 
               <div className="space-y-2">
-                {' '}
-                <label className="text-gray-500 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider sm:text-xs"></label>
-                {preview && (
+                <label className="text-gray-500 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider sm:text-xs">
+                  Preview
+                </label>
+                {preview ? (
                   <div className="flex items-center">
                     <img
                       src={preview}
-                      alt="Preview"
-                      className="h-15 w-15 rounded-xl border object-cover shadow-sm"
+                      alt="Profile Preview"
+                      className="h-20 w-20 rounded-xl border object-cover shadow-sm"
                     />
+                  </div>
+                ) : (
+                  <div className="bg-gray-50 text-gray-400 flex h-20 w-20 items-center justify-center rounded-xl border border-stroke">
+                    No image
                   </div>
                 )}
               </div>
@@ -120,7 +241,7 @@ const SuperBrokerProfile = () => {
                 onClick={profileEdit}
               >
                 <Database className="h-4 w-4" />
-                <span>Save</span>
+                <span>Save Changes</span>
               </button>
             </div>
           </section>

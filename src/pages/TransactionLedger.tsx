@@ -1,18 +1,18 @@
-import React, {useState} from 'react';
+import React, {useState, useMemo} from 'react';
 import GenericTable from '@/components/Forms/Table/GenericTable';
-import { useGetTransactionLedger } from '@/lib/react-query/transactionledger';
+import {useGetTransactionLedger} from '@/lib/react-query/transactionledger';
 
 const TransactionLedger = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [ledgerStartDate, setLedgerStartDate] = useState('');
   const [ledgerEndDate, setLedgerEndDate] = useState('');
   const {data: transactionLedgerData} = useGetTransactionLedger();
-  
+
   // Simplified view columns
   const baseColumns = [
-    {header: 'Sr', accessor: 'sr'},
+    {header: 'Transaction Type', accessor: 'sr'},
     {header: 'Date/Time', accessor: 'dateTime'},
-    {header: 'Admin', accessor: 'admin'}, // NEW FIELD
+    {header: 'Admin', accessor: 'admin'},
     {header: 'Transaction ID', accessor: 'transactionId'},
     {header: 'Stript', accessor: 'stript'},
     {header: 'Transaction Amount', accessor: 'transactionAmount'},
@@ -21,9 +21,9 @@ const TransactionLedger = () => {
 
   // Full detailed view columns
   const expandedColumns = [
-    {header: 'Sr', accessor: 'sr'},
+    {header: 'Transaction Type', accessor: 'sr'},
     {header: 'Date/Time', accessor: 'dateTime'},
-    {header: 'Admin', accessor: 'admin'}, // NEW FIELD
+    {header: 'Admin', accessor: 'admin'},
     {header: 'Customer Name', accessor: 'customerName'},
     {header: 'Broker Name', accessor: 'brokerName'},
     {header: 'Transaction ID', accessor: 'transactionId'},
@@ -41,6 +41,42 @@ const TransactionLedger = () => {
     {header: 'Payment Status', accessor: 'paymentStatus'},
   ];
 
+  // Extract data array safely
+  const getTransactionData = () => {
+    if (!transactionLedgerData) return [];
+
+    // Handle different possible data structures
+    if (Array.isArray(transactionLedgerData)) return transactionLedgerData;
+    if (
+      transactionLedgerData.data &&
+      Array.isArray(transactionLedgerData.data?.data)
+    )
+      return transactionLedgerData.data.data;
+    if (
+      transactionLedgerData.data?.transactions &&
+      Array.isArray(transactionLedgerData.data?.transactions)
+    )
+      return transactionLedgerData.data.transactions;
+
+    return [];
+  };
+
+  // Filter data by date range
+  const filterDataByDate = (data) => {
+    if (!Array.isArray(data)) return [];
+    if (!ledgerStartDate && !ledgerEndDate) return data;
+
+    return data.filter((item) => {
+      const itemDate = item.dateTime?.split(' ')[0];
+      if (!itemDate) return true;
+      if (ledgerStartDate && itemDate < ledgerStartDate) return false;
+      if (ledgerEndDate && itemDate > ledgerEndDate) return false;
+      return true;
+    });
+  };
+
+  const transactionData = getTransactionData();
+  const filteredData = filterDataByDate(transactionData);
   const columns = isExpanded ? expandedColumns : baseColumns;
 
   return (
@@ -101,9 +137,9 @@ const TransactionLedger = () => {
           </div>
           <div className="overflow-x-auto">
             <GenericTable
-              data={[]}
+              data={filteredData}
               columns={columns}
-              paginationOff={false} // Allow pagination if data gets large
+              paginationOff={false}
             />
           </div>
         </div>
