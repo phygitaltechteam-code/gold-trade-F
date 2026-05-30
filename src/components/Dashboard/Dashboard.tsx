@@ -23,10 +23,7 @@ import {
 import {useAuthContext} from '@/context/AuthContext';
 import toast from 'react-hot-toast';
 import GenericButton from '@/components/Forms/Buttons/GenericButton';
-import {
-  buildDashboardFilters,
-  useGetCompanyDashboard,
-} from '@/lib/api/dashboard';
+import {useGetCompanyDashboard} from '@/lib/api/dashboard';
 import {cn} from '@/utils/utilities';
 
 // Animation variants
@@ -111,11 +108,6 @@ const Dashboard: React.FC = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [customDateRange, setCustomDateRange] = useState({start: '', end: ''});
   const datePickerRef = useRef<HTMLDivElement>(null);
-
-  const filters = buildDashboardFilters(
-    selectedPeriod,
-    selectedPeriod === 'custom' ? customDateRange : undefined,
-  );
 
   const {
     data: dashboardData,
