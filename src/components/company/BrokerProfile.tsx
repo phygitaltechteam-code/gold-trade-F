@@ -198,9 +198,7 @@ const BrokerProfile = () => {
     if (editData.aadharCardNumber !== profileData?.aadharCardNumber) {
       updatePayload.aadharCardNumber = editData.aadharCardNumber;
     }
-    if (
-      editData.commission !== profileData?.brokeragePercent?.toString()
-    ) {
+    if (editData.commission !== profileData?.brokeragePercent?.toString()) {
       updatePayload.commission = parseFloat(editData.commission);
     }
     if (editData.area !== profileData?.area) {
@@ -628,7 +626,7 @@ const BrokerProfile = () => {
                 />
               ) : (
                 <p className="text-sm font-semibold text-orange-600 dark:text-white md:text-base">
-                  {profileData?.brokeragePercent  || '0'}%
+                  {profileData?.brokeragePercent || '0'}%
                 </p>
               )}
             </div>

@@ -16,13 +16,13 @@ const ChamkiTrading = () => {
 
   useEffect(() => {
     if (tradeData) {
-    setIsEnabled(tradeData?.holdingStatus);
-    setStockHoldingLimit(tradeData?.stockHoldingLimit);
-     setIsGttEnabled(tradeData?.gttStatus);
-     setIsStopLossEnabled(tradeData?.stoplossStatus);
-     setIsLimitEnabled(tradeData?.limitStatus);
-     setIsTargetEnabled(tradeData?.targetStatus);
-     setIsStopLossTargetEnabled(tradeData?.stoplossAndTargetStatus);
+      setIsEnabled(tradeData?.holdingStatus);
+      setStockHoldingLimit(tradeData?.stockHoldingLimit);
+      setIsGttEnabled(tradeData?.gttStatus);
+      setIsStopLossEnabled(tradeData?.stoplossStatus);
+      setIsLimitEnabled(tradeData?.limitStatus);
+      setIsTargetEnabled(tradeData?.targetStatus);
+      setIsStopLossTargetEnabled(tradeData?.stoplossAndTargetStatus);
     }
   }, [tradeData]);
   const increaseTime = () => {
@@ -48,8 +48,49 @@ const ChamkiTrading = () => {
   };
 
   const submit = () => {
+    setTradeTime({
+      holdingStatus: isEnabled,
+      stockHoldingLimit: stockHoldingLimit,
+      gttStatus: isGttEnabled,
+      stoplossStatus: isStopLossEnabled,
+      limitStatus: isLimitEnabled,
+      targetStatus: isTargetEnabled,
+      stoplossAndTargetStatus: isStopLossTargetEnabled,
+    });
+  };
 
-    setTradeTime({holdingStatus: isEnabled, stockHoldingLimit: stockHoldingLimit , gttStatus: isGttEnabled, stoplossStatus: isStopLossEnabled, limitStatus: isLimitEnabled, targetStatus: isTargetEnabled, stoplossAndTargetStatus: isStopLossTargetEnabled});
+  const handleStopLossToggle = () => {
+    const newStopLoss = !isStopLossEnabled;
+
+    setIsStopLossEnabled(newStopLoss);
+
+    // If stop loss turned off -> disable combined toggle
+    if (!newStopLoss) {
+      setIsStopLossTargetEnabled(false);
+    }
+  };
+
+  const handleTargetToggle = () => {
+    const newTarget = !isTargetEnabled;
+
+    setIsTargetEnabled(newTarget);
+
+    // If target turned off -> disable combined toggle
+    if (!newTarget) {
+      setIsStopLossTargetEnabled(false);
+    }
+  };
+
+  const handleStopLossTargetToggle = () => {
+    const newValue = !isStopLossTargetEnabled;
+
+    setIsStopLossTargetEnabled(newValue);
+
+    // If enabling combined -> force both ON
+    if (newValue) {
+      setIsStopLossEnabled(true);
+      setIsTargetEnabled(true);
+    }
   };
   return (
     <div className="font-sans min-h-screen bg-[#F8F9FA] text-[#1A1A1A]">
@@ -59,229 +100,240 @@ const ChamkiTrading = () => {
             <h2 className="text-lg font-semibold">Trading Time</h2>
           </div>
 
-          <div className="grid grid-cols-1 gap-10 py-6 sm:grid-cols-2">
-            {/* Trading Time Input */}
-            <div className="space-y-2">
-              <label className="text-gray-500 text-xs font-semibold uppercase tracking-wider">
-                Trading Time (Minutes)
-              </label>
+          <div className="py-3">
+            <table className="w-full border-collapse">
+              <tbody>
+                {/* Trading Time Row */}
+                <tr className="border-b border-stroke">
+                  <td className="py-4 pr-15">
+                    <div className="space-y-1">
+                      <label className="text-gray-500 text-xs font-semibold uppercase tracking-wider">
+                        Trading Time (Minutes)
+                      </label>
+                      <p className="text-gray-400 text-xs">
+                        Range: 1 to 60 minutes
+                      </p>
+                    </div>
+                  </td>
+                  <td className="py-4">
+                    <div className="relative w-64">
+                      <button
+                        type="button"
+                        className="text-gray-400 absolute left-3 top-1/2 z-10 -translate-y-1/2 hover:text-orange-500"
+                      >
+                        <Clock3 className="h-4 w-4" />
+                      </button>
 
-              <div className="relative">
-                {/* Left Clock Icon */}
-                <button
-                  type="button"
-                  className="text-gray-400 absolute left-3 top-1/2 z-10 -translate-y-1/2 hover:text-orange-500"
-                >
-                  <Clock3 className="h-4 w-4" />
-                </button>
+                      <input
+                        type="number"
+                        min={1}
+                        max={60}
+                        value={stockHoldingLimit}
+                        onChange={handleTimeChange}
+                        className="w-full rounded-xl border border-stroke bg-white py-2 pl-10 pr-12 text-sm font-medium outline-none transition-all focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                      />
 
-                {/* Input */}
-                <input
-                  type="number"
-                  min={1}
-                  max={60}
-                  value={stockHoldingLimit}
-                  onChange={handleTimeChange}
-                  className="w-full rounded-xl border border-stroke bg-white py-2 pl-10 pr-12 text-sm font-medium outline-none transition-all focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
-                />
+                      <div className="bg-gray-50 absolute right-2 top-1/2 flex -translate-y-1/2 flex-col overflow-hidden rounded-md">
+                        <button
+                          type="button"
+                          onClick={increaseTime}
+                          className="hover:bg-gray-100 flex h-5 w-6 items-center justify-center"
+                        >
+                          <ChevronUp className="h-3 w-3 text-neutral-900" />
+                        </button>
 
-                {/* Right Triangle Buttons */}
-                <div className="bg-gray-50 absolute right-2 top-1/2 flex -translate-y-1/2 flex-col overflow-hidden rounded-md">
-                  <button
-                    type="button"
-                    onClick={increaseTime}
-                    className="hover:bg-gray-100 flex h-5 w-6 items-center justify-center"
-                  >
-                    <ChevronUp className="h-3 w-3 text-neutral-900" />
-                  </button>
+                        <button
+                          type="button"
+                          onClick={decreaseTime}
+                          className="hover:bg-gray-100 flex h-5 w-6 items-center justify-center"
+                        >
+                          <ChevronDown className="h-3 w-3 text-neutral-900" />
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
 
-                  <button
-                    type="button"
-                    onClick={decreaseTime}
-                    className="hover:bg-gray-100 flex h-5 w-6 items-center justify-center"
-                  >
-                    <ChevronDown className="h-3 w-3 text-neutral-900" />
-                  </button>
-                </div>
-              </div>
+                {/* Holding Status Row */}
+                <tr className="border-b border-stroke">
+                  <td className="py-4 pr-6">
+                    <label className="text-gray-500 text-xs font-semibold uppercase tracking-wider">
+                      Holding Status
+                    </label>
+                  </td>
+                  <td className="py-4">
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setIsEnabled(!isEnabled)}
+                        className={`relative h-7 w-14 rounded-full transition-all duration-300 ${
+                          isEnabled ? 'bg-green-500' : 'bg-neutral-600'
+                        }`}
+                      >
+                        <span
+                          className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${
+                            isEnabled ? 'left-8' : 'left-1'
+                          }`}
+                        />
+                      </button>
+                      <span className="text-sm font-medium">
+                        {isEnabled ? 'Enabled' : 'Disabled'}
+                      </span>
+                    </div>
+                  </td>
+                </tr>
 
-              <p className="text-gray-400 text-xs">Range: 1 to 60 minutes</p>
-            </div>
+                {/* Limit Row */}
+                <tr className="border-b border-stroke">
+                  <td className="py-4 pr-6">
+                    <label className="text-gray-500 text-xs font-semibold uppercase tracking-wider">
+                      Limit
+                    </label>
+                  </td>
+                  <td className="py-4">
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setIsLimitEnabled(!isLimitEnabled)}
+                        className={`relative h-7 w-14 rounded-full transition-all duration-300 ${
+                          isLimitEnabled ? 'bg-green-500' : 'bg-neutral-600'
+                        }`}
+                      >
+                        <span
+                          className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${
+                            isLimitEnabled ? 'left-8' : 'left-1'
+                          }`}
+                        />
+                      </button>
+                      <span className="text-sm font-medium">
+                        {isLimitEnabled ? 'Enabled' : 'Disabled'}
+                      </span>
+                    </div>
+                  </td>
+                </tr>
 
-            {/* Toggle Button */}
-            <div className="space-y-2">
-              <label className="text-gray-500 text-xs font-semibold uppercase tracking-wider">
-                Holding Status
-              </label>
+                {/* GTT Row */}
+                <tr className="border-b border-stroke">
+                  <td className="py-4 pr-6">
+                    <label className="text-gray-500 text-xs font-semibold uppercase tracking-wider">
+                      GTT
+                    </label>
+                  </td>
+                  <td className="py-4">
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setIsGttEnabled(!isGttEnabled)}
+                        className={`relative h-7 w-14 rounded-full transition-all duration-300 ${
+                          isGttEnabled ? 'bg-green-500' : 'bg-neutral-600'
+                        }`}
+                      >
+                        <span
+                          className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${
+                            isGttEnabled ? 'left-8' : 'left-1'
+                          }`}
+                        />
+                      </button>
+                      <span className="text-sm font-medium">
+                        {isGttEnabled ? 'Enabled' : 'Disabled'}
+                      </span>
+                    </div>
+                  </td>
+                </tr>
 
-              {/* // Toggle Button */}
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsEnabled(!isEnabled)}
-                  className={`relative h-7 w-14 rounded-full transition-all duration-300 ${
-                    isEnabled ? 'bg-green-500' : 'bg-neutral-600'
-                  }`}
-                >
-                  <span
-                    className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${
-                      isEnabled ? 'left-8' : 'left-1'
-                    }`}
-                  />
-                </button>
+                {/* Stop Loss Row */}
+                <tr className="border-b border-stroke">
+                  <td className="py-4 pr-6">
+                    <label className="text-gray-500 text-xs font-semibold uppercase tracking-wider">
+                      Stop Loss
+                    </label>
+                  </td>
+                  <td className="py-4">
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={handleStopLossToggle}
+                        className={`relative h-7 w-14 rounded-full transition-all duration-300 ${
+                          isStopLossEnabled ? 'bg-green-500' : 'bg-neutral-600'
+                        }`}
+                      >
+                        <span
+                          className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${
+                            isStopLossEnabled ? 'left-8' : 'left-1'
+                          }`}
+                        />
+                      </button>
+                      <span className="text-sm font-medium">
+                        {isStopLossEnabled ? 'Enabled' : 'Disabled'}
+                      </span>
+                    </div>
+                  </td>
+                </tr>
 
-                <span className="text-sm font-medium">
-                  {isEnabled ? 'Enabled' : 'Disabled'}
-                </span>
-              </div>
-            </div>
+                {/* Target Row */}
+                <tr className="border-b border-stroke">
+                  <td className="py-4 pr-6">
+                    <label className="text-gray-500 text-xs font-semibold uppercase tracking-wider">
+                      Target
+                    </label>
+                  </td>
+                  <td className="py-4">
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={handleTargetToggle}
+                        className={`relative h-7 w-14 rounded-full transition-all duration-300 ${
+                          isTargetEnabled ? 'bg-green-500' : 'bg-neutral-600'
+                        }`}
+                      >
+                        <span
+                          className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${
+                            isTargetEnabled ? 'left-8' : 'left-1'
+                          }`}
+                        />
+                      </button>
+                      <span className="text-sm font-medium">
+                        {isTargetEnabled ? 'Enabled' : 'Disabled'}
+                      </span>
+                    </div>
+                  </td>
+                </tr>
 
-            {/* GTT Toggle */}
-            <div className="space-y-2">
-              <label className="text-gray-500 text-xs font-semibold uppercase tracking-wider">
-                GTT
-              </label>
-
-              {/* // Toggle Button */}
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsGttEnabled(!isGttEnabled)}
-                  className={`relative h-7 w-14 rounded-full transition-all duration-300 ${
-                    isGttEnabled ? 'bg-green-500' : 'bg-neutral-600'
-                  }`}
-                >
-                  <span
-                    className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${
-                      isGttEnabled ? 'left-8' : 'left-1'
-                    }`}
-                  />
-                </button>
-
-                <span className="text-sm font-medium">
-                  {isGttEnabled ? 'Enabled' : 'Disabled'}
-                </span>
-              </div>
-            </div>
-
-            {/* StopLoss Toggle */}
-            <div className="space-y-2">
-              <label className="text-gray-500 text-xs font-semibold uppercase tracking-wider">
-                Stop Loss
-              </label>
-
-              {/* // Toggle Button */}
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsStopLossEnabled(!isStopLossEnabled)}
-                  className={`relative h-7 w-14 rounded-full transition-all duration-300 ${
-                    isStopLossEnabled ? 'bg-green-500' : 'bg-neutral-600'
-                  }`}
-                >
-                  <span
-                    className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${
-                      isStopLossEnabled ? 'left-8' : 'left-1'
-                    }`}
-                  />
-                </button>
-
-                <span className="text-sm font-medium">
-                  {isStopLossEnabled ? 'Enabled' : 'Disabled'}
-                </span>
-              </div>
-            </div>
-
-            {/* Limit */}
-
-            <div className="space-y-2">
-              <label className="text-gray-500 text-xs font-semibold uppercase tracking-wider">
-                Limit
-              </label>
-
-              {/* // Toggle Button */}
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsLimitEnabled(!isLimitEnabled)}
-                  className={`relative h-7 w-14 rounded-full transition-all duration-300 ${
-                    isLimitEnabled ? 'bg-green-500' : 'bg-neutral-600'
-                  }`}
-                >
-                  <span
-                    className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${
-                      isLimitEnabled ? 'left-8' : 'left-1'
-                    }`}
-                  />
-                </button>
-
-                <span className="text-sm font-medium">
-                  {isLimitEnabled ? 'Enabled' : 'Disabled'}
-                </span>
-              </div>
-            </div>
-
-            {/* Target */}
-            <div className="space-y-2">
-              <label className="text-gray-500 text-xs font-semibold uppercase tracking-wider">
-                Target
-              </label>
-
-              {/* // Toggle Button */}
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsTargetEnabled(!isTargetEnabled)}
-                  className={`relative h-7 w-14 rounded-full transition-all duration-300 ${
-                    isTargetEnabled ? 'bg-green-500' : 'bg-neutral-600'
-                  }`}
-                >
-                  <span
-                    className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${
-                      isTargetEnabled ? 'left-8' : 'left-1'
-                    }`}
-                  />
-                </button>
-
-                <span className="text-sm font-medium">
-                  {isTargetEnabled ? 'Enabled' : 'Disabled'}
-                </span>
-              </div>
-            </div>
-
-            {/* Stoploss and Target */}
-
-            <div className="space-y-2">
-              <label className="text-gray-500 text-xs font-semibold uppercase tracking-wider">
-                Stop Loss + Target
-              </label>
-
-              {/* // Toggle Button */}
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() =>
-                    setIsStopLossTargetEnabled(!isStopLossTargetEnabled)
-                  }
-                  className={`relative h-7 w-14 rounded-full transition-all duration-300 ${
-                    isStopLossTargetEnabled ? 'bg-green-500' : 'bg-neutral-600'
-                  }`}
-                >
-                  <span
-                    className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${
-                      isStopLossTargetEnabled ? 'left-8' : 'left-1'
-                    }`}
-                  />
-                </button>
-
-                <span className="text-sm font-medium">
-                  {isStopLossTargetEnabled ? 'Enabled' : 'Disabled'}
-                </span>
-              </div>
-            </div>
+                {/* Stop Loss + Target Row */}
+                <tr className="border-b border-stroke">
+                  <td className="py-4 pr-6">
+                    <label className="text-gray-500 text-xs font-semibold uppercase tracking-wider">
+                      Stop Loss + Target
+                    </label>
+                  </td>
+                  <td className="py-4">
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={handleStopLossTargetToggle}
+                        className={`relative h-7 w-14 rounded-full transition-all duration-300 ${
+                          isStopLossTargetEnabled
+                            ? 'bg-green-500'
+                            : 'bg-neutral-600'
+                        }`}
+                      >
+                        <span
+                          className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${
+                            isStopLossTargetEnabled ? 'left-8' : 'left-1'
+                          }`}
+                        />
+                      </button>
+                      <span className="text-sm font-medium">
+                        {isStopLossTargetEnabled ? 'Enabled' : 'Disabled'}
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
 
-          <div className="flex justify-end">
+          <div className="flex justify-end border-t border-stroke pt-1">
             <button
               onClick={() => submit()}
               type="button"

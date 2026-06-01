@@ -113,7 +113,6 @@ export const useAddCommission = () => {
   });
 };
 
-
 export const useGetSuperbrokerProfile = () =>
   useQuery({
     queryKey: ['super_brocker_profile'],
@@ -133,7 +132,8 @@ export const useEditSuperBrokerProfile = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({data}: {data: SuperBrokerProfilePayload}) => updateSuperBrokerProfile(data),
+    mutationFn: ({data}: {data: SuperBrokerProfilePayload}) =>
+      updateSuperBrokerProfile(data),
     onSuccess: () => {
       toast.success('Profile edited successfully!');
       queryClient.invalidateQueries({queryKey: ['profile']});
@@ -144,9 +144,9 @@ export const useEditSuperBrokerProfile = () => {
   });
 };
 
-
-
-export const updateSuperBrokerProfile = async (data: SuperBrokerProfilePayload) => {
+export const updateSuperBrokerProfile = async (
+  data: SuperBrokerProfilePayload,
+) => {
   try {
     const formData = new FormData();
 

@@ -219,8 +219,7 @@ export const useUpdateBrokerProfile = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () =>
-      api.put(`/broker/profile`),
+    mutationFn: () => api.put(`/broker/profile`),
 
     onSuccess: () => {
       toast.success('Super broker profile updated successfully!');

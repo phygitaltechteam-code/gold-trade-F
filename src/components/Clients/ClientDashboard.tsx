@@ -24,19 +24,11 @@ interface ClientDashboardProps {
   onSelectClient?: (client: Client) => void;
 }
 
-const StatCard = ({
-  title,
-  value,
-  trend,
-  icon: Icon,
-  isLoading,
-}: any) => (
+const StatCard = ({title, value, trend, icon: Icon, isLoading}: any) => (
   <div className="group relative overflow-hidden rounded-lg border border-stroke bg-white p-4 shadow-sm transition-all hover:shadow-md md:p-5">
-
     <div className="flex items-start justify-between">
-      
       <div className="flex-1">
-        <p className="text-xs font-medium uppercase tracking-wider text-gray-500">
+        <p className="text-gray-500 text-xs font-medium uppercase tracking-wider">
           {title}
         </p>
 
@@ -52,7 +44,6 @@ const StatCard = ({
       <div className="rounded-lg bg-slate-50 p-2">
         {Icon && <Icon className="h-5 w-5 text-slate-400 md:h-6 md:w-6" />}
       </div>
-
     </div>
 
     {trend && !isLoading && (
