@@ -19,9 +19,9 @@ const AppLayout = () => {
     } else if (user?.role === 'SUPERADMIN') {
       navigate({to: '/superadmin/superadmin'});
     } else if (user?.role === 'BROKER') {
-      navigate({to: '/broker/dashboard'});
-    } else if (user?.role === 'SUPERBROKER') {
-      navigate({to: '/superbroker/dashboard'});
+      navigate({to: '/broker/brokerdashboard'});
+    } else if (user?.role === 'SUPER_BROKER') {
+      navigate({to: '/superbroker/superbrokerdashbaord'});
     }
   }, [isAuthenticated, user, navigate]);
 
