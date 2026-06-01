@@ -92,7 +92,6 @@ export const useSetTradingTime = () => {
       limitStatus,
       targetStatus,
       stoplossAndTargetStatus,
-
     }: {
       time: number;
       holdingStatus: boolean;
@@ -101,7 +100,16 @@ export const useSetTradingTime = () => {
       limitStatus?: boolean;
       targetStatus?: boolean;
       stoplossAndTargetStatus?: boolean;
-    }) => setTradingTime(stockHoldingLimit, holdingStatus , gttStatus, stoplossStatus, limitStatus, targetStatus, stoplossAndTargetStatus),
+    }) =>
+      setTradingTime(
+        stockHoldingLimit,
+        holdingStatus,
+        gttStatus,
+        stoplossStatus,
+        limitStatus,
+        targetStatus,
+        stoplossAndTargetStatus,
+      ),
     onSuccess: () => {
       toast.success('set successfully!');
       queryClient.invalidateQueries({queryKey: ['trading_time']});

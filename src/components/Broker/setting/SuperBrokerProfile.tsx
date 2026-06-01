@@ -1,28 +1,28 @@
-import React, { useEffect, useState } from 'react';
-import { Database } from 'lucide-react';
-import { useGetComission } from '@/lib/react-query/commission';
+import React, {useEffect, useState} from 'react';
+import {Database} from 'lucide-react';
+import {useGetComission} from '@/lib/react-query/commission';
 import {
   useEditProfile,
   useGetProfile,
   useResetPassword,
   useResetPin,
 } from '@/lib/react-query/admin';
-import { set } from 'lodash';
+import {set} from 'lodash';
 import {
   useEditSuperBrokerProfile,
   useGetSuperbrokerProfile,
 } from '@/lib/react-query/superbrocker';
-import { useAuthContext } from '@/context/AuthContext';
+import {useAuthContext} from '@/context/AuthContext';
 
 const SuperBrokerProfile = () => {
-  const { user } = useAuthContext();
+  const {user} = useAuthContext();
 
   const [fullname, setFullname] = useState('');
   const [photo, setPhoto] = useState<File | null>(null);
   const [preview, setPreview] = useState<string>('');
   const [existingPhoto, setExistingPhoto] = useState<string>('');
-  const { data: profile } = useGetSuperbrokerProfile();
-  const { mutate: editProfile } = useEditSuperBrokerProfile();
+  const {data: profile} = useGetSuperbrokerProfile();
+  const {mutate: editProfile} = useEditSuperBrokerProfile();
 
   // Set name and existing photo from profile data
   useEffect(() => {

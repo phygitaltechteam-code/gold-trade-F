@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, {useState, useMemo} from 'react';
 import GenericTable from '@/components/Forms/Table/GenericTable';
-import { useGetSuperBrokerHistory } from './SBHistoryApi';
-import { useGetBrokerHistory } from './setting/SBHistoryApi';
+import {useGetSuperBrokerHistory} from './SBHistoryApi';
+import {useGetBrokerHistory} from './setting/SBHistoryApi';
 
 // Format date function
 const formatDateTime = (dateString: string) => {
@@ -76,20 +76,21 @@ export default function BrokerCommissionHistory() {
 
   // Commission History Columns
   const commissionColumns = [
-    { header: 'Date & Time', accessor: 'createdAt' },
+    {header: 'Date & Time', accessor: 'createdAt'},
     {
       header: 'Type',
       accessor: 'type',
       render: (item: any) => (
         <span
-          className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${item.type === 'TRANSFER'
+          className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
+            item.type === 'TRANSFER'
               ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
               : item.type === 'CREDIT'
                 ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
                 : item.type === 'DEBIT'
                   ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
                   : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300'
-            }`}
+          }`}
         >
           {item.type}
         </span>
@@ -100,12 +101,13 @@ export default function BrokerCommissionHistory() {
       accessor: 'amount',
       render: (item: any) => (
         <span
-          className={`font-semibold ${item.type === 'CREDIT' || item.type === 'TRANSFER'
+          className={`font-semibold ${
+            item.type === 'CREDIT' || item.type === 'TRANSFER'
               ? 'text-green-600'
               : item.type === 'DEBIT'
                 ? 'text-red-600'
                 : 'text-blue-600'
-            }`}
+          }`}
         >
           {item.type === 'CREDIT' || item.type === 'TRANSFER'
             ? '+'
@@ -120,7 +122,7 @@ export default function BrokerCommissionHistory() {
 
   // Paid History Columns
   const paidColumns = [
-    { header: 'Date & Time', accessor: 'createdAt' },
+    {header: 'Date & Time', accessor: 'createdAt'},
     {
       header: 'Type',
       accessor: 'type',
@@ -225,19 +227,21 @@ export default function BrokerCommissionHistory() {
         <div className="flex border-b border-stroke dark:border-strokedark">
           <button
             onClick={() => setActiveTab('commission')}
-            className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'commission'
+            className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
+              activeTab === 'commission'
                 ? 'border-b-2 border-orange-500 text-orange-500'
                 : 'text-bodydark2'
-              }`}
+            }`}
           >
             Commission History ({commissionHistoryList.length})
           </button>
           <button
             onClick={() => setActiveTab('paid')}
-            className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'paid'
+            className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
+              activeTab === 'paid'
                 ? 'border-b-2 border-orange-500 text-orange-500'
                 : 'text-bodydark2'
-              }`}
+            }`}
           >
             Paid History ({paidHistoryList.length})
           </button>

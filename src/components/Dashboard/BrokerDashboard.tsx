@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+/*eslint-disable*/
+import React, {useState, useEffect, useRef} from 'react';
+import {motion} from 'framer-motion';
 import {
   CalendarDays,
   RefreshCw,
@@ -15,15 +16,15 @@ import {
   DollarSign,
   PieChart,
 } from 'lucide-react';
-import { useAuthContext } from '@/context/AuthContext';
+import {useAuthContext} from '@/context/AuthContext';
 import toast from 'react-hot-toast';
 import GenericButton from '@/components/Forms/Buttons/GenericButton';
-import { useGetBrokerDashboard } from '@/lib/api/dashboard';
-import { cn } from '@/utils/utilities';
+import {useGetBrokerDashboard} from '@/lib/api/dashboard';
+import {cn} from '@/utils/utilities';
 
 // Animation variants
 const containerVariants = {
-  hidden: { opacity: 0 },
+  hidden: {opacity: 0},
   visible: {
     opacity: 1,
     transition: {
@@ -33,7 +34,7 @@ const containerVariants = {
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: {opacity: 0, y: 20},
   visible: {
     opacity: 1,
     y: 0,
@@ -76,7 +77,6 @@ const FinancialStatCard = ({
   amount,
   icon: Icon,
   iconColor = 'text-orange-500',
-
 }) => (
   <div className="group relative overflow-hidden rounded-lg border border-stroke bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-strokedark dark:bg-boxdark md:p-5">
     <div className="flex items-start justify-between">
@@ -97,7 +97,7 @@ const FinancialStatCard = ({
 );
 
 const BrokerDashboard: React.FC = () => {
-  const { user } = useAuthContext();
+  const {user} = useAuthContext();
   // const [selectedPeriod, setSelectedPeriod] = useState<
   //   '30d' | '7d' | '24h' | 'custom'
   // >('30d');
@@ -112,7 +112,6 @@ const BrokerDashboard: React.FC = () => {
     refetch,
   } = useGetBrokerDashboard();
   console.log('dashboardData', dashboardData);
-
 
   // const handlePeriodChange = (period: '30d' | '7d' | '24h' | 'custom') => {
   //   setSelectedPeriod(period);
@@ -199,28 +198,22 @@ const BrokerDashboard: React.FC = () => {
     totalActiveTrends: dashboardData?.data?.cards?.activeTrends?.total ?? 0,
 
     // Broker's Commission & Earnings
-    brokerTotalCommission:
-      dashboardData?.data?.cards?.totalCommission ?? 0,
+    brokerTotalCommission: dashboardData?.data?.cards?.totalCommission ?? 0,
 
-    pendingBrokerCommission:
-      dashboardData?.data?.cards?.pendingCommission ?? 0,
+    pendingBrokerCommission: dashboardData?.data?.cards?.pendingCommission ?? 0,
 
     // Customer Financials (Broker's clients)
     totalCustomerWalletBalance:
       dashboardData?.data?.cards?.totalCustomerWalletBalance ?? 0,
 
-    totalDeposits:
-      dashboardData?.data?.financials?.totalDeposits ?? 0,
+    totalDeposits: dashboardData?.data?.financials?.totalDeposits ?? 0,
 
-    totalWithdrawals:
-      dashboardData?.data?.financials?.totalWithdrawals ?? 0,
+    totalWithdrawals: dashboardData?.data?.financials?.totalWithdrawals ?? 0,
 
     // Performance Metrics
-    totalTrades:
-      dashboardData?.data?.cards?.totalTrades ?? 0,
+    totalTrades: dashboardData?.data?.cards?.totalTrades ?? 0,
 
-    winRate:
-      dashboardData?.data?.cards?.winRate ?? 0,
+    winRate: dashboardData?.data?.cards?.winRate ?? 0,
   };
 
   // Error state
@@ -271,8 +264,6 @@ const BrokerDashboard: React.FC = () => {
               overview
             </p>
           </div>
-
-          
         </motion.div>
 
         {/* Row 1: Customer Statistics - Broker's Downline */}
@@ -305,21 +296,21 @@ const BrokerDashboard: React.FC = () => {
             amount={formatCurrency(dashboardStats.brokerTotalCommission)}
             icon={Wallet}
             iconColor="text-emerald-500"
-          // subtext="Total commission earned"
+            // subtext="Total commission earned"
           />
           <FinancialStatCard
             title="Pending Commission"
             amount={formatCurrency(dashboardStats.pendingBrokerCommission)}
             icon={Clock}
             iconColor="text-orange-500"
-          // subtext="Awaiting settlement"
+            // subtext="Awaiting settlement"
           />
           <FinancialStatCard
             title="Win Rate"
             amount={`${dashboardStats.winRate || 0}%`}
             icon={Target}
             iconColor="text-purple-500"
-          // subtext="Success rate"
+            // subtext="Success rate"
           />
         </div>
 
@@ -330,21 +321,21 @@ const BrokerDashboard: React.FC = () => {
             amount={formatCurrency(dashboardStats.totalCustomerWalletBalance)}
             icon={Wallet}
             iconColor="text-blue-500"
-          // subtext="Total client funds"
+            // subtext="Total client funds"
           />
           <FinancialStatCard
             title="Total Deposits"
             amount={formatCurrency(dashboardStats.totalDeposits)}
             icon={TrendingUp}
             iconColor="text-green-500"
-          // subtext="From my customers"
+            // subtext="From my customers"
           />
           <FinancialStatCard
             title="Total Withdrawals"
             amount={formatCurrency(dashboardStats.totalWithdrawals)}
             icon={ArrowDownRight}
             iconColor="text-red-500"
-          // subtext="By my customers"
+            // subtext="By my customers"
           />
         </div>
       </div>

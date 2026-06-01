@@ -56,5 +56,3 @@ export const useGetProfile = () =>
     queryKey: ['profile'],
     queryFn: () => getProfile(),
   });
-
-  

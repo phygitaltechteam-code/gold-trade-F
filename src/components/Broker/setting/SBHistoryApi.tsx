@@ -20,7 +20,6 @@ export const useGetSuperBrokerHistory = () => {
   });
 };
 
-
 export const getBrokerHistory = async () => {
   try {
     const response = await api.get(`/broker/commission/history`);
