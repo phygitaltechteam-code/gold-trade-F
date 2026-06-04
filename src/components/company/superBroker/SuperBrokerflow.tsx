@@ -14,7 +14,7 @@ const SuperBrokerflow = () => {
   return (
     <div className="h-screen w-full">
       <div className="mb-4 flex items-center justify-between p-4">
-        <h1 className="text-gray-800 text-2xl font-bold">
+        <h1 className="text-2xl font-semibold text-slate-900 md:text-3xl">
           Super Broker Management
         </h1>
         <button

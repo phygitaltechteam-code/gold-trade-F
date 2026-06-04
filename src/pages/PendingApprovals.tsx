@@ -533,7 +533,7 @@ const PendingApprovals: React.FC = () => {
       <div className="mx-auto max-w-[2000px]">
         {/* Header */}
         <div className="mb-6 md:mb-8">
-          <h1 className="flex items-center gap-3 text-2xl font-semibold tracking-tight text-slate-900 md:text-3xl">
+          <h1 className="flex items-center text-2xl font-semibold text-slate-900 md:text-3xl">
             Pending Approvals
           </h1>
           <p className="text-gray-500 mt-1 text-sm">

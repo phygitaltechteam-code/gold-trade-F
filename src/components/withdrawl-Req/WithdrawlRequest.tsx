@@ -1,4 +1,5 @@
-import React, {useState, useMemo} from 'react';
+import React, { useState, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   Search,
   Bell,
@@ -14,7 +15,7 @@ import {
   Edit,
   Trash,
 } from 'lucide-react';
-import {motion, AnimatePresence} from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import {
   useApproveWithdrawal,
@@ -57,7 +58,7 @@ const MOCK_DATA: WithdrawalRequest[] = [
     requestId: '#W-94821',
     date: 'Today',
     time: '10:42 AM',
-    client: {name: 'John Doe', tier: 'Gold Tier', initials: 'JD'},
+    client: { name: 'John Doe', tier: 'Gold Tier', initials: 'JD' },
     brokerName: 'Capital Brokerage',
     brokerNumber: 'BRK-00123',
     superBrokerName: 'Global Markets Group',
@@ -78,7 +79,7 @@ const MOCK_DATA: WithdrawalRequest[] = [
     requestId: '#W-94820',
     date: 'Today',
     time: '09:15 AM',
-    client: {name: 'Alice Smith', tier: 'Standard Tier', initials: 'AS'},
+    client: { name: 'Alice Smith', tier: 'Standard Tier', initials: 'AS' },
     brokerName: 'TradeCorp',
     brokerNumber: 'BRK-00456',
     superBrokerName: 'Alpha Financial',
@@ -126,7 +127,7 @@ const MOCK_DATA: WithdrawalRequest[] = [
     requestId: '#W-94818',
     date: 'Yesterday',
     time: '11:55 PM',
-    client: {name: 'Robert King', tier: 'Standard Tier', initials: 'RK'},
+    client: { name: 'Robert King', tier: 'Standard Tier', initials: 'RK' },
     brokerName: 'King Investments',
     brokerNumber: 'BRK-00999',
     superBrokerName: 'Alpha Financial',
@@ -147,7 +148,7 @@ const MOCK_DATA: WithdrawalRequest[] = [
     requestId: '#W-94802',
     date: 'Yesterday',
     time: '04:20 PM',
-    client: {name: 'Sarah Lee', tier: 'Silver Tier', initials: 'SL'},
+    client: { name: 'Sarah Lee', tier: 'Silver Tier', initials: 'SL' },
     brokerName: 'TradeCorp',
     brokerNumber: 'BRK-00456',
     superBrokerName: 'Global Markets Group',
@@ -168,7 +169,7 @@ const MOCK_DATA: WithdrawalRequest[] = [
     requestId: '#W-94795',
     date: 'Yesterday',
     time: '02:10 PM',
-    client: {name: 'David Brown', tier: 'Gold Tier', initials: 'DB'},
+    client: { name: 'David Brown', tier: 'Gold Tier', initials: 'DB' },
     brokerName: 'Capital Brokerage',
     brokerNumber: 'BRK-00123',
     superBrokerName: 'Alpha Financial',
@@ -189,7 +190,7 @@ const MOCK_DATA: WithdrawalRequest[] = [
     requestId: '#W-94788',
     date: '2 days ago',
     time: '11:30 AM',
-    client: {name: 'Emma Wilson', tier: 'Standard Tier', initials: 'EW'},
+    client: { name: 'Emma Wilson', tier: 'Standard Tier', initials: 'EW' },
     brokerName: 'King Investments',
     brokerNumber: 'BRK-00999',
     superBrokerName: 'Global Markets Group',
@@ -208,7 +209,7 @@ const MOCK_DATA: WithdrawalRequest[] = [
 ];
 
 // Status Badge Component
-const StatusBadge = ({status}: {status: WithdrawalRequest['status']}) => {
+const StatusBadge = ({ status }: { status: WithdrawalRequest['status'] }) => {
   const styles = {
     Pending: 'bg-orange-50 text-orange-600 border-orange-100',
     Review: 'bg-yellow-50 text-yellow-600 border-yellow-100',
@@ -227,17 +228,81 @@ const StatusBadge = ({status}: {status: WithdrawalRequest['status']}) => {
 };
 
 export default function WithdrawalRequest() {
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('Pending');
-  const {data: withdrawal} = useGetWithdrawal();
-  const {mutateAsync: approve} = useApproveWithdrawal();
-  const {mutateAsync: reject} = useRejectWithdrawal();
+  const { data: withdrawal } = useGetWithdrawal();
+  const { mutateAsync: approve } = useApproveWithdrawal();
+  const { mutateAsync: reject } = useRejectWithdrawal();
   console.log('withdrawallll', withdrawal);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRequests, setSelectedRequests] = useState<string[]>([]);
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [selectedWithdrawalId, setSelectedWithdrawalId] = useState<string | null>(null);
+
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
+
   const [currentPage, setCurrentPage] = useState(1);
   const [showMobileFilter, setShowMobileFilter] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false); // View More/View Less state
   const itemsPerPage = 5;
+
+  // const MOCK_DATA: WithdrawalRequest[] =
+  //   withdrawal?.map((item: any, index: number) => ({
+  //     id: item.id,
+  //     requestId: `REQ${String(index + 1).padStart(3, '0')}`,
+
+  //     date: 'Today',
+  //     time: new Date(item.createdAt).toLocaleTimeString('en-IN', {
+  //       hour: '2-digit',
+  //       minute: '2-digit',
+  //     }),
+
+  //     client: {
+  //       name: item.customer?.user?.fullname || 'N/A',
+  //       avatar: item.customer?.photo || '',
+  //       initials:
+  //         item.customer?.user?.fullname
+  //           ?.split(' ')
+  //           .map((n: string) => n[0])
+  //           .join('')
+  //           .toUpperCase() || 'NA',
+  //     },
+
+  //     brokerName: '-',
+  //     brokerNumber: '-',
+
+  //     superBrokerName: '-',
+  //     superBrokerNumber: '-',
+
+  //     walletBalance: 0,
+
+  //     amount: item.amount || 0,
+
+  //     withdrawType: 'Bank Transfer',
+
+  //     detailAmount: item.amount || 0,
+  //     paidAmount: 0,
+  //     paidDateTime: '-',
+
+  //     fee: 0,
+
+  //     bank: item.customer?.bank_Name || '-',
+  //     accountLast4: '----',
+
+  //     status:
+  //       item.status === 'PENDING'
+  //         ? 'Pending'
+  //         : item.status === 'APPROVED'
+  //           ? 'Approved'
+  //           : item.status === 'REJECTED'
+  //             ? 'Rejected'
+  //             : 'Review',
+
+  //     isHighValue: item.amount > 100000,
+
+  //     customer: item.customer,
+  //   })) || [];
 
   const MOCK_DATA: WithdrawalRequest[] =
     withdrawal?.map((item: any, index: number) => ({
@@ -251,7 +316,7 @@ export default function WithdrawalRequest() {
       }),
 
       client: {
-        name: item.customer?.user?.fullname || 'N/A',
+        name: item.customer?.user?.fullname || item.customerName || 'N/A',
         avatar: item.customer?.photo || '',
         initials:
           item.customer?.user?.fullname
@@ -261,14 +326,13 @@ export default function WithdrawalRequest() {
             .toUpperCase() || 'NA',
       },
 
-      brokerName: '-',
-      brokerNumber: '-',
+      brokerName: item.brokerName || '-',
+      brokerNumber: item.brokerId || '-',
 
-      superBrokerName: '-',
-      superBrokerNumber: '-',
+      superBrokerName: item.superBrokerName || '-',
+      superBrokerNumber: item.superBrokerId || '-',
 
       walletBalance: 0,
-
       amount: item.amount || 0,
 
       withdrawType: 'Bank Transfer',
@@ -292,9 +356,10 @@ export default function WithdrawalRequest() {
               : 'Review',
 
       isHighValue: item.amount > 100000,
-
       customer: item.customer,
     })) || [];
+
+
   // Filter d
   // ata based on active tab and search
   const filteredData = useMemo(() => {
@@ -532,13 +597,26 @@ export default function WithdrawalRequest() {
   ];
 
   // Handle approve/reject
+  // const handleApprove = (id: string) => {
+  //   approve(id);
+  // };
+
   const handleApprove = (id: string) => {
-    approve(id);
+    setSelectedWithdrawalId(id);
+    setShowApproveModal(true);
   };
 
+  // const handleReject = (id: string) => {
+  //   console.log('Rejecting:', id);
+  //   alert(`Rejected request ${id}`);
+  //   reject(id);
+
+  // };
+
   const handleReject = (id: string) => {
-    console.log('Rejecting:', id);
-    alert(`Rejected request ${id}`);
+    setSelectedWithdrawalId(id);
+    setRejectReason('');
+    setShowRejectModal(true);
   };
 
   // Handle bulk actions
@@ -562,7 +640,7 @@ export default function WithdrawalRequest() {
         {/* Header */}
         <div className="mb-6 flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
           <div className="flex items-center gap-3">
-            <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
+            <h1 className="text-2xl font-semibold text-slate-900 md:text-3xl">
               Withdrawal Requests
             </h1>
           </div>
@@ -619,9 +697,9 @@ export default function WithdrawalRequest() {
         <AnimatePresence>
           {selectedRequests.length > 0 && (
             <motion.div
-              initial={{opacity: 0, y: -20}}
-              animate={{opacity: 1, y: 0}}
-              exit={{opacity: 0, y: -20}}
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
               className="mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-orange-200 bg-orange-50 p-3"
             >
               <span className="text-sm font-medium text-orange-700">
@@ -661,22 +739,20 @@ export default function WithdrawalRequest() {
                     setActiveTab(tab);
                     setCurrentPage(1);
                   }}
-                  className={`relative whitespace-nowrap pb-2 text-xs font-medium transition-all sm:text-sm ${
-                    activeTab === tab
-                      ? 'text-orange-500'
-                      : 'text-gray-500 hover:text-gray-700'
-                  }`}
+                  className={`relative whitespace-nowrap pb-2 text-xs font-medium transition-all sm:text-sm ${activeTab === tab
+                    ? 'text-orange-500'
+                    : 'text-gray-500 hover:text-gray-700'
+                    }`}
                 >
                   {tab}
                   {statusCounts[tab] > 0 && (
                     <span
-                      className={`ml-2 rounded-md px-1.5 py-0.5 text-[10px] ${
-                        tab === 'Pending'
-                          ? 'bg-orange-50 text-orange-600'
-                          : tab === 'Approved'
-                            ? 'bg-emerald-50 text-emerald-600'
-                            : 'bg-red-50 text-red-600'
-                      }`}
+                      className={`ml-2 rounded-md px-1.5 py-0.5 text-[10px] ${tab === 'Pending'
+                        ? 'bg-orange-50 text-orange-600'
+                        : tab === 'Approved'
+                          ? 'bg-emerald-50 text-emerald-600'
+                          : 'bg-red-50 text-red-600'
+                        }`}
                     >
                       {statusCounts[tab]}
                     </span>
@@ -714,9 +790,9 @@ export default function WithdrawalRequest() {
           <AnimatePresence>
             {showMobileFilter && (
               <motion.div
-                initial={{opacity: 0, height: 0}}
-                animate={{opacity: 1, height: 'auto'}}
-                exit={{opacity: 0, height: 0}}
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
                 className="bg-gray-50/50 border-b border-stroke p-4 sm:hidden"
               >
                 <h3 className="text-gray-400 mb-2 text-xs font-bold">
@@ -745,6 +821,110 @@ export default function WithdrawalRequest() {
           />
         </div>
       </main>
+      {showApproveModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+            <h2 className="mb-2 text-lg font-semibold">
+              Approve Withdrawal
+            </h2>
+
+            <p className="mb-6 text-sm text-gray-600">
+              Are you sure you want to approve this withdrawal request?
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowApproveModal(false);
+                  setSelectedWithdrawalId(null);
+                }}
+                className="rounded-lg border px-4 py-2"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={async () => {
+                  if (!selectedWithdrawalId) return;
+
+                  try {
+                    await approve(selectedWithdrawalId);
+                    await queryClient.invalidateQueries({ queryKey: ['withdrawal'] }); // Add this line
+                    setShowApproveModal(false);
+                    setSelectedWithdrawalId(null);
+                  } catch (error) {
+                    console.error(error);
+                  }
+                }}
+                className="rounded-lg bg-green-600 px-4 py-2 text-white"
+              >
+                Confirm Approve
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showRejectModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+            <h2 className="mb-2 text-lg font-semibold text-red-600">
+              Reject Withdrawal
+            </h2>
+
+            <p className="mb-4 text-sm text-gray-600">
+              Please enter a reason for rejection.
+            </p>
+
+            <textarea
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              placeholder="Enter rejection reason..."
+              rows={4}
+              className="w-full rounded-lg border p-3"
+            />
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowRejectModal(false);
+                  setSelectedWithdrawalId(null);
+                  setRejectReason('');
+                }}
+                className="rounded-lg border px-4 py-2"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={async () => {
+                  if (!selectedWithdrawalId) return;
+
+                  if (!rejectReason.trim()) {
+                    alert('Please enter a rejection reason');
+                    return;
+                  }
+
+                  try {
+                    await reject({
+                      id: selectedWithdrawalId,
+                      reason: rejectReason,
+                    });
+                    await queryClient.invalidateQueries({ queryKey: ['withdrawal'] }); // Add this line
+                    setShowRejectModal(false);
+                    setSelectedWithdrawalId(null);
+                    setRejectReason('');
+                  } catch (error) {
+                    console.error(error);
+                  }
+                }}
+                className="rounded-lg bg-red-600 px-4 py-2 text-white"
+              >
+                Confirm Reject
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

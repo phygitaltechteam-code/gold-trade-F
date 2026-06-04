@@ -22,11 +22,31 @@ export const approveWithdrawal = async (id: string) => {
   }
 };
 
-export const rejectWithdrawal = async (id: string) => {
+// export const rejectWithdrawal = async (id: string) => {
+//   try {
+//     const response = await api.patch(
+//       `/company/commission/withdrawals/${id}/reject`,
+
+//     );
+//     return response.data;
+//   } catch (error) {
+//     console.error('Error reject withdrawal:', error);
+//     throw error;
+//   }
+// };
+
+export const rejectWithdrawal = async (
+  id: string,
+  reason: string
+) => {
   try {
     const response = await api.patch(
       `/company/commission/withdrawals/${id}/reject`,
+      {
+        reason,
+      }
     );
+
     return response.data;
   } catch (error) {
     console.error('Error reject withdrawal:', error);

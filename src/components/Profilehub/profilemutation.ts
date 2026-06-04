@@ -67,12 +67,29 @@ export const useChangePin = () => {
   });
 };
 
+// export const getProfile = async () => {
+//   try {
+//     if (localStorage.getItem('token')) {
+//       const res = await api.get('/customer/profile');
+//       return res.data;
+//     }
+//   } catch (error: any) {
+//     toast.error(error?.response?.data?.message || 'Failed to get profile');
+//     throw error;
+//   }
+// };
+
 export const getProfile = async () => {
   try {
-    if (localStorage.getItem('token')) {
+    const token = localStorage.getItem('token');
+    const userRole = localStorage.getItem('userRole'); // Or however you store role
+    
+    // Only fetch if role is COMPANY
+    if (token && userRole === 'COMPANY') {
       const res = await api.get('/customer/profile');
       return res.data;
     }
+    return null; // Return null for other roles
   } catch (error: any) {
     toast.error(error?.response?.data?.message || 'Failed to get profile');
     throw error;

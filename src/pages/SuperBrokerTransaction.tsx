@@ -7,13 +7,14 @@ const SuperBrokerTransactionLedger = () => {
   const [ledgerStartDate, setLedgerStartDate] = useState('');
   const [ledgerEndDate, setLedgerEndDate] = useState('');
   const {data: transactionLedgerData} = useGetSuperBrokerTransactionLedger();
+  console.log('Raw API Response:', transactionLedgerData);
 
   // Simplified view columns
   const baseColumns = [
     // {header: 'Transaction Type', accessor: 'sr'},
     {header: 'Date/Time', accessor: 'dateTime'},
-    {header: 'Admin', accessor: 'admin'},
-    {header: 'Transaction ID', accessor: 'transactionId'},
+    // {header: 'Admin', accessor: 'admin'},
+    // {header: 'Transaction ID', accessor: 'transactionId'},
     {header: 'Stript', accessor: 'stript'},
     {header: 'Transaction Amount', accessor: 'transactionAmount'},
     // {header: 'Status', accessor: 'status'},
@@ -23,10 +24,10 @@ const SuperBrokerTransactionLedger = () => {
   const expandedColumns = [
     // {header: 'Transaction Type', accessor: 'sr'},
     {header: 'Date/Time', accessor: 'dateTime'},
-    {header: 'Admin', accessor: 'admin'},
+    // {header: 'Admin', accessor: 'admin'},
     {header: 'Customer Name', accessor: 'customerName'},
     {header: 'Broker Name', accessor: 'brokerName'},
-    {header: 'Transaction ID', accessor: 'transactionId'},
+    // {header: 'Transaction ID', accessor: 'transactionId'},
     {header: 'Stript', accessor: 'stript'},
     {header: 'Order Type', accessor: 'orderType'},
     {header: 'Holding Type', accessor: 'holdingType'},
@@ -42,6 +43,7 @@ const SuperBrokerTransactionLedger = () => {
 
   // Extract data array safely
   const getTransactionData = () => {
+    console.log('transactionLedgerData:', transactionLedgerData);
     if (!transactionLedgerData) return [];
 
     // Handle different possible data structures
@@ -75,7 +77,9 @@ const SuperBrokerTransactionLedger = () => {
   };
 
   const transactionData = getTransactionData();
+  console.log('Transaction Data:', transactionData);
   const filteredData = filterDataByDate(transactionData);
+  console.log('Filtered Data:', filteredData);
   const columns = isExpanded ? expandedColumns : baseColumns;
 
   return (
@@ -89,9 +93,9 @@ const SuperBrokerTransactionLedger = () => {
       <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="">
           <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-            <h3 className="text-lg font-semibold text-black dark:text-white">
+            {/* <h3 className="text-lg font-semibold text-black dark:text-white">
               Ledger Records
-            </h3>
+            </h3> */}
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2">
                 <label className="text-sm font-medium text-black dark:text-white">

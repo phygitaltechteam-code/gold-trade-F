@@ -215,21 +215,46 @@ export const getSuperBrokerDataApi = async () => {
   }
 };
 
+// export const useUpdateBrokerProfile = () => {
+//   const queryClient = useQueryClient();
+
+//   return useMutation({
+//     mutationFn: () => api.put(`/broker/profile`),
+
+//     onSuccess: () => {
+//       toast.success('Super broker profile updated successfully!');
+//       queryClient.invalidateQueries({queryKey: ['brocker']});
+//       queryClient.invalidateQueries({queryKey: ['get-broker']});
+//       queryClient.invalidateQueries({queryKey: ['getbroker-data']});
+//     },
+//     onError: (error: any) => {
+//       const errorMessage =
+//         error?.response?.message || 'Failed to update super broker profile';
+//       toast.error(errorMessage);
+//     },
+//   });
+// };
+
 export const useUpdateBrokerProfile = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => api.put(`/broker/profile`),
-
+    mutationFn: ({ id, data }: { id: string; data: any }) => {
+      const token = getAccessToken();
+      return api.put(`/super-broker/broker/${id}`, data, {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : '',
+        },
+      });
+    },
     onSuccess: () => {
-      toast.success('Super broker profile updated successfully!');
-      queryClient.invalidateQueries({queryKey: ['brocker']});
-      queryClient.invalidateQueries({queryKey: ['get-broker']});
-      queryClient.invalidateQueries({queryKey: ['getbroker-data']});
+      toast.success('Broker profile updated successfully!');
+      queryClient.invalidateQueries({ queryKey: ['get-broker'] });
+      queryClient.invalidateQueries({ queryKey: ['super_brocker'] });
     },
     onError: (error: any) => {
-      const errorMessage =
-        error?.response?.message || 'Failed to update super broker profile';
+      console.error('Update error:', error?.response?.data);
+      const errorMessage = error?.response?.data?.message || 'Failed to update broker profile';
       toast.error(errorMessage);
     },
   });

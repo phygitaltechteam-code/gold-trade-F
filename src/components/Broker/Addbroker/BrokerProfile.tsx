@@ -122,26 +122,56 @@ const BrokerProfile = () => {
     setEditData((prev) => ({...prev, [name]: value}));
   };
 
+  // const handleSave = () => {
+  //   if (!id) {
+  //     toast.error('Broker ID is missing');
+  //     return;
+  //   }
+
+  //   const updatePayload = {
+  //     fullname: editData.fullname,
+  //     phoneNumber: editData.phoneNumber,
+  //     email: editData.email,
+  //     aadharCardNumber: editData.aadharCardNumber,
+  //     brokeragePercent: editData.brokeragePercent,
+  //     area: editData.area,
+  //   };
+
+  //   updateBrokerProfile({
+  //     id: id,
+  //     data: updatePayload,
+  //   });
+  // };
+
   const handleSave = () => {
-    if (!id) {
-      toast.error('Broker ID is missing');
-      return;
-    }
+  if (!id) {
+    toast.error('Broker ID is missing');
+    return;
+  }
 
-    const updatePayload = {
-      fullname: editData.fullname,
-      phoneNumber: editData.phoneNumber,
-      email: editData.email,
-      aadharCardNumber: editData.aadharCardNumber,
-      brokeragePercent: editData.brokeragePercent,
-      area: editData.area,
-    };
-
-    updateBrokerProfile({
-      id: id,
-      data: updatePayload,
-    });
+  const updatePayload = {
+    fullname: editData.fullname,
+    phoneNumber: editData.phoneNumber,
+    email: editData.email,
+    aadharCardNumber: editData.aadharCardNumber,
+    brokeragePercent: editData.brokeragePercent,
+    area: editData.area,
   };
+
+  updateBrokerProfile(
+    { id: id, data: updatePayload },
+    {
+      onSuccess: () => {
+        toast.success('Profile updated successfully!');
+        setIsEditing(false);
+        refetch(); // Refresh the profile data
+      },
+      onError: (error) => {
+        console.error('Update failed:', error);
+      },
+    }
+  );
+};
 
   const handleCancel = () => {
     if (profileData) {
@@ -161,7 +191,7 @@ const BrokerProfile = () => {
   const baseLedgerColumns = [
     {header: 'Sr', accessor: 'sr'},
     {header: 'Date/Time', accessor: 'dateTime'},
-    {header: 'Transaction ID', accessor: 'transactionId'},
+    // {header: 'Transaction ID', accessor: 'transactionId'},
     {header: 'Stript', accessor: 'stript'},
     {header: 'Transaction Amount', accessor: 'transactionAmount'},
     {header: 'Super Broker Commission', accessor: 'superBrokerCommission'},
@@ -173,7 +203,7 @@ const BrokerProfile = () => {
     {header: 'Sr', accessor: 'sr'},
     {header: 'Date/Time', accessor: 'dateTime'},
     {header: 'Customer Name', accessor: 'customerName'},
-    {header: 'Transaction ID', accessor: 'transactionId'},
+    // {header: 'Transaction ID', accessor: 'transactionId'},
     {header: 'Stript', accessor: 'stript'},
     {header: 'Order Type', accessor: 'orderType'},
     {header: 'Holding Type', accessor: 'holdingType'},
@@ -221,24 +251,24 @@ const BrokerProfile = () => {
         <span className="text-gray-700">{item?.user?.phoneNumber || '-'}</span>
       ),
     },
-    {
-      header: 'CRN',
-      accessor: 'CRN',
-      render: (item: any) => (
-        <span className="font-mono text-gray-600 text-sm font-medium">
-          {item?.CRN || '-'}
-        </span>
-      ),
-    },
-    {
-      header: 'Commission',
-      accessor: 'brokeragePercent',
-      render: (item: any) => (
-        <span className="rounded border border-orange-100 bg-orange-50 px-2 py-1 text-xs font-bold text-orange-600">
-          {item?.brokeragePercent ? `${item.brokeragePercent}%` : '-'}
-        </span>
-      ),
-    },
+    // {
+    //   header: 'CRN',
+    //   accessor: 'CRN',
+    //   render: (item: any) => (
+    //     <span className="font-mono text-gray-600 text-sm font-medium">
+    //       {item?.CRN || '-'}
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   header: 'Commission',
+    //   accessor: 'brokeragePercent',
+    //   render: (item: any) => (
+    //     <span className="rounded border border-orange-100 bg-orange-50 px-2 py-1 text-xs font-bold text-orange-600">
+    //       {item?.brokeragePercent ? `${item.brokeragePercent}%` : '-'}
+    //     </span>
+    //   ),
+    // },
     {
       header: 'Address',
       accessor: 'address',
@@ -253,16 +283,16 @@ const BrokerProfile = () => {
       accessor: 'totalBusiness',
       render: () => <span className="text-gray-700">-</span>,
     },
-    {
-      header: 'Total Commission',
-      accessor: 'totalCommission',
-      render: () => <span className="text-gray-700">-</span>,
-    },
-    {
-      header: 'Pending Commission',
-      accessor: 'pendingCommission',
-      render: () => <span className="text-gray-700">-</span>,
-    },
+    // {
+    //   header: 'Total Commission',
+    //   accessor: 'totalCommission',
+    //   render: () => <span className="text-gray-700">-</span>,
+    // },
+    // {
+    //   header: 'Pending Commission',
+    //   accessor: 'pendingCommission',
+    //   render: () => <span className="text-gray-700">-</span>,
+    // },
   ];
 
   // Filter ledger data by date range
@@ -468,7 +498,7 @@ const BrokerProfile = () => {
             </div>
 
             {/* Super Broker - Read Only */}
-            <div>
+            {/* <div>
               <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                 Super Broker
               </label>
@@ -477,7 +507,7 @@ const BrokerProfile = () => {
                   profileData?.superBroker?.fullname ||
                   'Unassigned'}
               </p>
-            </div>
+            </div> */}
 
             {/* Total Customers - Read Only */}
             <div>

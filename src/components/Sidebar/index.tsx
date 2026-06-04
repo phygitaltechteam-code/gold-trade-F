@@ -41,7 +41,8 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
   const location = useLocation();
   const {pathname} = location;
   const {user} = useAuthContext();
-  const {data: profile} = useGetProfile();
+  // const {data: profile} = useGetProfile();
+  
   const isCompany = user?.role === 'COMPANY';
   const isSuperAdmin = user?.role === 'SUPERADMIN';
   const isAdmin = user?.role === 'ADMIN';
@@ -49,6 +50,8 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
   const isCustomer = user?.role === 'CUSTOMER';
   const isSuperBroker =
     user?.role === 'SUPER_BROKER' || user?.role === 'SUPERBROKER';
+
+    const {data: profile} = isCompany ? useGetProfile() : {data: null};
 
   console.log('userrrr', user);
   console.log('isSuperBroker', isSuperBroker);
@@ -119,11 +122,11 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
           path: '/Report/financialReport',
           icon: <BarChart3 size={22} />,
         },
-        {
-          label: 'Admin Registration',
-          path: '/superadmin/superadmin',
-          icon: <UserCog size={22} />,
-        },
+        // {
+        //   label: 'Admin Registration',
+        //   path: '/superadmin/superadmin',
+        //   icon: <UserCog size={22} />,
+        // },
         // {
         //   label: 'Settings',
         //   icon: <Settings size={22} />,

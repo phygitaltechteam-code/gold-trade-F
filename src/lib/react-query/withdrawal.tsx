@@ -28,16 +28,40 @@ export const useApproveWithdrawal = () => {
   });
 };
 
+// export const useRejectWithdrawal = () => {
+//   const queryClient = useQueryClient();
+
+//   return useMutation({
+//     mutationFn: (id: string) => rejectWithdrawal(id),
+
+//     onSuccess: () => {
+//       toast.success('Rejected Succesfully!');
+//       queryClient.invalidateQueries({queryKey: ['withdrawal']});
+//     },
+//     onError: () => {
+//       toast.error('Failed To Reject!');
+//     },
+//   });
+// };
+
+
 export const useRejectWithdrawal = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => rejectWithdrawal(id),
+    mutationFn: ({
+      id,
+      reason,
+    }: {
+      id: string;
+      reason: string;
+    }) => rejectWithdrawal(id, reason),
 
     onSuccess: () => {
-      toast.success('Rejected Succesfully!');
-      queryClient.invalidateQueries({queryKey: ['withdrawal']});
+      toast.success('Rejected Successfully!');
+      queryClient.invalidateQueries({ queryKey: ['withdrawal'] });
     },
+
     onError: () => {
       toast.error('Failed To Reject!');
     },

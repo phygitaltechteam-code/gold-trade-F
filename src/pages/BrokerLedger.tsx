@@ -12,7 +12,7 @@ const BrokerLedger = () => {
   const baseColumns = [
     // {header: 'Transaction Type', accessor: 'sr'},
     {header: 'Date/Time', accessor: 'dateTime'},
-    {header: 'Transaction ID', accessor: 'transactionId'},
+    // {header: 'Transaction ID', accessor: 'transactionId'},
     {header: 'Stript', accessor: 'stript'},
     {header: 'Transaction Amount', accessor: 'transactionAmount'},
     {header: 'Status', accessor: 'status'},
@@ -23,7 +23,7 @@ const BrokerLedger = () => {
     // {header: 'Transaction Type', accessor: 'sr'},
     {header: 'Date/Time', accessor: 'dateTime'},
     {header: 'Customer Name', accessor: 'customerName'},
-    {header: 'Transaction ID', accessor: 'transactionId'},
+    // {header: 'Transaction ID', accessor: 'transactionId'},
     {header: 'Stript', accessor: 'stript'},
     {header: 'Order Type', accessor: 'orderType'},
     {header: 'Holding Type', accessor: 'holdingType'},
@@ -86,9 +86,9 @@ const BrokerLedger = () => {
       <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="">
           <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-            <h3 className="text-lg font-semibold text-black dark:text-white">
+            {/* <h3 className="text-lg font-semibold text-black dark:text-white">
               Ledger Records
-            </h3>
+            </h3> */}
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2">
                 <label className="text-sm font-medium text-black dark:text-white">
