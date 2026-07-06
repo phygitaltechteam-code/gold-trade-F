@@ -8,40 +8,56 @@ const BrokerLedger = () => {
   const [ledgerEndDate, setLedgerEndDate] = useState('');
   const {data: transactionLedgerData} = useGetBrokerTransactionLedger();
 
-  // Simplified view columns
+  // Format quantity/lot as "qty/lotSize"
+  const formatQtyLot = (item) => {
+    if (!item) return '-';
+    const qty = item.qty || item.Qty || 0;
+    const lotSize = item.lotSize || item.lotSize || 0;
+    if (lotSize && lotSize !== qty) {
+      return `${qty}/${lotSize}`;
+    }
+    return qty;
+  };
+
+  // Format P&L with proper sign
+  const formatPnL = (item) => {
+    const pnl = item.pnl || item['p&l'] || 0;
+    if (pnl === 0) return '0';
+    const sign = pnl > 0 ? '+' : '';
+    return `${sign}${pnl}`;
+  };
+
+  // Base columns - shows main information
   const baseColumns = [
-    // {header: 'Transaction Type', accessor: 'sr'},
-    {header: 'Date/Time', accessor: 'dateTime'},
-    // {header: 'Transaction ID', accessor: 'transactionId'},
-    {header: 'Stript', accessor: 'stript'},
-    {header: 'Transaction Amount', accessor: 'transactionAmount'},
+    {header: 'Date & Time', accessor: 'dateTime'},
+    {header: 'Customer Name', accessor: 'customerName'},
+    {header: 'Script', accessor: 'script'},
+    {header: 'Qty/Lot', accessor: (item) => formatQtyLot(item)},
+    {header: 'Buy Price', accessor: 'buyPrice'},
+    {header: 'Sell Price', accessor: 'sellPrice'},
     {header: 'Status', accessor: 'status'},
+    {header: 'P&L', accessor: (item) => formatPnL(item)},
   ];
 
   // Full detailed view columns
   const expandedColumns = [
-    // {header: 'Transaction Type', accessor: 'sr'},
-    {header: 'Date/Time', accessor: 'dateTime'},
+    {header: 'Date & Time', accessor: 'dateTime'},
     {header: 'Customer Name', accessor: 'customerName'},
-    // {header: 'Transaction ID', accessor: 'transactionId'},
-    {header: 'Stript', accessor: 'stript'},
-    {header: 'Order Type', accessor: 'orderType'},
-    {header: 'Holding Type', accessor: 'holdingType'},
-    {header: 'Qty', accessor: 'qty'},
-    {header: 'Price', accessor: 'price'},
+    {header: 'Script', accessor: 'script'},
+    {header: 'Qty/Lot', accessor: (item) => formatQtyLot(item)},
+    {header: 'Buy Price', accessor: 'buyPrice'},
+    {header: 'Sell Price', accessor: 'sellPrice'},
+    {header: 'Buy Time', accessor: 'buyTime'},
+    {header: 'Sell Time', accessor: 'sellTime'},
     {header: 'Status', accessor: 'status'},
-    {header: 'Transaction Amount', accessor: 'transactionAmount'},
-    {header: 'Paid Amount', accessor: 'paidAmount'},
-    {header: 'Margin Amount', accessor: 'marginAmount'},
+    {header: 'P&L', accessor: (item) => formatPnL(item)},
     {header: 'Broker Commission', accessor: 'brokerCommission'},
-    {header: 'Payment Status', accessor: 'paymentStatus'},
   ];
 
   // Extract data array safely
   const getTransactionData = () => {
     if (!transactionLedgerData) return [];
 
-    // Handle different possible data structures
     if (Array.isArray(transactionLedgerData)) return transactionLedgerData;
     if (
       transactionLedgerData.data &&
@@ -63,7 +79,7 @@ const BrokerLedger = () => {
     if (!ledgerStartDate && !ledgerEndDate) return data;
 
     return data.filter((item) => {
-      const itemDate = item.dateTime?.split(' ')[0];
+      const itemDate = item.dateTime?.split('T')[0];
       if (!itemDate) return true;
       if (ledgerStartDate && itemDate < ledgerStartDate) return false;
       if (ledgerEndDate && itemDate > ledgerEndDate) return false;
@@ -86,9 +102,6 @@ const BrokerLedger = () => {
       <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="">
           <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-            {/* <h3 className="text-lg font-semibold text-black dark:text-white">
-              Ledger Records
-            </h3> */}
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2">
                 <label className="text-sm font-medium text-black dark:text-white">

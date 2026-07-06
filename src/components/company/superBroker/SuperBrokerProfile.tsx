@@ -1,18 +1,40 @@
-import React, {useState, useMemo, useEffect} from 'react';
-import {FiEdit2, FiSave, FiX, FiArrowLeft, FiPlus} from 'react-icons/fi';
+import React, { useState, useMemo, useEffect } from 'react';
+import { FiEdit2, FiSave, FiX, FiArrowLeft, FiPlus, FiPrinter } from 'react-icons/fi';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import {
   useGetAllSuperBrockerById,
   useUpdateSuperBrokerProfile,
   useAddCommission,
+  useGetSuperBrokerLedger,
+  useGetSuperBrokerPaymentHistory,
 } from '@/lib/react-query/superbrocker';
-import {Route} from '@/routes/_app/companybroker/SuperbrockerProfile.$id';
-import {useNavigate} from '@tanstack/react-router';
+import { Route } from '@/routes/_app/companybroker/SuperbrockerProfile.$id';
+import { useNavigate } from '@tanstack/react-router';
 import toast from 'react-hot-toast';
-import {Eye, EyeOff} from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
+
+// Format date function
+const formatDateTime = (dateString: string) => {
+  if (!dateString) return 'N/A';
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'N/A';
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    let hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    return `${day}/${month}/${year}, ${hours}:${minutes} ${ampm}`;
+  } catch (error) {
+    return 'N/A';
+  }
+};
 
 const SuperBrokerProfile = () => {
-  const {id} = Route.useParams();
+  const { id } = Route.useParams();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('ledger');
@@ -36,11 +58,23 @@ const SuperBrokerProfile = () => {
     'credit',
   );
 
-  const {data: profileData, refetch} = useGetAllSuperBrockerById(id);
-  const {mutate: updateSuperBrokerProfile, isPending: isUpdating} =
+  const { data: profileData, refetch } = useGetAllSuperBrockerById(id);
+  const { mutate: updateSuperBrokerProfile, isPending: isUpdating } =
     useUpdateSuperBrokerProfile();
-  const {mutate: addCommission, isPending: isCommissionPending} =
+  const { mutate: addCommission, isPending: isCommissionPending } =
     useAddCommission();
+
+  const {
+    data: ledgerDataFromApi,
+    isLoading: isLoadingLedger,
+  } = useGetSuperBrokerLedger(id);
+
+  // Add this after the ledger hook
+  const {
+    data: paymentDataFromApi,
+    isLoading: isLoadingPayment,
+  } = useGetSuperBrokerPaymentHistory(id);
+
 
   const [editData, setEditData] = useState({
     fullname: '',
@@ -87,7 +121,7 @@ const SuperBrokerProfile = () => {
 
   // Initialize dates with current week range
   useEffect(() => {
-    const {startDate, endDate} = getCurrentWeekRange();
+    const { startDate, endDate } = getCurrentWeekRange();
     setLedgerStartDate(startDate);
     setLedgerEndDate(endDate);
     setPaymentStartDate(startDate);
@@ -123,6 +157,13 @@ const SuperBrokerProfile = () => {
     );
   }, [commissionHistoryList]);
 
+  // Calculate pending commission (Total Commission - Paid Commission)
+  const pendingCommission = useMemo(() => {
+    const total = profileData?.totalCommission || 0;
+    const paid = profileData?.paidCommission || 0;
+    return total - paid;
+  }, [profileData?.totalCommission, profileData?.paidCommission]);
+
   // Filter commission history by date range
   const filteredCommissionHistory = useMemo(() => {
     if (!commissionStartDate || !commissionEndDate)
@@ -137,8 +178,63 @@ const SuperBrokerProfile = () => {
   }, [commissionHistoryList, commissionStartDate, commissionEndDate]);
 
   // Mock data for ledger (replace with actual API data)
-  const ledgerData = useMemo(() => [], []);
-  const paymentData = useMemo(() => [], []);
+  const ledgerData = useMemo(() => {
+    if (!ledgerDataFromApi || !Array.isArray(ledgerDataFromApi)) {
+      return [];
+    }
+
+    // Helper to format commission values
+    const formatCommission = (value: any) => {
+      if (value === null || value === undefined || isNaN(Number(value))) return '-';
+      return `₹${Number(value).toFixed(2)}`;
+    };
+
+    return ledgerDataFromApi.map((item: any) => ({
+      rawDateTime: item.dateTime,
+      dateTime: formatDateTime(item.dateTime),
+      customerName: item.customerName || item.customername || '-',
+      script: item.script || '-',
+      qty: item.qty && item.lotSize ? `${item.qty}/${item.lotSize}` : item.qty || '-',
+      buyPrice: item.buyPrice ? `₹${Number(item.buyPrice).toFixed(2)}` : '-',
+      sellPrice: item.sellPrice ? `₹${Number(item.sellPrice).toFixed(2)}` : '-',
+      status: item.status || 'Pending',
+      pnl: item.pnl ? `₹${Number(item.pnl).toFixed(2)}` : item['p&l'] ? `₹${Number(item['p&l']).toFixed(2)}` : '-',
+      buyTime: item.buyTime ? formatDateTime(item.buyTime) : '-',
+      sellTime: item.sellTime ? formatDateTime(item.sellTime) : '-',
+      superBrokerCommission: formatCommission(item.superBrokerCommission || item.superbrokercommission),
+      orderType: item.orderType || '-',
+      holdingType: item.holdingType || '-',
+      price: item.price ? `₹${Number(item.price).toFixed(2)}` : '-',
+      paidAmount: item.paidAmount ? `₹${Number(item.paidAmount).toFixed(2)}` : '-',
+      marginAmount: item.marginAmount ? `₹${Number(item.marginAmount).toFixed(2)}` : '-',
+      transactionAmount: item.transactionAmount ? `₹${Number(item.transactionAmount).toFixed(2)}` : '-',
+      paymentStatus: item.paymentStatus || '-',
+      transactionId: item.transactionId || '-',
+    }));
+  }, [ledgerDataFromApi]);
+
+  // const paymentData = useMemo(() => [], []);
+
+  const paymentData = useMemo(() => {
+    if (!paymentDataFromApi || !Array.isArray(paymentDataFromApi)) {
+      return [];
+    }
+
+    // Transform based on your actual API response structure
+    return paymentDataFromApi.map((item: any) => ({
+      rawDate: item.date || item.createdAt || item.paymentDate,
+      date: formatDateTime(item.date || item.createdAt || item.paymentDate),
+      commissionGenerated: item.commissionGenerated || item.totalCommission || 0,
+      PendingCommission: item.pendingCommission || item.dueAmount || 0,
+      paidcommission: item.paidCommission || item.paidAmount || 0,
+      paidDate: item.paidDate ? formatDateTime(item.paidDate) : '-',
+      status: item.status || item.paymentStatus || 'Pending',
+      // Keep any additional fields you might need
+      transactionId: item.transactionId || '-',
+      paymentMethod: item.paymentMethod || '-',
+      note: item.note || '-',
+    }));
+  }, [paymentDataFromApi]);
 
   const ledgerDataWithSr = useMemo(() => {
     return ledgerData.map((item: any, index: number) => ({
@@ -155,30 +251,27 @@ const SuperBrokerProfile = () => {
   }, [paymentData]);
 
   const baseLedgerColumns = [
-    {header: 'Date/Time', accessor: 'dateTime'},
-    {header: 'Transaction ID', accessor: 'transactionId'},
-    {header: 'Stript', accessor: 'stript'},
-    {header: 'Transaction Amount', accessor: 'transactionAmount'},
-    {header: 'Super Broker Commission', accessor: 'superBrokerCommission'},
-    {header: 'Status', accessor: 'status'},
+    { header: 'Date & Time', accessor: 'dateTime' },
+    { header: 'Customer Name', accessor: 'customerName' },
+    { header: 'Script', accessor: 'script' },
+    { header: 'Qty/Lot', accessor: 'qty' },
+    { header: 'Buy Price', accessor: 'buyPrice' },
+    { header: 'Sell Price', accessor: 'sellPrice' },
+    { header: 'Status', accessor: 'status' },
+    { header: 'P&L', accessor: 'pnl' },
   ];
 
   const expandedLedgerColumns = [
-    {header: 'Date/Time', accessor: 'dateTime'},
-    {header: 'Customer Name', accessor: 'customerName'},
-    {header: 'Transaction ID', accessor: 'transactionId'},
-    {header: 'Stript', accessor: 'stript'},
-    {header: 'Order Type', accessor: 'orderType'},
-    {header: 'Holding Type', accessor: 'holdingType'},
-    {header: 'Qty', accessor: 'qty'},
-    {header: 'Price', accessor: 'price'},
-    {header: 'Status', accessor: 'status'},
-    {header: 'Transaction Amount', accessor: 'transactionAmount'},
-    {header: 'Paid Amount', accessor: 'paidAmount'},
-    {header: 'Margin Amount', accessor: 'marginAmount'},
-    {header: 'Total Commission', accessor: 'totalCommission'},
-    {header: 'Broker Commission', accessor: 'brokerCommission'},
-    {header: 'Payment Status', accessor: 'paymentStatus'},
+    { header: 'Customer Name', accessor: 'customerName' },
+    { header: 'Script', accessor: 'script' },
+    { header: 'Qty/Lot', accessor: 'qty' },
+    { header: 'Buy Price', accessor: 'buyPrice' },
+    { header: 'Sell Price', accessor: 'sellPrice' },
+    { header: 'Buy Time', accessor: 'buyTime' },
+    { header: 'Sell Time', accessor: 'sellTime' },
+    { header: 'Status', accessor: 'status' },
+    { header: 'P&L', accessor: 'pnl' },
+    { header: 'Super Broker commission', accessor: 'superBrokerCommission' },
   ];
 
   const ledgerColumns = isLedgerExpanded
@@ -186,16 +279,49 @@ const SuperBrokerProfile = () => {
     : baseLedgerColumns;
 
   const paymentColumns = [
-    {header: 'Date', accessor: 'date'},
-    {header: 'Commission Generated', accessor: 'commissionGenerated'},
-    {header: 'Paid Amount', accessor: 'paidAmount'},
-    {header: 'Paid Date', accessor: 'paidDate'},
-    {header: 'Status', accessor: 'status'},
-  ];
+  { header: 'S.No', accessor: 'sr' },
+  { 
+    header: 'Date', 
+    accessor: 'date',
+    render: (item: any) => <span>{item.date}</span>
+  },
+  { 
+    header: 'Commission Generated', 
+    accessor: 'commissionGenerated',
+    render: (item: any) => <span>₹{item.commissionGenerated?.toLocaleString() || '0'}</span>
+  },
+  { 
+    header: 'Pending Commission', 
+    accessor: 'PendingCommission',
+    render: (item: any) => <span>₹{item.PendingCommission?.toLocaleString() || '0'}</span>
+  },
+  { 
+    header: 'Paid Commission', 
+    accessor: 'paidcommission',
+    render: (item: any) => <span>₹{item.paidcommission?.toLocaleString() || '0'}</span>
+  },
+  { 
+    header: 'Paid Date', 
+    accessor: 'paidDate' 
+  },
+  { 
+    header: 'Status', 
+    accessor: 'status',
+    render: (item: any) => (
+      <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+        item.status === 'Paid' ? 'bg-green-100 text-green-700' :
+        item.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
+        'bg-gray-100 text-gray-700'
+      }`}>
+        {item.status}
+      </span>
+    )
+  },
+];
 
   // Commission History Columns
   const commissionColumns = [
-    {header: 'S.No', accessor: 'srNo'},
+    { header: 'S.No', accessor: 'srNo' },
     {
       header: 'Date & Time',
       accessor: 'createdAt',
@@ -203,12 +329,12 @@ const SuperBrokerProfile = () => {
         <span className="text-sm">
           {item.createdAt
             ? new Date(item.createdAt).toLocaleString('en-IN', {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              })
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })
             : '-'}
         </span>
       ),
@@ -291,8 +417,8 @@ const SuperBrokerProfile = () => {
   ];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const {name, value} = e.target;
-    setEditData((prev) => ({...prev, [name]: value}));
+    const { name, value } = e.target;
+    setEditData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSave = () => {
@@ -301,7 +427,6 @@ const SuperBrokerProfile = () => {
       return;
     }
 
-    // Validate password if being updated
     if (editData.password && editData.password.length < 6) {
       toast.error('Password must be at least 6 characters long');
       return;
@@ -315,7 +440,6 @@ const SuperBrokerProfile = () => {
       aadharCardNumber: editData.aadharCardNumber,
     };
 
-    // Only include password if it's being updated
     if (editData.password) {
       updatePayload.password = editData.password;
     }
@@ -356,10 +480,9 @@ const SuperBrokerProfile = () => {
   };
 
   const handleBack = () => {
-    navigate({to: '/companybroker/DisplaySuperBroker'});
+    navigate({ to: '/companybroker/DisplaySuperBroker' });
   };
 
-  // Handle Commission Submit - This adds to commission history
   const handleCommissionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -407,35 +530,229 @@ const SuperBrokerProfile = () => {
     );
   };
 
-  // Filter ledger data by date range
   const filteredLedgerData = useMemo(() => {
     if (!ledgerStartDate || !ledgerEndDate) return ledgerDataWithSr;
     return ledgerDataWithSr.filter((item: any) => {
-      const itemDate = new Date(item.dateTime);
+      const itemDate = new Date(item.rawDateTime);
       const startDate = new Date(ledgerStartDate);
       const endDate = new Date(ledgerEndDate);
+      startDate.setHours(0, 0, 0, 0);
+      endDate.setHours(23, 59, 59, 999);
       return itemDate >= startDate && itemDate <= endDate;
     });
   }, [ledgerDataWithSr, ledgerStartDate, ledgerEndDate]);
 
-  // Filter payment data by date range
   const filteredPaymentData = useMemo(() => {
     if (!paymentStartDate || !paymentEndDate) return paymentDataWithSr;
     return paymentDataWithSr.filter((item: any) => {
-      const itemDate = new Date(item.date);
+      const itemDate = new Date(item.rawDate); // Use the raw date field
       const startDate = new Date(paymentStartDate);
       const endDate = new Date(paymentEndDate);
+      startDate.setHours(0, 0, 0, 0);
+      endDate.setHours(23, 59, 59, 999);
       return itemDate >= startDate && itemDate <= endDate;
     });
   }, [paymentDataWithSr, paymentStartDate, paymentEndDate]);
 
-  // Show commission amount in popup
   const handleOpenCommissionModal = () => {
-    if (profileData?.pendingCommission && profileData.pendingCommission > 0) {
-      setCommissionAmount(profileData.pendingCommission.toString());
+    if (pendingCommission > 0) {
+      setCommissionAmount(pendingCommission.toString());
     }
     setIsCommissionModalOpen(true);
   };
+
+  // ========== PRINT ONLY ACTIVE TAB TABLE ==========
+  const handlePrintTables = () => {
+    // Get the active table data based on current tab
+    let tableData: any[] = [];
+    let tableColumns: any[] = [];
+    let tableTitle = '';
+    let dateRange = '';
+
+    switch (activeTab) {
+      case 'ledger':
+        tableData = filteredLedgerData;
+        tableColumns = isLedgerExpanded ? expandedLedgerColumns : baseLedgerColumns;
+        tableTitle = 'Ledger Records';
+        dateRange = ledgerStartDate && ledgerEndDate ? `(${ledgerStartDate} to ${ledgerEndDate})` : '';
+        break;
+      case 'payment':
+        tableData = filteredPaymentData;
+        tableColumns = paymentColumns;
+        tableTitle = 'Payment History';
+        dateRange = paymentStartDate && paymentEndDate ? `(${paymentStartDate} to ${paymentEndDate})` : '';
+        break;
+      case 'broker':
+        tableData = brokersList;
+        tableColumns = brokerColumns;
+        tableTitle = 'Brokers List';
+        break;
+      // case 'commission':  // COMMENTED OUT - Remove this case
+      //   tableData = filteredCommissionHistory;
+      //   tableColumns = commissionColumns;
+      //   tableTitle = 'Commission History';
+      //   dateRange = commissionStartDate && commissionEndDate ? `(${commissionStartDate} to ${commissionEndDate})` : '';
+      //   break;
+      default:
+        toast.error('No data available to print');
+        return;
+    }
+
+    // Check if there's data to print
+    if (tableData.length === 0) {
+      toast.error(`No ${tableTitle} data available to print`);
+      return;
+    }
+
+    // Create print container
+    const printContainer = document.createElement('div');
+    printContainer.id = 'print-tables';
+    printContainer.style.cssText = 'padding: 20px; font-family: Arial, sans-serif; background: white;';
+
+    // Helper to get value from item
+    const getValue = (item: any, accessor: string) => {
+      if (accessor === 'srNo') return item.srNo || '-';
+      if (accessor === 'dateTime') return item.dateTime || '-';
+      if (accessor === 'createdAt') {
+        return item.createdAt ? new Date(item.createdAt).toLocaleString('en-IN', {
+          day: '2-digit', month: 'short', year: 'numeric',
+          hour: '2-digit', minute: '2-digit'
+        }) : '-';
+      }
+      if (accessor === 'amountValue') {
+        return `₹${item.amountValue?.toLocaleString('en-IN') || '0'}`;
+      }
+      if (accessor === 'type') {
+        return item.type === 'TRANSFER' ? 'Commission Transfer' : item.type || '-';
+      }
+      if (accessor === 'user.fullname') return item?.user?.fullname || '-';
+      if (accessor === 'user.phoneNumber') return item?.user?.phoneNumber || '-';
+      if (accessor === 'BKId') return item?.BKId || '-';
+      if (accessor === 'commission') return item?.commission ? `${item.commission}%` : '-';
+      if (accessor === 'totalBrokers' || accessor === 'totalBusiness' ||
+        accessor === 'totalCommission' || accessor === 'pendingCommission') {
+        return '-';
+      }
+      if (accessor.includes('.')) {
+        const parts = accessor.split('.');
+        let value = item;
+        for (const part of parts) {
+          value = value?.[part];
+          if (value === undefined || value === null) break;
+        }
+        return value || '-';
+      }
+      return item[accessor] || '-';
+    };
+
+    // Generate table HTML
+    const generateTable = (title: string, data: any[], columns: any[], range?: string) => {
+      let html = `
+      <div style="margin-bottom: 25px; page-break-inside: avoid;">
+        <div style="font-size: 16px; font-weight: bold; margin-bottom: 10px; color: #1a1a1a;">
+          ${title} ${range || ''}
+        </div>
+        <div style="font-size: 12px; color: #666; margin-bottom: 10px;">
+          Total Records: ${data.length}
+        </div>
+        <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+          <thead>
+            <tr>
+    `;
+
+      // Render headers with uppercase
+      columns.forEach((col: any) => {
+        html += `<th style="border: 1px solid #000; padding: 6px 8px; text-align: left; font-weight: bold; background: #f0f0f0; color: #1a4d2e; text-transform: uppercase; font-size: 10px;">${col.header}</th>`;
+      });
+
+      html += `</tr></thead><tbody>`;
+
+      data.forEach((item) => {
+        html += `<tr>`;
+        columns.forEach((col: any) => {
+          let value = getValue(item, col.accessor);
+          if (typeof value === 'string' && value.length > 35) {
+            value = value.substring(0, 35) + '...';
+          }
+          html += `<td style="border: 1px solid #000; padding: 6px 8px; color: #000;">${value}</td>`;
+        });
+        html += `</tr>`;
+      });
+
+      html += `</tbody></table></div>`;
+      return html;
+    };
+
+    // Build print content - ONLY CURRENT TAB
+    let html = '';
+
+    // Add CSS to hide everything except tables
+    html += `
+    <style>
+      @media print {
+        body * {
+          visibility: hidden !important;
+        }
+        #print-tables, #print-tables * {
+          visibility: visible !important;
+        }
+        #print-tables {
+          position: absolute !important;
+          left: 0 !important;
+          top: 0 !important;
+          width: 100% !important;
+          background: white !important;
+          padding: 20px !important;
+          z-index: 99999 !important;
+        }
+        /* Hide any stray elements */
+        .no-print, button, nav, header, footer {
+          display: none !important;
+        }
+       th {
+        background-color: #f0f0f0 !important;
+        color: #1a4d2e !important;
+        }
+      }
+    </style>
+  `;
+
+    // Add title with super broker name if available
+    if (profileData?.fullname) {
+      html += `
+      <div style="text-align: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #ddd;">
+        <div style="font-size: 20px; font-weight: bold; color: #1a1a1a;">Super Broker: ${profileData.fullname}</div>
+        <div style="font-size: 12px; color: #666; margin-top: 4px;">BK ID: ${profileData.BKId || 'N/A'}</div>
+        <div style="font-size: 11px; color: #888; margin-top: 4px;">Printed: ${new Date().toLocaleString()}</div>
+      </div>
+    `;
+    }
+
+    // Generate the table for the active tab only
+    html += generateTable(tableTitle, tableData, tableColumns, dateRange);
+
+    printContainer.innerHTML = html;
+
+    // Remove any existing print container
+    const existingContainer = document.getElementById('print-tables');
+    if (existingContainer) {
+      existingContainer.remove();
+    }
+
+    document.body.appendChild(printContainer);
+
+    // Print
+    window.print();
+
+    // Remove after printing
+    setTimeout(() => {
+      const el = document.getElementById('print-tables');
+      if (el && el.parentNode) {
+        el.parentNode.removeChild(el);
+      }
+    }, 1000);
+  };
+  // ========== END PRINT FUNCTION ==========
 
   return (
     <div className="max-w-9xl mx-auto p-4 md:p-6">
@@ -465,13 +782,12 @@ const SuperBrokerProfile = () => {
             </button>
           ) : (
             <div className="flex gap-2">
-                            <button
+              <button
                 onClick={handleCancel}
                 className="hover:bg-gray-100 flex items-center gap-2 rounded bg-white px-3 py-1.5 text-sm font-medium text-red-500 transition-colors md:px-4 md:py-2"
               >
                 <FiX className="h-3 w-3 md:h-4 md:w-4" /> Cancel
               </button>
-              
               <button
                 onClick={handleSave}
                 disabled={isUpdating}
@@ -480,14 +796,12 @@ const SuperBrokerProfile = () => {
                 <FiSave className="h-3 w-3 md:h-4 md:w-4" />{' '}
                 {isUpdating ? 'Saving...' : 'Save'}
               </button>
-
             </div>
           )}
         </div>
 
         <div className="p-4 md:p-6">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
-            {/* Full Name - Editable */}
             <div>
               <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                 Full Name
@@ -507,7 +821,6 @@ const SuperBrokerProfile = () => {
               )}
             </div>
 
-            {/* BK ID - Read Only */}
             <div>
               <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                 BK ID
@@ -517,7 +830,6 @@ const SuperBrokerProfile = () => {
               </p>
             </div>
 
-            {/* Phone Number - Editable */}
             <div>
               <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                 Phone Number
@@ -537,7 +849,6 @@ const SuperBrokerProfile = () => {
               )}
             </div>
 
-            {/* Email - Read Only */}
             <div>
               <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                 Email
@@ -547,7 +858,6 @@ const SuperBrokerProfile = () => {
               </p>
             </div>
 
-            {/* Aadhar Number - Editable */}
             <div>
               <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                 Aadhar Number
@@ -567,7 +877,6 @@ const SuperBrokerProfile = () => {
               )}
             </div>
 
-            {/* Commission % - Editable */}
             <div>
               <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                 Commission (%)
@@ -588,7 +897,6 @@ const SuperBrokerProfile = () => {
               )}
             </div>
 
-            {/* Area - Editable */}
             <div>
               <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                 Area
@@ -608,7 +916,6 @@ const SuperBrokerProfile = () => {
               )}
             </div>
 
-            {/* Total Brokers - Read Only */}
             <div>
               <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                 Total Brokers
@@ -618,7 +925,6 @@ const SuperBrokerProfile = () => {
               </p>
             </div>
 
-            {/* Password Field - Only visible in edit mode */}
             {isEditing && (
               <div>
                 <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
@@ -671,7 +977,7 @@ const SuperBrokerProfile = () => {
         </div>
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-orange-500 md:text-2xl">
-            ₹{profileData?.pendingCommission?.toLocaleString() || '0'}
+            ₹{pendingCommission.toLocaleString('en-IN')}
           </h4>
           <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
             Pending Commission
@@ -693,47 +999,50 @@ const SuperBrokerProfile = () => {
           <div className="flex">
             <button
               onClick={() => setActiveTab('ledger')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
-                activeTab === 'ledger'
-                  ? 'border-b-2 border-orange-500 text-orange-500'
-                  : 'text-bodydark2'
-              }`}
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'ledger'
+                ? 'border-b-2 border-orange-500 text-orange-500'
+                : 'text-bodydark2'
+                }`}
             >
               Ledger
             </button>
             <button
               onClick={() => setActiveTab('payment')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
-                activeTab === 'payment'
-                  ? 'border-b-2 border-orange-500 text-orange-500'
-                  : 'text-bodydark2'
-              }`}
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'payment'
+                ? 'border-b-2 border-orange-500 text-orange-500'
+                : 'text-bodydark2'
+                }`}
             >
               Payment History
             </button>
-            <button
+            {/* <button
               onClick={() => setActiveTab('commission')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
-                activeTab === 'commission'
-                  ? 'border-b-2 border-orange-500 text-orange-500'
-                  : 'text-bodydark2'
-              }`}
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'commission'
+                ? 'border-b-2 border-orange-500 text-orange-500'
+                : 'text-bodydark2'
+                }`}
             >
               Commission History (
               {profileData?.commissionHistories?.length || 0})
-            </button>
+            </button> */}
             <button
               onClick={() => setActiveTab('broker')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
-                activeTab === 'broker'
-                  ? 'border-b-2 border-orange-500 text-orange-500'
-                  : 'text-bodydark2'
-              }`}
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'broker'
+                ? 'border-b-2 border-orange-500 text-orange-500'
+                : 'text-bodydark2'
+                }`}
             >
               Brokers ({profileData?.brokers?.length || 0})
             </button>
           </div>
-          <div className="px-4 py-2">
+          <div className="flex items-center gap-2 px-4 py-2">
+            <button
+              onClick={handlePrintTables}
+              className="flex items-center gap-2 rounded-lg bg-orange-500 px-3 py-1.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-orange-600 md:px-4 md:py-2"
+            >
+              <FiPrinter className="h-4 w-4" />
+              Print
+            </button>
             <button
               onClick={handleOpenCommissionModal}
               className="flex items-center gap-2 rounded-lg bg-orange-500 px-3 py-1.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-orange-600 md:px-4 md:py-2"
@@ -782,11 +1091,17 @@ const SuperBrokerProfile = () => {
                   </button>
                 </div>
               </div>
-              <GenericTable
-                data={filteredLedgerData}
-                columns={ledgerColumns}
-                paginationOff={true}
-              />
+              {isLoadingLedger ? (
+                <div className="flex justify-center py-8">
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
+                </div>
+              ) : (
+                <GenericTable
+                  data={filteredLedgerData}
+                  columns={ledgerColumns}
+                  paginationOff={true}
+                />
+              )}
             </div>
           )}
 
@@ -819,10 +1134,11 @@ const SuperBrokerProfile = () => {
                       className="rounded border border-stroke bg-transparent px-2 py-1 text-xs outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-3 md:py-1 md:text-sm"
                     />
                   </div>
+                  
                   {(paymentStartDate || paymentEndDate) && (
                     <button
                       onClick={() => {
-                        const {startDate, endDate} = getCurrentWeekRange();
+                        const { startDate, endDate } = getCurrentWeekRange();
                         setPaymentStartDate(startDate);
                         setPaymentEndDate(endDate);
                       }}
@@ -909,7 +1225,6 @@ const SuperBrokerProfile = () => {
               Commission Transaction
             </h3>
 
-            {/* Show current financial summary */}
             <div className="mb-4 space-y-2 rounded-lg border border-blue-100 bg-blue-50 p-3">
               <p className="text-sm font-medium text-blue-800">
                 Current Financial Summary
@@ -925,13 +1240,12 @@ const SuperBrokerProfile = () => {
               </div>
             </div>
 
-            {/* Show pending commission info for this transaction */}
-            {profileData?.pendingCommission > 0 && (
+            {pendingCommission > 0 && (
               <div className="mb-4 rounded-lg border border-orange-100 bg-orange-50 p-3">
                 <p className="text-sm text-orange-700">
                   Current Pending Amount:{' '}
                   <strong>
-                    ₹{profileData.pendingCommission.toLocaleString('en-IN')}
+                    ₹{pendingCommission.toLocaleString('en-IN')}
                   </strong>
                 </p>
                 <p className="mt-1 text-xs text-orange-600">
@@ -944,22 +1258,20 @@ const SuperBrokerProfile = () => {
               <button
                 type="button"
                 onClick={() => setCommissionType('credit')}
-                className={`rounded-lg py-2 text-sm font-semibold transition-all ${
-                  commissionType === 'credit'
-                    ? 'bg-white text-orange-500 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-800'
-                }`}
+                className={`rounded-lg py-2 text-sm font-semibold transition-all ${commissionType === 'credit'
+                  ? 'bg-white text-orange-500 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-800'
+                  }`}
               >
                 Credit (+)
               </button>
               <button
                 type="button"
                 onClick={() => setCommissionType('debit')}
-                className={`rounded-lg py-2 text-sm font-semibold transition-all ${
-                  commissionType === 'debit'
-                    ? 'bg-white text-orange-500 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-800'
-                }`}
+                className={`rounded-lg py-2 text-sm font-semibold transition-all ${commissionType === 'debit'
+                  ? 'bg-white text-orange-500 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-800'
+                  }`}
               >
                 Debit (-)
               </button>

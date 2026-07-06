@@ -57,6 +57,7 @@ import { Route as AppSuperadminSuperadminImport } from './routes/_app/superadmin
 import { Route as AppEprivateStatementImport } from './routes/_app/eprivate/statement'
 import { Route as AppEprivateEprivatereportsImport } from './routes/_app/eprivate/eprivatereports'
 import { Route as AppCompanybrokerDisplaybrokerImport } from './routes/_app/companybroker/displaybroker'
+import { Route as AppCompanybrokerCompanyaddcustomerImport } from './routes/_app/companybroker/companyaddcustomer'
 import { Route as AppCompanybrokerBrokerprofileImport } from './routes/_app/companybroker/brokerprofile'
 import { Route as AppCompanybrokerAddbrokerImport } from './routes/_app/companybroker/addbroker'
 import { Route as AppCompanybrokerAddSuperBrockerImport } from './routes/_app/companybroker/addSuperBrocker'
@@ -390,6 +391,13 @@ const AppCompanybrokerDisplaybrokerRoute =
   AppCompanybrokerDisplaybrokerImport.update({
     id: '/companybroker/displaybroker',
     path: '/companybroker/displaybroker',
+    getParentRoute: () => AppRoute,
+  } as any)
+
+const AppCompanybrokerCompanyaddcustomerRoute =
+  AppCompanybrokerCompanyaddcustomerImport.update({
+    id: '/companybroker/companyaddcustomer',
+    path: '/companybroker/companyaddcustomer',
     getParentRoute: () => AppRoute,
   } as any)
 
@@ -1219,6 +1227,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCompanybrokerBrokerprofileImport
       parentRoute: typeof AppImport
     }
+    '/_app/companybroker/companyaddcustomer': {
+      id: '/_app/companybroker/companyaddcustomer'
+      path: '/companybroker/companyaddcustomer'
+      fullPath: '/companybroker/companyaddcustomer'
+      preLoaderRoute: typeof AppCompanybrokerCompanyaddcustomerImport
+      parentRoute: typeof AppImport
+    }
     '/_app/companybroker/displaybroker': {
       id: '/_app/companybroker/displaybroker'
       path: '/companybroker/displaybroker'
@@ -1493,6 +1508,7 @@ interface AppRouteChildren {
   AppCompanybrokerAddSuperBrockerRoute: typeof AppCompanybrokerAddSuperBrockerRoute
   AppCompanybrokerAddbrokerRoute: typeof AppCompanybrokerAddbrokerRoute
   AppCompanybrokerBrokerprofileRoute: typeof AppCompanybrokerBrokerprofileRoute
+  AppCompanybrokerCompanyaddcustomerRoute: typeof AppCompanybrokerCompanyaddcustomerRoute
   AppCompanybrokerDisplaybrokerRoute: typeof AppCompanybrokerDisplaybrokerRoute
   AppEprivateEprivatereportsRoute: typeof AppEprivateEprivatereportsRoute
   AppEprivateStatementRoute: typeof AppEprivateStatementRoute
@@ -1586,6 +1602,8 @@ const AppRouteChildren: AppRouteChildren = {
   AppCompanybrokerAddSuperBrockerRoute: AppCompanybrokerAddSuperBrockerRoute,
   AppCompanybrokerAddbrokerRoute: AppCompanybrokerAddbrokerRoute,
   AppCompanybrokerBrokerprofileRoute: AppCompanybrokerBrokerprofileRoute,
+  AppCompanybrokerCompanyaddcustomerRoute:
+    AppCompanybrokerCompanyaddcustomerRoute,
   AppCompanybrokerDisplaybrokerRoute: AppCompanybrokerDisplaybrokerRoute,
   AppEprivateEprivatereportsRoute: AppEprivateEprivatereportsRoute,
   AppEprivateStatementRoute: AppEprivateStatementRoute,
@@ -1720,6 +1738,7 @@ export interface FileRoutesByFullPath {
   '/companybroker/addSuperBrocker': typeof AppCompanybrokerAddSuperBrockerRoute
   '/companybroker/addbroker': typeof AppCompanybrokerAddbrokerRoute
   '/companybroker/brokerprofile': typeof AppCompanybrokerBrokerprofileRoute
+  '/companybroker/companyaddcustomer': typeof AppCompanybrokerCompanyaddcustomerRoute
   '/companybroker/displaybroker': typeof AppCompanybrokerDisplaybrokerRoute
   '/eprivate/eprivatereports': typeof AppEprivateEprivatereportsRoute
   '/eprivate/statement': typeof AppEprivateStatementRoute
@@ -1817,6 +1836,7 @@ export interface FileRoutesByTo {
   '/companybroker/addSuperBrocker': typeof AppCompanybrokerAddSuperBrockerRoute
   '/companybroker/addbroker': typeof AppCompanybrokerAddbrokerRoute
   '/companybroker/brokerprofile': typeof AppCompanybrokerBrokerprofileRoute
+  '/companybroker/companyaddcustomer': typeof AppCompanybrokerCompanyaddcustomerRoute
   '/companybroker/displaybroker': typeof AppCompanybrokerDisplaybrokerRoute
   '/eprivate/eprivatereports': typeof AppEprivateEprivatereportsRoute
   '/eprivate/statement': typeof AppEprivateStatementRoute
@@ -1919,6 +1939,7 @@ export interface FileRoutesById {
   '/_app/companybroker/addSuperBrocker': typeof AppCompanybrokerAddSuperBrockerRoute
   '/_app/companybroker/addbroker': typeof AppCompanybrokerAddbrokerRoute
   '/_app/companybroker/brokerprofile': typeof AppCompanybrokerBrokerprofileRoute
+  '/_app/companybroker/companyaddcustomer': typeof AppCompanybrokerCompanyaddcustomerRoute
   '/_app/companybroker/displaybroker': typeof AppCompanybrokerDisplaybrokerRoute
   '/_app/eprivate/eprivatereports': typeof AppEprivateEprivatereportsRoute
   '/_app/eprivate/statement': typeof AppEprivateStatementRoute
@@ -2018,6 +2039,7 @@ export interface FileRouteTypes {
     | '/companybroker/addSuperBrocker'
     | '/companybroker/addbroker'
     | '/companybroker/brokerprofile'
+    | '/companybroker/companyaddcustomer'
     | '/companybroker/displaybroker'
     | '/eprivate/eprivatereports'
     | '/eprivate/statement'
@@ -2114,6 +2136,7 @@ export interface FileRouteTypes {
     | '/companybroker/addSuperBrocker'
     | '/companybroker/addbroker'
     | '/companybroker/brokerprofile'
+    | '/companybroker/companyaddcustomer'
     | '/companybroker/displaybroker'
     | '/eprivate/eprivatereports'
     | '/eprivate/statement'
@@ -2214,6 +2237,7 @@ export interface FileRouteTypes {
     | '/_app/companybroker/addSuperBrocker'
     | '/_app/companybroker/addbroker'
     | '/_app/companybroker/brokerprofile'
+    | '/_app/companybroker/companyaddcustomer'
     | '/_app/companybroker/displaybroker'
     | '/_app/eprivate/eprivatereports'
     | '/_app/eprivate/statement'
@@ -2340,6 +2364,7 @@ export const routeTree = rootRoute
         "/_app/companybroker/addSuperBrocker",
         "/_app/companybroker/addbroker",
         "/_app/companybroker/brokerprofile",
+        "/_app/companybroker/companyaddcustomer",
         "/_app/companybroker/displaybroker",
         "/_app/eprivate/eprivatereports",
         "/_app/eprivate/statement",
@@ -2645,6 +2670,10 @@ export const routeTree = rootRoute
     },
     "/_app/companybroker/brokerprofile": {
       "filePath": "_app/companybroker/brokerprofile.tsx",
+      "parent": "/_app"
+    },
+    "/_app/companybroker/companyaddcustomer": {
+      "filePath": "_app/companybroker/companyaddcustomer.tsx",
       "parent": "/_app"
     },
     "/_app/companybroker/displaybroker": {

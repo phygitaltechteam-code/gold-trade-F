@@ -334,15 +334,15 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
         <h1 className="text-2xl font-semibold text-slate-900 md:text-3xl">
           Client Management
         </h1>
-        {isBroker && (
+      
           <button
-            onClick={() => navigate({to: '/broker/addcustomer'})}
+            onClick={() => navigate({to: '/companybroker/companyaddcustomer'})}
             className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:scale-[1.02] hover:from-orange-600 hover:to-red-600"
           >
             <Plus className="h-4 w-4" />
             Add Customer
           </button>
-        )}
+
       </div>
 
       {/* Stats Cards Grid - 6 cards */}

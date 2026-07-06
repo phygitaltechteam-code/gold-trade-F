@@ -168,3 +168,41 @@ export const updateSuperBrokerProfile = async (
     throw error;
   }
 };
+
+// Get super broker ledger data
+export const getSuperBrokerLedger = async (superBrokerId: string) => {
+  try {
+    const response = await api.get(`/company/super-broker/ledger/${superBrokerId}`);
+    return response.data?.data || [];
+  } catch (error) {
+    console.error('Error fetching super broker ledger:', error);
+    throw error;
+  }
+};
+
+// Get super broker ledger data - Hook
+export const useGetSuperBrokerLedger = (superBrokerId: string) =>
+  useQuery({
+    queryKey: ['super-broker-ledger', superBrokerId],
+    queryFn: () => getSuperBrokerLedger(superBrokerId),
+    enabled: !!superBrokerId,
+  });
+
+// Get super broker payment history
+export const getSuperBrokerPaymentHistory = async (superBrokerId: string) => {
+  try {
+    const response = await api.get(`company/super-broker/report/${superBrokerId}`);
+    return response.data?.data || [];
+  } catch (error) {
+    console.error('Error fetching super broker payment history:', error);
+    throw error;
+  }
+};
+
+// Get super broker payment history - Hook
+export const useGetSuperBrokerPaymentHistory = (superBrokerId: string) =>
+  useQuery({
+    queryKey: ['super-broker-payment-history', superBrokerId],
+    queryFn: () => getSuperBrokerPaymentHistory(superBrokerId),
+    enabled: !!superBrokerId,
+  });

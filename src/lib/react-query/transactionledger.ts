@@ -21,3 +21,11 @@ export const useGetBrokerTransactionLedger = () => {
     queryFn: () => api.get('/broker/transaction-ledger'),
   });
 };
+
+// export const useGetSuperBrokerSideTransactionLedger = () => {
+//   return useQuery({
+//     queryKey: ['super-broker-transaction-ledger'],
+//     queryFn: () => api.get('/super-broker/transaction-ledger'),
+//   });
+// };
+

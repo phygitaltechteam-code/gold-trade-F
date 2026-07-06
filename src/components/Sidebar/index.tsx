@@ -1,10 +1,10 @@
 /* eslint-disable */
 
-import {useEffect, useRef, useState} from 'react';
-import {Link, useLocation} from '@tanstack/react-router';
+import { useEffect, useRef, useState } from 'react';
+import { Link, useLocation } from '@tanstack/react-router';
 import SidebarLinkGroup from './SidebarLinkGroup';
-import {SidebarProps} from '@/types';
-import {IoIosArrowDown} from 'react-icons/io';
+import { SidebarProps } from '@/types';
+import { IoIosArrowDown } from 'react-icons/io';
 import {
   MdDashboard,
   MdSettings,
@@ -14,10 +14,10 @@ import {
   MdPersonAdd,
   MdHistory,
 } from 'react-icons/md';
-import {useAuthContext} from '@/context/AuthContext';
-import {FaUsers, FaUserPlus, FaUserCheck} from 'react-icons/fa';
-import {RiMoneyDollarCircleLine} from 'react-icons/ri';
-import {TbReportAnalytics, TbUserStar} from 'react-icons/tb';
+import { useAuthContext } from '@/context/AuthContext';
+import { FaUsers, FaUserPlus, FaUserCheck } from 'react-icons/fa';
+import { RiMoneyDollarCircleLine } from 'react-icons/ri';
+import { TbReportAnalytics, TbUserStar } from 'react-icons/tb';
 import {
   LucideBox,
   UserPlus,
@@ -35,14 +35,14 @@ import {
   Key,
   LogOut,
 } from 'lucide-react';
-import {useGetProfile} from '@/lib/react-query/admin';
+import { useGetProfile } from '@/lib/react-query/admin';
 
-const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
+const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const location = useLocation();
-  const {pathname} = location;
-  const {user} = useAuthContext();
+  const { pathname } = location;
+  const { user } = useAuthContext();
   // const {data: profile} = useGetProfile();
-  
+
   const isCompany = user?.role === 'COMPANY';
   const isSuperAdmin = user?.role === 'SUPERADMIN';
   const isAdmin = user?.role === 'ADMIN';
@@ -51,7 +51,7 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
   const isSuperBroker =
     user?.role === 'SUPER_BROKER' || user?.role === 'SUPERBROKER';
 
-    const {data: profile} = isCompany ? useGetProfile() : {data: null};
+  const { data: profile } = isCompany ? useGetProfile() : { data: null };
 
   console.log('userrrr', user);
   console.log('isSuperBroker', isSuperBroker);
@@ -82,25 +82,74 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
 
   const sidebarRoutes = isCompany
     ? [
+      {
+        label: 'Dashboard',
+        path: '/dashboard',
+        icon: <LayoutDashboard size={22} />,
+      },
+      {
+        label: 'Super Broker',
+        path: '/companybroker/DisplaySuperBroker',
+        icon: <TbUserStar size={22} />,
+      },
+      {
+        label: 'Broker',
+        path: '/companybroker/displaybroker',
+        icon: <UserCog size={22} />,
+      },
+      {
+        label: 'Live Monitoring',
+        path: '/TransactionLedger',
+        icon: <Activity size={22} />,
+      },
+      {
+        label: 'Clients',
+        path: '/clients/mainpage',
+        icon: <Users size={22} />,
+      },
+      {
+        label: 'Pending Approvals',
+        path: '/Approval/pendingapprovals',
+        icon: <Clock size={22} />,
+      },
+      {
+        label: 'Withdrawal Requests',
+        path: '/withdrawlreq/withdrawlRequest',
+        icon: <HandCoins size={22} />,
+      },
+      // {
+      //   label: 'Financial Reports',
+      //   path: '/Report/financialReport',
+      //   icon: <BarChart3 size={22} />,
+      // },
+      // {
+      //   label: 'Admin Registration',
+      //   path: '/superadmin/superadmin',
+      //   icon: <UserCog size={22} />,
+      // },
+      // {
+      //   label: 'Settings',
+      //   icon: <Settings size={22} />,
+      //   subRoutes: [
+      //     // {
+      //     //   label: 'Change Password',
+      //     //   path: '/change-password',
+      //     //   icon: <Key size={18} />,
+      //     // },
+      //     // {
+      //     //   label: 'Logout',
+      //     //   onClick: () => handleSignOut(),
+      //     //   icon: <LogOut size={18} />,
+      //     // },
+      //   ],
+      // },
+    ]
+    : isSuperAdmin
+      ? [
         {
           label: 'Dashboard',
-          path: '/dashboard',
+          path: '/superadmin/superadmin',
           icon: <LayoutDashboard size={22} />,
-        },
-        {
-          label: 'Super Broker',
-          path: '/companybroker/DisplaySuperBroker',
-          icon: <TbUserStar size={22} />,
-        },
-        {
-          label: 'Broker',
-          path: '/companybroker/displaybroker',
-          icon: <UserCog size={22} />,
-        },
-        {
-          label: 'Live Monitoring',
-          path: '/TransactionLedger',
-          icon: <Activity size={22} />,
         },
         {
           label: 'Clients',
@@ -108,96 +157,81 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
           icon: <Users size={22} />,
         },
         {
-          label: 'Pending Approvals',
-          path: '/Approval/pendingapprovals',
-          icon: <Clock size={22} />,
+          label: 'Settings',
+          icon: <Settings size={22} />,
+          subRoutes: [
+            {
+              label: 'Change Password',
+              path: '/change-password',
+              icon: <Key size={18} />,
+            },
+            {
+              label: 'Logout',
+              onClick: () => handleSignOut(),
+              icon: <LogOut size={18} />,
+            },
+          ],
         },
-        {
-          label: 'Withdrawal Requests',
-          path: '/withdrawlreq/withdrawlRequest',
-          icon: <HandCoins size={22} />,
-        },
-        {
-          label: 'Financial Reports',
-          path: '/Report/financialReport',
-          icon: <BarChart3 size={22} />,
-        },
-        // {
-        //   label: 'Admin Registration',
-        //   path: '/superadmin/superadmin',
-        //   icon: <UserCog size={22} />,
-        // },
-        // {
-        //   label: 'Settings',
-        //   icon: <Settings size={22} />,
-        //   subRoutes: [
-        //     // {
-        //     //   label: 'Change Password',
-        //     //   path: '/change-password',
-        //     //   icon: <Key size={18} />,
-        //     // },
-        //     // {
-        //     //   label: 'Logout',
-        //     //   onClick: () => handleSignOut(),
-        //     //   icon: <LogOut size={18} />,
-        //     // },
-        //   ],
-        // },
       ]
-    : isSuperAdmin
-      ? [
+      : isBroker
+        ? [
           {
             label: 'Dashboard',
-            path: '/superadmin/superadmin',
+            path: '/broker/brokerdashboard',
             icon: <LayoutDashboard size={22} />,
           },
           {
-            label: 'Clients',
-            path: '/clients/mainpage',
-            icon: <Users size={22} />,
+            label: 'Commission History',
+            path: '/broker/commissionhistory',
+            icon: <HandCoins size={22} />,
           },
           {
-            label: 'Settings',
-            icon: <Settings size={22} />,
-            subRoutes: [
-              {
-                label: 'Change Password',
-                path: '/change-password',
-                icon: <Key size={18} />,
-              },
-              {
-                label: 'Logout',
-                onClick: () => handleSignOut(),
-                icon: <LogOut size={18} />,
-              },
-            ],
+            label: 'Transaction Ledger',
+            path: '/brokerledger',
+            icon: <Receipt size={22} />,
           },
+          {
+            label: 'Profile',
+            path: '/broker/brokerprofiles',
+            icon: <UserCog size={22} />,
+          },
+          // {
+          //   label: 'Settings',
+          //   icon: <Settings size={22} />,
+          //   subRoutes: [
+          //     {
+          //       label: 'Profile',
+          //       path: '/broker/brokerprofiles',
+          //       icon: <UserCog size={22} />,
+          //     },
+          //     {
+          //       label: 'Logout',
+          //       onClick: () => handleSignOut(),
+          //       icon: <LogOut size={18} />,
+          //     },
+          //   ],
+          // },
         ]
-      : isBroker
-        ? [
+        : isCustomer
+          ? [
             {
               label: 'Dashboard',
-              path: '/broker/brokerdashboard',
+              path: '/customer/dashboard',
               icon: <LayoutDashboard size={22} />,
             },
             {
-              label: 'Commission History',
-              path: '/broker/commissionhistory',
-              icon: <HandCoins size={22} />,
-            },
-            {
-              label: 'Transaction Ledger',
-              path: '/brokerledger',
-              icon: <Receipt size={22} />,
+              label: 'My Orders',
+              path: '/customer/orders',
+              icon: <LucideBox size={22} />,
             },
             {
               label: 'Settings',
               icon: <Settings size={22} />,
               subRoutes: [
                 {
-                  label: 'Profile',
-                  path: '/broker/brokerprofiles',
-                  icon: <UserCog size={22} />,
+                  label: 'Change Password',
+                  path: '/change-password',
+                  icon: <Key size={18} />,
                 },
                 {
                   label: 'Logout',
@@ -207,63 +241,34 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
               ],
             },
           ]
-        : isCustomer
-          ? [
+          : isSuperBroker
+            ? [
               {
                 label: 'Dashboard',
-                path: '/customer/dashboard',
+                path: '/superbroker/superbrokerdashbaord',
                 icon: <LayoutDashboard size={22} />,
               },
               {
-                label: 'My Orders',
-                path: '/customer/orders',
-                icon: <LucideBox size={22} />,
+                label: 'Broker List',
+                path: '/broker/displaybroker',
+                icon: <UserCog size={22} />,
               },
               {
-                label: 'Settings',
-                icon: <Settings size={22} />,
-                subRoutes: [
-                  {
-                    label: 'Change Password',
-                    path: '/change-password',
-                    icon: <Key size={18} />,
-                  },
-                  {
-                    label: 'Logout',
-                    onClick: () => handleSignOut(),
-                    icon: <LogOut size={18} />,
-                  },
-                ],
+                label: 'Commission History',
+                path: '/superbrokercommissionhistory',
+                icon: <HandCoins size={22} />,
+              },
+              {
+                label: 'Transaction Ledger',
+                path: '/superbrokertransaction',
+                icon: <Receipt size={22} />,
+              },
+              {
+                label: 'Profile',
+                path: '/broker/superbrokerprofile',
+                icon: <UserCog size={22} />,
               },
             ]
-          : isSuperBroker
-            ? [
-                {
-                  label: 'Dashboard',
-                  path: '/superbroker/superbrokerdashbaord',
-                  icon: <LayoutDashboard size={22} />,
-                },
-                {
-                  label: 'Broker List',
-                  path: '/broker/displaybroker',
-                  icon: <UserCog size={22} />,
-                },
-                {
-                  label: 'Commission History',
-                  path: '/superbrokercommissionhistory',
-                  icon: <HandCoins size={22} />,
-                },
-                {
-                  label: 'Transaction Ledger',
-                  path: '/superbrokertransaction',
-                  icon: <Receipt size={22} />,
-                },
-                {
-                  label: 'Profile',
-                  path: '/broker/superbrokerprofile',
-                  icon: <UserCog size={22} />,
-                },
-              ]
             : [];
 
   const trigger = useRef<HTMLButtonElement>(null);
@@ -283,7 +288,7 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
 
   useEffect(() => {
     const clickHandler = (event: MouseEvent) => {
-      const {target} = event;
+      const { target } = event;
       if (!sidebar.current || !trigger.current) return;
       if (
         !sidebarOpen ||
@@ -300,7 +305,7 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
   }, [sidebarOpen, setSidebarOpen]);
 
   useEffect(() => {
-    const keyHandler = ({keyCode}: KeyboardEvent) => {
+    const keyHandler = ({ keyCode }: KeyboardEvent) => {
       if (!sidebarOpen || keyCode !== 27) return;
       setSidebarOpen(false);
       setHoveredRoute(null);
@@ -353,9 +358,8 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
     <div className="relative z-50">
       <aside
         ref={sidebar}
-        className={`fixed inset-y-0 left-0 z-50 flex h-screen flex-col bg-white text-black transition-transform duration-300 ease-in-out ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:static lg:translate-x-0`}
+        className={`fixed inset-y-0 left-0 z-50 flex h-screen flex-col bg-white text-black transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          } lg:static lg:translate-x-0`}
       >
         <div className="flex items-center justify-between px-4 py-3 lg:px-5 lg:py-6">
           <button
@@ -428,11 +432,10 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
                                 subRoutes: route.subRoutes || [],
                               });
                             }}
-                            className={`group flex w-full items-center gap-2.5 rounded px-3 py-2 text-sm font-medium text-black hover:bg-primary/10 ${
-                              pathname.includes(route.path || '')
+                            className={`group flex w-full items-center gap-2.5 rounded px-3 py-2 text-sm font-medium text-black hover:bg-primary/10 ${pathname.includes(route.path || '')
                                 ? 'bg-primary/10'
                                 : ''
-                            }`}
+                              }`}
                           >
                             <span className="text-black transition-colors group-hover:text-primary">
                               {route.icon}
@@ -503,9 +506,8 @@ const Sidebar = ({sidebarOpen, setSidebarOpen}: SidebarProps) => {
                           setShowSubRoutes(null);
                           setSidebarOpen(false);
                         }}
-                        className={`group flex w-full items-center gap-2.5 rounded px-3 py-2 text-sm font-medium text-black hover:bg-primary/10 ${
-                          pathname.includes(route.path) ? 'bg-primary/10' : ''
-                        }`}
+                        className={`group flex w-full items-center gap-2.5 rounded px-3 py-2 text-sm font-medium text-black hover:bg-primary/10 ${pathname.includes(route.path) ? 'bg-primary/10' : ''
+                          }`}
                       >
                         <span className="text-black transition-colors group-hover:text-primary">
                           {route.icon}

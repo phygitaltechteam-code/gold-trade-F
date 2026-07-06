@@ -19,6 +19,8 @@ const DisplayBroker = ({refreshTrigger}) => {
   const [showPin, setShowPin] = useState(false);
 
   const {data: responseData, isLoading, error, refetch} = useGetBrokerData();
+
+  console.log("responseeeee",responseData)
   const deleteBrokerMutation = useDeleteBroker();
   const {mutateAsync: updateBrokerStatus, isPending: isUpdating} =
     useUpdateBrokerStatus();

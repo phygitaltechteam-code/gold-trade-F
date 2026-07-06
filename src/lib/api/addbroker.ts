@@ -53,10 +53,12 @@ export const useDeleteBroker = () => {
 
 export const useGetBrokerData = () =>
   useQuery({
-    queryKey: ['get-broker'],
+    queryKey: ['alll-brockersss'],
     queryFn: () => getBrokerData(),
-    staleTime: 5 * 60 * 1000,
+  
   });
+
+  
 export const useGetScriptsData = () =>
   useQuery({
     queryKey: ['scripts'],
@@ -300,3 +302,47 @@ export const useUpdateBrokerStatus = () => {
     },
   });
 };
+
+
+// Get broker ledger data
+// Get broker ledger data
+export const getBrokerLedger = async (brokerId: string) => {
+  try {
+    const response = await api.get(`/company/broker/ledger/${brokerId}`);
+    // ✅ Return the nested data array
+    return response.data?.data || [];
+  } catch (error) {
+    console.error('Error fetching broker ledger:', error);
+    throw error;
+  }
+};
+
+// Get broker ledger data - Hook
+export const useGetBrokerLedger = (brokerId: string) =>
+  useQuery({
+    queryKey: ['broker-ledger', brokerId],
+    queryFn: () => getBrokerLedger(brokerId),
+    enabled: !!brokerId, // Only runs when brokerId exists
+  });
+
+
+// Get broker payment history
+// Get broker payment history
+export const getBrokerPaymentHistory = async (brokerId: string) => {
+  try {
+    const response = await api.get(`company/broker/report/${brokerId}`);
+    // Fix: The data array is at response.data.data, not response.data.data.data
+    return response.data?.data || [];
+  } catch (error) {
+    console.error('Error fetching broker payment history:', error);
+    throw error;
+  }
+};
+
+// Get broker payment history - Hook
+export const useGetBrokerPaymentHistory = (brokerId: string) =>
+  useQuery({
+    queryKey: ['broker-payment-history', brokerId],
+    queryFn: () => getBrokerPaymentHistory(brokerId),
+    enabled: !!brokerId,
+  });
