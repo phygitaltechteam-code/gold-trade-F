@@ -290,7 +290,7 @@ const lotSize = item.lotSize ?? item.lotsize ?? 0;
     <div className="mx-auto w-full p-4 md:p-6">
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-xl font-semibold text-black dark:text-white">
-          Transaction Ledger
+          Transaction Ledger..
         </h2>
         <div className="text-sm text-gray-500">
           Total Records: {filteredData.length}

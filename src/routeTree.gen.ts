@@ -54,13 +54,26 @@ import { Route as AppSuperbrokerCommissionhistoryImport } from './routes/_app/su
 import { Route as AppSuperbrokerBrokerlistImport } from './routes/_app/superbroker/brokerlist'
 import { Route as AppSuperbrokerAddbrokerImport } from './routes/_app/superbroker/addbroker'
 import { Route as AppSuperadminSuperadminImport } from './routes/_app/superadmin/superadmin'
+import { Route as AppMasterbrokerWidrawrequestImport } from './routes/_app/masterbroker/widrawrequest'
+import { Route as AppMasterbrokerPendingApprovelImport } from './routes/_app/masterbroker/pending-approvel'
+import { Route as AppMasterbrokerLedgerTransactionImport } from './routes/_app/masterbroker/ledger-transaction'
+import { Route as AppMasterbrokerFinancialReportImport } from './routes/_app/masterbroker/financial-report'
+import { Route as AppMasterbrokerDashboardImport } from './routes/_app/masterbroker/dashboard'
+import { Route as AppMasterbrokerClientDashboardImport } from './routes/_app/masterbroker/client-dashboard'
+import { Route as AppMasterbrokerAddClientImport } from './routes/_app/masterbroker/add-client'
 import { Route as AppEprivateStatementImport } from './routes/_app/eprivate/statement'
 import { Route as AppEprivateEprivatereportsImport } from './routes/_app/eprivate/eprivatereports'
+import { Route as AppCompanybrokerMasterbrokerTableImport } from './routes/_app/companybroker/masterbroker-table'
 import { Route as AppCompanybrokerDisplaybrokerImport } from './routes/_app/companybroker/displaybroker'
+<<<<<<< Updated upstream
 import { Route as AppCompanybrokerCompanyaddcustomerImport } from './routes/_app/companybroker/companyaddcustomer'
+=======
+import { Route as AppCompanybrokerDisplayMasterBrokerImport } from './routes/_app/companybroker/display-master-broker'
+>>>>>>> Stashed changes
 import { Route as AppCompanybrokerBrokerprofileImport } from './routes/_app/companybroker/brokerprofile'
 import { Route as AppCompanybrokerAddbrokerImport } from './routes/_app/companybroker/addbroker'
 import { Route as AppCompanybrokerAddSuperBrockerImport } from './routes/_app/companybroker/addSuperBrocker'
+import { Route as AppCompanybrokerAddMasterbrokerImport } from './routes/_app/companybroker/add-masterbroker'
 import { Route as AppCompanybrokerSuperBrockerTableImport } from './routes/_app/companybroker/SuperBrockerTable'
 import { Route as AppCompanybrokerDisplaySuperBrokerImport } from './routes/_app/companybroker/DisplaySuperBroker'
 import { Route as AppClientsMainpageImport } from './routes/_app/clients/mainpage'
@@ -98,6 +111,7 @@ import { Route as AppApprovalPendingapprovalsImport } from './routes/_app/Approv
 import { Route as AppApprovalCustomerregisterapproveImport } from './routes/_app/Approval/customerregisterapprove'
 import { Route as NativeTokenUserPassImport } from './routes/_native/token.$user.$pass'
 import { Route as AppCompanybrokerPendingbrokerbyIdImport } from './routes/_app/companybroker/pendingbrokerby.$id'
+import { Route as AppCompanybrokerMasterBrockerProfileIdImport } from './routes/_app/companybroker/master-brockerProfile.$id'
 import { Route as AppCompanybrokerClientdetailIdImport } from './routes/_app/companybroker/clientdetail.$id'
 import { Route as AppCompanybrokerSuperbrockerProfileIdImport } from './routes/_app/companybroker/SuperbrockerProfile.$id'
 import { Route as AppCompanybrokerBrokerProfileIdImport } from './routes/_app/companybroker/BrokerProfile.$id'
@@ -373,6 +387,53 @@ const AppSuperadminSuperadminRoute = AppSuperadminSuperadminImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 
+const AppMasterbrokerWidrawrequestRoute =
+  AppMasterbrokerWidrawrequestImport.update({
+    id: '/masterbroker/widrawrequest',
+    path: '/masterbroker/widrawrequest',
+    getParentRoute: () => AppRoute,
+  } as any)
+
+const AppMasterbrokerPendingApprovelRoute =
+  AppMasterbrokerPendingApprovelImport.update({
+    id: '/masterbroker/pending-approvel',
+    path: '/masterbroker/pending-approvel',
+    getParentRoute: () => AppRoute,
+  } as any)
+
+const AppMasterbrokerLedgerTransactionRoute =
+  AppMasterbrokerLedgerTransactionImport.update({
+    id: '/masterbroker/ledger-transaction',
+    path: '/masterbroker/ledger-transaction',
+    getParentRoute: () => AppRoute,
+  } as any)
+
+const AppMasterbrokerFinancialReportRoute =
+  AppMasterbrokerFinancialReportImport.update({
+    id: '/masterbroker/financial-report',
+    path: '/masterbroker/financial-report',
+    getParentRoute: () => AppRoute,
+  } as any)
+
+const AppMasterbrokerDashboardRoute = AppMasterbrokerDashboardImport.update({
+  id: '/masterbroker/dashboard',
+  path: '/masterbroker/dashboard',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppMasterbrokerClientDashboardRoute =
+  AppMasterbrokerClientDashboardImport.update({
+    id: '/masterbroker/client-dashboard',
+    path: '/masterbroker/client-dashboard',
+    getParentRoute: () => AppRoute,
+  } as any)
+
+const AppMasterbrokerAddClientRoute = AppMasterbrokerAddClientImport.update({
+  id: '/masterbroker/add-client',
+  path: '/masterbroker/add-client',
+  getParentRoute: () => AppRoute,
+} as any)
+
 const AppEprivateStatementRoute = AppEprivateStatementImport.update({
   id: '/eprivate/statement',
   path: '/eprivate/statement',
@@ -387,6 +448,13 @@ const AppEprivateEprivatereportsRoute = AppEprivateEprivatereportsImport.update(
   } as any,
 )
 
+const AppCompanybrokerMasterbrokerTableRoute =
+  AppCompanybrokerMasterbrokerTableImport.update({
+    id: '/companybroker/masterbroker-table',
+    path: '/companybroker/masterbroker-table',
+    getParentRoute: () => AppRoute,
+  } as any)
+
 const AppCompanybrokerDisplaybrokerRoute =
   AppCompanybrokerDisplaybrokerImport.update({
     id: '/companybroker/displaybroker',
@@ -394,10 +462,17 @@ const AppCompanybrokerDisplaybrokerRoute =
     getParentRoute: () => AppRoute,
   } as any)
 
+<<<<<<< Updated upstream
 const AppCompanybrokerCompanyaddcustomerRoute =
   AppCompanybrokerCompanyaddcustomerImport.update({
     id: '/companybroker/companyaddcustomer',
     path: '/companybroker/companyaddcustomer',
+=======
+const AppCompanybrokerDisplayMasterBrokerRoute =
+  AppCompanybrokerDisplayMasterBrokerImport.update({
+    id: '/companybroker/display-master-broker',
+    path: '/companybroker/display-master-broker',
+>>>>>>> Stashed changes
     getParentRoute: () => AppRoute,
   } as any)
 
@@ -418,6 +493,13 @@ const AppCompanybrokerAddSuperBrockerRoute =
   AppCompanybrokerAddSuperBrockerImport.update({
     id: '/companybroker/addSuperBrocker',
     path: '/companybroker/addSuperBrocker',
+    getParentRoute: () => AppRoute,
+  } as any)
+
+const AppCompanybrokerAddMasterbrokerRoute =
+  AppCompanybrokerAddMasterbrokerImport.update({
+    id: '/companybroker/add-masterbroker',
+    path: '/companybroker/add-masterbroker',
     getParentRoute: () => AppRoute,
   } as any)
 
@@ -653,6 +735,13 @@ const AppCompanybrokerPendingbrokerbyIdRoute =
   AppCompanybrokerPendingbrokerbyIdImport.update({
     id: '/companybroker/pendingbrokerby/$id',
     path: '/companybroker/pendingbrokerby/$id',
+    getParentRoute: () => AppRoute,
+  } as any)
+
+const AppCompanybrokerMasterBrockerProfileIdRoute =
+  AppCompanybrokerMasterBrockerProfileIdImport.update({
+    id: '/companybroker/master-brockerProfile/$id',
+    path: '/companybroker/master-brockerProfile/$id',
     getParentRoute: () => AppRoute,
   } as any)
 
@@ -1206,6 +1295,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCompanybrokerSuperBrockerTableImport
       parentRoute: typeof AppImport
     }
+    '/_app/companybroker/add-masterbroker': {
+      id: '/_app/companybroker/add-masterbroker'
+      path: '/companybroker/add-masterbroker'
+      fullPath: '/companybroker/add-masterbroker'
+      preLoaderRoute: typeof AppCompanybrokerAddMasterbrokerImport
+      parentRoute: typeof AppImport
+    }
     '/_app/companybroker/addSuperBrocker': {
       id: '/_app/companybroker/addSuperBrocker'
       path: '/companybroker/addSuperBrocker'
@@ -1227,11 +1323,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCompanybrokerBrokerprofileImport
       parentRoute: typeof AppImport
     }
+<<<<<<< Updated upstream
     '/_app/companybroker/companyaddcustomer': {
       id: '/_app/companybroker/companyaddcustomer'
       path: '/companybroker/companyaddcustomer'
       fullPath: '/companybroker/companyaddcustomer'
       preLoaderRoute: typeof AppCompanybrokerCompanyaddcustomerImport
+=======
+    '/_app/companybroker/display-master-broker': {
+      id: '/_app/companybroker/display-master-broker'
+      path: '/companybroker/display-master-broker'
+      fullPath: '/companybroker/display-master-broker'
+      preLoaderRoute: typeof AppCompanybrokerDisplayMasterBrokerImport
+>>>>>>> Stashed changes
       parentRoute: typeof AppImport
     }
     '/_app/companybroker/displaybroker': {
@@ -1239,6 +1343,13 @@ declare module '@tanstack/react-router' {
       path: '/companybroker/displaybroker'
       fullPath: '/companybroker/displaybroker'
       preLoaderRoute: typeof AppCompanybrokerDisplaybrokerImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/companybroker/masterbroker-table': {
+      id: '/_app/companybroker/masterbroker-table'
+      path: '/companybroker/masterbroker-table'
+      fullPath: '/companybroker/masterbroker-table'
+      preLoaderRoute: typeof AppCompanybrokerMasterbrokerTableImport
       parentRoute: typeof AppImport
     }
     '/_app/eprivate/eprivatereports': {
@@ -1253,6 +1364,55 @@ declare module '@tanstack/react-router' {
       path: '/eprivate/statement'
       fullPath: '/eprivate/statement'
       preLoaderRoute: typeof AppEprivateStatementImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/masterbroker/add-client': {
+      id: '/_app/masterbroker/add-client'
+      path: '/masterbroker/add-client'
+      fullPath: '/masterbroker/add-client'
+      preLoaderRoute: typeof AppMasterbrokerAddClientImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/masterbroker/client-dashboard': {
+      id: '/_app/masterbroker/client-dashboard'
+      path: '/masterbroker/client-dashboard'
+      fullPath: '/masterbroker/client-dashboard'
+      preLoaderRoute: typeof AppMasterbrokerClientDashboardImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/masterbroker/dashboard': {
+      id: '/_app/masterbroker/dashboard'
+      path: '/masterbroker/dashboard'
+      fullPath: '/masterbroker/dashboard'
+      preLoaderRoute: typeof AppMasterbrokerDashboardImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/masterbroker/financial-report': {
+      id: '/_app/masterbroker/financial-report'
+      path: '/masterbroker/financial-report'
+      fullPath: '/masterbroker/financial-report'
+      preLoaderRoute: typeof AppMasterbrokerFinancialReportImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/masterbroker/ledger-transaction': {
+      id: '/_app/masterbroker/ledger-transaction'
+      path: '/masterbroker/ledger-transaction'
+      fullPath: '/masterbroker/ledger-transaction'
+      preLoaderRoute: typeof AppMasterbrokerLedgerTransactionImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/masterbroker/pending-approvel': {
+      id: '/_app/masterbroker/pending-approvel'
+      path: '/masterbroker/pending-approvel'
+      fullPath: '/masterbroker/pending-approvel'
+      preLoaderRoute: typeof AppMasterbrokerPendingApprovelImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/masterbroker/widrawrequest': {
+      id: '/_app/masterbroker/widrawrequest'
+      path: '/masterbroker/widrawrequest'
+      fullPath: '/masterbroker/widrawrequest'
+      preLoaderRoute: typeof AppMasterbrokerWidrawrequestImport
       parentRoute: typeof AppImport
     }
     '/_app/superadmin/superadmin': {
@@ -1430,6 +1590,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCompanybrokerClientdetailIdImport
       parentRoute: typeof AppImport
     }
+    '/_app/companybroker/master-brockerProfile/$id': {
+      id: '/_app/companybroker/master-brockerProfile/$id'
+      path: '/companybroker/master-brockerProfile/$id'
+      fullPath: '/companybroker/master-brockerProfile/$id'
+      preLoaderRoute: typeof AppCompanybrokerMasterBrockerProfileIdImport
+      parentRoute: typeof AppImport
+    }
     '/_app/companybroker/pendingbrokerby/$id': {
       id: '/_app/companybroker/pendingbrokerby/$id'
       path: '/companybroker/pendingbrokerby/$id'
@@ -1505,13 +1672,26 @@ interface AppRouteChildren {
   AppClientsMainpageRoute: typeof AppClientsMainpageRoute
   AppCompanybrokerDisplaySuperBrokerRoute: typeof AppCompanybrokerDisplaySuperBrokerRoute
   AppCompanybrokerSuperBrockerTableRoute: typeof AppCompanybrokerSuperBrockerTableRoute
+  AppCompanybrokerAddMasterbrokerRoute: typeof AppCompanybrokerAddMasterbrokerRoute
   AppCompanybrokerAddSuperBrockerRoute: typeof AppCompanybrokerAddSuperBrockerRoute
   AppCompanybrokerAddbrokerRoute: typeof AppCompanybrokerAddbrokerRoute
   AppCompanybrokerBrokerprofileRoute: typeof AppCompanybrokerBrokerprofileRoute
+<<<<<<< Updated upstream
   AppCompanybrokerCompanyaddcustomerRoute: typeof AppCompanybrokerCompanyaddcustomerRoute
+=======
+  AppCompanybrokerDisplayMasterBrokerRoute: typeof AppCompanybrokerDisplayMasterBrokerRoute
+>>>>>>> Stashed changes
   AppCompanybrokerDisplaybrokerRoute: typeof AppCompanybrokerDisplaybrokerRoute
+  AppCompanybrokerMasterbrokerTableRoute: typeof AppCompanybrokerMasterbrokerTableRoute
   AppEprivateEprivatereportsRoute: typeof AppEprivateEprivatereportsRoute
   AppEprivateStatementRoute: typeof AppEprivateStatementRoute
+  AppMasterbrokerAddClientRoute: typeof AppMasterbrokerAddClientRoute
+  AppMasterbrokerClientDashboardRoute: typeof AppMasterbrokerClientDashboardRoute
+  AppMasterbrokerDashboardRoute: typeof AppMasterbrokerDashboardRoute
+  AppMasterbrokerFinancialReportRoute: typeof AppMasterbrokerFinancialReportRoute
+  AppMasterbrokerLedgerTransactionRoute: typeof AppMasterbrokerLedgerTransactionRoute
+  AppMasterbrokerPendingApprovelRoute: typeof AppMasterbrokerPendingApprovelRoute
+  AppMasterbrokerWidrawrequestRoute: typeof AppMasterbrokerWidrawrequestRoute
   AppSuperadminSuperadminRoute: typeof AppSuperadminSuperadminRoute
   AppSuperbrokerAddbrokerRoute: typeof AppSuperbrokerAddbrokerRoute
   AppSuperbrokerBrokerlistRoute: typeof AppSuperbrokerBrokerlistRoute
@@ -1537,6 +1717,7 @@ interface AppRouteChildren {
   AppCompanybrokerBrokerProfileIdRoute: typeof AppCompanybrokerBrokerProfileIdRoute
   AppCompanybrokerSuperbrockerProfileIdRoute: typeof AppCompanybrokerSuperbrockerProfileIdRoute
   AppCompanybrokerClientdetailIdRoute: typeof AppCompanybrokerClientdetailIdRoute
+  AppCompanybrokerMasterBrockerProfileIdRoute: typeof AppCompanybrokerMasterBrockerProfileIdRoute
   AppCompanybrokerPendingbrokerbyIdRoute: typeof AppCompanybrokerPendingbrokerbyIdRoute
 }
 
@@ -1599,14 +1780,29 @@ const AppRouteChildren: AppRouteChildren = {
     AppCompanybrokerDisplaySuperBrokerRoute,
   AppCompanybrokerSuperBrockerTableRoute:
     AppCompanybrokerSuperBrockerTableRoute,
+  AppCompanybrokerAddMasterbrokerRoute: AppCompanybrokerAddMasterbrokerRoute,
   AppCompanybrokerAddSuperBrockerRoute: AppCompanybrokerAddSuperBrockerRoute,
   AppCompanybrokerAddbrokerRoute: AppCompanybrokerAddbrokerRoute,
   AppCompanybrokerBrokerprofileRoute: AppCompanybrokerBrokerprofileRoute,
+<<<<<<< Updated upstream
   AppCompanybrokerCompanyaddcustomerRoute:
     AppCompanybrokerCompanyaddcustomerRoute,
+=======
+  AppCompanybrokerDisplayMasterBrokerRoute:
+    AppCompanybrokerDisplayMasterBrokerRoute,
+>>>>>>> Stashed changes
   AppCompanybrokerDisplaybrokerRoute: AppCompanybrokerDisplaybrokerRoute,
+  AppCompanybrokerMasterbrokerTableRoute:
+    AppCompanybrokerMasterbrokerTableRoute,
   AppEprivateEprivatereportsRoute: AppEprivateEprivatereportsRoute,
   AppEprivateStatementRoute: AppEprivateStatementRoute,
+  AppMasterbrokerAddClientRoute: AppMasterbrokerAddClientRoute,
+  AppMasterbrokerClientDashboardRoute: AppMasterbrokerClientDashboardRoute,
+  AppMasterbrokerDashboardRoute: AppMasterbrokerDashboardRoute,
+  AppMasterbrokerFinancialReportRoute: AppMasterbrokerFinancialReportRoute,
+  AppMasterbrokerLedgerTransactionRoute: AppMasterbrokerLedgerTransactionRoute,
+  AppMasterbrokerPendingApprovelRoute: AppMasterbrokerPendingApprovelRoute,
+  AppMasterbrokerWidrawrequestRoute: AppMasterbrokerWidrawrequestRoute,
   AppSuperadminSuperadminRoute: AppSuperadminSuperadminRoute,
   AppSuperbrokerAddbrokerRoute: AppSuperbrokerAddbrokerRoute,
   AppSuperbrokerBrokerlistRoute: AppSuperbrokerBrokerlistRoute,
@@ -1636,6 +1832,8 @@ const AppRouteChildren: AppRouteChildren = {
   AppCompanybrokerSuperbrockerProfileIdRoute:
     AppCompanybrokerSuperbrockerProfileIdRoute,
   AppCompanybrokerClientdetailIdRoute: AppCompanybrokerClientdetailIdRoute,
+  AppCompanybrokerMasterBrockerProfileIdRoute:
+    AppCompanybrokerMasterBrockerProfileIdRoute,
   AppCompanybrokerPendingbrokerbyIdRoute:
     AppCompanybrokerPendingbrokerbyIdRoute,
 }
@@ -1735,13 +1933,26 @@ export interface FileRoutesByFullPath {
   '/clients/mainpage': typeof AppClientsMainpageRoute
   '/companybroker/DisplaySuperBroker': typeof AppCompanybrokerDisplaySuperBrokerRoute
   '/companybroker/SuperBrockerTable': typeof AppCompanybrokerSuperBrockerTableRoute
+  '/companybroker/add-masterbroker': typeof AppCompanybrokerAddMasterbrokerRoute
   '/companybroker/addSuperBrocker': typeof AppCompanybrokerAddSuperBrockerRoute
   '/companybroker/addbroker': typeof AppCompanybrokerAddbrokerRoute
   '/companybroker/brokerprofile': typeof AppCompanybrokerBrokerprofileRoute
+<<<<<<< Updated upstream
   '/companybroker/companyaddcustomer': typeof AppCompanybrokerCompanyaddcustomerRoute
+=======
+  '/companybroker/display-master-broker': typeof AppCompanybrokerDisplayMasterBrokerRoute
+>>>>>>> Stashed changes
   '/companybroker/displaybroker': typeof AppCompanybrokerDisplaybrokerRoute
+  '/companybroker/masterbroker-table': typeof AppCompanybrokerMasterbrokerTableRoute
   '/eprivate/eprivatereports': typeof AppEprivateEprivatereportsRoute
   '/eprivate/statement': typeof AppEprivateStatementRoute
+  '/masterbroker/add-client': typeof AppMasterbrokerAddClientRoute
+  '/masterbroker/client-dashboard': typeof AppMasterbrokerClientDashboardRoute
+  '/masterbroker/dashboard': typeof AppMasterbrokerDashboardRoute
+  '/masterbroker/financial-report': typeof AppMasterbrokerFinancialReportRoute
+  '/masterbroker/ledger-transaction': typeof AppMasterbrokerLedgerTransactionRoute
+  '/masterbroker/pending-approvel': typeof AppMasterbrokerPendingApprovelRoute
+  '/masterbroker/widrawrequest': typeof AppMasterbrokerWidrawrequestRoute
   '/superadmin/superadmin': typeof AppSuperadminSuperadminRoute
   '/superbroker/addbroker': typeof AppSuperbrokerAddbrokerRoute
   '/superbroker/brokerlist': typeof AppSuperbrokerBrokerlistRoute
@@ -1767,6 +1978,7 @@ export interface FileRoutesByFullPath {
   '/companybroker/BrokerProfile/$id': typeof AppCompanybrokerBrokerProfileIdRoute
   '/companybroker/SuperbrockerProfile/$id': typeof AppCompanybrokerSuperbrockerProfileIdRoute
   '/companybroker/clientdetail/$id': typeof AppCompanybrokerClientdetailIdRoute
+  '/companybroker/master-brockerProfile/$id': typeof AppCompanybrokerMasterBrockerProfileIdRoute
   '/companybroker/pendingbrokerby/$id': typeof AppCompanybrokerPendingbrokerbyIdRoute
   '/token/$user/$pass': typeof NativeTokenUserPassRoute
 }
@@ -1833,13 +2045,26 @@ export interface FileRoutesByTo {
   '/clients/mainpage': typeof AppClientsMainpageRoute
   '/companybroker/DisplaySuperBroker': typeof AppCompanybrokerDisplaySuperBrokerRoute
   '/companybroker/SuperBrockerTable': typeof AppCompanybrokerSuperBrockerTableRoute
+  '/companybroker/add-masterbroker': typeof AppCompanybrokerAddMasterbrokerRoute
   '/companybroker/addSuperBrocker': typeof AppCompanybrokerAddSuperBrockerRoute
   '/companybroker/addbroker': typeof AppCompanybrokerAddbrokerRoute
   '/companybroker/brokerprofile': typeof AppCompanybrokerBrokerprofileRoute
+<<<<<<< Updated upstream
   '/companybroker/companyaddcustomer': typeof AppCompanybrokerCompanyaddcustomerRoute
+=======
+  '/companybroker/display-master-broker': typeof AppCompanybrokerDisplayMasterBrokerRoute
+>>>>>>> Stashed changes
   '/companybroker/displaybroker': typeof AppCompanybrokerDisplaybrokerRoute
+  '/companybroker/masterbroker-table': typeof AppCompanybrokerMasterbrokerTableRoute
   '/eprivate/eprivatereports': typeof AppEprivateEprivatereportsRoute
   '/eprivate/statement': typeof AppEprivateStatementRoute
+  '/masterbroker/add-client': typeof AppMasterbrokerAddClientRoute
+  '/masterbroker/client-dashboard': typeof AppMasterbrokerClientDashboardRoute
+  '/masterbroker/dashboard': typeof AppMasterbrokerDashboardRoute
+  '/masterbroker/financial-report': typeof AppMasterbrokerFinancialReportRoute
+  '/masterbroker/ledger-transaction': typeof AppMasterbrokerLedgerTransactionRoute
+  '/masterbroker/pending-approvel': typeof AppMasterbrokerPendingApprovelRoute
+  '/masterbroker/widrawrequest': typeof AppMasterbrokerWidrawrequestRoute
   '/superadmin/superadmin': typeof AppSuperadminSuperadminRoute
   '/superbroker/addbroker': typeof AppSuperbrokerAddbrokerRoute
   '/superbroker/brokerlist': typeof AppSuperbrokerBrokerlistRoute
@@ -1865,6 +2090,7 @@ export interface FileRoutesByTo {
   '/companybroker/BrokerProfile/$id': typeof AppCompanybrokerBrokerProfileIdRoute
   '/companybroker/SuperbrockerProfile/$id': typeof AppCompanybrokerSuperbrockerProfileIdRoute
   '/companybroker/clientdetail/$id': typeof AppCompanybrokerClientdetailIdRoute
+  '/companybroker/master-brockerProfile/$id': typeof AppCompanybrokerMasterBrockerProfileIdRoute
   '/companybroker/pendingbrokerby/$id': typeof AppCompanybrokerPendingbrokerbyIdRoute
   '/token/$user/$pass': typeof NativeTokenUserPassRoute
 }
@@ -1936,13 +2162,26 @@ export interface FileRoutesById {
   '/_app/clients/mainpage': typeof AppClientsMainpageRoute
   '/_app/companybroker/DisplaySuperBroker': typeof AppCompanybrokerDisplaySuperBrokerRoute
   '/_app/companybroker/SuperBrockerTable': typeof AppCompanybrokerSuperBrockerTableRoute
+  '/_app/companybroker/add-masterbroker': typeof AppCompanybrokerAddMasterbrokerRoute
   '/_app/companybroker/addSuperBrocker': typeof AppCompanybrokerAddSuperBrockerRoute
   '/_app/companybroker/addbroker': typeof AppCompanybrokerAddbrokerRoute
   '/_app/companybroker/brokerprofile': typeof AppCompanybrokerBrokerprofileRoute
+<<<<<<< Updated upstream
   '/_app/companybroker/companyaddcustomer': typeof AppCompanybrokerCompanyaddcustomerRoute
+=======
+  '/_app/companybroker/display-master-broker': typeof AppCompanybrokerDisplayMasterBrokerRoute
+>>>>>>> Stashed changes
   '/_app/companybroker/displaybroker': typeof AppCompanybrokerDisplaybrokerRoute
+  '/_app/companybroker/masterbroker-table': typeof AppCompanybrokerMasterbrokerTableRoute
   '/_app/eprivate/eprivatereports': typeof AppEprivateEprivatereportsRoute
   '/_app/eprivate/statement': typeof AppEprivateStatementRoute
+  '/_app/masterbroker/add-client': typeof AppMasterbrokerAddClientRoute
+  '/_app/masterbroker/client-dashboard': typeof AppMasterbrokerClientDashboardRoute
+  '/_app/masterbroker/dashboard': typeof AppMasterbrokerDashboardRoute
+  '/_app/masterbroker/financial-report': typeof AppMasterbrokerFinancialReportRoute
+  '/_app/masterbroker/ledger-transaction': typeof AppMasterbrokerLedgerTransactionRoute
+  '/_app/masterbroker/pending-approvel': typeof AppMasterbrokerPendingApprovelRoute
+  '/_app/masterbroker/widrawrequest': typeof AppMasterbrokerWidrawrequestRoute
   '/_app/superadmin/superadmin': typeof AppSuperadminSuperadminRoute
   '/_app/superbroker/addbroker': typeof AppSuperbrokerAddbrokerRoute
   '/_app/superbroker/brokerlist': typeof AppSuperbrokerBrokerlistRoute
@@ -1968,6 +2207,7 @@ export interface FileRoutesById {
   '/_app/companybroker/BrokerProfile/$id': typeof AppCompanybrokerBrokerProfileIdRoute
   '/_app/companybroker/SuperbrockerProfile/$id': typeof AppCompanybrokerSuperbrockerProfileIdRoute
   '/_app/companybroker/clientdetail/$id': typeof AppCompanybrokerClientdetailIdRoute
+  '/_app/companybroker/master-brockerProfile/$id': typeof AppCompanybrokerMasterBrockerProfileIdRoute
   '/_app/companybroker/pendingbrokerby/$id': typeof AppCompanybrokerPendingbrokerbyIdRoute
   '/_native/token/$user/$pass': typeof NativeTokenUserPassRoute
 }
@@ -2036,13 +2276,26 @@ export interface FileRouteTypes {
     | '/clients/mainpage'
     | '/companybroker/DisplaySuperBroker'
     | '/companybroker/SuperBrockerTable'
+    | '/companybroker/add-masterbroker'
     | '/companybroker/addSuperBrocker'
     | '/companybroker/addbroker'
     | '/companybroker/brokerprofile'
+<<<<<<< Updated upstream
     | '/companybroker/companyaddcustomer'
+=======
+    | '/companybroker/display-master-broker'
+>>>>>>> Stashed changes
     | '/companybroker/displaybroker'
+    | '/companybroker/masterbroker-table'
     | '/eprivate/eprivatereports'
     | '/eprivate/statement'
+    | '/masterbroker/add-client'
+    | '/masterbroker/client-dashboard'
+    | '/masterbroker/dashboard'
+    | '/masterbroker/financial-report'
+    | '/masterbroker/ledger-transaction'
+    | '/masterbroker/pending-approvel'
+    | '/masterbroker/widrawrequest'
     | '/superadmin/superadmin'
     | '/superbroker/addbroker'
     | '/superbroker/brokerlist'
@@ -2068,6 +2321,7 @@ export interface FileRouteTypes {
     | '/companybroker/BrokerProfile/$id'
     | '/companybroker/SuperbrockerProfile/$id'
     | '/companybroker/clientdetail/$id'
+    | '/companybroker/master-brockerProfile/$id'
     | '/companybroker/pendingbrokerby/$id'
     | '/token/$user/$pass'
   fileRoutesByTo: FileRoutesByTo
@@ -2133,13 +2387,26 @@ export interface FileRouteTypes {
     | '/clients/mainpage'
     | '/companybroker/DisplaySuperBroker'
     | '/companybroker/SuperBrockerTable'
+    | '/companybroker/add-masterbroker'
     | '/companybroker/addSuperBrocker'
     | '/companybroker/addbroker'
     | '/companybroker/brokerprofile'
+<<<<<<< Updated upstream
     | '/companybroker/companyaddcustomer'
+=======
+    | '/companybroker/display-master-broker'
+>>>>>>> Stashed changes
     | '/companybroker/displaybroker'
+    | '/companybroker/masterbroker-table'
     | '/eprivate/eprivatereports'
     | '/eprivate/statement'
+    | '/masterbroker/add-client'
+    | '/masterbroker/client-dashboard'
+    | '/masterbroker/dashboard'
+    | '/masterbroker/financial-report'
+    | '/masterbroker/ledger-transaction'
+    | '/masterbroker/pending-approvel'
+    | '/masterbroker/widrawrequest'
     | '/superadmin/superadmin'
     | '/superbroker/addbroker'
     | '/superbroker/brokerlist'
@@ -2165,6 +2432,7 @@ export interface FileRouteTypes {
     | '/companybroker/BrokerProfile/$id'
     | '/companybroker/SuperbrockerProfile/$id'
     | '/companybroker/clientdetail/$id'
+    | '/companybroker/master-brockerProfile/$id'
     | '/companybroker/pendingbrokerby/$id'
     | '/token/$user/$pass'
   id:
@@ -2234,13 +2502,26 @@ export interface FileRouteTypes {
     | '/_app/clients/mainpage'
     | '/_app/companybroker/DisplaySuperBroker'
     | '/_app/companybroker/SuperBrockerTable'
+    | '/_app/companybroker/add-masterbroker'
     | '/_app/companybroker/addSuperBrocker'
     | '/_app/companybroker/addbroker'
     | '/_app/companybroker/brokerprofile'
+<<<<<<< Updated upstream
     | '/_app/companybroker/companyaddcustomer'
+=======
+    | '/_app/companybroker/display-master-broker'
+>>>>>>> Stashed changes
     | '/_app/companybroker/displaybroker'
+    | '/_app/companybroker/masterbroker-table'
     | '/_app/eprivate/eprivatereports'
     | '/_app/eprivate/statement'
+    | '/_app/masterbroker/add-client'
+    | '/_app/masterbroker/client-dashboard'
+    | '/_app/masterbroker/dashboard'
+    | '/_app/masterbroker/financial-report'
+    | '/_app/masterbroker/ledger-transaction'
+    | '/_app/masterbroker/pending-approvel'
+    | '/_app/masterbroker/widrawrequest'
     | '/_app/superadmin/superadmin'
     | '/_app/superbroker/addbroker'
     | '/_app/superbroker/brokerlist'
@@ -2266,6 +2547,7 @@ export interface FileRouteTypes {
     | '/_app/companybroker/BrokerProfile/$id'
     | '/_app/companybroker/SuperbrockerProfile/$id'
     | '/_app/companybroker/clientdetail/$id'
+    | '/_app/companybroker/master-brockerProfile/$id'
     | '/_app/companybroker/pendingbrokerby/$id'
     | '/_native/token/$user/$pass'
   fileRoutesById: FileRoutesById
@@ -2361,13 +2643,26 @@ export const routeTree = rootRoute
         "/_app/clients/mainpage",
         "/_app/companybroker/DisplaySuperBroker",
         "/_app/companybroker/SuperBrockerTable",
+        "/_app/companybroker/add-masterbroker",
         "/_app/companybroker/addSuperBrocker",
         "/_app/companybroker/addbroker",
         "/_app/companybroker/brokerprofile",
+<<<<<<< Updated upstream
         "/_app/companybroker/companyaddcustomer",
+=======
+        "/_app/companybroker/display-master-broker",
+>>>>>>> Stashed changes
         "/_app/companybroker/displaybroker",
+        "/_app/companybroker/masterbroker-table",
         "/_app/eprivate/eprivatereports",
         "/_app/eprivate/statement",
+        "/_app/masterbroker/add-client",
+        "/_app/masterbroker/client-dashboard",
+        "/_app/masterbroker/dashboard",
+        "/_app/masterbroker/financial-report",
+        "/_app/masterbroker/ledger-transaction",
+        "/_app/masterbroker/pending-approvel",
+        "/_app/masterbroker/widrawrequest",
         "/_app/superadmin/superadmin",
         "/_app/superbroker/addbroker",
         "/_app/superbroker/brokerlist",
@@ -2393,6 +2688,7 @@ export const routeTree = rootRoute
         "/_app/companybroker/BrokerProfile/$id",
         "/_app/companybroker/SuperbrockerProfile/$id",
         "/_app/companybroker/clientdetail/$id",
+        "/_app/companybroker/master-brockerProfile/$id",
         "/_app/companybroker/pendingbrokerby/$id"
       ]
     },
@@ -2660,6 +2956,10 @@ export const routeTree = rootRoute
       "filePath": "_app/companybroker/SuperBrockerTable.jsx",
       "parent": "/_app"
     },
+    "/_app/companybroker/add-masterbroker": {
+      "filePath": "_app/companybroker/add-masterbroker.tsx",
+      "parent": "/_app"
+    },
     "/_app/companybroker/addSuperBrocker": {
       "filePath": "_app/companybroker/addSuperBrocker.jsx",
       "parent": "/_app"
@@ -2672,12 +2972,21 @@ export const routeTree = rootRoute
       "filePath": "_app/companybroker/brokerprofile.tsx",
       "parent": "/_app"
     },
+<<<<<<< Updated upstream
     "/_app/companybroker/companyaddcustomer": {
       "filePath": "_app/companybroker/companyaddcustomer.tsx",
+=======
+    "/_app/companybroker/display-master-broker": {
+      "filePath": "_app/companybroker/display-master-broker.tsx",
+>>>>>>> Stashed changes
       "parent": "/_app"
     },
     "/_app/companybroker/displaybroker": {
       "filePath": "_app/companybroker/displaybroker.tsx",
+      "parent": "/_app"
+    },
+    "/_app/companybroker/masterbroker-table": {
+      "filePath": "_app/companybroker/masterbroker-table.tsx",
       "parent": "/_app"
     },
     "/_app/eprivate/eprivatereports": {
@@ -2686,6 +2995,34 @@ export const routeTree = rootRoute
     },
     "/_app/eprivate/statement": {
       "filePath": "_app/eprivate/statement.tsx",
+      "parent": "/_app"
+    },
+    "/_app/masterbroker/add-client": {
+      "filePath": "_app/masterbroker/add-client.tsx",
+      "parent": "/_app"
+    },
+    "/_app/masterbroker/client-dashboard": {
+      "filePath": "_app/masterbroker/client-dashboard.tsx",
+      "parent": "/_app"
+    },
+    "/_app/masterbroker/dashboard": {
+      "filePath": "_app/masterbroker/dashboard.tsx",
+      "parent": "/_app"
+    },
+    "/_app/masterbroker/financial-report": {
+      "filePath": "_app/masterbroker/financial-report.tsx",
+      "parent": "/_app"
+    },
+    "/_app/masterbroker/ledger-transaction": {
+      "filePath": "_app/masterbroker/ledger-transaction.tsx",
+      "parent": "/_app"
+    },
+    "/_app/masterbroker/pending-approvel": {
+      "filePath": "_app/masterbroker/pending-approvel.tsx",
+      "parent": "/_app"
+    },
+    "/_app/masterbroker/widrawrequest": {
+      "filePath": "_app/masterbroker/widrawrequest.tsx",
       "parent": "/_app"
     },
     "/_app/superadmin/superadmin": {
@@ -2786,6 +3123,10 @@ export const routeTree = rootRoute
     },
     "/_app/companybroker/clientdetail/$id": {
       "filePath": "_app/companybroker/clientdetail.$id.tsx",
+      "parent": "/_app"
+    },
+    "/_app/companybroker/master-brockerProfile/$id": {
+      "filePath": "_app/companybroker/master-brockerProfile.$id.tsx",
       "parent": "/_app"
     },
     "/_app/companybroker/pendingbrokerby/$id": {

@@ -50,6 +50,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const isCustomer = user?.role === 'CUSTOMER';
   const isSuperBroker =
     user?.role === 'SUPER_BROKER' || user?.role === 'SUPERBROKER';
+    const isMasterBroker = user?.role === 'MASTER_BROKER';
 
   const { data: profile } = isCompany ? useGetProfile() : { data: null };
 
@@ -150,6 +151,26 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           label: 'Dashboard',
           path: '/superadmin/superadmin',
           icon: <LayoutDashboard size={22} />,
+        },
+        {
+          label: 'Master Broker',
+          path: '/companybroker/display-master-broker',
+          icon: <TbUserStar size={22} />,
+        },
+        {
+          label: 'Super Broker',
+          path: '/companybroker/DisplaySuperBroker',
+          icon: <TbUserStar size={22} />,
+        },
+        {
+          label: 'Broker',
+          path: '/companybroker/displaybroker',
+          icon: <UserCog size={22} />,
+        },
+        {
+          label: 'Live Monitoring',
+          path: '/TransactionLedger',
+          icon: <Activity size={22} />,
         },
         {
           label: 'Clients',
@@ -269,7 +290,67 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 icon: <UserCog size={22} />,
               },
             ]
-            : [];
+          : isSuperBroker
+            ? [
+                {
+                  label: 'Dashboard',
+                  path: '/superbroker/superbrokerdashbaord',
+                  icon: <LayoutDashboard size={22} />,
+                },
+                {
+                  label: 'Broker List',
+                  path: '/broker/displaybroker',
+                  icon: <UserCog size={22} />,
+                },
+                {
+                  label: 'Commission History',
+                  path: '/superbrokercommissionhistory',
+                  icon: <HandCoins size={22} />,
+                },
+                {
+                  label: 'Transaction Ledger',
+                  path: '/superbrokertransaction',
+                  icon: <Receipt size={22} />,
+                },
+                {
+                  label: 'Profile',
+                  path: '/broker/superbrokerprofile',
+                  icon: <UserCog size={22} />,
+                },
+              ]
+             : isMasterBroker
+            ? [
+                {
+                  label: 'Dashboard',
+                  path: '/masterbroker/dashboard',
+                  icon: <LayoutDashboard size={22} />,
+                },
+                {
+                  label: 'Client Dashboard',
+                  path: '/masterbroker/client-dashboard',
+                  icon: <UserCog size={22} />,
+                },
+                {
+                  label: 'Ledger Transaction',
+                  path: '/masterbroker/ledger-transaction',
+                  icon: <HandCoins size={22} />,
+                },
+                {
+                  label: 'Pending Approvels',
+                  path: '/masterbroker/pending-approvel',
+                  icon: <Receipt size={22} />,
+                },
+                {
+                  label: 'Financial Report',
+                  path: '/masterbroker/financial-report',
+                  icon: <UserCog size={22} />,
+                },
+                {
+                  label: 'Widraw Request',
+                  path: '/masterbroker/widrawrequest',
+                  icon: <UserCog size={22} />,
+                },
+              ] :[];
 
   const trigger = useRef<HTMLButtonElement>(null);
   const sidebar = useRef<HTMLDivElement>(null);

@@ -16,6 +16,13 @@ export const useGetCompanyDashboard = () => {
   });
 };
 
+export const useGetMasterBrokerDashboard = () => {
+  return useQuery({
+    queryKey: ['company-dashboard'],
+    queryFn: () => api.get('master-broker/profile/stats'),
+  });
+};
+
 export const useGetSuperBrokerDashboard = () => {
   return useQuery({
     queryKey: ['super-broker-dashboard'],

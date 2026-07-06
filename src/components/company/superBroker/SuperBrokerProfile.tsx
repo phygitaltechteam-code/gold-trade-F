@@ -34,7 +34,7 @@ const formatDateTime = (dateString: string) => {
 };
 
 const SuperBrokerProfile = () => {
-  const { id } = Route.useParams();
+  const {id } = Route.useParams();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('ledger');
