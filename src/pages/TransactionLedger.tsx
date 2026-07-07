@@ -150,12 +150,13 @@
 import React, {useState, useMemo} from 'react';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import {useGetTransactionLedger} from '@/lib/react-query/transactionledger';
+import { RefreshCcw } from 'lucide-react';
 
 const TransactionLedger = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [ledgerStartDate, setLedgerStartDate] = useState('');
   const [ledgerEndDate, setLedgerEndDate] = useState('');
-  const {data: transactionLedgerData} = useGetTransactionLedger();
+  const {data: transactionLedgerData , refetch} = useGetTransactionLedger();
 
   // Format quantity/lot as "qty/lotSize"
   const formatQtyLot = (item) => {
@@ -299,6 +300,13 @@ const formatPnL = (item) => {
               >
                 {isExpanded ? 'View Less' : 'View More'}
               </button>
+               <button
+                onClick={() =>refetch() }
+                className="rounded bg-orange-500 flex px-1 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 mr-2"
+              >
+                <RefreshCcw size={20}/>Refresh
+              </button>
+              
             </div>
           </div>
           <div className="overflow-x-auto">
