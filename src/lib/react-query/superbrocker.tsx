@@ -192,7 +192,7 @@ export const useGetSuperBrokerLedger = (superBrokerId: string) =>
 export const getSuperBrokerPaymentHistory = async (superBrokerId: string) => {
   try {
     const response = await api.get(`company/super-broker/report/${superBrokerId}`);
-    return response.data?.data || [];
+    return response.data || [];
   } catch (error) {
     console.error('Error fetching super broker payment history:', error);
     throw error;

@@ -177,7 +177,7 @@ const paymentData = useMemo(() => {
     rawDate: item.date || item.createdAt || item.paymentDate || item.paidDate,
     date: formatDateTime(item.date || item.createdAt || item.paymentDate || item.paidDate),
     commissionGenerated: item.commissionGenerated || item.totalCommission || 0,
-    pendingGenerated: item.pendingCommission || item.dueAmount || 0,
+    pendingGenerated: item.commissionGenerated - item.paidCommission  || 0,
     paidCommission: item.paidCommission || item.paidAmount || 0,
     paidDate: item.paidDate ? formatDateTime(item.paidDate) : '-',
     status: item.status || item.paymentStatus || 'Pending',
