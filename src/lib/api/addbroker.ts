@@ -332,7 +332,7 @@ export const getBrokerPaymentHistory = async (brokerId: string) => {
   try {
     const response = await api.get(`company/broker/report/${brokerId}`);
     // Fix: The data array is at response.data.data, not response.data.data.data
-    return response.data?.data || [];
+    return response.data || [];
   } catch (error) {
     console.error('Error fetching broker payment history:', error);
     throw error;

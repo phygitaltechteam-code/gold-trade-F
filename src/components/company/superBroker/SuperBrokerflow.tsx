@@ -24,7 +24,7 @@ const SuperBrokerflow = () => {
           <svg
             className="h-5 w-5"
             fill="none"
-            stroke="currentColor"
+            stroke="currentColor"                                                                                     
             viewBox="0 0 24 24"
           >
             <path

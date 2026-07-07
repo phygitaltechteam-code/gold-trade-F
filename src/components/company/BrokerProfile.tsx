@@ -128,7 +128,6 @@ const BrokerProfile = () => {
     data: paymentDataFromApi,
     isLoading: isLoadingPayment,
   } = useGetBrokerPaymentHistory(id);
-
   // Transform API data to match your table format
   // Transform API data to match your table format
   const ledgerData = useMemo(() => {
@@ -169,11 +168,11 @@ const BrokerProfile = () => {
   // Transform API data for payment history
   // Transform API data for payment history
 const paymentData = useMemo(() => {
-  if (!paymentDataFromApi || !Array.isArray(paymentDataFromApi)) {
+  if (!paymentDataFromApi || !Array.isArray(paymentDataFromApi.data)) {
     return [];
   }
 
-  return paymentDataFromApi.map((item: any) => ({
+  return paymentDataFromApi.data.map((item: any) => ({
     // Store the original date for filtering
     rawDate: item.date || item.createdAt || item.paymentDate || item.paidDate,
     date: formatDateTime(item.date || item.createdAt || item.paymentDate || item.paidDate),
@@ -1033,7 +1032,7 @@ const filteredPaymentData = useMemo(() => {
         </div>
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-orange-500 md:text-2xl">
-            ₹{profileData?.pendingCommission?.toLocaleString() || '0'}
+            ₹{paymentDataFromApi?.summary?.pendingCommission.toLocaleString() || '0'}
           </h4>
           <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
             Pending Commission
