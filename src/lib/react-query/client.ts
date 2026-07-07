@@ -3,11 +3,13 @@ import {api} from '@/utils/axios';
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 
+
 export const useGetClients = () => {
   return useQuery({
     queryKey: ['clients'],
 
     queryFn: async () => {
+
       const response = await api.get('company/customer');
       console.log('GET Client', response.data);
       return response.data;

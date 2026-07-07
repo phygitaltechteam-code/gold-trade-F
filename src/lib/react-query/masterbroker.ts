@@ -164,3 +164,12 @@ export const updateMasterBrokerProfile = async (
     throw error;
   }
 };
+
+
+// transaction ledger
+export const useGetTransactionLedger = () => {
+  return useQuery({
+    queryKey: ['transaction-ledger'],
+    queryFn: () => api.get('/company/profile/transaction-ledger'),
+  });
+};

@@ -17,11 +17,8 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GenericTable from '@/components/Forms/Table/GenericTable';
-import {
-  useApproveWithdrawal,
-  useGetWithdrawal,
-  useRejectWithdrawal,
-} from '@/lib/react-query/withdrawal';
+import { useApproveWithdrawal, useGetWithdrawal, useRejectWithdrawal } from '@/lib/api/masterpanelapi/masterapi';
+
 
 // Types
 interface WithdrawalRequest {
@@ -410,6 +407,8 @@ export default function WithdrawalRequest() {
     };
   }, []);
 
+  const showActions = activeTab !== 'Approved' && activeTab !== 'Rejected';
+
   // Base columns (View Less)
   const baseColumns = [
     {
@@ -470,25 +469,29 @@ export default function WithdrawalRequest() {
       header: 'Status',
       accessor: (row: WithdrawalRequest) => <StatusBadge status={row.status} />,
     },
-    {
-      header: 'Actions',
-      accessor: (row: WithdrawalRequest) => (
-        <div className="flex items-center justify-end gap-2">
-          <button
-            onClick={() => handleReject(row.id)}
-            className="text-gray-500 hover:bg-gray-100 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
-          >
-            Reject
-          </button>
-          <button
-            onClick={() => handleApprove(row.id)}
-            className="rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm shadow-orange-200 transition-all hover:bg-orange-600"
-          >
-            Approve
-          </button>
-        </div>
-      ),
-    },
+    ...(showActions
+      ? [
+          {
+            header: 'Actions',
+            accessor: (row: WithdrawalRequest) => (
+              <div className="flex items-center justify-end gap-2">
+                <button
+                  onClick={() => handleReject(row.id)}
+                  className="text-gray-500 hover:bg-gray-100 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
+                >
+                  Reject
+                </button>
+                <button
+                  onClick={() => handleApprove(row.id)}
+                  className="rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm shadow-orange-200 transition-all hover:bg-orange-600"
+                >
+                  Approve
+                </button>
+              </div>
+            ),
+          },
+        ]
+      : []),
   ];
 
   // Expanded columns (View More) - includes additional fields
@@ -575,25 +578,29 @@ export default function WithdrawalRequest() {
       header: 'Status',
       accessor: (row: WithdrawalRequest) => <StatusBadge status={row.status} />,
     },
-    {
-      header: 'Actions',
-      accessor: (row: WithdrawalRequest) => (
-        <div className="flex items-center justify-end gap-2">
-          <button
-            onClick={() => handleReject(row.id)}
-            className="text-gray-500 hover:bg-gray-100 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
-          >
-            Reject
-          </button>
-          <button
-            onClick={() => handleApprove(row.id)}
-            className="rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm shadow-orange-200 transition-all hover:bg-orange-600"
-          >
-            Approve
-          </button>
-        </div>
-      ),
-    },
+    ...(showActions
+      ? [
+          {
+            header: 'Actions',
+            accessor: (row: WithdrawalRequest) => (
+              <div className="flex items-center justify-end gap-2">
+                <button
+                  onClick={() => handleReject(row.id)}
+                  className="text-gray-500 hover:bg-gray-100 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
+                >
+                  Reject
+                </button>
+                <button
+                  onClick={() => handleApprove(row.id)}
+                  className="rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm shadow-orange-200 transition-all hover:bg-orange-600"
+                >
+                  Approve
+                </button>
+              </div>
+            ),
+          },
+        ]
+      : []),
   ];
 
   // Handle approve/reject

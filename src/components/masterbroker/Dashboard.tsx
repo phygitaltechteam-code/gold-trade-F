@@ -23,8 +23,9 @@ import {
 import {useAuthContext} from '@/context/AuthContext';
 import toast from 'react-hot-toast';
 import GenericButton from '@/components/Forms/Buttons/GenericButton';
-import {useGetCompanyDashboard} from '@/lib/api/dashboard';
+// import {useGetCompanyDashboard} from '@/lib/api/dashboard';
 import {cn} from '@/utils/utilities';
+import { useGetMasterBrokerDashboard } from '@/lib/api/dashboard';
 
 // Animation variants
 const containerVariants = {
@@ -114,7 +115,7 @@ const Dashboard: React.FC = () => {
     isError,
     error,
     refetch,
-  } = useGetCompanyDashboard();
+  } = useGetMasterBrokerDashboard();
 
   const handlePeriodChange = (period: '30d' | '7d' | '24h' | 'custom') => {
     setSelectedPeriod(period);
@@ -195,10 +196,10 @@ const Dashboard: React.FC = () => {
   // Extract data from API response
   const dashboardStats = {
     // User Statistics
-    noOfSuperBroker: dashboardData?.cards?.superBrokers?.total ?? 0,
-    activeSuperBrokers: dashboardData?.cards?.superBrokers?.active ?? 0,
-    noOfBroker: dashboardData?.cards?.brokers?.total ?? 0,
-    activeBrokers: dashboardData?.cards?.brokers?.active ?? 0,
+    // noOfSuperBroker: dashboardData?.cards?.superBrokers?.total ?? 0,
+    // activeSuperBrokers: dashboardData?.cards?.superBrokers?.active ?? 0,
+    // noOfBroker: dashboardData?.cards?.brokers?.total ?? 0,
+    // activeBrokers: dashboardData?.cards?.brokers?.active ?? 0,
     noOfCustomer: dashboardData?.cards?.customers?.total ?? 0,
     activeCustomers: dashboardData?.cards?.customers?.active ?? 0,
     totalActiveTrends: dashboardData?.cards?.activeTrends?.total ?? 0,
@@ -206,10 +207,10 @@ const Dashboard: React.FC = () => {
 
     // Financial Metrics
     adminCommission: dashboardData?.cards?.adminCommission ?? 0,
-    superBrokerTotalCommission:
-      dashboardData?.cards?.superBrokerTotalCommission ?? 0,
-    totalBrokerCommission: dashboardData?.cards?.totalBrokerCommission ?? 0,
-    totalAdminProfitLoss: dashboardData?.cards?.totalAdminPnL ?? 0,
+    // superBrokerTotalCommission:
+    //   dashboardData?.cards?.superBrokerTotalCommission ?? 0,
+    // totalBrokerCommission: dashboardData?.cards?.totalBrokerCommission ?? 0,
+    // totalAdminProfitLoss: dashboardData?.cards?.totalAdminPnL ?? 0,
     totalCustomerWalletBalance:
       dashboardData?.cards?.totalCustomerWalletBalance ?? 0,
     pendingSuperBrokerCommission:
@@ -285,20 +286,20 @@ const Dashboard: React.FC = () => {
 
         {/* Row 1: User Statistics Cards */}
         <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
-          <StatCard
+          {/* <StatCard
             title="No. of Super Brokers"
             value={formatNumber(dashboardStats.noOfSuperBroker)}
             // subValue={`${dashboardStats.activeSuperBrokers} Active`}
             icon={Award}
             iconColor="text-purple-500"
-          />
-          <StatCard
+          /> */}
+          {/* <StatCard
             title="No. of Brokers"
             value={formatNumber(dashboardStats.noOfBroker)}
             // subValue={`${dashboardStats.activeBrokers} Active`}
             icon={Briefcase}
             iconColor="text-blue-500"
-          />
+          /> */}
           <StatCard
             title="No. of Customers"
             value={formatNumber(dashboardStats.noOfCustomer)}
@@ -312,29 +313,29 @@ const Dashboard: React.FC = () => {
             icon={Activity}
             iconColor="text-orange-500"
           />
-        </div>
+        {/* </div> */}
 
         {/* Row 2: Commission Cards */}
-        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
+        {/* <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4"> */}
           <FinancialStatCard
             title="Admin Commission"
             amount={formatCurrency(dashboardStats.adminCommission)}
             icon={IndianRupee}
             iconColor="text-emerald-500"
           />
-          <FinancialStatCard
+          {/* <FinancialStatCard
             title="Super Broker Total Commission"
             amount={formatCurrency(dashboardStats.superBrokerTotalCommission)}
             icon={Wallet}
             iconColor="text-blue-500"
-          />
-          <FinancialStatCard
+          /> */}
+          {/* <FinancialStatCard
             title="Total Broker Commission"
             amount={formatCurrency(dashboardStats.totalBrokerCommission)}
             icon={Landmark}
             iconColor="text-indigo-500"
-          />
-          <FinancialStatCard
+          /> */}
+          {/* <FinancialStatCard
             title="Total Admin P&L"
             amount={formatCurrency(dashboardStats.totalAdminProfitLoss)}
             icon={PieChart}
@@ -343,18 +344,18 @@ const Dashboard: React.FC = () => {
                 ? 'text-green-500'
                 : 'text-red-500'
             }
-          />
-        </div>
+          /> */}
+        {/* </div> */}
 
         {/* Row 3: Wallet & Pending Commissions */}
-        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
+        {/* <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4"> */}
           <FinancialStatCard
             title="Total Customer Wallet Balance"
             amount={formatCurrency(dashboardStats.totalCustomerWalletBalance)}
             icon={Wallet}
             iconColor="text-green-500"
           />
-          <FinancialStatCard
+          {/* <FinancialStatCard
             title="Pending Super Broker Commission"
             amount={formatCurrency(dashboardStats.pendingSuperBrokerCommission)}
             icon={Clock}
@@ -365,7 +366,7 @@ const Dashboard: React.FC = () => {
             amount={formatCurrency(dashboardStats.pendingBrokerCommission)}
             icon={Clock}
             iconColor="text-orange-500"
-          />
+          /> */}
         </div>
       </div>
     </motion.div>

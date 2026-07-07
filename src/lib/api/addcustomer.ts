@@ -27,7 +27,7 @@ export const useAddCustomer = () => {
     mutationFn: addCustomer,
     onSuccess: () => {
       toast.success('Customer Registered Successfully!');
-      queryClient.invalidateQueries({ queryKey: ['customers'] });
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
       queryClient.invalidateQueries({ queryKey: ['brocker'] });
       queryClient.invalidateQueries({ queryKey: ['get-broker'] });
     },

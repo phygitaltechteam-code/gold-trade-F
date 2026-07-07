@@ -1,57 +1,99 @@
-import React, {useState, useEffect} from 'react';
-import {useNavigate} from '@tanstack/react-router';
+import { useAddCustomer } from '@/lib/api/addcustomer'; // Changed this import
+import { useGetBrokerData } from '@/lib/api/addbroker';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import toast from 'react-hot-toast';
-import {z} from 'zod';
-import {useAuthContext} from '@/context/AuthContext';
-import {useMutation} from '@tanstack/react-query';
-import {unAuthenticatedApi} from '@/utils/axios';
+import { z } from 'zod';
+import { useAuthContext } from '@/context/AuthContext';
+import { X, ZoomIn } from 'lucide-react';
 
-// Define Zod schema for client form data validation
+// Define Zod schema for form data validation - ADDED type field
 const CustomerSchema = z.object({
   fullname: z.string().min(1, 'Full name is required'),
-  email: z.string().email('Please enter a valid email address'),
-  phoneNumber: z.string().min(10, 'Phone number must be at least 10 digits'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
-  streetAddress: z.string().min(1, 'Street address is required'),
-  city: z.string().min(1, 'City is required'),
-  stateProvince: z.string().min(1, 'State is required'),
-  postalCode: z.string().min(6, 'Pincode must be exactly 6 digits'),
+  phoneNumber: z.string().min(1, 'Phone number is required'),
+  BrokerId: z.string().min(1, 'Please select a Broker'),
+  area: z.string().min(1, 'Area is required'),
+  commission: z.coerce.number().min(0, 'Commission must be a valid number'),
+  aadharCardNumber: z.string().optional(),
+  panCardNumber: z.string().optional(),
+  type: z.enum(['mega', 'mini'], { 
+    required_error: 'Please select a customer type',
+    invalid_type_error: 'Type must be either mega or mini'
+  }),
+  // documentNumber: z.string().min(1, 'Document number is required'), // ADD THIS
 });
 
-const AddClient = () => {
+const CompanyAddCustomer = () => {
   const navigate = useNavigate();
-  const {user} = useAuthContext();
-  // const isBroker = user?.role === 'BROKER';
+  const addCustomer = useAddCustomer(); // Changed from useAddBroker to useAddCustomer
+  const { user } = useAuthContext();
+  const isMasterBroker = user?.role === 'MASTER_BROKER';
 
   const [formData, setFormData] = useState({
     fullname: '',
-    email: '',
-    phoneNumber: '',
     password: '',
-    aadharCardNumber: '',
-    commission: '',
     area: '',
-    streetAddress: '',
-    city: '',
-    stateProvince: '',
-    postalCode: '',
+    commission: '',
+    phoneNumber: '',
+    aadharCardNumber: '',
+    panCardNumber: '',
+    BrokerId: '',
+    type: '', // ADDED - no default value, user must select
+    // documentNumber: '', // ADD THIS
   });
 
   const [images, setImages] = useState({
-    aadharCardF: null as File | null,
+    aadharCardF: null,
+    panCard: null,
   });
 
   const [imagePreviews, setImagePreviews] = useState({
-    aadharCardF: null as string | null,
+    aadharCardF: null,
+    panCard: null,
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    const {name, value} = e.target;
+  const { data: allbrockers } = useGetBrokerData();
+
+  // Extract brokers array from the nested response
+  const brokers = useMemo(() => {
+    if (!allbrockers) return [];
+    if (allbrockers.data?.data) return allbrockers.data.data;
+    if (allbrockers.data) return allbrockers.data;
+    if (Array.isArray(allbrockers)) return allbrockers;
+    return [];
+  }, [allbrockers]);
+
+  // Searchable Dropdown state
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  // Filter brokers based on search term
+  const filteredBrokers = useMemo(() => {
+    if (!searchTerm) return brokers;
+    return brokers.filter(
+      (b) =>
+        b.fullname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        b.BKId?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [brokers, searchTerm]);
+
+  useEffect(() => {
+    if (isMasterBroker && user) {
+      setFormData((prev) => ({
+        ...prev,
+        BrokerId: user.id,
+      }));
+    }
+  }, [isMasterBroker, user]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -65,41 +107,8 @@ const AddClient = () => {
     }
   };
 
-  // Auto-fill city/state based on postal code
-  useEffect(() => {
-    const fetchPinDetails = async () => {
-      if (formData.postalCode.length === 6) {
-        try {
-          const response = await fetch(
-            `https://api.postalpincode.in/pincode/${formData.postalCode}`,
-          );
-          if (response.ok) {
-            const data = await response.json();
-            if (
-              data[0]?.Status === 'Success' &&
-              data[0]?.PostOffice?.length > 0
-            ) {
-              const firstPostOffice = data[0].PostOffice[0];
-              setFormData((prev) => ({
-                ...prev,
-                city: firstPostOffice.District || prev.city,
-                stateProvince: firstPostOffice.State || prev.stateProvince,
-              }));
-            }
-          }
-        } catch (error) {
-          console.error('Failed to fetch pincode details', error);
-        }
-      }
-    };
-    fetchPinDetails();
-  }, [formData.postalCode]);
-
-  const handleImageChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    field: 'aadharCardF',
-  ) => {
-    const file = e.target.files?.[0];
+  const handleImageChange = (e, field) => {
+    const file = e.target.files[0];
     if (file) {
       const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
       if (!validTypes.includes(file.type)) {
@@ -127,7 +136,7 @@ const AddClient = () => {
       reader.onloadend = () => {
         setImagePreviews((prev) => ({
           ...prev,
-          [field]: reader.result as string,
+          [field]: reader.result,
         }));
       };
       reader.readAsDataURL(file);
@@ -141,7 +150,7 @@ const AddClient = () => {
     }
   };
 
-  const removeImage = (field: 'aadharCardF') => {
+  const removeImage = (field) => {
     setImages((prev) => ({
       ...prev,
       [field]: null,
@@ -150,123 +159,175 @@ const AddClient = () => {
       ...prev,
       [field]: null,
     }));
+    if (errors[field]) {
+      setErrors((prev) => ({
+        ...prev,
+        [field]: '',
+      }));
+    }
+  };
+
+  const openImageModal = (imageUrl) => {
+    setSelectedImage(imageUrl);
+    setShowImageModal(true);
+  };
+
+  const closeImageModal = () => {
+    setSelectedImage(null);
+    setShowImageModal(false);
   };
 
   const validateForm = () => {
     try {
       CustomerSchema.parse(formData);
+
+      if (!images.aadharCardF) {
+        toast.error('Aadhar Card image is required');
+        return false;
+      }
+
       setErrors({});
       return true;
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        const formattedErrors: Record<string, string> = {};
-        error.errors.forEach((err) => {
-          if (err.path[0]) {
-            formattedErrors[err.path[0] as string] = err.message;
-          }
-        });
-        setErrors(formattedErrors);
-        toast.error(error.errors[0].message);
-      }
+      const formattedErrors = {};
+      error.errors.forEach((err) => {
+        formattedErrors[err.path[0]] = err.message;
+      });
+      setErrors(formattedErrors);
+      const firstError = error.errors[0];
+      toast.error(firstError.message);
       return false;
     }
   };
 
-  const addCustomerMutation = useMutation({
-    mutationFn: async (fd) => {
-      const response = await unAuthenticatedApi.post('/users/register', fd);
-      return response.data;
-    },
-    onSuccess: () => {
-      toast.success('Customer registered successfully!');
-      navigate({to: '/masterbroker/client-dashboard'});
-    },
-    onError: (error: any) => {
-      const msg =
-        error.response?.data?.message || 'Failed to register customer';
-      toast.error(msg);
-    },
-  });
+  const resetForm = () => {
+    setFormData({
+      fullname: '',
+      password: '',
+      area: '',
+      commission: '',
+      phoneNumber: '',
+      aadharCardNumber: '',
+      panCardNumber: '',
+      BrokerId: '',
+      type: '', // ADDED - reset to empty
+      // documentNumber: '', // ADD THIS
+    });
+    setImages({
+      aadharCardF: null,
+      panCard: null,
+    });
+    setImagePreviews({
+      aadharCardF: null,
+      panCard: null,
+    });
+    setErrors({});
+    setSearchTerm('');
+    setIsDropdownOpen(false);
+  };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
 
-    setIsSubmitting(true);
-    const fd = new FormData();
-    fd.append('fullname', formData.fullname);
-    fd.append('email', formData.email);
-    fd.append('username', formData.email.split('@')[0]);
-    fd.append('password', formData.password);
-    fd.append('phoneNumber', formData.phoneNumber);
-    fd.append('address', formData.streetAddress);
-    fd.append('city', formData.city);
-    fd.append('state', formData.stateProvince);
-    fd.append('country', 'India');
-    fd.append('pincode', formData.postalCode);
-    fd.append('commission', formData.commission);
-    fd.append('area', formData.area);
-    fd.append('securityPin', '123456'); // default secure pin
-    fd.append('role', 'CUSTOMER');
-    fd.append('masterBrokerId', user?.id || 'mock-dev-id-999');
-
-    if (images.aadharCardF) {
-      fd.append('passport', images.aadharCardF); // matches passport/doc file
+    if (!validateForm()) {
+      return;
     }
 
+    setIsSubmitting(true);
+
+    const formDataToSend = new FormData();
+    
+    // ALL REQUIRED FIELDS - ADDED type
+    formDataToSend.append('fullname', formData.fullname);
+    formDataToSend.append('password', formData.password);
+    formDataToSend.append('phoneNumber', formData.phoneNumber);
+    formDataToSend.append('email', `${formData.phoneNumber}@temp.com`);
+    formDataToSend.append('role', 'CUSTOMER');
+    formDataToSend.append('type', formData.type); // ADDED - send type to backend
+    // formDataToSend.append('documentNumber', formData.documentNumber); // ADD THIS
+
+    // OPTIONAL FIELDS
+    if (formData.aadharCardNumber) {
+      formDataToSend.append('aadharCardNumber', formData.aadharCardNumber);
+    }
+    if (formData.panCardNumber) {
+      formDataToSend.append('panCardNumber', formData.panCardNumber);
+    }
+    if (formData.area) {
+      formDataToSend.append('area', formData.area);
+    }
+    if (formData.commission) {
+      formDataToSend.append('brokeragePercent', formData.commission);
+    }
+    if (formData.BrokerId) {
+      formDataToSend.append('brokerId', formData.BrokerId);
+    }
+
+    // IMAGES
+    if (images.aadharCardF) {
+      formDataToSend.append('aadharCard', images.aadharCardF);
+    }
+    if (images.panCard) {
+      formDataToSend.append('panCard', images.panCard);
+    }
+
+    // console.log('📤 Sending data with documentNumber:');
+    // for (let pair of formDataToSend.entries()) {
+    //   if (pair[1] instanceof File) {
+    //     console.log(`  ${pair[0]}: [File] ${pair[1].name}`);
+    //   } else {
+    //     console.log(`  ${pair[0]}: ${pair[1]}`);
+    //   }
+    // }
+
     try {
-      await addCustomerMutation.mutateAsync(fd);
-    } catch (err) {
-      console.error(err);
+      await addCustomer.mutateAsync(formDataToSend);
+      resetForm();
+      toast.success('Customer registered successfully!');
+      navigate({ to: '/clients/mainpage' });
+    } catch (error: any) {
+      console.error('Error:', error);
+      const errorMsg = error?.response?.data?.message || 'Registration failed';
+      toast.error(errorMsg);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const ImageUploadField = ({
-    label,
-    field,
-  }: {
-    label: string;
-    field: 'aadharCardF';
-  }) => (
+  const ImageUploadField = ({ label, field, required }) => (
     <div className="mb-4">
       <label className="text-gray-700 mb-2 block text-sm font-medium">
-        {label} <span className="text-red-500">*</span>
+        {label} {required && <span className="text-red-500">*</span>}
       </label>
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col items-start gap-4">
         {imagePreviews[field] ? (
           <div className="relative">
             <img
-              src={imagePreviews[field] || ''}
+              src={imagePreviews[field]}
               alt={`${label} preview`}
-              className="border-gray-300 h-32 w-32 rounded-lg border-2 object-cover"
+              className="border-gray-300 h-24 w-24 cursor-pointer rounded-lg border-2 object-cover transition-transform hover:scale-105 sm:h-32 sm:w-32"
+              onClick={() => openImageModal(imagePreviews[field])}
             />
             <button
               type="button"
               onClick={() => removeImage(field)}
-              className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
+              className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white transition-all hover:scale-110 hover:bg-red-600"
             >
-              <svg
-                className="h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              <X className="h-3 w-3 sm:h-4 sm:w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => openImageModal(imagePreviews[field])}
+              className="absolute bottom-1 right-1 rounded-full bg-black/50 p-1 text-white transition-all hover:scale-110 hover:bg-black/70"
+            >
+              <ZoomIn className="h-3 w-3 sm:h-4 sm:w-4" />
             </button>
           </div>
         ) : (
-          <label className="border-gray-300 bg-gray-50 hover:bg-gray-100 flex h-32 w-32 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed">
+          <label className="border-gray-300 bg-gray-50 hover:bg-gray-100 flex h-24 w-24 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-all hover:border-orange-400 sm:h-32 sm:w-32">
             <div className="flex flex-col items-center justify-center pb-6 pt-5">
               <svg
-                className="text-gray-400 mb-3 h-8 w-8"
+                className="text-gray-400 mb-2 h-6 w-6 sm:h-8 sm:w-8"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -296,32 +357,37 @@ const AddClient = () => {
   );
 
   return (
-    <div className="mx-auto max-w-4xl p-6">
-      <div className="rounded-lg bg-white shadow-lg">
-        <div className="border-gray-200 border-b bg-gradient-to-r from-orange-500 to-red-500 p-6">
-          <div className="flex items-center justify-between">
+    <div className="bg-gray-50 min-h-screen p-3 sm:p-4 md:p-6">
+      <div className="mx-auto max-w-4xl rounded-lg bg-white shadow-lg">
+        {/* Header */}
+        <div className="rounded-t-lg bg-gradient-to-r from-orange-500 to-red-500 p-4 sm:p-6">
+          <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
             <div>
-              <h1 className="text-2xl font-bold text-white">
+              <h1 className="text-xl font-bold text-white sm:text-2xl">
                 Customer Registration
               </h1>
-              <p className="mt-1 text-orange-100">
-                Register a new client under your direct network
+              <p className="mt-1 text-sm text-orange-100">
+                Please fill in all the required information
               </p>
             </div>
             <button
-              onClick={() => navigate({to: '/masterbroker/client-dashboard'})}
-              className="hover:bg-gray-100 rounded-lg bg-white px-4 py-2 font-semibold text-orange-500 transition-all"
+              onClick={() =>
+                navigate({
+                  to: '/masterbroker/client-dashboard',
+                })
+              }
+              className="hover:bg-gray-100 w-full rounded-lg bg-white px-4 py-2 text-sm font-medium text-orange-500 transition-all sm:w-auto"
             >
               Back to List
             </button>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
             {/* Full Name */}
-            <div className="mb-2">
-              <label className="text-gray-700 mb-2 block text-sm font-medium">
+            <div className="mb-2 sm:mb-4">
+              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
                 Full Name <span className="text-red-500">*</span>
               </label>
               <input
@@ -329,9 +395,8 @@ const AddClient = () => {
                 name="fullname"
                 value={formData.fullname}
                 onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                  errors.fullname ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.fullname ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 placeholder="Enter full name"
               />
               {errors.fullname && (
@@ -339,29 +404,9 @@ const AddClient = () => {
               )}
             </div>
 
-            {/* Email */}
-            <div className="mb-2">
-              <label className="text-gray-700 mb-2 block text-sm font-medium">
-                Email Address <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                  errors.email ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="Enter email address"
-              />
-              {errors.email && (
-                <p className="mt-1 text-xs text-red-500">{errors.email}</p>
-              )}
-            </div>
-
             {/* Phone number */}
-            <div className="mb-2">
-              <label className="text-gray-700 mb-2 block text-sm font-medium">
+            <div className="mb-2 sm:mb-4">
+              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
                 Phone Number <span className="text-red-500">*</span>
               </label>
               <input
@@ -370,9 +415,8 @@ const AddClient = () => {
                 value={formData.phoneNumber}
                 onChange={handleInputChange}
                 maxLength={10}
-                className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                  errors.phoneNumber ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.phoneNumber ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 placeholder="Enter 10-digit phone number"
               />
               {errors.phoneNumber && (
@@ -383,8 +427,8 @@ const AddClient = () => {
             </div>
 
             {/* Password */}
-            <div className="mb-2">
-              <label className="text-gray-700 mb-2 block text-sm font-medium">
+            <div className="mb-2 sm:mb-4">
+              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
                 Password <span className="text-red-500">*</span>
               </label>
               <input
@@ -392,9 +436,8 @@ const AddClient = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                  errors.password ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.password ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 placeholder="Enter password (min 6 characters)"
               />
               {errors.password && (
@@ -402,22 +445,115 @@ const AddClient = () => {
               )}
             </div>
 
-            {/* Locked Broker Name */}
-            <div className="mb-2">
-              <label className="text-gray-700 mb-2 block text-sm font-medium">
-                Assigned Broker
+            {/* Searchable Broker Dropdown */}
+            <div className="relative mb-2 sm:mb-4">
+              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
+                Assign to Broker <span className="text-red-500">*</span>
               </label>
-              <input
-                type="text"
-                disabled
-                value={`${user?.fullname || 'Mock Broker'} (Broker)`}
-                className="w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-100 p-2 font-semibold text-slate-500"
-              />
+              {isMasterBroker ? (
+                <input
+                  type="text"
+                  disabled
+                  value={`${user?.fullname || 'Super Broker'} (Current User)`}
+                  className="w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-100 p-2 font-semibold text-slate-500"
+                />
+              ) : (
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search Broker by Name or BK ID"
+                    value={
+                      isDropdownOpen
+                        ? searchTerm
+                        : brokers.find((b) => b.id === formData.BrokerId)
+                          ? `${brokers.find((b) => b.id === formData.BrokerId)?.fullname} (${brokers.find((b) => b.id === formData.BrokerId)?.BKId})`
+                          : ''
+                    }
+                    onChange={(e) => {
+                      setSearchTerm(e.target.value);
+                      setIsDropdownOpen(true);
+                    }}
+                    onFocus={() => {
+                      setIsDropdownOpen(true);
+                      setSearchTerm('');
+                    }}
+                    onBlur={() =>
+                      setTimeout(() => setIsDropdownOpen(false), 200)
+                    }
+                    className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.BrokerId ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                  />
+                  {isDropdownOpen && (
+                    <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
+                      {filteredBrokers.length > 0 ? (
+                        filteredBrokers.map((b) => (
+                          <div
+                            key={b.id}
+                            className="cursor-pointer px-4 py-2 transition-colors hover:bg-orange-50"
+                            onClick={() => {
+                              setFormData((prev) => ({
+                                ...prev,
+                                BrokerId: b.id,
+                              }));
+                              setSearchTerm('');
+                              setIsDropdownOpen(false);
+                              if (errors.BrokerId) {
+                                setErrors((prev) => ({
+                                  ...prev,
+                                  BrokerId: '',
+                                }));
+                              }
+                            }}
+                          >
+                            <div className="text-gray-900 font-medium">
+                              {b.fullname}
+                            </div>
+                            <div className="text-gray-500 text-xs">
+                              BK ID: {b.BKId}
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-gray-500 px-4 py-2 text-sm">
+                          {searchTerm ? 'No Brokers found' : 'No brokers available'}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+              {errors.BrokerId && !isMasterBroker && (
+                <p className="mt-1 text-xs text-red-500">
+                  {errors.BrokerId}
+                </p>
+              )}
             </div>
 
-            {/* Aadhar Card Number */}
-            <div className="mb-2">
-              <label className="text-gray-700 mb-2 block text-sm font-medium">
+            {/* Customer Type - DROPDOWN */}
+            <div className="mb-2 sm:mb-4">
+              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
+                Customer Type <span className="text-red-500">*</span>
+              </label>
+              <select
+                name="type"
+                value={formData.type}
+                onChange={handleInputChange}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
+                  errors.type ? 'border-red-500' : 'border-gray-300'
+                }`}
+              >
+                <option value="">Select Customer Type</option>
+                <option value="mega">Mega</option>
+                <option value="mini">Mini</option>
+              </select>
+              {errors.type && (
+                <p className="mt-1 text-xs text-red-500">{errors.type}</p>
+              )}
+            </div>
+
+            {/* Aadhar Card Number - Optional */}
+            <div className="mb-2 sm:mb-4">
+              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
                 Aadhar Card Number
               </label>
               <input
@@ -426,180 +562,188 @@ const AddClient = () => {
                 value={formData.aadharCardNumber}
                 onChange={handleInputChange}
                 maxLength={12}
-                className="border-gray-300 w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.aadharCardNumber ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 placeholder="Enter 12-digit Aadhar number"
               />
+              {errors.aadharCardNumber && (
+                <p className="mt-1 text-xs text-red-500">
+                  {errors.aadharCardNumber}
+                </p>
+              )}
             </div>
 
-            {/* Commission % */}
-            <div className="mb-2">
-              <label className="text-gray-700 mb-2 block text-sm font-medium">
-                Commission %
+            {/* PAN Card Number - Optional */}
+            <div className="mb-2 sm:mb-4">
+              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
+                PAN Card Number
               </label>
               <input
                 type="text"
-                name="commission"
-                value={formData.commission}
+                name="panCardNumber"
+                value={formData.panCardNumber}
                 onChange={handleInputChange}
-                className="border-gray-300 w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                placeholder="Enter Commission %"
+                maxLength={10}
+                className="border-gray-300 w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base"
+                placeholder="Enter PAN card number (e.g., ABCDE1234F)"
               />
+              {errors.panCardNumber && (
+                <p className="mt-1 text-xs text-red-500">
+                  {errors.panCardNumber}
+                </p>
+              )}
             </div>
 
-            {/* Area */}
-            <div className="mb-2">
-              <label className="text-gray-700 mb-2 block text-sm font-medium">
-                Area
+            {/* Area - Required */}
+            <div className="mb-2 sm:mb-4">
+              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
+                Area <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 name="area"
                 value={formData.area}
                 onChange={handleInputChange}
-                className="border-gray-300 w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.area ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 placeholder="Enter Area"
+              />
+              {errors.area && (
+                <p className="mt-1 text-xs text-red-500">{errors.area}</p>
+              )}
+            </div>
+
+            {/* Document Number - Required */}
+            {/* <div className="mb-2 sm:mb-4">
+              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
+                Document Number <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="documentNumber"
+                value={formData.documentNumber}
+                onChange={handleInputChange}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.documentNumber ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                placeholder="Enter document number"
+              />
+              {errors.documentNumber && (
+                <p className="mt-1 text-xs text-red-500">{errors.documentNumber}</p>
+              )}
+            </div> */}
+
+            {/* Commission - Required */}
+            <div className="mb-2 sm:mb-4">
+              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
+                Commission % <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                name="commission"
+                value={formData.commission}
+                onChange={handleInputChange}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.commission ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                placeholder="Enter Commission %"
+              />
+              {errors.commission && (
+                <p className="mt-1 text-xs text-red-500">{errors.commission}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Document Upload Section */}
+          <div className="border-gray-200 mt-6 border-t pt-6">
+            <h2 className="text-gray-800 mb-4 text-base font-semibold sm:text-lg">
+              Document Upload
+            </h2>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
+              <ImageUploadField
+                label="Aadhar Card"
+                field="aadharCardF"
+                required={true}
+              />
+              <ImageUploadField
+                label="PAN Card"
+                field="panCard"
+                required={false}
               />
             </div>
           </div>
 
-          {/* Address Fields */}
-          <div className="border-gray-200 mt-6 border-t pt-4">
-            <h2 className="text-gray-800 text-md mb-4 font-semibold">
-              Client Address Details
-            </h2>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <div className="mb-2 md:col-span-2">
-                <label className="text-gray-700 mb-2 block text-sm font-medium">
-                  Street Address <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  name="streetAddress"
-                  value={formData.streetAddress}
-                  onChange={handleInputChange}
-                  rows={2}
-                  className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                    errors.streetAddress ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder="Enter street address"
-                />
-                {errors.streetAddress && (
-                  <p className="mt-1 text-xs text-red-500">
-                    {errors.streetAddress}
-                  </p>
+          {/* Review Section */}
+          {(imagePreviews.aadharCardF || imagePreviews.panCard) && (
+            <div className="bg-gray-50 mt-6 rounded-lg p-4">
+              <h3 className="text-md text-gray-800 mb-3 font-semibold">
+                Review Uploaded Images
+              </h3>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {imagePreviews.aadharCardF && (
+                  <div>
+                    <p className="text-gray-600 mb-1 text-sm">Aadhar Card:</p>
+                    <img
+                      src={imagePreviews.aadharCardF}
+                      alt="Aadhar Card"
+                      className="h-20 w-20 cursor-pointer rounded-lg object-cover sm:h-24 sm:w-24"
+                      onClick={() => openImageModal(imagePreviews.aadharCardF)}
+                    />
+                  </div>
                 )}
-              </div>
-
-              <div className="mb-2">
-                <label className="text-gray-700 mb-2 block text-sm font-medium">
-                  Postal / Pincode <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="postalCode"
-                  value={formData.postalCode}
-                  onChange={handleInputChange}
-                  maxLength={6}
-                  className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                    errors.postalCode ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder="Enter 6-digit pin code"
-                />
-                {errors.postalCode && (
-                  <p className="mt-1 text-xs text-red-500">
-                    {errors.postalCode}
-                  </p>
-                )}
-              </div>
-
-              <div className="mb-2">
-                <label className="text-gray-700 mb-2 block text-sm font-medium">
-                  City <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="city"
-                  value={formData.city}
-                  onChange={handleInputChange}
-                  className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                    errors.city ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder="Enter city"
-                />
-                {errors.city && (
-                  <p className="mt-1 text-xs text-red-500">{errors.city}</p>
-                )}
-              </div>
-
-              <div className="mb-2">
-                <label className="text-gray-700 mb-2 block text-sm font-medium">
-                  State <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="stateProvince"
-                  value={formData.stateProvince}
-                  onChange={handleInputChange}
-                  className={`w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                    errors.stateProvince ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder="Enter state"
-                />
-                {errors.stateProvince && (
-                  <p className="mt-1 text-xs text-red-500">
-                    {errors.stateProvince}
-                  </p>
+                {imagePreviews.panCard && (
+                  <div>
+                    <p className="text-gray-600 mb-1 text-sm">PAN Card:</p>
+                    <img
+                      src={imagePreviews.panCard}
+                      alt="PAN Card"
+                      className="h-20 w-20 cursor-pointer rounded-lg object-cover sm:h-24 sm:w-24"
+                      onClick={() => openImageModal(imagePreviews.panCard)}
+                    />
+                  </div>
                 )}
               </div>
             </div>
-          </div>
-
-          {/* Document Section */}
-          <div className="border-gray-200 mt-6 border-t pt-4">
-            <h2 className="text-gray-800 text-md mb-4 font-semibold">
-              Document Verification
-            </h2>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              <ImageUploadField label="Aadhar Card Front" field="aadharCardF" />
-            </div>
-          </div>
+          )}
 
           {/* Submit Buttons */}
-          <div className="mt-6 flex gap-4">
+          <div className="mt-8 flex justify-end gap-3">
             <button
               type="submit"
-              disabled={isSubmitting || addCustomerMutation.isPending}
-              className="flex-1 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 px-4 py-2.5 font-semibold text-white shadow-md transition-all hover:scale-[1.01] hover:from-orange-600 hover:to-red-600 disabled:opacity-50"
+              disabled={isSubmitting || addCustomer.isPending}
+              className="rounded-lg bg-gradient-to-r from-orange-500 to-red-500 px-8 py-2.5 text-sm font-medium text-white shadow-lg shadow-orange-500/20 transition-all hover:from-orange-600 hover:to-red-600 disabled:opacity-50"
             >
-              {isSubmitting || addCustomerMutation.isPending
+              {isSubmitting || addCustomer.isPending
                 ? 'Submitting...'
                 : 'Register Customer'}
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                setFormData({
-                  fullname: '',
-                  email: '',
-                  phoneNumber: '',
-                  password: '',
-                  aadharCardNumber: '',
-                  commission: '',
-                  area: '',
-                  streetAddress: '',
-                  city: '',
-                  stateProvince: '',
-                  postalCode: '',
-                })
-              }
-              className="border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg border px-6 py-2.5 font-semibold transition-all"
-            >
-              Reset
             </button>
           </div>
         </form>
       </div>
+
+      {/* Image Popup Modal */}
+      {showImageModal && selectedImage && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+          onClick={closeImageModal}
+        >
+          <div className="relative max-h-[90vh] max-w-[90vw]">
+            <button
+              onClick={closeImageModal}
+              className="text-gray-800 hover:bg-gray-100 absolute -right-2 -top-2 rounded-full bg-white p-1 transition-all hover:scale-110"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <img
+              src={selectedImage}
+              alt="Full size"
+              className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-export default AddClient;
+export default CompanyAddCustomer;

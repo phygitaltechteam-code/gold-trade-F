@@ -296,10 +296,11 @@ const AddMasterBroker = () => {
               <GenericInputField
                 name="commission"
                 label="Commission (%)"
-                type="number"
+                type="string"
                 required
+                step="any"
                 placeholder="Enter commission percentage"
-                step="0.01"
+                
                 min="0"
               />
             </div>

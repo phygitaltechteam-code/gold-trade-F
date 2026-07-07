@@ -94,6 +94,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         icon: <TbUserStar size={22} />,
       },
       {
+        label: 'Master Broker',
+        path: '/companybroker/display-master-broker',
+        icon: <TbUserStar size={22} />,
+      },
+      {
         label: 'Broker',
         path: '/companybroker/displaybroker',
         icon: <UserCog size={22} />,

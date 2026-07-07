@@ -1,5 +1,8 @@
+import { useAuthContext } from '@/context/AuthContext';
+import AuthContextProvider from '@/context/AuthContextProvider';
 import {api} from '@/utils/axios';
 import {boolean} from 'zod';
+
 
 export const getCommisssion = async () => {
   try {
@@ -33,16 +36,20 @@ export const setTradingTime = async (
   stoplossAndTargetStatus?: boolean,
 ) => {
   try {
-    const response = await api.put(`company/profile/site`, {
-      stockHoldingLimit: stockHoldingLimit,
-      holdingStatus: holdingStatus,
-      gttStatus: gttStatus,
-      stoplossStatus: stoplossStatus,
-      limitStatus: limitStatus,
-      targetStatus: targetStatus,
-      stoplossAndTargetStatus: stoplossAndTargetStatus,
-    });
-    return response.data;
+  
+      const response = await api.put(`company/profile/site`, {
+        stockHoldingLimit: stockHoldingLimit,
+        holdingStatus: holdingStatus,
+        gttStatus: gttStatus,
+        stoplossStatus: stoplossStatus,
+        limitStatus: limitStatus,
+        targetStatus: targetStatus,
+        stoplossAndTargetStatus: stoplossAndTargetStatus,
+      });
+      return response.data;
+    
+    
+    
   } catch (error) {
     console.error('Error to set:', error);
     throw error;

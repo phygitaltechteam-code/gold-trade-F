@@ -16,9 +16,10 @@ import {
 } from 'lucide-react';
 import {Client} from './types';
 import {motion} from 'framer-motion';
-import {useActivateCustomer, useGetClients} from '@/lib/react-query/client';
+import {useActivateCustomer} from '@/lib/react-query/client';
 import {useGetAllSuperBrocker} from '@/lib/react-query/superbrocker';
 import GenericTable from '@/components/Forms/Table/GenericTable';
+import { useGetMasterClients } from '@/lib/api/masterpanelapi/masterapi';
 
 interface ClientDashboardProps {
   onSelectClient?: (client: Client) => void;
@@ -65,7 +66,7 @@ const StatCard = ({title, value, trend, icon: Icon, isLoading}: any) => (
 export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
   const navigate = useNavigate();
   const {user} = useAuthContext();
-  const isMasterBroker = user?.role === 'MASTER_BROKER';
+  const isBroker = user?.role === 'BROKER';
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [showPinModal, setShowPinModal] = useState(false);
   const [showPin, setShowPin] = useState(false);
@@ -74,8 +75,8 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
   const [brokerFilter, setBrokerFilter] = useState<string>('all');
   const [superBrokerFilter, setSuperBrokerFilter] = useState<string>('all');
   const {mutateAsync: statusChange, isPending} = useActivateCustomer();
-  const {data: allSuperBrocker} = useGetAllSuperBrocker();
-  const {data: clients = [], refetch, isLoading} = useGetClients();
+  // const {data: allSuperBrocker} =useGetMasterClients();
+   const {data: clients = [], refetch, isLoading} = useGetMasterClients();
 
   // Extract unique broker names for filter
   const brokers = Array.from(
@@ -173,7 +174,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
   };
 
   const handleRowClick = (client: Client) => {
-    navigate({to: '/companybroker/clientdetail/$id', params: {id: client.id}});
+    navigate({to: '/masterbroker/client-details/$id', params: {id: client.id}});
   };
 
   const formatCurrency = (amount: number) => {
@@ -205,24 +206,24 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
         </div>
       ),
     },
-    {
-      header: 'Broker Name',
-      accessor: 'broker.user.fullname',
-      render: (row: Client) => (
-        <span className="whitespace-nowrap text-sm font-medium text-slate-600">
-          {row?.broker?.user?.fullname || 'N/A'}
-        </span>
-      ),
-    },
-    {
-      header: 'Super Broker Name',
-      accessor: 'broker.superBroker.user.fullname',
-      render: (row: Client) => (
-        <span className="whitespace-nowrap text-sm font-medium text-slate-600">
-          {row?.broker?.superBroker?.user?.fullname || 'N/A'}
-        </span>
-      ),
-    },
+    // {
+    //   header: 'Broker Name',
+    //   accessor: 'broker.user.fullname',
+    //   render: (row: Client) => (
+    //     <span className="whitespace-nowrap text-sm font-medium text-slate-600">
+    //       {row?.broker?.user?.fullname || 'N/A'}
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   header: 'Super Broker Name',
+    //   accessor: 'broker.superBroker.user.fullname',
+    //   render: (row: Client) => (
+    //     <span className="whitespace-nowrap text-sm font-medium text-slate-600">
+    //       {row?.broker?.superBroker?.user?.fullname || 'N/A'}
+    //     </span>
+    //   ),
+    // },
     {
       header: 'Wallet Balance',
       accessor: 'wallets.amount',
@@ -332,9 +333,9 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       {/* Header */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4 md:mb-8">
         <h1 className="text-2xl font-semibold text-slate-900 md:text-3xl">
-          Client Management
+          Client Management...
         </h1>
-        {isMasterBroker && (
+      
           <button
             onClick={() => navigate({to: '/masterbroker/add-client'})}
             className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:scale-[1.02] hover:from-orange-600 hover:to-red-600"
@@ -342,7 +343,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
             <Plus className="h-4 w-4" />
             Add Client
           </button>
-        )}
+
       </div>
 
       {/* Stats Cards Grid - 6 cards */}
