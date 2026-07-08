@@ -1,6 +1,6 @@
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { getProfile, getTradingTime, profilePayload, resetPassword, resetPin, setTradingTime, updateProfile } from './profileapi';
+import { getCommisssion, getProfile, getScriptsData, getTradingTime, profilePayload, resetPassword, resetPin, setCommission, setTradingTime, updateProfile, updateScriptStatus } from './profileapi';
 import { api } from '@/utils/axios';
 
 
@@ -102,3 +102,51 @@ export const useGetProfile = () =>
       queryFn: () => getTradingTime(),
     });
   
+
+    export const useSetComission = () => {
+      const queryClient = useQueryClient();
+    
+      return useMutation({
+        mutationFn: (commission: number) => setCommission(commission),
+        onSuccess: () => {
+          toast.success('Commission set successfully!');
+          queryClient.invalidateQueries({queryKey: ['commission_single']});
+        },
+        onError: (error: Error) => {
+          toast.error(error.message || 'Failed to set commission!');
+        },
+      });
+    };
+
+    export const  useGetCommission=()=>{
+      return useQuery({
+        queryKey: ['commission_single'],
+        queryFn: () => getCommisssion(),
+      });
+    }
+
+       export const  useGetScript=()=>{
+      return useQuery({
+        queryKey: ['commission_single'],
+        queryFn: () => getScriptsData(),
+      });
+    }
+
+
+    export const useUpdateScriptStatus = () => {
+      const queryClient = useQueryClient();
+    
+      return useMutation({
+        mutationFn: (id: string) => updateScriptStatus(id),
+        onSuccess: () => {
+          toast.success('Status Updated Successfully!');
+          queryClient.invalidateQueries({queryKey: ['scripts']});
+        },
+        onError: (error: any) => {
+          console.error('Delete error:', error);
+          const backendMessage =
+            error?.response?.data?.message || 'Failed to update Status';
+          toast.error(backendMessage);
+        },
+      });
+    };

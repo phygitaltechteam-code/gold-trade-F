@@ -16,10 +16,8 @@ import {
 } from 'lucide-react';
 import {Client} from './types';
 import {motion} from 'framer-motion';
-import {useActivateCustomer} from '@/lib/react-query/client';
-import {useGetAllSuperBrocker} from '@/lib/react-query/superbrocker';
 import GenericTable from '@/components/Forms/Table/GenericTable';
-import { useGetMasterClients } from '@/lib/api/masterpanelapi/masterapi';
+import { useActivateCustomer, useGetMasterClients } from '@/lib/api/masterpanelapi/masterapi';
 
 interface ClientDashboardProps {
   onSelectClient?: (client: Client) => void;

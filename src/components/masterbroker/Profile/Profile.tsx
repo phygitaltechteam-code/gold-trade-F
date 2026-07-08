@@ -23,6 +23,7 @@ const Profile = () => {
         setPreview(profile.photo);
       }
     }
+    console.log(fullname  , preview);
   }, [profile]);
 
   // preview selected image
@@ -77,7 +78,7 @@ const Profile = () => {
 
               <div className="space-y-2">
                 <label className="text-gray-500 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider sm:text-xs">
-                  photo
+                  Logo
                 </label>
 
                 <div className="space-y-3">

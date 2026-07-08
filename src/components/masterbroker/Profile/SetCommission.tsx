@@ -12,15 +12,14 @@
 
 import React, {useEffect, useState} from 'react';
 import {Database, Edit2, Eye, EyeOff, X} from 'lucide-react';
-import {useGetComission, useSetComission} from '@/lib/react-query/commission';
 
 import {set} from 'lodash';
-import { useEditProfile, useGetProfile, useResetPassword, useResetPin } from '@/lib/api/masterpanelapi/profile';
+import { useEditProfile, useGetCommission, useGetProfile, useResetPassword, useResetPin, useSetComission } from '@/lib/api/masterpanelapi/profile';
 
 const SetCommission = () => {
   const [makerFee, setMakerFee] = useState('0.15');
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const {data: commission} = useGetComission();
+  const {data: commission} = useGetCommission();
   const {mutateAsync: setCommission} = useSetComission();
   const {mutateAsync: resetPassword} = useResetPassword();
   const {mutateAsync: resetPin} = useResetPin();

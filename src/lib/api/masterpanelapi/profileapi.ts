@@ -4,7 +4,7 @@ import { AxiosError } from "axios";
 
 export const getProfile = async () => {
   try {
-    const response = await api.get(`company/profile`);
+    const response = await api.get(`master-broker/profile`);
     return response.data;
   } catch (error) {
     console.error('Error while edit date:', error);
@@ -74,7 +74,7 @@ export const updateProfile = async (data: profilePayload) => {
       formData.append('photo', data.photo);
     }
 
-    const response = await api.put(`company/profile`, formData, {
+    const response = await api.put(`master-broker/profile`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -119,4 +119,47 @@ export const setTradingTime = async (data: TradingTimePayload) => {
   }
 };
 
+export const setCommission = async (commission: number) => {
+  try {
+    const response = await api.post(`master-broker/commission`, {
+      commission: commission,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching commission:', error);
+    throw error;
+  }
+};
 
+export const getCommisssion = async () => {
+  try {
+    const response = await api.get(`master-broker/commission`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching commission:', error);
+    throw error;
+  }
+};
+
+
+export const getScriptsData = async () => {
+  try {
+    const response = await api.get(`/master-broker/profile/assets`);
+    console.log('API response for scripts:', response);
+    return response;
+  } catch (error) {
+    console.error('Error fetching scripts data:', error);
+    throw error;
+  }
+};
+
+export const  updateScriptStatus = async (id: string) => {
+  try {
+    const response = await api.patch(`/master-broker/profile/assets/${id}`);
+    console.log('API response for scripts:', response);
+    return response;
+  } catch (error) {
+    console.error('Error to status change:', error);
+    throw error;
+  }
+};

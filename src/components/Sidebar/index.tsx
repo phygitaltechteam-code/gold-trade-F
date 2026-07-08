@@ -340,16 +340,16 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   path: '/masterbroker/ledger-transaction',
                   icon: <HandCoins size={22} />,
                 },
-                {
-                  label: 'Pending Approvels',
-                  path: '/masterbroker/pending-approvel',
-                  icon: <Receipt size={22} />,
-                },
-                {
-                  label: 'Financial Report',
-                  path: '/masterbroker/financial-report',
-                  icon: <UserCog size={22} />,
-                },
+                // {
+                //   label: 'Pending Approvels',
+                //   path: '/masterbroker/pending-approvel',
+                //   icon: <Receipt size={22} />,
+                // },
+                // {
+                //   label: 'Financial Report',
+                //   path: '/masterbroker/financial-report',
+                //   icon: <UserCog size={22} />,
+                // },
                 {
                   label: 'Widraw Request',
                   path: '/masterbroker/widrawrequest',

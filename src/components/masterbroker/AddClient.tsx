@@ -662,7 +662,7 @@ const CompanyAddCustomer = () => {
               <ImageUploadField
                 label="Aadhar Card"
                 field="aadharCardF"
-                required={true}
+                required={false}
               />
               <ImageUploadField
                 label="PAN Card"

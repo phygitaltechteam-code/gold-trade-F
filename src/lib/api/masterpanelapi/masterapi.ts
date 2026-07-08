@@ -449,3 +449,34 @@ export const getPendingBrokers = async (id: string) => {
   const response = await api.get(`/company/broker/${id}`);
   return response.data;
 };
+
+
+export const useActivateCustomer = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({id, pin}: {id: string; pin: string}) =>
+      activeCustomer(id, pin),
+
+    onSuccess: () => {
+      toast.success('Status Changes!');
+      queryClient.invalidateQueries({queryKey: ['customer']});
+    },
+    onError: () => {
+      toast.error('Failed To Change Status!');
+    },
+  });
+};
+
+
+export const activeCustomer = async (id: string, pin: string) => {
+  try {
+    const response = await api.put(`/master-broker/customer/${id}/active`, {
+      securityPin: pin,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error accept', error);
+    throw error;
+  }
+};

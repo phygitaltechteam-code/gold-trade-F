@@ -262,7 +262,7 @@ export const ClientDetail: React.FC = () => {
   };
 
   const handleBack = () => {
-    navigate({to: '/clients/mainpage'});
+    navigate({to: '/masterbroker/client-dashboard'});
   };
 
   const handleEditClick = () => {

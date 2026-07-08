@@ -105,23 +105,23 @@ const ChamkiTrading = () => {
                 {/* Trading Time Row */}
                 <tr className="border-b border-stroke">
                   <td className="py-4 pr-15">
-                    <div className="space-y-1">
+                    {/* <div className="space-y-1">
                       <label className="text-gray-500 text-xs font-semibold uppercase tracking-wider">
                         Trading Time (Minutes)
                       </label>
                       <p className="text-gray-400 text-xs">
                         Range: 1 to 60 minutes
                       </p>
-                    </div>
+                    </div> */}
                   </td>
                   <td className="py-4">
                     <div className="relative w-64">
-                      <button
+                      {/* <button
                         type="button"
                         className="text-gray-400 absolute left-3 top-1/2 z-10 -translate-y-1/2 hover:text-orange-500"
                       >
                         <Clock3 className="h-4 w-4" />
-                      </button>
+                      </button> */}
 
                       {/* <input
                         type="number"
