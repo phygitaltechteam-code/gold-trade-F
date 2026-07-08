@@ -172,7 +172,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
     }
   };
 
-  const handleRowClick = (client: Client) => {
+  const  handleRowClick = (client: Client) => {
     navigate({to: '/companybroker/clientdetail/$id', params: {id: client.id}});
   };
 

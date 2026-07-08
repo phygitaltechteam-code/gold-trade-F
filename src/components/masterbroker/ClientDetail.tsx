@@ -637,14 +637,14 @@ export const ClientDetail: React.FC = () => {
                   )}
                 </div>
 
-                <div>
+                {/* <div>
                   <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                     CRN
                   </label>
                   <p className="text-sm text-black dark:text-white md:text-base">
                     {displayClient?.CRN || 'N/A'}
                   </p>
-                </div>
+                </div> */}
 
                 {/* <div>
                   <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
@@ -684,16 +684,16 @@ export const ClientDetail: React.FC = () => {
                   )}
                 </div>
 
-                <div>
+                {/* <div>
                   <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                     City
                   </label>
                   <p className="text-sm text-black dark:text-white md:text-base">
                     {displayClient?.city || 'N/A'}
                   </p>
-                </div>
+                </div> */}
 
-                <div>
+                {/* <div>
                   <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                     State / Country
                   </label>
@@ -701,7 +701,7 @@ export const ClientDetail: React.FC = () => {
                     {displayClient?.state || 'N/A'} /{' '}
                     {displayClient?.country || 'N/A'}
                   </p>
-                </div>
+                </div> */}
 
                 <div>
                   <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">

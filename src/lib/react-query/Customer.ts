@@ -8,7 +8,7 @@ export const getAllCustomer = async () => {
   } catch (error) {
     console.error('Error fetching customers:', error);
     throw error;
-  }
+  }   
 };
 
 export const getCustomerById = async (id: string) => {
