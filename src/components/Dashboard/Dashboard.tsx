@@ -197,6 +197,7 @@ const Dashboard: React.FC = () => {
     // User Statistics
     noOfSuperBroker: dashboardData?.cards?.superBrokers?.total ?? 0,
     activeSuperBrokers: dashboardData?.cards?.superBrokers?.active ?? 0,
+    noOfMasterBroker: dashboardData?.cards?.masterBrokers?.total ?? 0,
     noOfBroker: dashboardData?.cards?.brokers?.total ?? 0,
     activeBrokers: dashboardData?.cards?.brokers?.active ?? 0,
     noOfCustomer: dashboardData?.cards?.customers?.total ?? 0,
@@ -300,6 +301,13 @@ const Dashboard: React.FC = () => {
             iconColor="text-blue-500"
           />
           <StatCard
+            title="No. of Master Brokers"
+            value={formatNumber(dashboardStats.noOfMasterBroker)}
+            // subValue={`${dashboardStats.activeSuperBrokers} Active`}
+            icon={Award}
+            iconColor="text-purple-500"
+          />
+          <StatCard
             title="No. of Customers"
             value={formatNumber(dashboardStats.noOfCustomer)}
             // subValue={`${dashboardStats.activeCustomers} Active`}
@@ -312,10 +320,7 @@ const Dashboard: React.FC = () => {
             icon={Activity}
             iconColor="text-orange-500"
           />
-        </div>
-
-        {/* Row 2: Commission Cards */}
-        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
+        
           <FinancialStatCard
             title="Admin Commission"
             amount={formatCurrency(dashboardStats.adminCommission)}
@@ -344,10 +349,7 @@ const Dashboard: React.FC = () => {
                 : 'text-red-500'
             }
           />
-        </div>
 
-        {/* Row 3: Wallet & Pending Commissions */}
-        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
           <FinancialStatCard
             title="Total Customer Wallet Balance"
             amount={formatCurrency(dashboardStats.totalCustomerWalletBalance)}

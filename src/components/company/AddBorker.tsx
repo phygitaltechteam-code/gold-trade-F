@@ -164,10 +164,10 @@ const AddBroker = () => {
     try {
       BrokerSchema.parse(formData);
 
-      if (!images.aadharCardF) {
-        toast.error('Aadhar Card image is required');
-        return false;
-      }
+      // if (!images.aadharCardF) {
+      //   toast.error('Aadhar Card image is required');
+      //   return false;
+      // }
 
       setErrors({});
       return true;
@@ -585,7 +585,7 @@ const AddBroker = () => {
               <ImageUploadField
                 label="Aadhar Card"
                 field="aadharCardF"
-                required={true}
+                required={false}
               />
               <ImageUploadField
                 label="PAN Card"

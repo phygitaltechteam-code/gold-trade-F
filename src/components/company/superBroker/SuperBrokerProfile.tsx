@@ -34,7 +34,7 @@ const formatDateTime = (dateString: string) => {
 };
 
 const SuperBrokerProfile = () => {
-  const {id } = Route.useParams();
+  const { id } = Route.useParams();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('ledger');
@@ -216,20 +216,19 @@ const SuperBrokerProfile = () => {
   // const paymentData = useMemo(() => [], []);
 
   const paymentData = useMemo(() => {
-    if (!paymentDataFromApi || !Array.isArray(paymentDataFromApi)) {
+    if (!paymentDataFromApi || !Array.isArray(paymentDataFromApi.data)) {
       return [];
     }
-
-    // Transform based on your actual API response structure
-    return paymentDataFromApi.map((item: any) => ({
-      rawDate: item.date || item.createdAt || item.paymentDate,
-      date: formatDateTime(item.date || item.createdAt || item.paymentDate),
+  
+    return paymentDataFromApi.data.map((item: any) => ({
+      // Store the original date for filtering
+      rawDate: item.date || item.createdAt || item.paymentDate || item.paidDate,
+      date: formatDateTime(item.date || item.createdAt || item.paymentDate || item.paidDate),
       commissionGenerated: item.commissionGenerated || item.totalCommission || 0,
-      PendingCommission: item.pendingCommission || item.dueAmount || 0,
-      paidcommission: item.paidCommission || item.paidAmount || 0,
+      pendingGenerated: item.commissionGenerated - item.paidCommission  || 0,
+      paidCommission: item.paidCommission || item.paidAmount || 0,
       paidDate: item.paidDate ? formatDateTime(item.paidDate) : '-',
       status: item.status || item.paymentStatus || 'Pending',
-      // Keep any additional fields you might need
       transactionId: item.transactionId || '-',
       paymentMethod: item.paymentMethod || '-',
       note: item.note || '-',
@@ -977,7 +976,7 @@ const SuperBrokerProfile = () => {
         </div>
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-orange-500 md:text-2xl">
-            ₹{pendingCommission.toLocaleString('en-IN')}
+            ₹{paymentDataFromApi?.summary?.pendingCommission.toLocaleString() || '0'}
           </h4>
           <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
             Pending Commission

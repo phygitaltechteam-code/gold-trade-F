@@ -13,7 +13,7 @@ const BrokerSchema = z.object({
   fullname: z.string().min(1, 'Full name is required'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   phoneNumber: z.string().min(1, 'Phone number is required'),
-  commission: z.coerce.number().min(0, 'Commission must be a positive number'),
+  commission: z.coerce.number(),
   area: z.string().min(1, 'Area is required'),
   aadharCardNumber: z.string().optional(),
   panCardNumber: z.string().optional(),
@@ -297,10 +297,8 @@ const AddSuperBroker = () => {
                 name="commission"
                 label="Commission (%)"
                 type="number"
-                required
+                // required
                 placeholder="Enter commission percentage"
-                step="0.01"
-                min="0"
               />
             </div>
 

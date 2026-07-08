@@ -363,6 +363,20 @@ export const DisplayScripts: React.FC = () => {
     }
   }, [scrpiData, isLoading, isPending, isSuccess]);
 
+  // filter based on expiry 
+
+  const finalScript = scripts.filter((script)=>{
+        const expiry = new Date(script.expiry);
+        const today = new Date();
+        expiry.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
+   return expiry >= today;
+
+  })
+
+  console.log('finalScript', finalScript);
+
+
   const handleToggle = (script: Script, e: React.MouseEvent) => {
     e.stopPropagation();
     setSelectedScript(script);
@@ -444,13 +458,13 @@ export const DisplayScripts: React.FC = () => {
       header: 'Type',
       accessor: 'type',
     },
-    {
-      header: 'Price',
-      accessor: 'lastPrice',
-      render: (row: Script) => (
-        <span>₹{Number(row.lastPrice || 0).toLocaleString('en-IN')}</span>
-      ),
-    },
+    // {
+    //   header: 'Price',
+    //   accessor: 'lastPrice',
+    //   render: (row: Script) => (
+    //     <span>₹{Number(row.lastPrice || 0).toLocaleString('en-IN')}</span>
+    //   ),
+    // },
     {
       header: 'Expiry',
       accessor: 'expiry',
@@ -501,6 +515,8 @@ export const DisplayScripts: React.FC = () => {
   const selectedScriptDetails = scripts.find(
     (s) => s.id === selectedScript?.id,
   );
+
+
 
   return (
     <>

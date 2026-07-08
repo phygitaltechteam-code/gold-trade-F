@@ -174,13 +174,13 @@ const DisplayMasterBroker = ({refreshTrigger}) => {
         <span>{row.phoneNumber || row.user?.phoneNumber || 'N/A'}</span>
       ),
     },
-    {
-      header: 'BKId',
-      accessor: 'BKId',
-      render: (row) => (
-        <span className="font-mono text-sm">{row.BKId || 'N/A'}</span>
-      ),
-    },
+    // {
+    //   header: 'BKId',
+    //   accessor: 'BKId',
+    //   render: (row) => (
+    //     <span className="font-mono text-sm">{row.BKId || 'N/A'}</span>
+    //   ),
+    // },
     {
       header: 'Commission',
       accessor: 'brokeragePercent',
@@ -190,13 +190,13 @@ const DisplayMasterBroker = ({refreshTrigger}) => {
         </span>
       ),
     },
-    {
-      header: 'Total Brokers',
-      accessor: 'totalBrokers',
-      render: (row) => (
-        <span>{row.totalBrokers || row._count?.brokers || 0}</span>
-      ),
-    },
+    // {
+    //   header: 'Total Brokers',
+    //   accessor: 'totalBrokers',
+    //   render: (row) => (
+    //     <span>{row.totalBrokers || row._count?.brokers || 0}</span>
+    //   ),
+    // },
     {
       header: 'Total Business',
       accessor: 'totalBusiness',

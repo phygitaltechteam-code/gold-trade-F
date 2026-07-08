@@ -12,6 +12,7 @@ interface InputProps {
   defaultValue?: string;
   required?: boolean;
   customOnChange?: (e: React.ChangeEvent<HTMLInputElement>) => void; // ⭐ add this
+  step?: string | number;
 }
 
 const GenericInputField: React.FC<InputProps> = ({
@@ -27,20 +28,14 @@ const GenericInputField: React.FC<InputProps> = ({
   const {
     register,
     formState: {errors},
-    setValue,
   } = useFormContext();
 
   const [showPassword, setShowPassword] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const {value} = e.target;
-
-    // number conversion
-    if (type === 'number') {
-      setValue(name, Number(value));
-    }
-
-    // ⭐ call user-defined customOnChange
+    // Keep this handler for custom side-effects only. Don't coerce or forcibly
+    // set the value on each keystroke — that prevents users from entering
+    // intermediate numeric values like `0.` or `0.1`.
     if (customOnChange) customOnChange(e);
   };
 
@@ -66,10 +61,13 @@ const GenericInputField: React.FC<InputProps> = ({
         placeholder={placeholder}
         disabled={disabled}
         defaultValue={defaultValue}
+        step={type === 'number' ? 'any' : undefined}
         className={`w-full rounded border-[1.7px] bg-transparent px-3 py-1 text-black outline-none transition ${fieldError ? 'border-red-500' : 'border-stroke'} focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary`}
         // ⭐ use RHF register with custom onChange
         {...register(name, {
           onChange: handleInputChange,
+          // let RHF parse numbers for us when the input is numeric
+          ...(type === 'number' ? {valueAsNumber: true} : {}),
         })}
       />
 

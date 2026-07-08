@@ -14,6 +14,7 @@ import {
   Eye,
   Edit,
   Trash,
+  RefreshCcw,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GenericTable from '@/components/Forms/Table/GenericTable';
@@ -230,7 +231,7 @@ const StatusBadge = ({ status }: { status: WithdrawalRequest['status'] }) => {
 export default function WithdrawalRequest() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('Pending');
-  const { data: withdrawal } = useGetWithdrawal();
+  const { data: withdrawal , refetch } = useGetWithdrawal();
   const { mutateAsync: approve } = useApproveWithdrawal();
   const { mutateAsync: reject } = useRejectWithdrawal();
   console.log('withdrawallll', withdrawal);
@@ -782,6 +783,12 @@ export default function WithdrawalRequest() {
                 className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
               >
                 {isExpanded ? 'View Less' : 'View More'}
+              </button>
+               <button
+                onClick={() =>refetch() }
+                className="rounded bg-orange-500 flex px-1 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 mr-2"
+              >
+                <RefreshCcw size={20}/>Refresh
               </button>
             </div>
           </div>
