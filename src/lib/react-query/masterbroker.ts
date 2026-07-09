@@ -166,10 +166,16 @@ export const updateMasterBrokerProfile = async (
 };
 
 
-// transaction ledger
-export const useGetTransactionLedger = () => {
-  return useQuery({
-    queryKey: ['transaction-ledger'],
-    queryFn: () => api.get('/company/profile/transaction-ledger'),
-  });
+
+export const getMasterbrokerLedgerbyId = async () => {
+  const response = await api.get(`/company/master-broker/ledger/${id}`);
+  return response.data;
 };
+export const useGetMasterbrokerLedgerById = (id: string) =>
+  useQuery({
+    queryKey: ['Master_broker_ledger', id],
+    queryFn: () => getMasterbrokerLedgerbyId(id),
+  });
+
+
+

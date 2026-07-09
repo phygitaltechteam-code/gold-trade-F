@@ -432,7 +432,7 @@ export default function WithdrawalRequest() {
       accessor: (row: WithdrawalRequest) => (
         <div className="flex items-center gap-3">
           <div>
-            <div className="text-gray-900 text-sm font-semibold">
+            <div className="text-gray-900 text-sm font-semibold ">
               {row?.client?.name}
             </div>
           </div>

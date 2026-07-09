@@ -350,6 +350,26 @@ const PendingApprovals: React.FC = () => {
         </div>
       ),
     },
+      {
+  header: 'Date',
+  accessor: 'createdAt',
+  render: (item: any) => {
+    if (!item.createdAt) return <span className="font-mono text-sm">N/A</span>;
+    
+    const date = new Date(item.createdAt);
+    const formattedDate = date.toLocaleString('en-IN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    });
+    
+    return <span className="font-mono text-sm whitespace-nowrap">{formattedDate}</span>;
+  },
+},
     {
       header: 'Phone Number',
       accessor: 'phoneNumber',
@@ -865,7 +885,8 @@ const PendingApprovals: React.FC = () => {
                     required
                   />
                 </div>
-
+                
+                    
                 <div>
                   <label className="text-gray-700 text-sm font-semibold">
                     Phone Number

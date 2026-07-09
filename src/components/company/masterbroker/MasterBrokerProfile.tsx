@@ -162,30 +162,31 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
   }, [paymentData]);
 
   const baseLedgerColumns = [
-    {header: 'Date/Time', accessor: 'dateTime'},
-    {header: 'Transaction ID', accessor: 'transactionId'},
-    {header: 'Stript', accessor: 'stript'},
-    {header: 'Transaction Amount', accessor: 'transactionAmount'},
-    {header: 'Master Broker Commission', accessor: 'MasterBrokerCommission'},
+    {header: 'Date & Time', accessor: 'dateTime'},
+    {header: 'Customer Name', accessor: 'customerName'},
+    {header: 'Script', accessor: 'script'},
+    {header: 'Qty/Lot', accessor: (item) => formatQtyLot(item)},
+    {header: 'Buy Price', accessor: 'buyPrice'},
+    {header: 'Sell Price', accessor: 'sellPrice'},
     {header: 'Status', accessor: 'status'},
+    {header: 'P&L', accessor: (item) => formatPnL(item)},
+    
   ];
 
   const expandedLedgerColumns = [
-    {header: 'Date/Time', accessor: 'dateTime'},
+    {header: 'Date & Time', accessor: 'dateTime'},
     {header: 'Customer Name', accessor: 'customerName'},
-    {header: 'Transaction ID', accessor: 'transactionId'},
-    {header: 'Stript', accessor: 'stript'},
-    {header: 'Order Type', accessor: 'orderType'},
-    {header: 'Holding Type', accessor: 'holdingType'},
-    {header: 'Qty', accessor: 'qty'},
-    {header: 'Price', accessor: 'price'},
+    {header: 'Script', accessor: 'script'},
+    {header: 'Qty/Lot', accessor: (item) => formatQtyLot(item)},
+    {header: 'Buy Price', accessor: 'buyPrice'},
+    {header: 'Sell Price', accessor: 'sellPrice'},
+    {header: 'Buy Time', accessor: 'buyTime'},
+    {header: 'Sell Time', accessor: 'sellTime'},
     {header: 'Status', accessor: 'status'},
-    {header: 'Transaction Amount', accessor: 'transactionAmount'},
-    {header: 'Paid Amount', accessor: 'paidAmount'},
-    {header: 'Margin Amount', accessor: 'marginAmount'},
-    {header: 'Total Commission', accessor: 'totalCommission'},
+    {header: 'P&L', accessor: (item) => formatPnL(item)},
+    {header: 'Admin Commission', accessor: 'companyCommission'},
+    {header: 'Super Broker Commission', accessor: 'superBrokerCommission'},
     {header: 'Broker Commission', accessor: 'brokerCommission'},
-    {header: 'Payment Status', accessor: 'paymentStatus'},
   ];
 
   const ledgerColumns = isLedgerExpanded
@@ -502,7 +503,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
             >
               Commission History ({profileData?.commissionHistories?.length || 0})
             </button>
-            <button
+            {/* <button
               onClick={() => setActiveTab('broker')}
               className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
                 activeTab === 'broker'
@@ -510,8 +511,8 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
                   : 'text-bodydark2'
               }`}
             >
-              Brokers ({profileData?.brokers?.length || 0})
-            </button>
+              okers ({profileData?.brokers?.length || 0})
+            </button> */}
           </div>
           <div className="px-4 py-2">
             <button

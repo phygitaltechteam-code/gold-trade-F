@@ -193,14 +193,14 @@ export const MasterBrokerProfileInfo: React.FC<MasterBrokerProfileInfoProps> = (
           </div>
 
           {/* Total Brokers */}
-          <div>
+          {/* <div>
             <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
               Total Brokers
             </label>
             <p className="text-sm text-black dark:text-white md:text-base">
               {profileData?.brokers?.length || 0}
             </p>
-          </div>
+          </div> */}
 
           {/* Password Field - Only visible in edit mode */}
           {isEditing && (

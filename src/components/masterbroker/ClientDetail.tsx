@@ -90,8 +90,10 @@ export const ClientDetail: React.FC = () => {
     fullname: '',
     phoneNumber: '',
     aadharCardNumber: '',
+    panCardNumber: '',
     brokeragePercent: '',
     address: '',
+    type: '',
     password: '',
   });
 
@@ -290,8 +292,19 @@ export const ClientDetail: React.FC = () => {
       if (editData.address && editData.address !== displayClient?.address) {
         updateData.address = editData.address;
       }
+
       if (editData.password) {
         updateData.password = editData.password;
+      }
+
+      if (
+        editData.panCardNumber &&
+        editData.panCardNumber !== displayClient?.panCardNumber
+      ) {
+        updateData.panCardNumber = editData.panCardNumber;
+      }
+      if (editData.type && editData.type !== displayClient?.type) {
+        updateData.type = editData.type;
       }
 
       if (Object.keys(updateData).length === 0) {
@@ -312,9 +325,11 @@ export const ClientDetail: React.FC = () => {
         fullname: '',
         phoneNumber: '',
         aadharCardNumber: '',
+        panCardNumber: '',
         brokeragePercent: '',
         address: '',
         password: '',
+        type: '',
       });
     } catch (error: any) {
       console.error('Error updating profile:', error);
@@ -327,9 +342,11 @@ export const ClientDetail: React.FC = () => {
       fullname: '',
       phoneNumber: '',
       aadharCardNumber: '',
+      panCardNumber: '',
       brokeragePercent: '',
       address: '',
       password: '',
+      type: '',
     });
     setIsEditing(false);
   };
@@ -345,9 +362,11 @@ export const ClientDetail: React.FC = () => {
       fullname: fullName,
       phoneNumber: phone,
       aadharCardNumber: displayClient?.aadharCardNumber || '',
+      panCardNumber: displayClient?.panCardNumber || '',
       brokeragePercent: displayClient?.brokeragePercent || '',
       address: displayClient?.address || '',
       password: '',
+      type: displayClient?.type || '',
     });
     setIsEditing(true);
   };
@@ -739,36 +758,36 @@ export const ClientDetail: React.FC = () => {
                 </div>
 
                 {/* <div>
-                  <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-                    CRN
-                  </label>
-                  <p className="text-sm text-black dark:text-white md:text-base">
-                    {displayClient?.CRN || 'N/A'}
-                  </p>
-                </div> */}
+                            <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
+                              CRN
+                            </label>
+                            <p className="text-sm text-black dark:text-white md:text-base">
+                              {displayClient?.CRN || 'N/A'}
+                            </p>
+                          </div> */}
 
                 {/* <div>
-                  <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-                    Commission %
-                  </label>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      name="brokeragePercent"
-                      value={editData.brokeragePercent}
-                      onChange={handleInputChange}
-                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
-                    />
-                  ) : (
-                    <p className="text-sm text-black dark:text-white md:text-base">
-                      {displayClient?.brokeragePercent || '0'}%
-                    </p>
-                  )}
-                </div> */}
+                            <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
+                              Commission %
+                            </label>
+                            {isEditing ? (
+                              <input
+                                type="text"
+                                name="brokeragePercent"
+                                value={editData.brokeragePercent}
+                                onChange={handleInputChange}
+                                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
+                              />
+                            ) : (
+                              <p className="text-sm text-black dark:text-white md:text-base">
+                                {displayClient?.brokeragePercent || '0'}%
+                              </p>
+                            )}
+                          </div> */}
 
                 <div>
                   <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-                    Address
+                    Area
                   </label>
                   {isEditing ? (
                     <input
@@ -786,31 +805,62 @@ export const ClientDetail: React.FC = () => {
                 </div>
 
                 {/* <div>
-                  <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-                    City
-                  </label>
-                  <p className="text-sm text-black dark:text-white md:text-base">
-                    {displayClient?.city || 'N/A'}
-                  </p>
-                </div> */}
+                            <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
+                              City
+                            </label>
+                            <p className="text-sm text-black dark:text-white md:text-base">
+                              {displayClient?.city || 'N/A'}
+                            </p>
+                          </div> */}
 
                 {/* <div>
-                  <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-                    State / Country
-                  </label>
-                  <p className="text-sm text-black dark:text-white md:text-base">
-                    {displayClient?.state || 'N/A'} /{' '}
-                    {displayClient?.country || 'N/A'}
-                  </p>
-                </div> */}
+                            <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
+                              State / Country
+                            </label>
+                            <p className="text-sm text-black dark:text-white md:text-base">
+                              {displayClient?.state || 'N/A'} /{' '}
+                              {displayClient?.country || 'N/A'}
+                            </p>
+                          </div> */}
 
                 <div>
                   <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-                    Pincode
+                    Pancard
                   </label>
-                  <p className="text-sm text-black dark:text-white md:text-base">
-                    {displayClient?.pincode || 'N/A'}
-                  </p>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      name="panCardNumber"
+                      value={editData.panCardNumber}
+                      onChange={handleInputChange}
+                      placeholder="Enter new pancard number"
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
+                    />
+                  ) : (
+                    <p className="text-sm text-black dark:text-white md:text-base">
+                      {displayClient?.panCardNumber || 'N/A'}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
+                    Customer Type <span className="text-red-500">*</span>
+                  </label>
+                  {isEditing ? (
+                    <select
+                      name="type"
+                      value={editData.type || ''}
+                      onChange={handleInputChange}
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
+                    >
+                      <option value="mega">Mega</option>
+                      <option value="mini">Mini</option>
+                    </select>
+                  ) : (
+                    <p className="text-sm text-black dark:text-white md:text-base">
+                      {displayClient?.type || 'N/A'}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
