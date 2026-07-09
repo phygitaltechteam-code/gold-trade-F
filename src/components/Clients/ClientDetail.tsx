@@ -1,65 +1,51 @@
-import React, {useState, useMemo} from 'react';
-import GenericTable from '@/components/Forms/Table/GenericTable';
+import React, {useState, useMemo, useEffect} from 'react';
 import {
   ChevronLeft,
-  MoreVertical,
-  CheckCircle2,
   CreditCard,
-  Mail,
-  RotateCcw,
-  Snowflake,
-  FileText,
-  Image as ImageIcon,
-  ExternalLink,
-  ArrowUpRight,
-  ArrowDownLeft,
-  Filter,
-  Download,
-  Building2,
-  User,
-  Users,
-  MapPin,
-  Calendar,
-  Globe,
-  ShieldCheck,
-  Loader2,
   TrendingUp,
-  EyeOff,
-  Eye,
+  Loader2,
+  ShieldCheck,
 } from 'lucide-react';
 import {motion} from 'framer-motion';
-import {Client} from './types';
 import {
   useGetClientById,
   useSendDeposite,
   useAddMargin,
   useSendWithdraw,
   useUpdateCustomer,
+  useGetClientLedgerById,
 } from './mutationapi';
-import {FiEdit2, FiSave, FiX, FiEye} from 'react-icons/fi';
 import {Route} from '@/routes/_app/companybroker/clientdetail.$id';
 import {useNavigate} from '@tanstack/react-router';
 import toast from 'react-hot-toast';
 
-const DocCard = ({name, type, status, icon: Icon, color, url}: any) => (
-  <a
-    href={url}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="group flex cursor-pointer items-center gap-4 rounded-xl border border-slate-100 bg-white p-4 transition-all hover:border-orange-200"
-  >
-    <div className={`rounded-lg p-3 ${color}`}>
-      <Icon className="h-5 w-5" />
-    </div>
-    <div className="min-w-0 flex-1">
-      <div className="truncate text-sm font-medium text-slate-900">{name}</div>
-      <div className="flex items-center gap-1.5 text-xs text-slate-400">
-        {type} • <span className="font-medium text-emerald-600">{status}</span>
-      </div>
-    </div>
-    <ExternalLink className="h-4 w-4 text-slate-300 transition-colors group-hover:text-orange-500" />
-  </a>
-);
+// Subcomponents
+import {ClientProfileInfo} from './ClientProfileInfo';
+import {ClientDetailStats} from './ClientDetailStats';
+import {ClientDocs} from './ClientDocs';
+import {ClientWalletModal} from './ClientWalletModal';
+import {ClientMarginModal} from './ClientMarginModal';
+import {ClientTabs} from './ClientTabs';
+const formatQtyLot = (item) => {
+  if (!item) return '-';
+  const qty = item.qty || item.Qty || 0;
+  const lotSize = item.lotSize || item.lotSize || 0;
+  // If lotSize exists and is different from qty, show as "qty/lot"
+  if (lotSize && lotSize !== qty) {
+    return `${qty}/${lotSize}`;
+  }
+  // If only qty exists or they're the same, just show qty
+  return qty;
+};
+
+// Format P&L with proper sign and color
+// Format P&L with proper sign and color
+const formatPnL = (item) => {
+  const pnl = item.pnl || item['p&l'] || 0;
+  const sign = pnl > 0 ? '+' : '';
+  // ✅ Fix: Show only 2 decimal places
+  return `${sign}${Number(pnl).toFixed(2)}`;
+};
 
 export const ClientDetail: React.FC = () => {
   const {id} = Route.useParams();
@@ -90,48 +76,102 @@ export const ClientDetail: React.FC = () => {
   });
 
   const updateCustomer = useUpdateCustomer();
+  const {data: ledgerData} = useGetClientLedgerById(id);
   const {mutateAsync: sendDeposite, isPending: isDepositPending} =
     useSendDeposite();
   const {mutateAsync: sendWithdraw, isPending: isWithdrawPending} =
     useSendWithdraw();
   const {mutateAsync: addMargin, isPending: isMarginPending} = useAddMargin();
 
-  // Trading Ledger Data from API
-  const tradingLedgerData = useMemo(() => {
-    const tradingLedgers = displayClient?.tradingLedgers || [];
-    return tradingLedgers.map((item: any, index: number) => ({
-      dateTime: new Date(item.createdAt).toLocaleString('en-IN', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      }),
-      type: item.type,
-      amount: `₹${item.amount?.toLocaleString() || '0'}`,
-      balanceAfter: `₹${item.balanceAfter?.toLocaleString() || '0'}`,
-      tradeId: item.tradeId || '-',
-    }));
-  }, [displayClient?.tradingLedgers]);
+  const [tradingLedgerData, setTradingLedgerData] = useState<any[]>([]);
+  const [paymentData, setPaymentData] = useState<any[]>([]);
 
+  // Trading Ledger Data from API
+  useEffect(() => {
+    const tradingLedgers = ledgerData?.data || [];
+    const formattedLedgers = tradingLedgers.map((item: any) => {
+      const amountVal =
+        item.amount ?? item.transactionAmount ?? item.paidAmount ?? 0;
+      const typeVal = item.type ?? item.paymentStatus ?? item.sr ?? '';
+      const dateSource = item.dateTime ?? item.createdAt;
+
+      return {
+        ...item,
+        dateTime: dateSource
+          ? new Date(dateSource).toLocaleString('en-IN', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })
+          : '-',
+        buyTime: item.buyTime
+          ? new Date(item.buyTime).toLocaleString('en-IN', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })
+          : '-',
+        sellTime: item.sellTime
+          ? new Date(item.sellTime).toLocaleString('en-IN', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })
+          : '-',
+        type: typeVal,
+        amount: `₹${amountVal.toLocaleString('en-IN', {maximumFractionDigits: 2})}`,
+        balanceAfter: `₹${(item.balanceAfter ?? 0).toLocaleString('en-IN', {maximumFractionDigits: 2})}`,
+      };
+    });
+    console.log('formattedLedgers', formattedLedgers);
+    setTradingLedgerData(formattedLedgers);
+  }, [ledgerData]);
+  useEffect(() => {
+    const tradingLedgers = clientData?.tradingLedgers || [];
+    const formattedLedgers = tradingLedgers.map((item: any) => {
+      const amountVal =
+        item.amount ?? item.transactionAmount ?? item.paidAmount ?? 0;
+      const typeVal = item.type ?? item.paymentStatus ?? item.sr ?? '';
+      const dateSource = item.dateTime ?? item.createdAt;
+
+      return {
+        ...item,
+        dateTime: item.createdAt
+          ? new Date(item.createdAt).toLocaleString('en-IN', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })
+          : '-',
+        balanceAfter: `₹${(item.balanceAfter ?? 0).toLocaleString('en-IN', {maximumFractionDigits: 2})}`,
+        amount: `₹${amountVal.toLocaleString('en-IN', {maximumFractionDigits: 2})}`,
+      };
+    });
+    console.log('formattedLedgers', formattedLedgers);
+    setPaymentData(formattedLedgers);
+  }, [clientData]);
   const ledgerColumns = [
-    {header: 'Date/Time', accessor: 'dateTime'},
+    {header: 'Date & Time', accessor: 'dateTime'},
     {header: 'Customer Name', accessor: 'customerName'},
-    {header: 'Broker Name', accessor: 'brokerName'},
-    {header: 'Transaction ID', accessor: 'transactionId'},
-    {header: 'Stript', accessor: 'stript'},
-    {header: 'Order Type', accessor: 'orderType'},
-    {header: 'Holding Type', accessor: 'holdingType'},
-    {header: 'Qty', accessor: 'qty'},
-    {header: 'Price', accessor: 'price'},
+    {header: 'Script', accessor: 'script'},
+    {header: 'Qty/Lot', accessor: (item) => formatQtyLot(item)},
+    {header: 'Buy Price', accessor: 'buyPrice'},
+    {header: 'Sell Price', accessor: 'sellPrice'},
+    {header: 'Buy Time', accessor: 'buyTime'},
+    {header: 'Sell Time', accessor: 'sellTime'},
     {header: 'Status', accessor: 'status'},
-    {header: 'Transaction Amount', accessor: 'transactionAmount'},
-    {header: 'Total Amount', accessor: 'totalAmount'},
-    {header: 'Paid Amount', accessor: 'paidAmount'},
-    {header: 'Margin Amount', accessor: 'marginAmount'},
-    {header: 'Total Commission', accessor: 'totalCommission'},
+    {header: 'P&L', accessor: (item) => formatPnL(item)},
+    {header: 'Admin Commission', accessor: 'companyCommission'},
+    {header: 'Super Broker Commission', accessor: 'superBrokerCommission'},
     {header: 'Broker Commission', accessor: 'brokerCommission'},
-    {header: 'Payment Status', accessor: 'paymentStatus'},
   ];
 
   const paymentColumns = [
@@ -183,10 +223,10 @@ export const ClientDetail: React.FC = () => {
       ),
     },
     {
-      header: 'Trade ID',
-      accessor: 'tradeId',
+      header: 'Notes',
+      accessor: 'Notes',
       render: (item: any) => (
-        <span className="font-mono text-gray-500 text-xs">{item.tradeId}</span>
+        <span className="font-mono text-gray-500 text-xs">{item.Notes}</span>
       ),
     },
   ];
@@ -237,7 +277,6 @@ export const ClientDetail: React.FC = () => {
       });
 
       setIsEditing(false);
-      await refetch();
 
       setEditData({
         fullname: '',
@@ -281,7 +320,6 @@ export const ClientDetail: React.FC = () => {
     setIsEditing(true);
   };
 
-  // Handle Deposit/Withdraw submission
   const handleWalletSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -324,8 +362,6 @@ export const ClientDetail: React.FC = () => {
         });
       }
 
-      console.log('Wallet Transaction Response:', result);
-
       if (result?.statusCode === 200 || result?.status === true) {
         toast.success(
           `₹${walletAmount} ${walletActionType === 'add' ? 'deposited' : 'withdrawn'} successfully!`,
@@ -335,8 +371,6 @@ export const ClientDetail: React.FC = () => {
         setWalletAmount('');
         setWalletPin('');
         setShowWalletPin(false);
-
-        await refetch();
       } else {
         toast.error(result?.message || `Failed to ${walletActionType} amount`);
       }
@@ -349,7 +383,6 @@ export const ClientDetail: React.FC = () => {
     }
   };
 
-  // Handle Margin submission
   const handleMarginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -381,21 +414,13 @@ export const ClientDetail: React.FC = () => {
         securityPin: marginPin,
       });
 
-      console.log('Add Margin Response:', result);
+      toast.success('Margin added successfully!');
 
-      if (result?.statusCode === 200 || result?.status === true) {
-        toast.success('Margin added successfully!');
-
-        setIsMarginModalOpen(false);
-        setIntradayMargin('');
-        setHoldingMargin('');
-        setMarginPin('');
-        setShowMarginPin(false);
-
-        await refetch();
-      } else {
-        toast.error(result?.message || 'Failed to add margin');
-      }
+      setIsMarginModalOpen(false);
+      setIntradayMargin('');
+      setHoldingMargin('');
+      setMarginPin('');
+      setShowMarginPin(false);
     } catch (error: any) {
       console.error('Error adding margin:', error);
       toast.error(
@@ -477,586 +502,88 @@ export const ClientDetail: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:gap-8">
-        {/* Main Content */}
         <div className="space-y-6 lg:col-span-2">
-          {/* Quick Stats - Removed Commission % card */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-3">
-            <div className="group relative overflow-hidden rounded-2xl border border-black/5 bg-white p-5 shadow-sm md:p-6">
-              <div className="absolute right-0 top-0 p-4 opacity-5 transition-opacity group-hover:opacity-10">
-                <Building2 className="h-16 w-16" />
-              </div>
-              <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                Wallet Balance
-              </div>
-              <div className="text-xl font-semibold text-slate-900 md:text-2xl">
-                ₹{walletAmountValue.toLocaleString()}
-              </div>
-              <div className="mt-1 flex items-center gap-1 text-xs font-medium text-emerald-600">
-                <ArrowUpRight className="h-3 w-3" /> Available Balance
-              </div>
-            </div>
+          {/* Quick Stats Component */}
+          <ClientDetailStats
+            walletAmountValue={walletAmountValue}
+            blockedAmount={blockedAmount}
+            isActive={isActive}
+            isVerified={isVerified}
+          />
 
-            <div className="group relative overflow-hidden rounded-2xl border border-black/5 bg-white p-5 shadow-sm md:p-6">
-              <div className="absolute right-0 top-0 p-4 opacity-5 transition-opacity group-hover:opacity-10">
-                <CreditCard className="h-16 w-16" />
-              </div>
-              <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                Blocked Amount
-              </div>
-              <div className="text-xl font-semibold text-slate-900 md:text-2xl">
-                ₹{blockedAmount.toLocaleString()}
-              </div>
-              <div className="mt-1 flex items-center gap-1 text-xs font-medium text-orange-600">
-                <div className="h-2 w-2 rounded-full bg-orange-500" /> Blocked
-              </div>
-            </div>
+          {/* Profile Details Component */}
+          <ClientProfileInfo
+            displayClient={displayClient}
+            isEditing={isEditing}
+            editData={editData}
+            handleInputChange={handleInputChange}
+            handleSave={handleSave}
+            handleCancel={handleCancel}
+            handleEditClick={handleEditClick}
+            fullName={fullName}
+            phone={phone}
+            aadharNumber={aadharNumber}
+          />
 
-            <div className="group relative overflow-hidden rounded-2xl border border-black/5 bg-white p-5 shadow-sm md:p-6">
-              <div className="absolute right-0 top-0 p-4 opacity-5 transition-opacity group-hover:opacity-10">
-                <ShieldCheck className="h-16 w-16" />
-              </div>
-              <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                Account Status
-              </div>
-              <div className="text-xl font-semibold text-slate-900 md:text-2xl">
-                {isActive ? 'Active' : 'Inactive'}
-              </div>
-              <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
-                <div
-                  className="h-full rounded-full bg-orange-500"
-                  style={{width: isVerified ? '100%' : '50%'}}
-                />
-              </div>
-            </div>
-          </div>
+          {/* Documentation Component */}
+          <ClientDocs displayClient={displayClient} />
 
-          {/* Profile Details Section */}
-          <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-            <div className="flex flex-wrap items-center justify-between rounded-t-lg border-b border-stroke bg-gradient-to-r from-orange-500 to-red-500 px-4 py-3 md:px-6 md:py-4">
-              <h2 className="text-lg font-semibold text-white md:text-xl">
-                Client Profile
-              </h2>
-              {!isEditing ? (
-                <button
-                  onClick={handleEditClick}
-                  className="hover:bg-gray-100 flex items-center gap-2 rounded bg-white px-3 py-1.5 text-sm font-medium text-orange-500 transition-colors md:px-4 md:py-2"
-                >
-                  <FiEdit2 className="h-3 w-3 md:h-4 md:w-4" /> Edit Profile
-                </button>
-              ) : (
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleCancel}
-                    className="flex items-center gap-2 rounded bg-red-100 px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-200 md:px-4 md:py-2"
-                  >
-                    <FiX className="h-3 w-3 md:h-4 md:w-4" /> Cancel
-                  </button>
-                  <button
-                    onClick={handleSave}
-                    className="hover:bg-gray-100 flex items-center gap-2 rounded bg-white px-3 py-1.5 text-sm font-medium text-orange-500 transition-colors md:px-4 md:py-2"
-                  >
-                    <FiSave className="h-3 w-3 md:h-4 md:w-4" /> Save
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <div className="p-4 md:p-6">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
-                <div>
-                  <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-                    Full Name
-                  </label>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      name="fullname"
-                      value={editData.fullname}
-                      onChange={handleInputChange}
-                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
-                    />
-                  ) : (
-                    <p className="text-sm text-black dark:text-white md:text-base">
-                      {fullName}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-                    Phone Number
-                  </label>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      name="phoneNumber"
-                      value={editData.phoneNumber}
-                      onChange={handleInputChange}
-                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
-                    />
-                  ) : (
-                    <p className="text-sm text-black dark:text-white md:text-base">
-                      {phone}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-                    Aadhar Number
-                  </label>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      name="aadharCardNumber"
-                      value={editData.aadharCardNumber}
-                      onChange={handleInputChange}
-                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
-                      placeholder="Enter 12-digit Aadhar number"
-                    />
-                  ) : (
-                    <p className="text-sm text-black dark:text-white md:text-base">
-                      {aadharNumber}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-                    Password
-                  </label>
-                  {isEditing ? (
-                    <input
-                      type="password"
-                      name="password"
-                      value={editData.password}
-                      onChange={handleInputChange}
-                      placeholder="Enter new password"
-                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
-                    />
-                  ) : (
-                    <p className="text-sm text-black dark:text-white md:text-base">
-                      ••••••••
-                    </p>
-                  )}
-                </div>
-{/* 
-                <div>
-                  <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-                    CRN
-                  </label>
-                  <p className="text-sm text-black dark:text-white md:text-base">
-                    {displayClient?.CRN || 'N/A'}
-                  </p>
-                </div> */}
-
-                {/* <div>
-                  <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-                    Commission %
-                  </label>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      name="brokeragePercent"
-                      value={editData.brokeragePercent}
-                      onChange={handleInputChange}
-                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
-                    />
-                  ) : (
-                    <p className="text-sm text-black dark:text-white md:text-base">
-                      {displayClient?.brokeragePercent || '0'}%
-                    </p>
-                  )}
-                </div> */}
-
-                <div>
-                  <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-                    Address
-                  </label>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      name="address"
-                      value={editData.address}
-                      onChange={handleInputChange}
-                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
-                    />
-                  ) : (
-                    <p className="text-sm text-black dark:text-white md:text-base">
-                      {displayClient?.address || 'N/A'}
-                    </p>
-                  )}
-                </div>
-{/* 
-                <div>
-                  <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-                    City
-                  </label>
-                  <p className="text-sm text-black dark:text-white md:text-base">
-                    {displayClient?.city || 'N/A'}
-                  </p>
-                </div>  */}
-{/* 
-                 <div>
-                  <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-                    State / Country
-                  </label>
-                  <p className="text-sm text-black dark:text-white md:text-base">
-                    {displayClient?.state || 'N/A'} /{' '}
-                    {displayClient?.country || 'N/A'}
-                  </p>
-                </div>  */}
-
-                <div>
-                  <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-                    Pincode
-                  </label>
-                  <p className="text-sm text-black dark:text-white md:text-base">
-                    {displayClient?.pincode || 'N/A'}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Documentation */}
-          <div className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
-            <div className="flex flex-wrap items-center justify-between border-b border-slate-100 bg-slate-50/30 px-4 py-3 md:px-6 md:py-4">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-900">
-                Verified Documentation
-              </h2>
-            </div>
-            <div className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 md:gap-4 md:p-6 lg:grid-cols-3">
-              {displayClient?.aadharCard && (
-                <DocCard
-                  name="Aadhar Card"
-                  type="ID Proof"
-                  status="Verified"
-                  icon={FileText}
-                  color="bg-rose-50 text-rose-500"
-                  url={displayClient.aadharCard}
-                />
-              )}
-              {displayClient?.panCard && (
-                <DocCard
-                  name="PAN Card"
-                  type="Tax ID"
-                  status="Verified"
-                  icon={FileText}
-                  color="bg-orange-50 text-orange-500"
-                  url={displayClient.panCard}
-                />
-              )}
-              {displayClient?.passport && (
-                <DocCard
-                  name="Passport"
-                  type="ID Proof"
-                  status="Verified"
-                  icon={FileText}
-                  color="bg-blue-50 text-blue-500"
-                  url={displayClient.passport}
-                />
-              )}
-              {displayClient?.photo && (
-                <DocCard
-                  name="Profile Photo"
-                  type="Photo"
-                  status="Verified"
-                  icon={ImageIcon}
-                  color="bg-purple-50 text-purple-500"
-                  url={displayClient.photo}
-                />
-              )}
-              {!displayClient?.aadharCard &&
-                !displayClient?.panCard &&
-                !displayClient?.passport &&
-                !displayClient?.photo && (
-                  <p className="col-span-3 py-4 text-center text-sm text-slate-400">
-                    No documents uploaded
-                  </p>
-                )}
-            </div>
-          </div>
-
-          {/* Tabs: Ledger & Payment & Trading Ledger */}
-          <div className="rounded-2xl border border-black/5 bg-white p-4 shadow-sm md:p-6">
-            <div className="mb-4 flex flex-wrap border-b border-slate-100 md:mb-6">
-              <button
-                onClick={() => setActiveTab('ledger')}
-                className={`px-3 py-2 text-xs font-semibold transition-colors md:px-4 md:py-3 md:text-sm ${
-                  activeTab === 'ledger'
-                    ? 'border-b-2 border-orange-500 text-orange-500'
-                    : 'text-slate-500 hover:text-slate-700'
-                }`}
-              >
-                Client Ledger
-              </button>
-              <button
-                onClick={() => setActiveTab('payment')}
-                className={`px-3 py-2 text-xs font-semibold transition-colors md:px-4 md:py-3 md:text-sm ${
-                  activeTab === 'payment'
-                    ? 'border-b-2 border-orange-500 text-orange-500'
-                    : 'text-slate-500 hover:text-slate-700'
-                }`}
-              >
-                Payment History
-              </button>
-              <button
-                onClick={() => setActiveTab('tradingledger')}
-                className={`px-3 py-2 text-xs font-semibold transition-colors md:px-4 md:py-3 md:text-sm ${
-                  activeTab === 'tradingledger'
-                    ? 'border-b-2 border-orange-500 text-orange-500'
-                    : 'text-slate-500 hover:text-slate-700'
-                }`}
-              >
-                Trading Ledger ({tradingLedgerData.length})
-              </button>
-            </div>
-
-            {activeTab === 'ledger' && (
-              <div className="overflow-x-auto">
-                <GenericTable
-                  columns={ledgerColumns}
-                  data={[]}
-                  paginationOff={true}
-                />
-              </div>
-            )}
-
-            {activeTab === 'payment' && (
-              <div className="overflow-x-auto">
-                <GenericTable
-                  columns={paymentColumns}
-                  data={[]}
-                  paginationOff={true}
-                />
-              </div>
-            )}
-
-            {activeTab === 'tradingledger' && (
-              <div className="overflow-x-auto">
-                {tradingLedgerData.length > 0 ? (
-                  <GenericTable
-                    data={tradingLedgerData}
-                    columns={tradingLedgerColumns}
-                    searchAble={true}
-                    searchFields={['type', 'tradeId']}
-                    itemsPerPage={10}
-                  />
-                ) : (
-                  <div className="flex h-64 items-center justify-center">
-                    <p className="text-slate-400">
-                      No trading ledger entries found
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+          {/* Tabs: Ledger & Payment & Trading Ledger Component */}
+          <ClientTabs
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            tradingLedgerData={tradingLedgerData}
+            paymentData={paymentData}
+            ledgerColumns={ledgerColumns}
+            // paymentColumns={paymentColumns}
+            tradingLedgerColumns={tradingLedgerColumns}
+          />
         </div>
       </div>
 
-      {/* Wallet Balance Modal (Deposit/Withdraw) */}
-      {isWalletModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-slate-100 bg-white p-5 shadow-xl md:p-6">
-            <h3 className="mb-4 text-lg font-bold text-slate-900">
-              {walletActionType === 'add' ? 'Deposit Money' : 'Withdraw Money'}
-            </h3>
+      {/* Wallet Balance Modal Component */}
+      <ClientWalletModal
+        isOpen={isWalletModalOpen}
+        onClose={() => {
+          setIsWalletModalOpen(false);
+          setWalletAmount('');
+          setWalletPin('');
+          setShowWalletPin(false);
+        }}
+        walletActionType={walletActionType}
+        setWalletActionType={setWalletActionType}
+        walletAmountValue={walletAmountValue}
+        walletAmount={walletAmount}
+        setWalletAmount={setWalletAmount}
+        walletPin={walletPin}
+        setWalletPin={setWalletPin}
+        showWalletPin={showWalletPin}
+        setShowWalletPin={setShowWalletPin}
+        handleWalletSubmit={handleWalletSubmit}
+        isPending={isDepositPending || isWithdrawPending}
+      />
 
-            {/* Show current wallet balance */}
-            <div>
-              <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
-                Current Wallet Balance
-              </label>
-              <div className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-900">
-                ₹{walletAmountValue.toLocaleString()}
-              </div>
-            </div>
-
-            <div className="mb-6 grid grid-cols-2 gap-2 rounded-xl bg-slate-100 p-1">
-              <button
-                type="button"
-                onClick={() => setWalletActionType('add')}
-                className={`rounded-lg py-2 text-sm font-semibold transition-all ${
-                  walletActionType === 'add'
-                    ? 'bg-white text-orange-500 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-800'
-                }`}
-              >
-                Deposit
-              </button>
-              <button
-                type="button"
-                onClick={() => setWalletActionType('withdraw')}
-                className={`rounded-lg py-2 text-sm font-semibold transition-all ${
-                  walletActionType === 'withdraw'
-                    ? 'bg-white text-orange-500 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-800'
-                }`}
-              >
-                Withdraw
-              </button>
-            </div>
-
-            <form onSubmit={handleWalletSubmit} className="space-y-4">
-              <div>
-                <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
-                  Amount (₹)
-                </label>
-                <input
-                  type="number"
-                  required
-                  step="0.01"
-                  min="0"
-                  placeholder="Enter Amount"
-                  value={walletAmount}
-                  onChange={(e) => setWalletAmount(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
-                  Security PIN
-                </label>
-                <div className="relative">
-                  <input
-                    type={showWalletPin ? 'text' : 'password'}
-                    required
-                    placeholder="Enter Security PIN"
-                    value={walletPin}
-                    onChange={(e) => setWalletPin(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 px-4 py-2.5 pr-10 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowWalletPin(!showWalletPin)}
-                    className="text-gray-500 hover:text-gray-700 absolute right-3 top-1/2 -translate-y-1/2"
-                  >
-                    {showWalletPin ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsWalletModalOpen(false);
-                    setWalletAmount('');
-                    setWalletPin('');
-                    setShowWalletPin(false);
-                  }}
-                  className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isDepositPending || isWithdrawPending}
-                  className="flex-1 rounded-xl bg-orange-500 py-2.5 text-sm font-medium text-white shadow-md shadow-orange-200 transition-colors hover:bg-orange-600 disabled:opacity-50"
-                >
-                  {isDepositPending || isWithdrawPending
-                    ? 'Processing...'
-                    : 'Confirm'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Margin Modal */}
-      {isMarginModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-slate-100 bg-white p-5 shadow-xl md:p-6">
-            <h3 className="mb-6 text-lg font-bold text-slate-900">
-              Add Margin
-            </h3>
-
-            <form onSubmit={handleMarginSubmit} className="space-y-4">
-              <div>
-                <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
-                  Intraday Margin
-                </label>
-                <input
-                  type="number"
-                  required
-                  step="0.01"
-                  min="0"
-                  placeholder="Enter Intraday Margin"
-                  value={intradayMargin}
-                  onChange={(e) => setIntradayMargin(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
-                  Holding Margin
-                </label>
-                <input
-                  type="number"
-                  required
-                  step="0.01"
-                  min="0"
-                  placeholder="Enter Holding Margin"
-                  value={holdingMargin}
-                  onChange={(e) => setHoldingMargin(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
-                  Security PIN
-                </label>
-                <div className="relative">
-                  <input
-                    type={showMarginPin ? 'text' : 'password'}
-                    required
-                    placeholder="Enter Security PIN"
-                    value={marginPin}
-                    onChange={(e) => setMarginPin(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 px-4 py-2.5 pr-10 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowMarginPin(!showMarginPin)}
-                    className="text-gray-500 hover:text-gray-700 absolute right-3 top-1/2 -translate-y-1/2"
-                  >
-                    {showMarginPin ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsMarginModalOpen(false);
-                    setIntradayMargin('');
-                    setHoldingMargin('');
-                    setMarginPin('');
-                    setShowMarginPin(false);
-                  }}
-                  className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isMarginPending}
-                  className="flex-1 rounded-xl bg-orange-500 py-2.5 text-sm font-medium text-white shadow-md shadow-orange-200 transition-colors hover:bg-orange-600 disabled:opacity-50"
-                >
-                  {isMarginPending ? 'Processing...' : 'Add Margin'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Margin Modal Component */}
+      <ClientMarginModal
+        isOpen={isMarginModalOpen}
+        onClose={() => {
+          setIsMarginModalOpen(false);
+          setIntradayMargin('');
+          setHoldingMargin('');
+          setMarginPin('');
+          setShowMarginPin(false);
+        }}
+        intradayMargin={intradayMargin}
+        setIntradayMargin={setIntradayMargin}
+        holdingMargin={holdingMargin}
+        setHoldingMargin={setHoldingMargin}
+        marginPin={marginPin}
+        setMarginPin={setMarginPin}
+        showMarginPin={showMarginPin}
+        setShowMarginPin={setShowMarginPin}
+        handleMarginSubmit={handleMarginSubmit}
+        isPending={isMarginPending}
+      />
     </motion.div>
   );
 };

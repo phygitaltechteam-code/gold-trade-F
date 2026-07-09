@@ -1,5 +1,10 @@
 import {api} from '@/utils/axios';
-import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query';
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  QueryClient,
+} from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 
 export const CLIENTS_QUERY_KEY = ['clients'];
@@ -28,8 +33,20 @@ export const useGetClientById = (id: string) => {
     enabled: !!id,
   });
 };
+const getClientLedgerById = async (id: string) => {
+  const response = await api.get(`/company/customer/ledger/${id}`);
+  return response.data;
+};
 
+export const useGetClientLedgerById = (id: string) => {
+  return useQuery({
+    queryKey: ['clientLedger', id],
+    queryFn: () => getClientLedgerById(id),
+    enabled: !!id,
+  });
+};
 export const useSendDeposite = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: {
       amount: number;
@@ -42,8 +59,12 @@ export const useSendDeposite = () => {
       );
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       toast.success('Deposite sent successfully');
+      queryClient.invalidateQueries({
+        queryKey: ['client', variables.customerId],
+      });
+      return data;
     },
     onError: (error: any) => {
       toast.error(error.response.data.message);
@@ -52,6 +73,7 @@ export const useSendDeposite = () => {
 };
 
 export const useSendWithdraw = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: {
       amount: number;
@@ -64,8 +86,12 @@ export const useSendWithdraw = () => {
       );
       return response.data;
     },
-    onSuccess: () => {
-      toast.success('Deposite sent successfully');
+    onSuccess: (data, variables) => {
+      toast.success('Withdraw sent successfully');
+      queryClient.invalidateQueries({
+        queryKey: ['client', variables.customerId],
+      });
+      return data;
     },
     onError: (error: any) => {
       toast.error(error.response.data.message);
@@ -100,8 +126,12 @@ export const useAddMargin = () => {
 
   return useMutation({
     mutationFn: addMargin,
-    onSuccess: () => {
-      queryClient.invalidateQueries({queryKey: ['customer', 'client']});
+    onSuccess: (data, variables) => {
+      toast.success('Margin added successfully');
+      queryClient.invalidateQueries({
+        queryKey: ['customer', 'client', variables.customerId],
+      });
+      return data;
     },
     onError: (error: any) => {
       const errorMessage =
@@ -119,11 +149,12 @@ export const useUpdateCustomer = () => {
       const response = await api.put(`/company/customer/${id}`, data);
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       toast.success('Customer updated successfully!');
       queryClient.invalidateQueries({queryKey: ['customer']});
-      queryClient.invalidateQueries({queryKey: ['client']});
+      queryClient.invalidateQueries({queryKey: ['client', variables.id]});
       queryClient.invalidateQueries({queryKey: ['get-customer']});
+      return data;
     },
     onError: (error: any) => {
       const errorMessage =
