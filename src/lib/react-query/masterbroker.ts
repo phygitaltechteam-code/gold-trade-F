@@ -8,7 +8,7 @@ export const useAddMasterBrocker = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({data}: {data: MasterBrocker}) => addMasterBrocker(data),
+    mutationFn:  addMasterBrocker,
 
     onSuccess: () => {
       toast.success('Master brocker Accepted!');

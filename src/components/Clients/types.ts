@@ -11,9 +11,10 @@ export interface User {
 export interface Wallet {
   id: string;
   customerId: string;
-  amount: number;
-  createdAt: string;
-  updatedAt: string;
+  amount: number | string;
+  blockedAmount?: number | string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Client {
@@ -22,13 +23,13 @@ export interface Client {
   passport: string;
   aadharCard: string;
   panCard: string;
-  commission: string;
-  area: string;
+  commission?: string;
+  area?: string;
   address: string;
   passportNumber: string;
   aadharCardNumber: string | null;
   panCardNumber: string | null;
-  accountNumber: string;
+  accountNumber?: string;
   city: string;
   photo: string;
   state: string;
@@ -45,20 +46,41 @@ export interface Client {
   Relationship: string | null;
   Contact: string | null;
   Allocation: string | null;
-  isKycCompleted: boolean | null;
+  isKycCompleted: boolean | string | null;
   user: User;
   wallets: Wallet;
-  _count: {
-    senderTransactions: number;
+  walletBalance?: number;
+  marginAmount?: number;
+  assetUnderControl?: number;
+  totalActiveTrade?: number;
+  totalTrade?: number;
+  pnl?: number;
+  totalUnrealizedPnL?: number;
+  totalRealizedPnL?: number;
+  totalEquity?: number;
+  _count?: {
+    trades?: number;
+    senderTransactions?: number;
   };
-  broker: {
+  broker?: {
     user: {
       fullname: string;
+      email?: string;
+      phoneNumber?: string;
+    };
+    superBroker?: {
+      user: {
+        fullname: string;
+        email?: string;
+        phoneNumber?: string;
+      };
     };
   };
-  superBroker: {
+  superBroker?: {
     user: {
       fullname: string;
+      email?: string;
+      phoneNumber?: string;
     };
   };
 }
@@ -73,3 +95,4 @@ export interface Transaction {
   dateTime: string;
   balanceAfter: number;
 }
+

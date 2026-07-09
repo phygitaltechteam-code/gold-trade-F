@@ -19,6 +19,7 @@ const DisplayMasterBroker = ({refreshTrigger}) => {
   const [showPin, setShowPin] = useState(false);
   const navigate = useNavigate();
   const {data: responseData, refetch, isLoading} = useGetAllMasterBrocker();
+  console.log("responseData",responseData)
   const {mutateAsync: activateInActiveMasterBrocker, isPending} =
     useActivateInActiveMasterBrocker();
 
@@ -174,13 +175,13 @@ const DisplayMasterBroker = ({refreshTrigger}) => {
         <span>{row.phoneNumber || row.user?.phoneNumber || 'N/A'}</span>
       ),
     },
-    // {
-    //   header: 'BKId',
-    //   accessor: 'BKId',
-    //   render: (row) => (
-    //     <span className="font-mono text-sm">{row.BKId || 'N/A'}</span>
-    //   ),
-    // },
+    {
+      header: 'Customer Limit',
+      accessor: 'customerLimit',
+      render: (row) => (
+        <span className="font-mono text-sm">{row.customerLimit }</span>
+      ),
+    },
     {
       header: 'Commission',
       accessor: 'brokeragePercent',

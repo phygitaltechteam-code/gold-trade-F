@@ -20,6 +20,9 @@ const BrokerSchema = z.object({
   aadharCardF: z.any().optional(),
   panCard: z.any().optional(),
   photo: z.any().optional(),
+  customerLimit: z.coerce
+    .number()
+    .min(0, 'Customer limit must be a positive number'),
 });
 
 type FormValues = z.infer<typeof BrokerSchema>;
@@ -120,9 +123,7 @@ const AddMasterBroker = () => {
     try {
       setIsSubmitting(true);
 
-      await addMasterBrocker({
-        data,
-      });
+      await addMasterBrocker(data);
 
       methods.reset();
       setImagePreviews({
@@ -296,12 +297,17 @@ const AddMasterBroker = () => {
               <GenericInputField
                 name="commission"
                 label="Commission (%)"
-                type="string"
+                type="number"
+                // required
+                placeholder="Enter commission percentage"
+              />
+              <GenericInputField
+                name="customerLimit"
+                label="Customer Limit"
+                type="number"
                 required
                 step="any"
-                placeholder="Enter commission percentage"
-                
-                min="0"
+                placeholder="Enter customer limit"
               />
             </div>
 

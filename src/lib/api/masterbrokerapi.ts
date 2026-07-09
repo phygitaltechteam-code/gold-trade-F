@@ -5,6 +5,7 @@ export type MasterBrocker = {
   password: string;
   phoneNumber: string;
   commission: number;
+  customerLimit: number;
   area: string;
   panCardNumber?: string;
   aadharCardNumber?: string;
@@ -15,13 +16,15 @@ export type MasterBrocker = {
 
 export const addMasterBrocker = async (data: MasterBrocker) => {
   try {
+    console.log("data",data)
     const formData = new FormData();
 
     formData.append('fullname', data.fullname);
 
     formData.append('password', data.password);
     formData.append('phoneNumber', data.phoneNumber);
-    formData.append('commission', Number(data.commission).toString());
+    formData.append('commission', data.commission.toString());
+    formData.append('customerLimit', data.customerLimit.toString());
     formData.append('area', data.area);
 
     if (data.aadharCardNumber) {
@@ -44,11 +47,7 @@ export const addMasterBrocker = async (data: MasterBrocker) => {
       formData.append('photo', data.photo);
     }
 
-    const response = await api.post(`company/master-broker`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const response = await api.post(`company/master-broker`, formData);
 
     return response.data;
   } catch (error) {

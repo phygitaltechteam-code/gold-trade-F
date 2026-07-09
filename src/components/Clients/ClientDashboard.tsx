@@ -13,6 +13,7 @@ import {
   Briefcase,
   Activity,
   DollarSign,
+  RefreshCw,
 } from 'lucide-react';
 import {Client} from './types';
 import {motion} from 'framer-motion';
@@ -75,7 +76,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
   const [superBrokerFilter, setSuperBrokerFilter] = useState<string>('all');
   const {mutateAsync: statusChange, isPending} = useActivateCustomer();
   const {data: allSuperBrocker} = useGetAllSuperBrocker();
-  const {data: clients = [], refetch, isLoading} = useGetClients();
+  const {data: clients = [], refetch, isLoading, isFetching} = useGetClients();
 
   // Extract unique broker names for filter
   const brokers = Array.from(
@@ -100,26 +101,37 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
     (c: Client) => !c.isKycCompleted && !c.user?.isRejected,
   ).length;
   const totalAUM = clients.reduce(
-    (sum: number, c: Client) => sum + (parseFloat(c.wallets?.amount) || 0),
+    (sum: number, c: Client) => {
+      const balance = c.walletBalance !== undefined 
+        ? Number(c.walletBalance) 
+        : (typeof c.wallets?.amount === 'number' 
+            ? c.wallets.amount 
+            : parseFloat(c.wallets?.amount as string) || 0);
+      return sum + balance;
+    },
     0,
   );
 
   // Total active trades count
   const totalActiveTrades = clients.reduce(
-    (sum: number, c: Client) => sum + (c._count?.trades || 0),
+    (sum: number, c: Client) => sum + (c.totalActiveTrade || c._count?.trades || 0),
     0,
   );
 
   // Total business generated
   const totalBusiness = clients.reduce(
-    (sum: number, c: Client) => sum + (parseFloat(c.wallets?.amount) || 0),
+    (sum: number, c: Client) => sum + (Number(c.totalTrade) || 0),
     0,
   );
 
   // Last wallet balance (latest client's wallet)
   const lastWalletBalance =
     clients.length > 0
-      ? parseFloat(clients[clients.length - 1]?.wallets?.amount) || 0
+      ? (clients[clients.length - 1]?.walletBalance !== undefined
+          ? Number(clients[clients.length - 1]?.walletBalance)
+          : (typeof clients[clients.length - 1]?.wallets?.amount === 'number'
+              ? (clients[clients.length - 1]?.wallets?.amount as number)
+              : parseFloat(clients[clients.length - 1]?.wallets?.amount as string) || 0))
       : 0;
 
   const filteredClients = clients.filter((client: Client) => {
@@ -227,7 +239,11 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       header: 'Wallet Balance',
       accessor: 'wallets.amount',
       render: (row: Client) => {
-        const amount = parseFloat(row.wallets?.amount) || 0;
+        const amount = row.walletBalance !== undefined 
+          ? Number(row.walletBalance) 
+          : (typeof row.wallets?.amount === 'number' 
+              ? row.wallets.amount 
+              : parseFloat(row.wallets?.amount as string) || 0);
         return (
           <span className="whitespace-nowrap text-sm font-bold text-slate-900">
             ₹{amount.toLocaleString()}
@@ -239,7 +255,11 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       header: 'Asset Under Control',
       accessor: 'wallets.blockedAmount',
       render: (row: Client) => {
-        const amount = parseFloat(row.wallets?.blockedAmount) || 0;
+        const amount = row.assetUnderControl !== undefined 
+          ? Number(row.assetUnderControl) 
+          : (typeof row.wallets?.blockedAmount === 'number' 
+              ? row.wallets.blockedAmount 
+              : parseFloat(row.wallets?.blockedAmount as string) || 0);
         return (
           <span className="whitespace-nowrap text-sm font-bold text-slate-900">
             ₹{amount.toLocaleString()}
@@ -250,18 +270,21 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
     {
       header: 'Margin Amount',
       accessor: 'marginAmount',
-      render: (row: Client) => (
-        <span className="whitespace-nowrap text-sm font-bold text-slate-900">
-          ₹0.00
-        </span>
-      ),
+      render: (row: Client) => {
+        const amount = row.marginAmount !== undefined ? Number(row.marginAmount) : 0;
+        return (
+          <span className="whitespace-nowrap text-sm font-bold text-slate-900">
+            ₹{amount.toLocaleString()}
+          </span>
+        );
+      },
     },
     {
       header: 'Total Active Trade',
       accessor: 'totalActiveTrade',
       render: (row: Client) => (
         <span className="whitespace-nowrap text-sm font-medium text-slate-600">
-          {row._count?.trades || 0}
+          {row.totalActiveTrade !== undefined ? row.totalActiveTrade : (row._count?.trades || 0)}
         </span>
       ),
     },
@@ -269,7 +292,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       header: 'Total Trade',
       accessor: 'totalTrade',
       render: (row: Client) => {
-        const amount = parseFloat(row.wallets?.amount) || 0;
+        const amount = row.totalTrade !== undefined ? Number(row.totalTrade) : (parseFloat(row.wallets?.amount as string) || 0);
         return (
           <span className="whitespace-nowrap text-sm font-bold text-orange-500">
             ₹{amount.toLocaleString()}
@@ -281,7 +304,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       header: 'P&L',
       accessor: 'pnl',
       render: (row: Client) => {
-        const pnl = 0;
+        const pnl = row.pnl !== undefined ? Number(row.pnl) : 0;
         const isProfit = pnl >= 0;
         return (
           <span
@@ -335,6 +358,15 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
           Client Management...
         </h1>
       
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-50 disabled:opacity-50"
+          >
+            <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
           <button
             onClick={() => navigate({to: '/companybroker/companyaddcustomer'})}
             className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:scale-[1.02] hover:from-orange-600 hover:to-red-600"
@@ -342,6 +374,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
             <Plus className="h-4 w-4" />
             Add Customer
           </button>
+        </div>
 
       </div>
 
