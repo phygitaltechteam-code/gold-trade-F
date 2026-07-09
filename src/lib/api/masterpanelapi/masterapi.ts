@@ -468,3 +468,23 @@ export const activeCustomer = async (id: string, pin: string) => {
     throw error;
   }
 };
+
+
+export const useGetMasterBrokerLimit =  () => {
+  return useQuery({
+    queryKey: ['master-broker-limit'],
+    queryFn:  getMasterBrokerLimit
+  });
+}
+
+export const getMasterBrokerLimit = async ()=>{
+  try{
+      const response = await api.get('/master-broker/profile/limit');
+  console.log('response', response);
+  return response.data;
+  }
+  catch(error){
+    console.log('error', error);
+  }
+
+}

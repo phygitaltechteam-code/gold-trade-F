@@ -37,7 +37,7 @@ export const useAddCustomer = () => {
       if (error?.response?.data?.errors) {
         const validationErrors = error.response.data.errors;
         validationErrors.forEach((err: any) => {
-          toast.error(`${err.field}: ${err.message}`);
+          // toast.error(`${err.field}: ${err.message}`);
         });
       } else {
         const backendMessage =

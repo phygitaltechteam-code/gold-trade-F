@@ -1,4 +1,4 @@
-import React, {useState, useMemo} from 'react';
+import React, {useState, useMemo, useEffect} from 'react';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import {
   ChevronLeft,
@@ -36,11 +36,13 @@ import {useNavigate} from '@tanstack/react-router';
 import toast from 'react-hot-toast';
 import {
   useAddMargin,
+  useGetMasterBrokerLimit,
   useGetMasterClientById,
   useMasterSendDeposite,
   useSendWithdraw,
   useUpdateCustomer,
 } from '@/lib/api/masterpanelapi/masterapi';
+import {useGetMasterClientLedger} from '@/lib/api/masterpanelapi/profile';
 // import { useAddMargin, useSendDeposite, useSendWithdraw, useUpdateCustomer } from '../Clients/mutationapi';
 
 const DocCard = ({name, type, status, icon: Icon, color, url}: any) => (
@@ -68,6 +70,8 @@ export const ClientDetail: React.FC = () => {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const {data: clientData, isLoading, refetch} = useGetMasterClientById(id);
+  const {data: ledgerDataaa, isPending} = useGetMasterClientLedger(id);
+
   const displayClient = clientData;
   const [activeTab, setActiveTab] = useState('ledger');
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
@@ -116,28 +120,91 @@ export const ClientDetail: React.FC = () => {
       amount: `₹${item.amount?.toLocaleString() || '0'}`,
       balanceAfter: `₹${item.balanceAfter?.toLocaleString() || '0'}`,
       tradeId: item.tradeId || '-',
+      Notes: item.Notes || '-',
     }));
   }, [displayClient?.tradingLedgers]);
 
-  const ledgerColumns = [
-    {header: 'Date/Time', accessor: 'dateTime'},
+  const formatQtyLot = (item) => {
+    if (!item) return '-';
+    const qty = item.qty || item.Qty || 0;
+    const lotSize = item.lotSize || item.lotSize || 0;
+    // If lotSize exists and is different from qty, show as "qty/lot"
+    if (lotSize && lotSize !== qty) {
+      return `${qty}/${lotSize}`;
+    }
+    // If only qty exists or they're the same, just show qty
+    return qty;
+  };
+
+  // Format P&L with proper sign and color
+  // Format P&L with proper sign and color
+  const formatPnL = (item) => {
+    const pnl = item.pnl || item['p&l'] || 0;
+    const sign = pnl > 0 ? '+' : '';
+    // ✅ Fix: Show only 2 decimal places
+    return `${sign}${Number(pnl).toFixed(2)}`;
+  };
+
+  // const ledgerColumns = [
+  //   {header: 'Date/Time', accessor: 'dateTime'},
+  //   {header: 'Customer Name', accessor: 'customerName'},
+  //   // {header: 'Broker Name', accessor: 'brokerName'},
+  //   {header: 'Transaction ID', accessor: 'transactionId'},
+  //   {header: 'Stript', accessor: 'stript'},
+  //   {header: 'Order Type', accessor: 'orderType'},
+  //   {header: 'Holding Type', accessor: 'holdingType'},
+  //   {header: 'Qty', accessor: 'qty'},
+  //   {header: 'Price', accessor: 'price'},
+  //   {header: 'Status', accessor: 'status'},
+  //   {header: 'Transaction Amount', accessor: 'transactionAmount'},
+  //   {header: 'Total Amount', accessor: 'totalAmount'},
+  //   {header: 'Paid Amount', accessor: 'paidAmount'},
+  //   {header: 'Margin Amount', accessor: 'marginAmount'},
+  //   {header: 'Total Commission', accessor: 'totalCommission'},
+  //   {header: 'Broker Commission', accessor: 'brokerCommission'},
+  //   {header: 'Payment Status', accessor: 'paymentStatus'},
+  // ];
+
+  const totalPnL = Array.isArray(ledgerDataaa?.data?.data)
+    ? ledgerDataaa.data.data.reduce((sum: number, item: any) => {
+        return sum + Number(item.pnl ?? item['p&l'] ?? 0);
+      }, 0)
+    : 0;
+
+  console.log('ledgerData  api fetch newwww', ledgerDataaa);
+
+  const baseColumns = [
+    {header: 'Date & Time', accessor: 'dateTime'},
     {header: 'Customer Name', accessor: 'customerName'},
-    // {header: 'Broker Name', accessor: 'brokerName'},
-    {header: 'Transaction ID', accessor: 'transactionId'},
-    {header: 'Stript', accessor: 'stript'},
-    {header: 'Order Type', accessor: 'orderType'},
-    {header: 'Holding Type', accessor: 'holdingType'},
-    {header: 'Qty', accessor: 'qty'},
-    {header: 'Price', accessor: 'price'},
+    {header: 'Script', accessor: 'script'},
+    {header: 'Qty/Lot', accessor: (item: any) => formatQtyLot(item)},
+    {header: 'Buy Price', accessor: 'buyPrice'},
+    {header: 'Sell Price', accessor: 'sellPrice'},
+    {header: 'Buy Time', accessor: 'buyTime'},
+    {header: 'Sell Time', accessor: 'sellTime'},
     {header: 'Status', accessor: 'status'},
-    {header: 'Transaction Amount', accessor: 'transactionAmount'},
-    {header: 'Total Amount', accessor: 'totalAmount'},
-    {header: 'Paid Amount', accessor: 'paidAmount'},
-    {header: 'Margin Amount', accessor: 'marginAmount'},
-    {header: 'Total Commission', accessor: 'totalCommission'},
-    {header: 'Broker Commission', accessor: 'brokerCommission'},
-    {header: 'Payment Status', accessor: 'paymentStatus'},
+    {header: 'P&L', accessor: (item: any) => formatPnL(item)},
+    {header: 'Master Broker Commission', accessor: 'masterBrokerCommission'},
   ];
+
+  const ledgerRows =
+    ledgerDataaa?.data?.data?.map((item: any) => ({
+      dateTime: item.dateTime,
+      customerName: item.customerName,
+      script: item.script,
+      qty: item.qty,
+      lotSize: item.lotSize,
+      lots: item.lots,
+      buyPrice: item.buyPrice,
+      sellPrice: item.sellPrice,
+      buyTime: item.buyTime,
+      sellTime: item.sellTime,
+      status: item.status,
+      pnl: item.pnl ?? item['p&l'] ?? 0,
+      masterBrokerCommission: item.masterBrokerCommission,
+    })) || [];
+
+  // Filter data by date range
 
   const paymentColumns = [
     {header: 'Date/Time', accessor: 'dateTime'},
@@ -188,11 +255,8 @@ export const ClientDetail: React.FC = () => {
       ),
     },
     {
-      header: 'Trade ID',
-      accessor: 'tradeId',
-      render: (item: any) => (
-        <span className="font-mono text-gray-500 text-xs">{item.tradeId}</span>
-      ),
+      header: 'Notes',
+      accessor: 'Notes',
     },
   ];
 
@@ -270,6 +334,8 @@ export const ClientDetail: React.FC = () => {
     setIsEditing(false);
   };
 
+  // get ledger data
+
   const handleBack = () => {
     navigate({to: '/masterbroker/client-dashboard'});
   };
@@ -287,67 +353,67 @@ export const ClientDetail: React.FC = () => {
   };
 
   // Handle Deposit/Withdraw submission
- const handleWalletSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+  const handleWalletSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  if (!walletAmount || parseFloat(walletAmount) <= 0) {
-    toast.error('Please enter a valid amount');
-    return;
-  }
-
-  if (!walletPin) {
-    toast.error('Please enter PIN');
-    return;
-  }
-
-  if (walletPin.length < 4) {
-    toast.error('PIN must be at least 4 digits');
-    return;
-  }
-
-  if (walletActionType === 'withdraw') {
-    const currentBalance = parseFloat(displayClient?.wallets?.amount || '0');
-    if (parseFloat(walletAmount) > currentBalance) {
-      toast.error('Insufficient balance');
+    if (!walletAmount || parseFloat(walletAmount) <= 0) {
+      toast.error('Please enter a valid amount');
       return;
     }
-  }
 
-  try {
-    if (walletActionType === 'add') {
-      await sendDeposite({
-        amount: parseFloat(walletAmount),
-        securityPin: walletPin,
-        customerId: id,
-      });
-    } else {
-      await sendWithdraw({
-        amount: parseFloat(walletAmount),
-        securityPin: walletPin,
-        customerId: id,
-      });
+    if (!walletPin) {
+      toast.error('Please enter PIN');
+      return;
     }
 
-    toast.success(
-      `₹${walletAmount} ${
-        walletActionType === 'add' ? 'deposited' : 'withdrawn'
-      } successfully!`,
-    );
+    if (walletPin.length < 4) {
+      toast.error('PIN must be at least 4 digits');
+      return;
+    }
 
-    setIsWalletModalOpen(false);
-    setWalletAmount('');
-    setWalletPin('');
-    setShowWalletPin(false);
+    if (walletActionType === 'withdraw') {
+      const currentBalance = parseFloat(displayClient?.wallets?.amount || '0');
+      if (parseFloat(walletAmount) > currentBalance) {
+        toast.error('Insufficient balance');
+        return;
+      }
+    }
 
-    await refetch();
-  } catch (error: any) {
-    console.error('Error processing transaction:', error);
-    toast.error(
-      error?.response?.data?.message ||
-        'Transaction failed. Please check your PIN and try again.',
-    );
-  }
-};
+    try {
+      if (walletActionType === 'add') {
+        await sendDeposite({
+          amount: parseFloat(walletAmount),
+          securityPin: walletPin,
+          customerId: id,
+        });
+      } else {
+        await sendWithdraw({
+          amount: parseFloat(walletAmount),
+          securityPin: walletPin,
+          customerId: id,
+        });
+      }
+
+      toast.success(
+        `₹${walletAmount} ${
+          walletActionType === 'add' ? 'deposited' : 'withdrawn'
+        } successfully!`,
+      );
+
+      setIsWalletModalOpen(false);
+      setWalletAmount('');
+      setWalletPin('');
+      setShowWalletPin(false);
+
+      await refetch();
+    } catch (error: any) {
+      console.error('Error processing transaction:', error);
+      toast.error(
+        error?.response?.data?.message ||
+          'Transaction failed. Please check your PIN and try again.',
+      );
+    }
+  };
 
   const handleOpenMarginModal = () => {
     setIntradayMargin(String(clientData?.intradayLeverage ?? ''));
@@ -518,7 +584,7 @@ export const ClientDetail: React.FC = () => {
               </div>
             </div>
 
-            <div className="group relative overflow-hidden rounded-2xl border border-black/5 bg-white p-5 shadow-sm md:p-6">
+            {/* <div className="group relative overflow-hidden rounded-2xl border border-black/5 bg-white p-5 shadow-sm md:p-6">
               <div className="absolute right-0 top-0 p-4 opacity-5 transition-opacity group-hover:opacity-10">
                 <ShieldCheck className="h-16 w-16" />
               </div>
@@ -533,6 +599,30 @@ export const ClientDetail: React.FC = () => {
                   className="h-full rounded-full bg-orange-500"
                   style={{width: isVerified ? '100%' : '50%'}}
                 />
+              </div>
+            </div> */}
+            <div className="group relative overflow-hidden rounded-2xl border border-black/5 bg-white p-5 shadow-sm md:p-6">
+              <div className="absolute right-0 top-0 p-4 opacity-5 transition-opacity group-hover:opacity-10">
+                <CreditCard className="h-16 w-16" />
+              </div>
+              <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Total P$L
+              </div>
+              <div className="text-xl font-semibold text-slate-900 md:text-2xl">
+                ₹{totalPnL}
+              </div>
+              <div className="mt-1 flex items-center gap-1 text-xs font-medium text-orange-600">
+                {totalPnL > 0 ? (
+                  <div className="mt-1 flex items-center gap-1 text-xs font-medium text-green-600">
+                    <div className="h-2 w-2 rounded-full bg-green-500" />
+                    P&L
+                  </div>
+                ) : (
+                  <div className="mt-1 flex items-center gap-1 text-xs font-medium text-red-600">
+                    <div className="h-2 w-2 rounded-full bg-red-500" />
+                    P&L
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -823,8 +913,8 @@ export const ClientDetail: React.FC = () => {
             {activeTab === 'ledger' && (
               <div className="overflow-x-auto">
                 <GenericTable
-                  columns={ledgerColumns}
-                  data={[]}
+                  columns={baseColumns}
+                  data={ledgerRows}
                   paginationOff={true}
                 />
               </div>

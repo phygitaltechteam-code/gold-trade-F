@@ -163,3 +163,15 @@ export const  updateScriptStatus = async (id: string) => {
     throw error;
   }
 };
+
+export const getClientLedger = async (id:string) => {
+    console.log("call api" , id)
+  try {
+    const response = await api.get(`/master-broker/customer/ledger/${id}`);
+    console.log('ledger datam api ', response);
+    return response;
+  } catch (error) {
+    console.error('Error fetching scripts data:', error);
+    throw error;
+  }
+};

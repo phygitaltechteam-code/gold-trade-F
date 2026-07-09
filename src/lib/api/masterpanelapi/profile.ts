@@ -1,6 +1,6 @@
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { getCommisssion, getProfile, getScriptsData, getTradingTime, profilePayload, resetPassword, resetPin, setCommission, setTradingTime, updateProfile, updateScriptStatus } from './profileapi';
+import { getClientLedger, getCommisssion, getProfile, getScriptsData, getTradingTime, profilePayload, resetPassword, resetPin, setCommission, setTradingTime, updateProfile, updateScriptStatus } from './profileapi';
 import { api } from '@/utils/axios';
 
 
@@ -150,3 +150,12 @@ export const useGetProfile = () =>
         },
       });
     };
+
+
+export const useGetMasterClientLedger = (id: string) => {
+  return useQuery({
+    queryKey: ['ledger', id],
+    queryFn: () => getClientLedger(id),
+    enabled: !!id,
+  });
+};

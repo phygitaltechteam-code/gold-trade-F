@@ -17,7 +17,11 @@ import {
 import {Client} from './types';
 import {motion} from 'framer-motion';
 import GenericTable from '@/components/Forms/Table/GenericTable';
-import { useActivateCustomer, useGetMasterClients } from '@/lib/api/masterpanelapi/masterapi';
+import {
+  useActivateCustomer,
+  useGetMasterBrokerLimit,
+  useGetMasterClients,
+} from '@/lib/api/masterpanelapi/masterapi';
 
 interface ClientDashboardProps {
   onSelectClient?: (client: Client) => void;
@@ -74,8 +78,10 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
   const [superBrokerFilter, setSuperBrokerFilter] = useState<string>('all');
   const {mutateAsync: statusChange, isPending} = useActivateCustomer();
   // const {data: allSuperBrocker} =useGetMasterClients();
-   const {data: clients = [], refetch, isLoading} = useGetMasterClients();
+  const {data: clients = [], refetch, isLoading} = useGetMasterClients();
 
+  const {data: limit} = useGetMasterBrokerLimit();
+  // console.log('limit..', limit?.customerLimit);
   // Extract unique broker names for filter
   const brokers = Array.from(
     new Set(clients.map((c: any) => c?.broker?.user?.fullname).filter(Boolean)),
@@ -333,15 +339,23 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
         <h1 className="text-2xl font-semibold text-slate-900 md:text-3xl">
           Client Management...
         </h1>
-      
-          <button
-            onClick={() => navigate({to: '/masterbroker/add-client'})}
-            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:scale-[1.02] hover:from-orange-600 hover:to-red-600"
-          >
-            <Plus className="h-4 w-4" />
-            Add Client
-          </button>
 
+        <button
+          onClick={() => {
+            // if (totalClients < limit) {
+              navigate({to: '/masterbroker/add-client'});
+           //}
+          }}
+          disabled={totalClients >= limit}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md transition-all ${
+            totalClients >= limit
+              ? 'bg-gray-400 cursor-not-allowed opacity-70'
+              : 'bg-gradient-to-r from-orange-500 to-red-500 hover:scale-[1.02] hover:from-orange-600 hover:to-red-600'
+          }`}
+        >
+          <Plus className="h-4 w-4" />
+          {totalClients >= limit ? 'Add Client Limit Reached' : 'Add Client'}
+        </button>
       </div>
 
       {/* Stats Cards Grid - 6 cards */}

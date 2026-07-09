@@ -1,5 +1,5 @@
-import { useAddCustomer } from '@/lib/api/addcustomer'; // Changed this import
-import { useGetBrokerData } from '@/lib/api/addbroker';
+ import { useAddCustomer } from '@/lib/api/addcustomer'; // Changed this import
+// import { useGetBrokerData } from '@/lib/api/addbroker';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import toast from 'react-hot-toast';
@@ -12,9 +12,9 @@ const CustomerSchema = z.object({
   fullname: z.string().min(1, 'Full name is required'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   phoneNumber: z.string().min(1, 'Phone number is required'),
-  BrokerId: z.string().min(1, 'Please select a Broker'),
+  masterBrokerId: z.string().min(1, 'Please select a Broker'),
   area: z.string().min(1, 'Area is required'),
-  commission: z.coerce.number().min(0, 'Commission must be a valid number'),
+  // commission: z.coerce.number().min(0, 'Commission must be a valid number'),
   aadharCardNumber: z.string().optional(),
   panCardNumber: z.string().optional(),
   type: z.enum(['mega', 'mini'], { 
@@ -34,11 +34,11 @@ const CompanyAddCustomer = () => {
     fullname: '',
     password: '',
     area: '',
-    commission: '',
+   
     phoneNumber: '',
     aadharCardNumber: '',
     panCardNumber: '',
-    BrokerId: '',
+    masterBrokerId: '',
     type: '', // ADDED - no default value, user must select
     // documentNumber: '', // ADD THIS
   });
@@ -58,36 +58,36 @@ const CompanyAddCustomer = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { data: allbrockers } = useGetBrokerData();
+  // const { data: allbrockers } = useGetBrokerData();
 
   // Extract brokers array from the nested response
-  const brokers = useMemo(() => {
-    if (!allbrockers) return [];
-    if (allbrockers.data?.data) return allbrockers.data.data;
-    if (allbrockers.data) return allbrockers.data;
-    if (Array.isArray(allbrockers)) return allbrockers;
-    return [];
-  }, [allbrockers]);
+  // const brokers = useMemo(() => {
+  //   if (!allbrockers) return [];
+  //   if (allbrockers.data?.data) return allbrockers.data.data;
+  //   if (allbrockers.data) return allbrockers.data;
+  //   if (Array.isArray(allbrockers)) return allbrockers;
+  //   return [];
+  // }, [allbrockers]);
 
   // Searchable Dropdown state
   const [searchTerm, setSearchTerm] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Filter brokers based on search term
-  const filteredBrokers = useMemo(() => {
-    if (!searchTerm) return brokers;
-    return brokers.filter(
-      (b) =>
-        b.fullname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        b.BKId?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [brokers, searchTerm]);
+  // const filteredBrokers = useMemo(() => {
+  //   if (!searchTerm) return brokers;
+  //   return brokers.filter(
+  //     (b) =>
+  //       b.fullname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //       b.BKId?.toLowerCase().includes(searchTerm.toLowerCase())
+  //   );
+  // }, [brokers, searchTerm]);
 
   useEffect(() => {
     if (isMasterBroker && user) {
       setFormData((prev) => ({
         ...prev,
-        BrokerId: user.id,
+        masterBrokerId: user.id,
       }));
     }
   }, [isMasterBroker, user]);
@@ -181,10 +181,10 @@ const CompanyAddCustomer = () => {
     try {
       CustomerSchema.parse(formData);
 
-      if (!images.aadharCardF) {
-        toast.error('Aadhar Card image is required');
-        return false;
-      }
+      // if (!images.aadharCardF) {
+      //   toast.error('Aadhar Card image is required');
+      //   return false;
+      // }
 
       setErrors({});
       return true;
@@ -205,11 +205,11 @@ const CompanyAddCustomer = () => {
       fullname: '',
       password: '',
       area: '',
-      commission: '',
+       
       phoneNumber: '',
       aadharCardNumber: '',
       panCardNumber: '',
-      BrokerId: '',
+      masterBrokerId: '',
       type: '', // ADDED - reset to empty
       // documentNumber: '', // ADD THIS
     });
@@ -256,11 +256,11 @@ const CompanyAddCustomer = () => {
     if (formData.area) {
       formDataToSend.append('area', formData.area);
     }
-    if (formData.commission) {
-      formDataToSend.append('brokeragePercent', formData.commission);
-    }
-    if (formData.BrokerId) {
-      formDataToSend.append('brokerId', formData.BrokerId);
+    // if (formData.commission) {
+    //   formDataToSend.append('brokeragePercent', formData.commission);
+    // }
+    if (formData.masterBrokerId) {
+      formDataToSend.append('masterBrokerId', formData.masterBrokerId);
     }
 
     // IMAGES
@@ -284,7 +284,7 @@ const CompanyAddCustomer = () => {
       await addCustomer.mutateAsync(formDataToSend);
       resetForm();
       toast.success('Customer registered successfully!');
-      navigate({ to: '/clients/mainpage' });
+      navigate({ to: '/masterbroker/client-dashboard' });
     } catch (error: any) {
       console.error('Error:', error);
       const errorMsg = error?.response?.data?.message || 'Registration failed';
@@ -446,7 +446,7 @@ const CompanyAddCustomer = () => {
             </div>
 
             {/* Searchable Broker Dropdown */}
-            <div className="relative mb-2 sm:mb-4">
+            {/* <div className="relative mb-2 sm:mb-4">
               <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
                 Assign to Broker <span className="text-red-500">*</span>
               </label>
@@ -483,7 +483,7 @@ const CompanyAddCustomer = () => {
                     className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.BrokerId ? 'border-red-500' : 'border-gray-300'
                       }`}
                   />
-                  {isDropdownOpen && (
+                  {/* {isDropdownOpen && (
                     <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
                       {filteredBrokers.length > 0 ? (
                         filteredBrokers.map((b) => (
@@ -519,15 +519,15 @@ const CompanyAddCustomer = () => {
                         </div>
                       )}
                     </div>
-                  )}
-                </div>
+                  )} */}
+                {/* </div>
               )}
               {errors.BrokerId && !isMasterBroker && (
                 <p className="mt-1 text-xs text-red-500">
                   {errors.BrokerId}
                 </p>
               )}
-            </div>
+            </div> */} 
 
             {/* Customer Type - DROPDOWN */}
             <div className="mb-2 sm:mb-4">
@@ -633,7 +633,7 @@ const CompanyAddCustomer = () => {
             </div> */}
 
             {/* Commission - Required */}
-            <div className="mb-2 sm:mb-4">
+            {/* <div className="mb-2 sm:mb-4">
               <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
                 Commission % <span className="text-red-500">*</span>
               </label>
@@ -650,7 +650,7 @@ const CompanyAddCustomer = () => {
               {errors.commission && (
                 <p className="mt-1 text-xs text-red-500">{errors.commission}</p>
               )}
-            </div>
+            </div> */}
           </div>
 
           {/* Document Upload Section */}
