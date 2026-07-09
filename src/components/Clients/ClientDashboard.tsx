@@ -238,6 +238,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
     {
       header: 'Wallet Balance',
       accessor: 'wallets.amount',
+      // isSort:true,
       render: (row: Client) => {
         const amount = row.walletBalance !== undefined 
           ? Number(row.walletBalance) 
@@ -300,26 +301,26 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
         );
       },
     },
-    {
-      header: 'P&L',
-      accessor: 'pnl',
-      render: (row: Client) => {
-        const pnl = row.pnl !== undefined ? Number(row.pnl) : 0;
-        const isProfit = pnl >= 0;
-        return (
-          <span
-            className={`whitespace-nowrap text-sm font-bold ${
-              isProfit ? 'text-green-600' : 'text-red-600'
-            }`}
-          >
-            {isProfit ? '+' : ''}
-            {pnl >= 0
-              ? `${pnl.toLocaleString()}`
-              : `-${Math.abs(pnl).toLocaleString()}`}
-          </span>
-        );
-      },
-    },
+    // {
+    //   header: 'P&L',
+    //   accessor: 'pnl',
+    //   render: (row: Client) => {
+    //     const pnl = row.pnl !== undefined ? Number(row.pnl) : 0;
+    //     const isProfit = pnl >= 0;
+    //     return (
+    //       <span
+    //         className={`whitespace-nowrap text-sm font-bold ${
+    //           isProfit ? 'text-green-600' : 'text-red-600'
+    //         }`}
+    //       >
+    //         {isProfit ? '+' : ''}
+    //         {pnl >= 0
+    //           ? `${pnl.toLocaleString()}`
+    //           : `-${Math.abs(pnl).toLocaleString()}`}
+    //       </span>
+    //     );
+    //   },
+    // },
     {
       header: 'Status',
       accessor: 'user.isActive',

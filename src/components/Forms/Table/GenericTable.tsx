@@ -15,6 +15,7 @@ interface GenericTableProps<T> {
   onRowClick?: (row: T) => void;
   rowsPerPage?: number;
   clickable?: boolean;
+  isSearchable?: boolean;
 }
 
 const GenericTable = <T extends {id?: string}>({
@@ -23,10 +24,12 @@ const GenericTable = <T extends {id?: string}>({
   onRowClick,
   rowsPerPage = 10,
   clickable = true,
+  isSearchable,
 }: GenericTableProps<T>) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const hasSortable = columns.some((col) => col.sortable);
+  const showSearch = isSearchable !== undefined ? isSearchable : hasSortable;
 
   const filteredData = useMemo(() => {
     if (!searchTerm) return data;
@@ -89,7 +92,7 @@ const GenericTable = <T extends {id?: string}>({
 
   return (
     <div className="overflow-hidden rounded-lg bg-white shadow-sm dark:bg-boxdark">
-      {hasSortable && (
+      {showSearch && (
         <div className="mb-2 flex items-center justify-between px-4 py-2 dark:bg-boxdark">
           <input
             type="text"
@@ -134,9 +137,9 @@ const GenericTable = <T extends {id?: string}>({
                   key={(row.id as string) || rowIndex}
                   onClick={() => handleRowClick(row)}
                   className={`${clickable && onRowClick ? 'hover:bg-gray-50 cursor-pointer transition-colors dark:hover:bg-meta-4' : ''} ${
-                    row.isDummy
+                    (row as any).isDummy
                       ? 'bg-[#eff4ff]'
-                      : row.perticular === 'BREAK'
+                      : (row as any).perticular === 'BREAK'
                         ? 'bg-[#f5f2e5] text-orange-700'
                         : rowIndex % 2 === 0
                           ? 'bg-white dark:bg-boxdark'

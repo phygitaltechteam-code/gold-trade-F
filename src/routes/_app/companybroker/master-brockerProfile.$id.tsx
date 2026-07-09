@@ -1,5 +1,6 @@
 import MasterBrokerProfile from '@/components/company/masterbroker/MasterBrokerProfile'
 import { useParams } from '@tanstack/react-router';
+import React from 'react';
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute(

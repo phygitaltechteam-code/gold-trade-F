@@ -1,0 +1,65 @@
+import React from 'react';
+import GenericTable from '@/components/Forms/Table/GenericTable';
+
+interface CommissionTabProps {
+  commissionStartDate: string;
+  setCommissionStartDate: (val: string) => void;
+  commissionEndDate: string;
+  setCommissionEndDate: (val: string) => void;
+  filteredCommissionHistory: any[];
+  commissionColumns: any[];
+}
+
+export const CommissionTab: React.FC<CommissionTabProps> = ({
+  commissionStartDate,
+  setCommissionStartDate,
+  commissionEndDate,
+  setCommissionEndDate,
+  filteredCommissionHistory,
+  commissionColumns,
+}) => {
+  return (
+    <div className="overflow-x-auto">
+      <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <h3 className="text-base font-semibold text-black dark:text-white md:text-lg">
+          Commission History
+        </h3>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2">
+            <label className="text-xs font-medium text-black dark:text-white md:text-sm">
+              From :
+            </label>
+            <input
+              type="date"
+              value={commissionStartDate}
+              onChange={(e) => setCommissionStartDate(e.target.value)}
+              className="rounded border border-stroke bg-transparent px-2 py-1 text-xs outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-3 md:py-1 md:text-sm"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="text-xs font-medium text-black dark:text-white md:text-sm">
+              To :
+            </label>
+            <input
+              type="date"
+              value={commissionEndDate}
+              onChange={(e) => setCommissionEndDate(e.target.value)}
+              className="rounded border border-stroke bg-transparent px-2 py-1 text-xs outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-3 md:py-1 md:text-sm"
+            />
+          </div>
+        </div>
+      </div>
+      {filteredCommissionHistory.length > 0 ? (
+        <GenericTable
+          data={filteredCommissionHistory}
+          columns={commissionColumns}
+          rowsPerPage={25}
+        />
+      ) : (
+        <div className="py-8 text-center">
+          <p className="text-gray-500">No commission history found</p>
+        </div>
+      )}
+    </div>
+  );
+};
