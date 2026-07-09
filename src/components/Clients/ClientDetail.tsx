@@ -687,7 +687,7 @@ export const ClientDetail: React.FC = () => {
                     </p>
                   )}
                 </div>
-
+{/* 
                 <div>
                   <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                     City
@@ -695,8 +695,8 @@ export const ClientDetail: React.FC = () => {
                   <p className="text-sm text-black dark:text-white md:text-base">
                     {displayClient?.city || 'N/A'}
                   </p>
-                </div> 
-
+                </div>  */}
+{/* 
                  <div>
                   <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                     State / Country
@@ -705,7 +705,7 @@ export const ClientDetail: React.FC = () => {
                     {displayClient?.state || 'N/A'} /{' '}
                     {displayClient?.country || 'N/A'}
                   </p>
-                </div> 
+                </div>  */}
 
                 <div>
                   <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">

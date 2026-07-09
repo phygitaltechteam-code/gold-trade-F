@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import React, {useState, useMemo, useEffect} from 'react';
+import {useQueryClient} from '@tanstack/react-query';
 import {
   Search,
   Bell,
@@ -15,10 +15,13 @@ import {
   Edit,
   Trash,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import {motion, AnimatePresence} from 'framer-motion';
 import GenericTable from '@/components/Forms/Table/GenericTable';
-import { useApproveWithdrawal, useGetWithdrawal, useRejectWithdrawal } from '@/lib/api/masterpanelapi/masterapi';
-
+import {
+  useApproveWithdrawal,
+  useGetWithdrawal,
+  useRejectWithdrawal,
+} from '@/lib/api/masterpanelapi/masterapi';
 
 // Types
 interface WithdrawalRequest {
@@ -49,164 +52,8 @@ interface WithdrawalRequest {
   isHighValue?: boolean;
 }
 
-const MOCK_DATA: WithdrawalRequest[] = [
-  {
-    id: '1',
-    requestId: '#W-94821',
-    date: 'Today',
-    time: '10:42 AM',
-    client: { name: 'John Doe', tier: 'Gold Tier', initials: 'JD' },
-    brokerName: 'Capital Brokerage',
-    brokerNumber: 'BRK-00123',
-    superBrokerName: 'Global Markets Group',
-    superBrokerNumber: 'SBR-00456',
-    walletBalance: 45000.0,
-    amount: 15400.0,
-    withdrawType: 'Bank Transfer',
-    detailAmount: 15385.0,
-    paidAmount: 15385.0,
-    paidDateTime: '2024-01-15 14:30:00',
-    fee: 15.0,
-    bank: 'Chase Bank',
-    accountLast4: '8821',
-    status: 'Pending',
-  },
-  {
-    id: '2',
-    requestId: '#W-94820',
-    date: 'Today',
-    time: '09:15 AM',
-    client: { name: 'Alice Smith', tier: 'Standard Tier', initials: 'AS' },
-    brokerName: 'TradeCorp',
-    brokerNumber: 'BRK-00456',
-    superBrokerName: 'Alpha Financial',
-    superBrokerNumber: 'SBR-00123',
-    walletBalance: 12000.0,
-    amount: 2100.0,
-    withdrawType: 'Crypto Wallet',
-    detailAmount: 2095.0,
-    paidAmount: 2095.0,
-    paidDateTime: '2024-01-15 11:20:00',
-    fee: 5.0,
-    bank: 'Wells Fargo',
-    accountLast4: '4492',
-    status: 'Pending',
-  },
-  {
-    id: '3',
-    requestId: '#W-94819',
-    date: 'Today',
-    time: '08:30 AM',
-    client: {
-      name: 'Marcus Chen',
-      tier: 'Platinum Tier',
-      initials: 'MC',
-      avatar: 'https://picsum.photos/seed/marcus/40/40',
-    },
-    brokerName: 'Asia Wealth',
-    brokerNumber: 'BRK-00789',
-    superBrokerName: 'Global Markets Group',
-    superBrokerNumber: 'SBR-00456',
-    walletBalance: 250000.0,
-    amount: 85000.0,
-    withdrawType: 'Wire Transfer',
-    detailAmount: 84950.0,
-    paidAmount: 0,
-    paidDateTime: 'Pending',
-    fee: 50.0,
-    bank: 'HSBC Global',
-    accountLast4: '1102',
-    status: 'Review',
-    isHighValue: true,
-  },
-  {
-    id: '4',
-    requestId: '#W-94818',
-    date: 'Yesterday',
-    time: '11:55 PM',
-    client: { name: 'Robert King', tier: 'Standard Tier', initials: 'RK' },
-    brokerName: 'King Investments',
-    brokerNumber: 'BRK-00999',
-    superBrokerName: 'Alpha Financial',
-    superBrokerNumber: 'SBR-00123',
-    walletBalance: 3400.0,
-    amount: 850.0,
-    withdrawType: 'Bank Transfer',
-    detailAmount: 848.0,
-    paidAmount: 848.0,
-    paidDateTime: '2024-01-14 09:45:00',
-    fee: 2.0,
-    bank: 'Bank of America',
-    accountLast4: '9931',
-    status: 'Pending',
-  },
-  {
-    id: '5',
-    requestId: '#W-94802',
-    date: 'Yesterday',
-    time: '04:20 PM',
-    client: { name: 'Sarah Lee', tier: 'Silver Tier', initials: 'SL' },
-    brokerName: 'TradeCorp',
-    brokerNumber: 'BRK-00456',
-    superBrokerName: 'Global Markets Group',
-    superBrokerNumber: 'SBR-00456',
-    walletBalance: 9800.0,
-    amount: 4200.0,
-    withdrawType: 'PayPal',
-    detailAmount: 4196.0,
-    paidAmount: 0,
-    paidDateTime: 'Pending',
-    fee: 4.0,
-    bank: 'Citibank',
-    accountLast4: '2381',
-    status: 'On Hold',
-  },
-  {
-    id: '6',
-    requestId: '#W-94795',
-    date: 'Yesterday',
-    time: '02:10 PM',
-    client: { name: 'David Brown', tier: 'Gold Tier', initials: 'DB' },
-    brokerName: 'Capital Brokerage',
-    brokerNumber: 'BRK-00123',
-    superBrokerName: 'Alpha Financial',
-    superBrokerNumber: 'SBR-00123',
-    walletBalance: 65000.0,
-    amount: 12500.0,
-    withdrawType: 'Wire Transfer',
-    detailAmount: 12488.0,
-    paidAmount: 12488.0,
-    paidDateTime: '2024-01-13 16:20:00',
-    fee: 12.0,
-    bank: 'Chase Bank',
-    accountLast4: '5543',
-    status: 'Approved',
-  },
-  {
-    id: '7',
-    requestId: '#W-94788',
-    date: '2 days ago',
-    time: '11:30 AM',
-    client: { name: 'Emma Wilson', tier: 'Standard Tier', initials: 'EW' },
-    brokerName: 'King Investments',
-    brokerNumber: 'BRK-00999',
-    superBrokerName: 'Global Markets Group',
-    superBrokerNumber: 'SBR-00456',
-    walletBalance: 8000.0,
-    amount: 3200.0,
-    withdrawType: 'Bank Transfer',
-    detailAmount: 3197.0,
-    paidAmount: 0,
-    paidDateTime: 'Rejected',
-    fee: 3.0,
-    bank: 'Wells Fargo',
-    accountLast4: '7789',
-    status: 'Rejected',
-  },
-];
-
 // Status Badge Component
-const StatusBadge = ({ status }: { status: WithdrawalRequest['status'] }) => {
+const StatusBadge = ({status}: {status: WithdrawalRequest['status']}) => {
   const styles = {
     Pending: 'bg-orange-50 text-orange-600 border-orange-100',
     Review: 'bg-yellow-50 text-yellow-600 border-yellow-100',
@@ -227,14 +74,15 @@ const StatusBadge = ({ status }: { status: WithdrawalRequest['status'] }) => {
 export default function WithdrawalRequest() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('Pending');
-  const { data: withdrawal } = useGetWithdrawal();
-  const { mutateAsync: approve } = useApproveWithdrawal();
-  const { mutateAsync: reject } = useRejectWithdrawal();
-  console.log('withdrawallll', withdrawal);
+  const {data: withdrawal, refetch} = useGetWithdrawal();
+  const {mutateAsync: approve} = useApproveWithdrawal();
+  const {mutateAsync: reject} = useRejectWithdrawal();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRequests, setSelectedRequests] = useState<string[]>([]);
   const [showApproveModal, setShowApproveModal] = useState(false);
-  const [selectedWithdrawalId, setSelectedWithdrawalId] = useState<string | null>(null);
+  const [selectedWithdrawalId, setSelectedWithdrawalId] = useState<
+    string | null
+  >(null);
 
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
@@ -244,69 +92,19 @@ export default function WithdrawalRequest() {
   const [isExpanded, setIsExpanded] = useState(false); // View More/View Less state
   const itemsPerPage = 5;
 
-  // const MOCK_DATA: WithdrawalRequest[] =
-  //   withdrawal?.map((item: any, index: number) => ({
-  //     id: item.id,
-  //     requestId: `REQ${String(index + 1).padStart(3, '0')}`,
-
-  //     date: 'Today',
-  //     time: new Date(item.createdAt).toLocaleTimeString('en-IN', {
-  //       hour: '2-digit',
-  //       minute: '2-digit',
-  //     }),
-
-  //     client: {
-  //       name: item.customer?.user?.fullname || 'N/A',
-  //       avatar: item.customer?.photo || '',
-  //       initials:
-  //         item.customer?.user?.fullname
-  //           ?.split(' ')
-  //           .map((n: string) => n[0])
-  //           .join('')
-  //           .toUpperCase() || 'NA',
-  //     },
-
-  //     brokerName: '-',
-  //     brokerNumber: '-',
-
-  //     superBrokerName: '-',
-  //     superBrokerNumber: '-',
-
-  //     walletBalance: 0,
-
-  //     amount: item.amount || 0,
-
-  //     withdrawType: 'Bank Transfer',
-
-  //     detailAmount: item.amount || 0,
-  //     paidAmount: 0,
-  //     paidDateTime: '-',
-
-  //     fee: 0,
-
-  //     bank: item.customer?.bank_Name || '-',
-  //     accountLast4: '----',
-
-  //     status:
-  //       item.status === 'PENDING'
-  //         ? 'Pending'
-  //         : item.status === 'APPROVED'
-  //           ? 'Approved'
-  //           : item.status === 'REJECTED'
-  //             ? 'Rejected'
-  //             : 'Review',
-
-  //     isHighValue: item.amount > 100000,
-
-  //     customer: item.customer,
-  //   })) || [];
-
-  const MOCK_DATA: WithdrawalRequest[] =
-    withdrawal?.map((item: any, index: number) => ({
+  const MOCK_DATA = useMemo(() => {
+    return withdrawal?.map((item: any, index: number) => ({
       id: item.id,
       requestId: `REQ${String(index + 1).padStart(3, '0')}`,
-
-      date: 'Today',
+      date: new Date(item.createdAt).toLocaleString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+      }),
       time: new Date(item.createdAt).toLocaleTimeString('en-IN', {
         hour: '2-digit',
         minute: '2-digit',
@@ -329,7 +127,7 @@ export default function WithdrawalRequest() {
       superBrokerName: item.superBrokerName || '-',
       superBrokerNumber: item.superBrokerId || '-',
 
-      walletBalance: 0,
+      walletBalance: item.walletBalance || 0,
       amount: item.amount || 0,
 
       withdrawType: 'Bank Transfer',
@@ -355,10 +153,9 @@ export default function WithdrawalRequest() {
       isHighValue: item.amount > 100000,
       customer: item.customer,
     })) || [];
+  }, [withdrawal]);
 
-
-  // Filter d
-  // ata based on active tab and search
+  // Filter data based on active tab and search
   const filteredData = useMemo(() => {
     return MOCK_DATA?.filter((req) => {
       // Tab filter
@@ -374,7 +171,7 @@ export default function WithdrawalRequest() {
 
       return matchesTab && matchesSearch;
     });
-  }, [activeTab, searchTerm]);
+  }, [MOCK_DATA, activeTab, searchTerm]);
 
   // Calculate dynamic stats
   const stats = useMemo(() => {
@@ -394,7 +191,7 @@ export default function WithdrawalRequest() {
       processedToday,
       totalOutflow,
     };
-  }, []);
+  }, [MOCK_DATA]);
 
   // Get counts for each status
   const statusCounts = useMemo(() => {
@@ -405,18 +202,18 @@ export default function WithdrawalRequest() {
       Approved: MOCK_DATA?.filter((r) => r.status === 'Approved').length,
       Rejected: MOCK_DATA?.filter((r) => r.status === 'Rejected').length,
     };
-  }, []);
+  }, [MOCK_DATA]);
 
   const showActions = activeTab !== 'Approved' && activeTab !== 'Rejected';
 
   // Base columns (View Less)
   const baseColumns = [
-    {
-      header: 'Request ID',
-      accessor: (row: WithdrawalRequest) => (
-        <span className="text-gray-900 text-sm font-bold">{row.requestId}</span>
-      ),
-    },
+    // {
+    //   header: 'Request ID',
+    //   accessor: (row: WithdrawalRequest) => (
+    //     <span className="text-gray-900 text-sm font-bold">{row.requestId}</span>
+    //   ),
+    // },
     {
       header: 'Client Name',
       accessor: (row: WithdrawalRequest) => (
@@ -429,18 +226,26 @@ export default function WithdrawalRequest() {
         </div>
       ),
     },
+
     {
-      header: 'Broker Number',
+      header: 'Date',
       accessor: (row: WithdrawalRequest) => (
-        <span className="text-gray-600 text-sm">{row.brokerNumber}</span>
+        <span className="text-gray-600 text-sm">{row.date}</span>
       ),
     },
-    {
-      header: 'Super Broker Number',
-      accessor: (row: WithdrawalRequest) => (
-        <span className="text-gray-600 text-sm">{row.superBrokerNumber}</span>
-      ),
-    },
+
+    // {
+    //   header: 'Broker Number',
+    //   accessor: (row: WithdrawalRequest) => (
+    //     <span className="text-gray-600 text-sm">{row.brokerNumber}</span>
+    //   ),
+    // },
+    // {
+    //   header: 'Super Broker Number',
+    //   accessor: (row: WithdrawalRequest) => (
+    //     <span className="text-gray-600 text-sm">{row.superBrokerNumber}</span>
+    //   ),
+    // },
     {
       header: 'Wallet Balance',
       accessor: (row: WithdrawalRequest) => (
@@ -457,14 +262,14 @@ export default function WithdrawalRequest() {
         </div>
       ),
     },
-    {
-      header: 'Withdraw Type',
-      accessor: (row: WithdrawalRequest) => (
-        <span className="bg-gray-100 rounded border border-slate-200 px-2 py-1 text-xs">
-          {row.withdrawType}
-        </span>
-      ),
-    },
+    // {
+    //   header: 'Withdraw Type',
+    //   accessor: (row: WithdrawalRequest) => (
+    //     <span className="bg-gray-100 rounded border border-slate-200 px-2 py-1 text-xs">
+    //       {row.withdrawType}
+    //     </span>
+    //   ),
+    // },
     {
       header: 'Status',
       accessor: (row: WithdrawalRequest) => <StatusBadge status={row.status} />,
@@ -496,12 +301,12 @@ export default function WithdrawalRequest() {
 
   // Expanded columns (View More) - includes additional fields
   const expandedColumns = [
-    {
-      header: 'Request ID',
-      accessor: (row: WithdrawalRequest) => (
-        <span className="text-gray-900 text-sm font-bold">{row.requestId}</span>
-      ),
-    },
+    // {
+    //   header: 'Request ID',
+    //   accessor: (row: WithdrawalRequest) => (
+    //     <span className="text-gray-900 text-sm font-bold">{row.requestId}</span>
+    //   ),
+    // },
     {
       header: 'Client Name',
       accessor: (row: WithdrawalRequest) => (
@@ -514,28 +319,28 @@ export default function WithdrawalRequest() {
         </div>
       ),
     },
-    {
-      header: 'Broker Name',
-      accessor: (row: WithdrawalRequest) => (
-        <div>
-          <div className="text-gray-900 text-sm font-medium">
-            {row.brokerName}
-          </div>
-          <div className="text-gray-400 text-xs">{row.brokerNumber}</div>
-        </div>
-      ),
-    },
-    {
-      header: 'Super Broker Name',
-      accessor: (row: WithdrawalRequest) => (
-        <div>
-          <div className="text-gray-900 text-sm font-medium">
-            {row.superBrokerName}
-          </div>
-          <div className="text-gray-400 text-xs">{row.superBrokerNumber}</div>
-        </div>
-      ),
-    },
+    // {
+    //   header: 'Broker Name',
+    //   accessor: (row: WithdrawalRequest) => (
+    //     <div>
+    //       <div className="text-gray-900 text-sm font-medium">
+    //         {row.brokerName}
+    //       </div>
+    //       <div className="text-gray-400 text-xs">{row.brokerNumber}</div>
+    //     </div>
+    //   ),
+    // },
+    // {
+    //   header: 'Super Broker Name',
+    //   accessor: (row: WithdrawalRequest) => (
+    //     <div>
+    //       <div className="text-gray-900 text-sm font-medium">
+    //         {row.superBrokerName}
+    //       </div>
+    //       <div className="text-gray-400 text-xs">{row.superBrokerNumber}</div>
+    //     </div>
+    //   ),
+    // },
     {
       header: 'Wallet Balance',
       accessor: (row: WithdrawalRequest) => (
@@ -552,28 +357,28 @@ export default function WithdrawalRequest() {
         </div>
       ),
     },
-    {
-      header: 'Withdraw Type',
-      accessor: (row: WithdrawalRequest) => (
-        <span className="bg-gray-100 rounded border border-slate-200 px-2 py-1 text-xs">
-          {row.withdrawType}
-        </span>
-      ),
-    },
-    {
-      header: 'Paid Amount',
-      accessor: (row: WithdrawalRequest) => (
-        <div className="text-right text-sm font-bold text-emerald-600">
-          ₹{row.paidAmount.toLocaleString('en-IN')}
-        </div>
-      ),
-    },
-    {
-      header: 'Paid Date/Time',
-      accessor: (row: WithdrawalRequest) => (
-        <span className="text-gray-600 text-sm">{row.paidDateTime}</span>
-      ),
-    },
+    // {
+    //   header: 'Withdraw Type',
+    //   accessor: (row: WithdrawalRequest) => (
+    //     <span className="bg-gray-100 rounded border border-slate-200 px-2 py-1 text-xs">
+    //       {row.withdrawType}
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   header: 'Paid Amount',
+    //   accessor: (row: WithdrawalRequest) => (
+    //     <div className="text-right text-sm font-bold text-emerald-600">
+    //       ₹{row.paidAmount.toLocaleString('en-IN')}
+    //     </div>
+    //   ),
+    // },
+    // {
+    //   header: 'Paid Date/Time',
+    //   accessor: (row: WithdrawalRequest) => (
+    //     <span className="text-gray-600 text-sm">{row.paidDateTime}</span>
+    //   ),
+    // },
     {
       header: 'Status',
       accessor: (row: WithdrawalRequest) => <StatusBadge status={row.status} />,
@@ -704,9 +509,9 @@ export default function WithdrawalRequest() {
         <AnimatePresence>
           {selectedRequests.length > 0 && (
             <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
+              initial={{opacity: 0, y: -20}}
+              animate={{opacity: 1, y: 0}}
+              exit={{opacity: 0, y: -20}}
               className="mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-orange-200 bg-orange-50 p-3"
             >
               <span className="text-sm font-medium text-orange-700">
@@ -746,20 +551,22 @@ export default function WithdrawalRequest() {
                     setActiveTab(tab);
                     setCurrentPage(1);
                   }}
-                  className={`relative whitespace-nowrap pb-2 text-xs font-medium transition-all sm:text-sm ${activeTab === tab
-                    ? 'text-orange-500'
-                    : 'text-gray-500 hover:text-gray-700'
-                    }`}
+                  className={`relative whitespace-nowrap pb-2 text-xs font-medium transition-all sm:text-sm ${
+                    activeTab === tab
+                      ? 'text-orange-500'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
                 >
                   {tab}
                   {statusCounts[tab] > 0 && (
                     <span
-                      className={`ml-2 rounded-md px-1.5 py-0.5 text-[10px] ${tab === 'Pending'
-                        ? 'bg-orange-50 text-orange-600'
-                        : tab === 'Approved'
-                          ? 'bg-emerald-50 text-emerald-600'
-                          : 'bg-red-50 text-red-600'
-                        }`}
+                      className={`ml-2 rounded-md px-1.5 py-0.5 text-[10px] ${
+                        tab === 'Pending'
+                          ? 'bg-orange-50 text-orange-600'
+                          : tab === 'Approved'
+                            ? 'bg-emerald-50 text-emerald-600'
+                            : 'bg-red-50 text-red-600'
+                      }`}
                     >
                       {statusCounts[tab]}
                     </span>
@@ -797,9 +604,9 @@ export default function WithdrawalRequest() {
           <AnimatePresence>
             {showMobileFilter && (
               <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
+                initial={{opacity: 0, height: 0}}
+                animate={{opacity: 1, height: 'auto'}}
+                exit={{opacity: 0, height: 0}}
                 className="bg-gray-50/50 border-b border-stroke p-4 sm:hidden"
               >
                 <h3 className="text-gray-400 mb-2 text-xs font-bold">
@@ -831,11 +638,9 @@ export default function WithdrawalRequest() {
       {showApproveModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
-            <h2 className="mb-2 text-lg font-semibold">
-              Approve Withdrawal
-            </h2>
+            <h2 className="mb-2 text-lg font-semibold">Approve Withdrawal</h2>
 
-            <p className="mb-6 text-sm text-gray-600">
+            <p className="text-gray-600 mb-6 text-sm">
               Are you sure you want to approve this withdrawal request?
             </p>
 
@@ -856,7 +661,7 @@ export default function WithdrawalRequest() {
 
                   try {
                     await approve(selectedWithdrawalId);
-                    await queryClient.invalidateQueries({ queryKey: ['withdrawal'] }); // Add this line
+                    refetch(); // Add this line
                     setShowApproveModal(false);
                     setSelectedWithdrawalId(null);
                   } catch (error) {
@@ -878,7 +683,7 @@ export default function WithdrawalRequest() {
               Reject Withdrawal
             </h2>
 
-            <p className="mb-4 text-sm text-gray-600">
+            <p className="text-gray-600 mb-4 text-sm">
               Please enter a reason for rejection.
             </p>
 
@@ -916,7 +721,9 @@ export default function WithdrawalRequest() {
                       id: selectedWithdrawalId,
                       reason: rejectReason,
                     });
-                    await queryClient.invalidateQueries({ queryKey: ['withdrawal'] }); // Add this line
+                    await queryClient.invalidateQueries({
+                      queryKey: ['withdrawal'],
+                    }); // Add this line
                     setShowRejectModal(false);
                     setSelectedWithdrawalId(null);
                     setRejectReason('');
