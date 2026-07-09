@@ -310,7 +310,15 @@ export default function WithdrawalRequest() {
       id: item.id,
       requestId: `REQ${String(index + 1).padStart(3, '0')}`,
 
-      date: 'Today',
+        date: new Date(item.createdAt).toLocaleString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+      }),
       time: new Date(item.createdAt).toLocaleTimeString('en-IN', {
         hour: '2-digit',
         minute: '2-digit',
@@ -333,7 +341,7 @@ export default function WithdrawalRequest() {
       superBrokerName: item.superBrokerName || '-',
       superBrokerNumber: item.superBrokerId || '-',
 
-      walletBalance: 0,
+      walletBalance:item.walletBalance || 0,
       amount: item.amount || 0,
 
       withdrawType: 'Bank Transfer',
@@ -378,7 +386,7 @@ export default function WithdrawalRequest() {
 
       return matchesTab && matchesSearch;
     });
-  }, [activeTab, searchTerm]);
+  }, [MOCK_DATA, activeTab, searchTerm]);
 
   // Calculate dynamic stats
   const stats = useMemo(() => {
@@ -413,12 +421,12 @@ export default function WithdrawalRequest() {
 
   // Base columns (View Less)
   const baseColumns = [
-    {
-      header: 'Request ID',
-      accessor: (row: WithdrawalRequest) => (
-        <span className="text-gray-900 text-sm font-bold">{row.requestId}</span>
-      ),
-    },
+    // {
+    //   header: 'Request ID',
+    //   accessor: (row: WithdrawalRequest) => (
+    //     <span className="text-gray-900 text-sm font-bold">{row.requestId}</span>
+    //   ),
+    // },
     {
       header: 'Client Name',
       accessor: (row: WithdrawalRequest) => (
@@ -431,11 +439,17 @@ export default function WithdrawalRequest() {
         </div>
       ),
     },
+     {
+      header: 'Date',
+      accessor: (row: WithdrawalRequest) => (
+        <span className="text-gray-600 text-sm">{row.date}</span>
+      ),
+    },
     {
       header: 'Broker Number',
-      accessor: (row: WithdrawalRequest) => (
+    accessor: (row: WithdrawalRequest) => (
         <span className="text-gray-600 text-sm">{row.brokerNumber}</span>
-      ),
+       ),
     },
     {
       header: 'Super Broker Number',
@@ -459,14 +473,14 @@ export default function WithdrawalRequest() {
         </div>
       ),
     },
-    {
-      header: 'Withdraw Type',
-      accessor: (row: WithdrawalRequest) => (
-        <span className="bg-gray-100 rounded border border-slate-200 px-2 py-1 text-xs">
-          {row.withdrawType}
-        </span>
-      ),
-    },
+    // {
+    //   header: 'Withdraw Type',
+    //   accessor: (row: WithdrawalRequest) => (
+    //     <span className="bg-gray-100 rounded border border-slate-200 px-2 py-1 text-xs">
+    //       {row.withdrawType}
+    //     </span>
+    //   ),
+    // },
     {
       header: 'Status',
       accessor: (row: WithdrawalRequest) => <StatusBadge status={row.status} />,
@@ -494,12 +508,12 @@ export default function WithdrawalRequest() {
 
   // Expanded columns (View More) - includes additional fields
   const expandedColumns = [
-    {
-      header: 'Request ID',
-      accessor: (row: WithdrawalRequest) => (
-        <span className="text-gray-900 text-sm font-bold">{row.requestId}</span>
-      ),
-    },
+    // {
+    //   header: 'Request ID',
+    //   accessor: (row: WithdrawalRequest) => (
+    //     <span className="text-gray-900 text-sm font-bold">{row.requestId}</span>
+    //   ),
+    // },
     {
       header: 'Client Name',
       accessor: (row: WithdrawalRequest) => (
@@ -558,20 +572,20 @@ export default function WithdrawalRequest() {
         </span>
       ),
     },
-    {
-      header: 'Paid Amount',
-      accessor: (row: WithdrawalRequest) => (
-        <div className="text-right text-sm font-bold text-emerald-600">
-          ₹{row.paidAmount.toLocaleString('en-IN')}
-        </div>
-      ),
-    },
-    {
-      header: 'Paid Date/Time',
-      accessor: (row: WithdrawalRequest) => (
-        <span className="text-gray-600 text-sm">{row.paidDateTime}</span>
-      ),
-    },
+    // {
+    //   header: 'Paid Amount',
+    //   accessor: (row: WithdrawalRequest) => (
+    //     <div className="text-right text-sm font-bold text-emerald-600">
+    //       ₹{row.paidAmount.toLocaleString('en-IN')}
+    //     </div>
+    //   ),
+    // },
+    // {
+    //   header: 'Paid Date/Time',
+    //   accessor: (row: WithdrawalRequest) => (
+    //     <span className="text-gray-600 text-sm">{row.paidDateTime}</span>
+    //   ),
+    // },
     {
       header: 'Status',
       accessor: (row: WithdrawalRequest) => <StatusBadge status={row.status} />,
