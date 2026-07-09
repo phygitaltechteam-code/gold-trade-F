@@ -31,10 +31,16 @@ import {motion} from 'framer-motion';
 import {Client} from './types';
 
 import {FiEdit2, FiSave, FiX, FiEye} from 'react-icons/fi';
- import {Route} from '@/routes/_app/masterbroker/client-details.$id';
+import {Route} from '@/routes/_app/masterbroker/client-details.$id';
 import {useNavigate} from '@tanstack/react-router';
 import toast from 'react-hot-toast';
-import { useAddMargin, useGetMasterClientById, useMasterSendDeposite, useSendWithdraw, useUpdateCustomer } from '@/lib/api/masterpanelapi/masterapi';
+import {
+  useAddMargin,
+  useGetMasterClientById,
+  useMasterSendDeposite,
+  useSendWithdraw,
+  useUpdateCustomer,
+} from '@/lib/api/masterpanelapi/masterapi';
 // import { useAddMargin, useSendDeposite, useSendWithdraw, useUpdateCustomer } from '../Clients/mutationapi';
 
 const DocCard = ({name, type, status, icon: Icon, color, url}: any) => (
@@ -84,6 +90,9 @@ export const ClientDetail: React.FC = () => {
     address: '',
     password: '',
   });
+
+  const intradayLeverage = clientData?.intradayLeverage ?? '';
+  const deliveryLeverage = clientData?.deliveryLeverage ?? '';
 
   const updateCustomer = useUpdateCustomer();
   const {mutateAsync: sendDeposite, isPending: isDepositPending} =
@@ -278,73 +287,75 @@ export const ClientDetail: React.FC = () => {
   };
 
   // Handle Deposit/Withdraw submission
-  const handleWalletSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+ const handleWalletSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    if (!walletAmount || parseFloat(walletAmount) <= 0) {
-      toast.error('Please enter a valid amount');
+  if (!walletAmount || parseFloat(walletAmount) <= 0) {
+    toast.error('Please enter a valid amount');
+    return;
+  }
+
+  if (!walletPin) {
+    toast.error('Please enter PIN');
+    return;
+  }
+
+  if (walletPin.length < 4) {
+    toast.error('PIN must be at least 4 digits');
+    return;
+  }
+
+  if (walletActionType === 'withdraw') {
+    const currentBalance = parseFloat(displayClient?.wallets?.amount || '0');
+    if (parseFloat(walletAmount) > currentBalance) {
+      toast.error('Insufficient balance');
       return;
     }
+  }
 
-    if (!walletPin) {
-      toast.error('Please enter PIN');
-      return;
+  try {
+    if (walletActionType === 'add') {
+      await sendDeposite({
+        amount: parseFloat(walletAmount),
+        securityPin: walletPin,
+        customerId: id,
+      });
+    } else {
+      await sendWithdraw({
+        amount: parseFloat(walletAmount),
+        securityPin: walletPin,
+        customerId: id,
+      });
     }
 
-    if (walletPin.length < 4) {
-      toast.error('PIN must be at least 4 digits');
-      return;
-    }
+    toast.success(
+      `₹${walletAmount} ${
+        walletActionType === 'add' ? 'deposited' : 'withdrawn'
+      } successfully!`,
+    );
 
-    if (walletActionType === 'withdraw') {
-      const currentBalance = parseFloat(displayClient?.wallets?.amount || '0');
-      if (parseFloat(walletAmount) > currentBalance) {
-        toast.error('Insufficient balance');
-        return;
-      }
-    }
+    setIsWalletModalOpen(false);
+    setWalletAmount('');
+    setWalletPin('');
+    setShowWalletPin(false);
 
-    try {
-      let result;
-      if (walletActionType === 'add') {
-        result = await sendDeposite({
-          amount: parseFloat(walletAmount),
-          securityPin: walletPin,
-          customerId: id,
-        });
-      } else {
-        result = await sendWithdraw({
-          amount: parseFloat(walletAmount),
-          securityPin: walletPin,
-          customerId: id,
-        });
-      }
+    await refetch();
+  } catch (error: any) {
+    console.error('Error processing transaction:', error);
+    toast.error(
+      error?.response?.data?.message ||
+        'Transaction failed. Please check your PIN and try again.',
+    );
+  }
+};
 
-      console.log('Wallet Transaction Response:', result);
-
-      if (result?.statusCode === 200 || result?.status === true) {
-        toast.success(
-          `₹${walletAmount} ${walletActionType === 'add' ? 'deposited' : 'withdrawn'} successfully!`,
-        );
-
-        setIsWalletModalOpen(false);
-        setWalletAmount('');
-        setWalletPin('');
-        setShowWalletPin(false);
-
-        await refetch();
-      } else {
-        toast.error(result?.message || `Failed to ${walletActionType} amount`);
-      }
-    } catch (error: any) {
-      console.error('Error processing transaction:', error);
-      toast.error(
-        error?.response?.data?.message ||
-          'Transaction failed. Please check your PIN and try again.',
-      );
-    }
+  const handleOpenMarginModal = () => {
+    setIntradayMargin(String(clientData?.intradayLeverage ?? ''));
+    setHoldingMargin(String(clientData?.deliveryLeverage ?? ''));
+    setMarginPin('');
+    setShowMarginPin(false);
+    setIsMarginModalOpen(true);
   };
-
   // Handle Margin submission
   const handleMarginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -458,7 +469,7 @@ export const ClientDetail: React.FC = () => {
         </div>
         <div className="flex gap-3">
           <button
-            onClick={() => setIsMarginModalOpen(true)}
+            onClick={handleOpenMarginModal}
             className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:-translate-y-0.5 hover:bg-slate-50 active:translate-y-0 md:px-5 md:py-3"
           >
             <TrendingUp className="h-4 w-4 text-orange-500" /> Add Margin

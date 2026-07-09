@@ -45,12 +45,6 @@ export const useMasterSendDeposite = () => {
       );
       return response.data;
     },
-    onSuccess: () => {
-      toast.success('Deposite sent successfully');
-    },
-    onError: (error: any) => {
-      toast.error(error.response.data.message);
-    },
   });
 };
 
@@ -66,12 +60,6 @@ export const useSendWithdraw = () => {
         data,
       );
       return response.data;
-    },
-    onSuccess: () => {
-      toast.success('Deposite sent successfully');
-    },
-    onError: (error: any) => {
-      toast.error(error.response.data.message);
     },
   });
 };

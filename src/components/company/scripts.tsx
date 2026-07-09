@@ -1,4 +1,4 @@
-// import React, {useEffect, useState} from 'react';
+// import React, {useEcommit fect, useState} from 'react';
 // import toast from 'react-hot-toast';
 // import {useGetScriptsData} from '@/lib/api/addbroker';
 // import GenericTable from '@/components/Forms/Table/GenericTable';
