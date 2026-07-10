@@ -532,7 +532,7 @@ export const DisplayScripts: React.FC = () => {
 
         <GenericTable
           columns={columns}
-          data={scripts}
+          data={finalScript}
           onRowClick={handleRowClick}
           clickable={true}
           rowsPerPage={10}

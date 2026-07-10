@@ -53,6 +53,10 @@ export const ClientDetail: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const {data: clientData, isLoading, refetch} = useGetClientById(id);
   const displayClient = clientData;
+
+  
+
+  console.log('displayClient', displayClient?.intradayLeverage);
   const [activeTab, setActiveTab] = useState('ledger');
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [walletActionType, setWalletActionType] = useState<'add' | 'withdraw'>(
@@ -74,6 +78,39 @@ export const ClientDetail: React.FC = () => {
     address: '',
     password: '',
   });
+
+  useEffect(() => {
+  if (displayClient) {
+    setIntradayMargin(
+      displayClient?.intradayLeverage != null
+        ? String(displayClient.intradayLeverage)
+        : ''
+    );
+
+    setHoldingMargin(
+      displayClient?.deliveryLeverage != null
+        ? String(displayClient.deliveryLeverage)
+        : ''
+    );
+  }
+}, [displayClient]);
+
+
+  useEffect(() => {
+  if (displayClient) {
+    setIntradayMargin(
+      displayClient?.intradayLeverage != null
+        ? String(displayClient.intradayLeverage)
+        : ''
+    );
+
+    setHoldingMargin(
+      displayClient?.deliveryLeverage != null
+        ? String(displayClient.deliveryLeverage)
+        : ''
+    );
+  }
+}, [displayClient]);
 
   const updateCustomer = useUpdateCustomer();
   const {data: ledgerData} = useGetClientLedgerById(id);
@@ -320,68 +357,65 @@ export const ClientDetail: React.FC = () => {
     setIsEditing(true);
   };
 
-  const handleWalletSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+const handleWalletSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    if (!walletAmount || parseFloat(walletAmount) <= 0) {
-      toast.error('Please enter a valid amount');
+  if (!walletAmount || parseFloat(walletAmount) <= 0) {
+    toast.error('Please enter a valid amount');
+    return;
+  }
+
+  if (!walletPin) {
+    toast.error('Please enter PIN');
+    return;
+  }
+
+  if (walletPin.length < 4) {
+    toast.error('PIN must be at least 4 digits');
+    return;
+  }
+
+  if (walletActionType === 'withdraw') {
+    const currentBalance = parseFloat(displayClient?.wallets?.amount || '0');
+    if (parseFloat(walletAmount) > currentBalance) {
+      toast.error('Insufficient balance');
       return;
     }
+  }
 
-    if (!walletPin) {
-      toast.error('Please enter PIN');
-      return;
+  try {
+    if (walletActionType === 'add') {
+      await sendDeposite({
+        amount: parseFloat(walletAmount),
+        securityPin: walletPin,
+        customerId: id,
+      });
+    } else {
+      await sendWithdraw({
+        amount: parseFloat(walletAmount),
+        securityPin: walletPin,
+        customerId: id,
+      });
     }
 
-    if (walletPin.length < 4) {
-      toast.error('PIN must be at least 4 digits');
-      return;
-    }
+    toast.success(
+      `₹${walletAmount} ${walletActionType === 'add' ? 'deposited' : 'withdrawn'} successfully!`,
+    );
 
-    if (walletActionType === 'withdraw') {
-      const currentBalance = parseFloat(displayClient?.wallets?.amount || '0');
-      if (parseFloat(walletAmount) > currentBalance) {
-        toast.error('Insufficient balance');
-        return;
-      }
-    }
+    refetch(); // optional if you want latest wallet value immediately
 
-    try {
-      let result;
-      if (walletActionType === 'add') {
-        result = await sendDeposite({
-          amount: parseFloat(walletAmount),
-          securityPin: walletPin,
-          customerId: id,
-        });
-      } else {
-        result = await sendWithdraw({
-          amount: parseFloat(walletAmount),
-          securityPin: walletPin,
-          customerId: id,
-        });
-      }
-
-      if (result?.statusCode === 200 || result?.status === true) {
-        toast.success(
-          `₹${walletAmount} ${walletActionType === 'add' ? 'deposited' : 'withdrawn'} successfully!`,
-        );
-
-        setIsWalletModalOpen(false);
-        setWalletAmount('');
-        setWalletPin('');
-        setShowWalletPin(false);
-      } else {
-        toast.error(result?.message || `Failed to ${walletActionType} amount`);
-      }
-    } catch (error: any) {
-      console.error('Error processing transaction:', error);
-      toast.error(
-        error?.response?.data?.message ||
-          'Transaction failed. Please check your PIN and try again.',
-      );
-    }
-  };
+    setIsWalletModalOpen(false);
+    setWalletAmount('');
+    setWalletPin('');
+    setShowWalletPin(false);
+  } catch (error: any) {
+    console.error('Error processing transaction:', error);
+    toast.error(
+      error?.response?.data?.message ||
+        `Failed to ${walletActionType} amount`,
+    );
+  }
+};
 
   const handleMarginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -486,12 +520,26 @@ export const ClientDetail: React.FC = () => {
           </div>
         </div>
         <div className="flex gap-3">
-          <button
-            onClick={() => setIsMarginModalOpen(true)}
-            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:-translate-y-0.5 hover:bg-slate-50 active:translate-y-0 md:px-5 md:py-3"
-          >
-            <TrendingUp className="h-4 w-4 text-orange-500" /> Add Margin
-          </button>
+         <button
+  onClick={() => {
+    setIntradayMargin(
+      displayClient?.intradayLeverage != null
+        ? String(displayClient.intradayLeverage)
+        : ''
+    );
+    setHoldingMargin(
+      displayClient?.deliveryLeverage != null
+        ? String(displayClient.deliveryLeverage)
+        : ''
+    );
+    setMarginPin('');
+    setShowMarginPin(false);
+    setIsMarginModalOpen(true);
+  }}
+  className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:-translate-y-0.5 hover:bg-slate-50 active:translate-y-0 md:px-5 md:py-3"
+>
+  <TrendingUp className="h-4 w-4 text-orange-500" /> Add Margin
+</button>
           <button
             onClick={() => setIsWalletModalOpen(true)}
             className="flex items-center gap-2 rounded-xl bg-orange-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-orange-200 transition-all hover:-translate-y-0.5 hover:bg-orange-600 active:translate-y-0 md:px-5 md:py-3"

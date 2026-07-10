@@ -14,7 +14,7 @@ const CustomerSchema = z.object({
   phoneNumber: z.string().min(1, 'Phone number is required'),
   BrokerId: z.string().min(1, 'Please select a Broker'),
   area: z.string().min(1, 'Area is required'),
-  commission: z.coerce.number().min(0, 'Commission must be a valid number'),
+  // commission: z.coerce.number().min(0, 'Commission must be a valid number'),
   aadharCardNumber: z.string().optional(),
   panCardNumber: z.string().optional(),
   type: z.enum(['mega', 'mini'], { 
@@ -181,10 +181,10 @@ const CompanyAddCustomer = () => {
     try {
       CustomerSchema.parse(formData);
 
-      if (!images.aadharCardF) {
-        toast.error('Aadhar Card image is required');
-        return false;
-      }
+      // if (!images.aadharCardF) {
+      //   toast.error('Aadhar Card image is required');
+      //   return false;
+      // }
 
       setErrors({});
       return true;
@@ -633,7 +633,7 @@ const CompanyAddCustomer = () => {
             </div> */}
 
             {/* Commission - Required */}
-            <div className="mb-2 sm:mb-4">
+            {/* <div className="mb-2 sm:mb-4">
               <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
                 Commission % <span className="text-red-500">*</span>
               </label>
@@ -650,7 +650,7 @@ const CompanyAddCustomer = () => {
               {errors.commission && (
                 <p className="mt-1 text-xs text-red-500">{errors.commission}</p>
               )}
-            </div>
+            </div> */}
           </div>
 
           {/* Document Upload Section */}
@@ -662,7 +662,7 @@ const CompanyAddCustomer = () => {
               <ImageUploadField
                 label="Aadhar Card"
                 field="aadharCardF"
-                required={true}
+                required={false}
               />
               <ImageUploadField
                 label="PAN Card"

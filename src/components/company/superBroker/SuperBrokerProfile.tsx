@@ -73,6 +73,8 @@ const SuperBrokerProfile = () => {
   const {
     data: paymentDataFromApi,
     isLoading: isLoadingPayment,
+    refetch: refetchPayment,
+    
   } = useGetSuperBrokerPaymentHistory(id);
 
 
@@ -519,6 +521,7 @@ const SuperBrokerProfile = () => {
             `Commission ${commissionType === 'credit' ? 'added' : 'deducted'} successfully`,
           );
           refetch();
+          refetchPayment();
         },
         onError: (error: any) => {
           toast.error(
