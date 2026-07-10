@@ -16,7 +16,7 @@ import DisplayScripts from './scripts';
 
 const ProfileTabs = () => {
   const {user} = useAuthContext();
-  console.log('userrrr', user);
+  // console.log('userrrr', user);
   const [activeComponent, setActiveComponent] = useState('Profile');
   console.log('active tab', activeComponent);
 

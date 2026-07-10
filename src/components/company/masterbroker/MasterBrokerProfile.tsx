@@ -4,6 +4,7 @@ import {
   useGetAllMasterBrockerById,
   useUpdateMasterBrokerProfile,
   useAddCommission,
+  useGetMasterbrokerLedgerById,
 } from '@/lib/react-query/masterbroker';
 import {useNavigate} from '@tanstack/react-router';
 import toast from 'react-hot-toast';
@@ -20,6 +21,26 @@ import { CommissionModal } from './CommissionModal';
 interface MasterBrokerProfileProps { 
   id: string;
 }
+const formatQtyLot = (item) => {
+  if (!item) return '-';
+  const qty = item.qty || item.Qty || 0;
+  const lotSize = item.lotSize || item.lotSize || 0;
+  // If lotSize exists and is different from qty, show as "qty/lot"
+  if (lotSize && lotSize !== qty) {
+    return `${qty}/${lotSize}`;
+  }
+  // If only qty exists or they're the same, just show qty
+  return qty;
+};
+
+// Format P&L with proper sign and color
+// Format P&L with proper sign and color
+const formatPnL = (item) => {
+  const pnl = item.pnl || item['p&l'] || 0;
+  const sign = pnl > 0 ? '+' : '';
+  // ✅ Fix: Show only 2 decimal places
+  return `${sign}${Number(pnl).toFixed(2)}`;
+};
 
 const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
   const navigate = useNavigate();
@@ -44,6 +65,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
   const [commissionType, setCommissionType] = useState<'credit' | 'debit'>('credit');
 
   const {data: profileData, refetch} = useGetAllMasterBrockerById(id);
+  const {data: ledgerData = []} = useGetMasterbrokerLedgerById(id);
   const {mutate: updateMasterBrokerProfile, isPending: isUpdating} =
     useUpdateMasterBrokerProfile();
   const {mutate: addCommission, isPending: isCommissionPending} =
@@ -144,7 +166,6 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
   }, [commissionHistoryList, commissionStartDate, commissionEndDate]);
 
   // Mock data for ledger (replace with actual API data)
-  const ledgerData = useMemo(() => [], []);
   const paymentData = useMemo(() => [], []);
 
   const ledgerDataWithSr = useMemo(() => {
@@ -414,7 +435,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
 
   const filteredLedgerData = useMemo(() => {
     if (!ledgerStartDate || !ledgerEndDate) return ledgerDataWithSr;
-    return ledgerDataWithSr.filter((item: any) => {
+    return ledgerDataWithSr?.filter((item: any) => {
       const itemDate = new Date(item.dateTime);
       const startDate = new Date(ledgerStartDate);
       const endDate = new Date(ledgerEndDate);

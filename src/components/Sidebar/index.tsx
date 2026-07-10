@@ -54,7 +54,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 
   const { data: profile } = isCompany ? useGetProfile() : { data: null };
 
-  console.log('userrrr', user);
+  // console.log('userrrr', user);
   console.log('isSuperBroker', isSuperBroker);
 
   const isFixedOpenRef = useRef(false);

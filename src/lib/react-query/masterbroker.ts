@@ -167,9 +167,9 @@ export const updateMasterBrokerProfile = async (
 
 
 
-export const getMasterbrokerLedgerbyId = async () => {
+export const getMasterbrokerLedgerbyId = async (id: string) => {
   const response = await api.get(`/company/master-broker/ledger/${id}`);
-  return response.data;
+  return response.data.data;
 };
 export const useGetMasterbrokerLedgerById = (id: string) =>
   useQuery({
