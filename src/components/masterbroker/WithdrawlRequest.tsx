@@ -249,7 +249,7 @@ export default function WithdrawalRequest() {
     {
       header: 'Wallet Balance',
       accessor: (row: WithdrawalRequest) => (
-        <div className="text-gray-900 text-right text-sm font-bold">
+        <div className="text-gray-900 text-left text-sm font-bold">
           ₹{row.walletBalance.toLocaleString('en-IN')}
         </div>
       ),
@@ -257,7 +257,7 @@ export default function WithdrawalRequest() {
     {
       header: 'Withdraw Amount',
       accessor: (row: WithdrawalRequest) => (
-        <div className="text-right text-sm font-bold text-orange-500">
+        <div className="text-left text-sm font-bold text-orange-500">
           ₹{row.amount.toLocaleString('en-IN')}
         </div>
       ),

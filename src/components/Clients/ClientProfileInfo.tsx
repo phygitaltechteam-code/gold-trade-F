@@ -8,19 +8,23 @@ interface EditData {
   brokeragePercent: string;
   address: string;
   password?: string;
+  panCardNumber: string;
+  type: string;
 }
 
 interface ClientProfileInfoProps {
   displayClient: any;
   isEditing: boolean;
   editData: EditData;
-  handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void; 
   handleSave: () => void;
   handleCancel: () => void;
   handleEditClick: () => void;
   fullName: string;
   phone: string;
   aadharNumber: string;
+  panCardNumber: string;
+  type: string;
 }
 
 export const ClientProfileInfo: React.FC<ClientProfileInfoProps> = ({
@@ -28,12 +32,15 @@ export const ClientProfileInfo: React.FC<ClientProfileInfoProps> = ({
   isEditing,
   editData,
   handleInputChange,
+
   handleSave,
   handleCancel,
   handleEditClick,
   fullName,
   phone,
   aadharNumber,
+  panCardNumber,
+  type,
 }) => {
   return (
     <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
@@ -153,7 +160,7 @@ export const ClientProfileInfo: React.FC<ClientProfileInfoProps> = ({
           {/* Address */}
           <div>
             <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-              Address
+              Area
             </label>
             {isEditing ? (
               <input
@@ -170,7 +177,7 @@ export const ClientProfileInfo: React.FC<ClientProfileInfoProps> = ({
             )}
           </div>
 
-          {/* Pincode */}
+          {/* Pincode
           <div>
             <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
               Pincode
@@ -178,7 +185,49 @@ export const ClientProfileInfo: React.FC<ClientProfileInfoProps> = ({
             <p className="text-sm text-black dark:text-white md:text-base">
               {displayClient?.pincode || 'N/A'}
             </p>
+          </div> */}
+           <div>
+            <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
+              Pancard
+            </label>
+            {isEditing ? (
+              <input
+                type="text"
+                name="panCardNumber"
+                value={editData.panCardNumber}
+                onChange={handleInputChange}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
+              />
+            ) : (
+              <p className="text-sm text-black dark:text-white md:text-base">
+                {displayClient?.panCardNumber || 'N/A'}
+              </p>
+            )}                           
           </div>
+
+          
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
+                    Customer Type <span className="text-red-500">*</span>
+                  </label>
+                  {isEditing ? (
+                    <select
+                      name="type"
+                      value={editData.type || ''}
+                      onChange={handleInputChange}
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
+                    >
+                      <option value="mega">Mega</option>
+                      <option value="mini">Mini</option>
+                    </select>
+                  ) : (
+                    <p className="text-sm text-black dark:text-white md:text-base">
+                      {displayClient?.type || 'N/A'}
+                    </p>
+                  )}
+                </div>
+
+
         </div>
       </div>
     </div>

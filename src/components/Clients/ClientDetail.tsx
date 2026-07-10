@@ -77,6 +77,8 @@ export const ClientDetail: React.FC = () => {
     brokeragePercent: '',
     address: '',
     password: '',
+    type: '',
+    panCardNumber: '',
   });
 
   useEffect(() => {
@@ -301,6 +303,9 @@ export const ClientDetail: React.FC = () => {
       if (editData.password) {
         updateData.password = editData.password;
       }
+        if (editData.type && editData.type !== displayClient?.type) {
+        updateData.type = editData.type;
+      }
 
       if (Object.keys(updateData).length === 0) {
         toast.error('No changes to save');
@@ -322,6 +327,8 @@ export const ClientDetail: React.FC = () => {
         brokeragePercent: '',
         address: '',
         password: '',
+        type: '',
+        panCardNumber: '',
       });
     } catch (error: any) {
       console.error('Error updating profile:', error);
@@ -337,6 +344,8 @@ export const ClientDetail: React.FC = () => {
       brokeragePercent: '',
       address: '',
       password: '',
+      type: '',
+      panCardNumber: '',
     });
     setIsEditing(false);
   };
@@ -353,6 +362,8 @@ export const ClientDetail: React.FC = () => {
       brokeragePercent: displayClient?.brokeragePercent || '',
       address: displayClient?.address || '',
       password: '',
+      type: displayClient?.type || '',
+      panCardNumber: displayClient?.panCardNumber || '', 
     });
     setIsEditing(true);
   };
@@ -571,6 +582,8 @@ const handleWalletSubmit = async (e: React.FormEvent) => {
             fullName={fullName}
             phone={phone}
             aadharNumber={aadharNumber}
+            panCardNumber={displayClient?.panCardNumber || 'N/A'}
+            type={displayClient?.type || 'N/A'}
           />
 
           {/* Documentation Component */}
