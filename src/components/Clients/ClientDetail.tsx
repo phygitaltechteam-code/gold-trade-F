@@ -116,6 +116,14 @@ export const ClientDetail: React.FC = () => {
 
   const updateCustomer = useUpdateCustomer();
   const {data: ledgerData} = useGetClientLedgerById(id);
+
+    const totalPnL = useMemo(() => {
+    const ledgerDataArray = ledgerData?.data || [];
+    return ledgerDataArray.reduce((sum: number, item: any) => {
+      return sum + Number(item.pnl ?? item['p&l'] ?? 0);
+    }, 0);
+  }, [ledgerData]);
+
   const {mutateAsync: sendDeposite, isPending: isDepositPending} =
     useSendDeposite();
   const {mutateAsync: sendWithdraw, isPending: isWithdrawPending} =
@@ -563,11 +571,10 @@ const handleWalletSubmit = async (e: React.FormEvent) => {
       <div className="grid grid-cols-1 gap-6 lg:gap-8">
         <div className="space-y-6 lg:col-span-2">
           {/* Quick Stats Component */}
-          <ClientDetailStats
+           <ClientDetailStats
             walletAmountValue={walletAmountValue}
             blockedAmount={blockedAmount}
-            isActive={isActive}
-            isVerified={isVerified}
+            totalPnL={totalPnL}  // ← Pass totalPnL instead of isActive/isVerified
           />
 
           {/* Profile Details Component */}

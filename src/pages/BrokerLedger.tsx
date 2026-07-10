@@ -1,12 +1,14 @@
 import React, {useState, useMemo} from 'react';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import {useGetBrokerTransactionLedger} from '@/lib/react-query/transactionledger';
+import { RefreshCcw } from 'lucide-react';
 
 const BrokerLedger = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [ledgerStartDate, setLedgerStartDate] = useState('');
   const [ledgerEndDate, setLedgerEndDate] = useState('');
-  const {data: transactionLedgerData} = useGetBrokerTransactionLedger();
+  
+  const {data: transactionLedgerData,  refetch} = useGetBrokerTransactionLedger();
 
   // Format quantity/lot as "qty/lotSize"
   const formatQtyLot = (item) => {
@@ -95,7 +97,7 @@ const BrokerLedger = () => {
     <div className="mx-auto w-full p-4 md:p-6">
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-xl font-semibold text-black dark:text-white">
-          Transaction Ledger
+          Transaction Ledger..
         </h2>
       </div>
 
@@ -141,6 +143,12 @@ const BrokerLedger = () => {
                 className="rounded bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
               >
                 {isExpanded ? 'View Less' : 'View More'}
+              </button>
+              <button
+                onClick={() =>refetch() }
+                className="rounded bg-orange-500 flex px-1 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 mr-2"
+              >
+                <RefreshCcw size={20}/>Refresh
               </button>
             </div>
           </div>

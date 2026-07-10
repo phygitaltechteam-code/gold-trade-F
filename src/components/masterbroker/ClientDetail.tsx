@@ -642,6 +642,8 @@ export const ClientDetail: React.FC = () => {
                     P&L
                   </div>
                 )}
+
+
               </div>
             </div>
           </div>

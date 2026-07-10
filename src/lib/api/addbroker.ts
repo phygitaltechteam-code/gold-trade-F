@@ -146,7 +146,7 @@ const updateScriptStatus = async (id: string) => {
 };
 const getSuperBrokerData = async () => {
   try {
-    const response = await api.get(`/company/broker`);
+    const response = await api.get(`/company/super-broker`);
     return JSON.parse(JSON.stringify(response.data));
   } catch (error) {
     console.error('Error fetching super broker data:', error);

@@ -65,6 +65,7 @@ const PendingApprovals: React.FC = () => {
   } = useGetBrokerData();
 
   const {data: superBrokerResponse} = useGetSuperBrokerData();
+  
 
   const {
     data: customerResponse,
@@ -377,21 +378,22 @@ const PendingApprovals: React.FC = () => {
         <span className="font-mono text-sm">{item.phoneNumber || 'N/A'}</span>
       ),
     },
-    {
-      header: 'Super Broker',
-      accessor: 'superBroker',
-      render: (item: any) => {
-        const superBrokerName =
-          item.superBroker?.user?.fullname ||
-          item.superBroker?.fullname ||
-          'Unassigned';
-        return (
-          <span className="text-gray-700 text-sm font-medium">
-            {superBrokerName}
-          </span>
-        );
-      },
-    },
+   
+{
+  header: 'Super Broker',
+  accessor: 'superBroker',
+  render: (item: any) => {
+    const superBrokerName =
+      item?.superBroker?.user?.fullname ||
+      item?.superBroker?.fullname ||
+      'Unassigned';
+    return (
+      <span className="text-gray-700 text-sm">
+        {superBrokerName}
+      </span>
+    );
+  },
+},
     {
       header: 'Area',
       accessor: 'area',
@@ -424,6 +426,28 @@ const PendingApprovals: React.FC = () => {
         </div>
       ),
     },
+
+     {
+  header: 'Date',
+  accessor: 'createdAt',
+  render: (item: any) => {
+    if (!item.createdAt) return <span className="font-mono text-sm">N/A</span>;
+    
+    const date = new Date(item.createdAt);
+    const formattedDate = date.toLocaleString('en-IN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    });
+    
+    return <span className="font-mono text-sm whitespace-nowrap">{formattedDate}</span>;
+  },
+},
+
     {
       header: 'Phone Number',
       accessor: (item: any) => item?.user?.phoneNumber || 'N/A',
@@ -432,23 +456,22 @@ const PendingApprovals: React.FC = () => {
           {item?.user?.phoneNumber || 'N/A'}
         </span>
       ),
-    },
-    {
-      header: 'Super Broker',
-      accessor: 'superBrokerId',
-      render: (item: any) => {
-        const superBroker = superBrokerList.find(
-          (sb: any) => sb.id === item.superBrokerId,
-        );
-        return (
-          <span className="text-gray-700 text-sm">
-            {superBroker?.fullname ||
-              item.superBrokerId?.substring(0, 8) + '...' ||
-              'Unassigned'}
-          </span>
-        );
-      },
-    },
+    },{
+  header: 'Super Broker',
+  accessor: 'superBroker',
+  render: (item: any) => {
+    const superBrokerName =
+      item?.broker?.superBroker?.user?.fullname ||
+      item?.broker?.superBroker?.fullname ||
+      'Unassigned';
+    
+    return (
+      <span className="text-gray-700 text-sm">
+        {superBrokerName}
+      </span>
+    );
+  },
+},
     {
       header: 'Broker',
       accessor: 'brokerId',
@@ -736,7 +759,7 @@ const PendingApprovals: React.FC = () => {
                     }
                     className="bg-gray-50/50 text-gray-900 w-full cursor-pointer appearance-none rounded-xl border border-stroke py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
                   >
-                    <option value="">All Super Brokers</option>
+                    <option value="all">All Super Brokers</option>
                     {superBrokerList.map((sb: any) => (
                       <option key={sb.id} value={sb.id}>
                         {sb.fullname} ({sb.SBID || sb.id?.substring(0, 6)})

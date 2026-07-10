@@ -1,18 +1,16 @@
 import React from 'react';
-import { Building2, CreditCard, ShieldCheck, ArrowUpRight } from 'lucide-react';
+import { Building2, CreditCard, TrendingUp, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
 
 interface ClientDetailStatsProps {
   walletAmountValue: number;
   blockedAmount: number;
-  isActive: boolean;
-  isVerified: boolean;
+  totalPnL: number;  // ← Changed from isActive/isVerified
 }
 
 export const ClientDetailStats: React.FC<ClientDetailStatsProps> = ({
   walletAmountValue,
   blockedAmount,
-  isActive,
-  isVerified,
+  totalPnL,  // ← Changed from isActive/isVerified
 }) => {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-3">
@@ -48,22 +46,33 @@ export const ClientDetailStats: React.FC<ClientDetailStatsProps> = ({
         </div>
       </div>
 
-      {/* Account Status */}
+      {/* Total P&L - UPDATED */}
       <div className="group relative overflow-hidden rounded-2xl border border-black/5 bg-white p-5 shadow-sm md:p-6">
         <div className="absolute right-0 top-0 p-4 opacity-5 transition-opacity group-hover:opacity-10">
-          <ShieldCheck className="h-16 w-16" />
+          <TrendingUp className="h-16 w-16" />
         </div>
         <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-          Account Status
+          Total P&L
         </div>
-        <div className="text-xl font-semibold text-slate-900 md:text-2xl">
-          {isActive ? 'Active' : 'Inactive'}
+        <div className={`text-xl font-semibold md:text-2xl ${
+          totalPnL > 0 ? 'text-green-600' : 
+          totalPnL < 0 ? 'text-red-600' : 
+          'text-slate-900'
+        }`}>
+          {totalPnL > 0 ? '+' : ''}₹{totalPnL.toFixed(2)}
         </div>
-        <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
-          <div
-            className="h-full rounded-full bg-orange-500"
-            style={{ width: isVerified ? '100%' : '50%' }}
-          />
+        <div className="mt-1 flex items-center gap-1 text-xs font-medium">
+          {totalPnL > 0 ? (
+            <span className="flex items-center gap-1 text-green-600">
+              <ArrowUpRight className="h-3 w-3" /> Profit
+            </span>
+          ) : totalPnL < 0 ? (
+            <span className="flex items-center gap-1 text-red-600">
+              <ArrowDownLeft className="h-3 w-3" /> Loss
+            </span>
+          ) : (
+            <span className="text-slate-400">No P&L</span>
+          )}
         </div>
       </div>
     </div>
