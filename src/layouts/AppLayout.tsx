@@ -38,7 +38,7 @@ const AppLayout = () => {
         <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
           <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
           <main>
-            <div className="mx-auto w-full p-1">
+            <div className="mx-auto">
               <Outlet />
             </div>
           </main>

@@ -1,11 +1,11 @@
-import { useAddCustomer } from '@/lib/api/addcustomer'; // Changed this import
-import { useGetBrokerData } from '@/lib/api/addbroker';
-import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from '@tanstack/react-router';
+import {useAddCustomer} from '@/lib/api/addcustomer'; // Changed this import
+import {useGetBrokerData} from '@/lib/api/addbroker';
+import React, {useState, useEffect, useMemo} from 'react';
+import {useNavigate} from '@tanstack/react-router';
 import toast from 'react-hot-toast';
-import { z } from 'zod';
-import { useAuthContext } from '@/context/AuthContext';
-import { X, ZoomIn } from 'lucide-react';
+import {z} from 'zod';
+import {useAuthContext} from '@/context/AuthContext';
+import {X, ZoomIn} from 'lucide-react';
 
 // Define Zod schema for form data validation - ADDED type field
 const CustomerSchema = z.object({
@@ -14,12 +14,13 @@ const CustomerSchema = z.object({
   phoneNumber: z.string().min(1, 'Phone number is required'),
   BrokerId: z.string().min(1, 'Please select a Broker'),
   area: z.string().min(1, 'Area is required'),
+  isDemo: z.boolean(),
   // commission: z.coerce.number().min(0, 'Commission must be a valid number'),
   aadharCardNumber: z.string().optional(),
   panCardNumber: z.string().optional(),
-  type: z.enum(['mega', 'mini'], { 
+  type: z.enum(['mega', 'mini'], {
     required_error: 'Please select a customer type',
-    invalid_type_error: 'Type must be either mega or mini'
+    invalid_type_error: 'Type must be either mega or mini',
   }),
   // documentNumber: z.string().min(1, 'Document number is required'), // ADD THIS
 });
@@ -27,7 +28,7 @@ const CustomerSchema = z.object({
 const CompanyAddCustomer = () => {
   const navigate = useNavigate();
   const addCustomer = useAddCustomer(); // Changed from useAddBroker to useAddCustomer
-  const { user } = useAuthContext();
+  const {user} = useAuthContext();
   const isSuperBroker = user?.role === 'SUPERBROKER';
 
   const [formData, setFormData] = useState({
@@ -39,6 +40,7 @@ const CompanyAddCustomer = () => {
     aadharCardNumber: '',
     panCardNumber: '',
     BrokerId: '',
+    isDemo: false,
     type: '', // ADDED - no default value, user must select
     // documentNumber: '', // ADD THIS
   });
@@ -58,7 +60,7 @@ const CompanyAddCustomer = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { data: allbrockers } = useGetBrokerData();
+  const {data: allbrockers} = useGetBrokerData();
 
   // Extract brokers array from the nested response
   const brokers = useMemo(() => {
@@ -79,7 +81,7 @@ const CompanyAddCustomer = () => {
     return brokers.filter(
       (b) =>
         b.fullname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        b.BKId?.toLowerCase().includes(searchTerm.toLowerCase())
+        b.BKId?.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [brokers, searchTerm]);
 
@@ -93,7 +95,7 @@ const CompanyAddCustomer = () => {
   }, [isSuperBroker, user]);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const {name, value} = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -210,6 +212,7 @@ const CompanyAddCustomer = () => {
       aadharCardNumber: '',
       panCardNumber: '',
       BrokerId: '',
+      isDemo: false,
       type: '', // ADDED - reset to empty
       // documentNumber: '', // ADD THIS
     });
@@ -236,13 +239,14 @@ const CompanyAddCustomer = () => {
     setIsSubmitting(true);
 
     const formDataToSend = new FormData();
-    
+
     // ALL REQUIRED FIELDS - ADDED type
     formDataToSend.append('fullname', formData.fullname);
     formDataToSend.append('password', formData.password);
     formDataToSend.append('phoneNumber', formData.phoneNumber);
     formDataToSend.append('email', `${formData.phoneNumber}@temp.com`);
     formDataToSend.append('role', 'CUSTOMER');
+    formDataToSend.append('isDemo', formData.isDemo);
     formDataToSend.append('type', formData.type); // ADDED - send type to backend
     // formDataToSend.append('documentNumber', formData.documentNumber); // ADD THIS
 
@@ -284,7 +288,7 @@ const CompanyAddCustomer = () => {
       await addCustomer.mutateAsync(formDataToSend);
       resetForm();
       toast.success('Customer registered successfully!');
-      navigate({ to: '/clients/mainpage' });
+      navigate({to: '/clients/mainpage'});
     } catch (error: any) {
       console.error('Error:', error);
       const errorMsg = error?.response?.data?.message || 'Registration failed';
@@ -294,7 +298,7 @@ const CompanyAddCustomer = () => {
     }
   };
 
-  const ImageUploadField = ({ label, field, required }) => (
+  const ImageUploadField = ({label, field, required}) => (
     <div className="mb-4">
       <label className="text-gray-700 mb-2 block text-sm font-medium">
         {label} {required && <span className="text-red-500">*</span>}
@@ -395,8 +399,9 @@ const CompanyAddCustomer = () => {
                 name="fullname"
                 value={formData.fullname}
                 onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.fullname ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
+                  errors.fullname ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="Enter full name"
               />
               {errors.fullname && (
@@ -415,8 +420,9 @@ const CompanyAddCustomer = () => {
                 value={formData.phoneNumber}
                 onChange={handleInputChange}
                 maxLength={10}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.phoneNumber ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
+                  errors.phoneNumber ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="Enter 10-digit phone number"
               />
               {errors.phoneNumber && (
@@ -436,8 +442,9 @@ const CompanyAddCustomer = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.password ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
+                  errors.password ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="Enter password (min 6 characters)"
               />
               {errors.password && (
@@ -480,8 +487,9 @@ const CompanyAddCustomer = () => {
                     onBlur={() =>
                       setTimeout(() => setIsDropdownOpen(false), 200)
                     }
-                    className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.BrokerId ? 'border-red-500' : 'border-gray-300'
-                      }`}
+                    className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
+                      errors.BrokerId ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   />
                   {isDropdownOpen && (
                     <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
@@ -515,7 +523,9 @@ const CompanyAddCustomer = () => {
                         ))
                       ) : (
                         <div className="text-gray-500 px-4 py-2 text-sm">
-                          {searchTerm ? 'No Brokers found' : 'No brokers available'}
+                          {searchTerm
+                            ? 'No Brokers found'
+                            : 'No brokers available'}
                         </div>
                       )}
                     </div>
@@ -523,9 +533,7 @@ const CompanyAddCustomer = () => {
                 </div>
               )}
               {errors.BrokerId && !isSuperBroker && (
-                <p className="mt-1 text-xs text-red-500">
-                  {errors.BrokerId}
-                </p>
+                <p className="mt-1 text-xs text-red-500">{errors.BrokerId}</p>
               )}
             </div>
 
@@ -562,8 +570,9 @@ const CompanyAddCustomer = () => {
                 value={formData.aadharCardNumber}
                 onChange={handleInputChange}
                 maxLength={12}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.aadharCardNumber ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
+                  errors.aadharCardNumber ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="Enter 12-digit Aadhar number"
               />
               {errors.aadharCardNumber && (
@@ -604,13 +613,46 @@ const CompanyAddCustomer = () => {
                 name="area"
                 value={formData.area}
                 onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.area ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
+                  errors.area ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="Enter Area"
               />
               {errors.area && (
                 <p className="mt-1 text-xs text-red-500">{errors.area}</p>
               )}
+            </div>
+
+            {/* Demo Account Toggle */}
+            <div className="mb-4 flex items-center gap-3">
+              <input
+                id="isDemo"
+                type="checkbox"
+                checked={formData.isDemo}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    isDemo: e.target.checked,
+                  }))
+                }
+                className="h-5 w-5 cursor-pointer accent-orange-500"
+              />
+              <label
+                htmlFor="isDemo"
+                className="text-gray-700 cursor-pointer text-sm font-medium"
+              >
+                Demo Account
+              </label>
+
+              {/* <span
+                className={`rounded-full px-2 py-1 text-xs font-semibold ${
+                  formData.isDemo
+                    ? 'bg-orange-100 text-orange-700'
+                    : 'bg-gray-100 text-gray-600'
+                }`}
+              >
+                {formData.isDemo ? 'Demo Customer' : 'Live Customer'}
+              </span> */}
             </div>
 
             {/* Document Number - Required */}

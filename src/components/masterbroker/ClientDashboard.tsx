@@ -420,7 +420,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
           </div>
 
           {/* Broker Filter */}
-          <div className="w-full md:w-64">
+          {/* <div className="w-full md:w-64">
             <select
               className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 md:py-3"
               value={brokerFilter}
@@ -433,10 +433,10 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
                 </option>
               ))}
             </select>
-          </div>
+          </div> */}
 
           {/* Super Broker Filter */}
-          <div className="w-full md:w-64">
+          {/* <div className="w-full md:w-64">
             <select
               className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 md:py-3"
               value={superBrokerFilter}
@@ -449,7 +449,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
                 </option>
               ))}
             </select>
-          </div>
+          </div> */}
         </div>
       </div>
 

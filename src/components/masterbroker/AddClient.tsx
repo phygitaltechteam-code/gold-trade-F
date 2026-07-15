@@ -14,6 +14,7 @@ const CustomerSchema = z.object({
   phoneNumber: z.string().min(1, 'Phone number is required'),
   masterBrokerId: z.string().min(1, 'Please select a Broker'),
   area: z.string().min(1, 'Area is required'),
+  isDemo: z.boolean(),
   // commission: z.coerce.number().min(0, 'Commission must be a valid number'),
   aadharCardNumber: z.string().optional(),
   panCardNumber: z.string().optional(),
@@ -34,6 +35,7 @@ const CompanyAddCustomer = () => {
     fullname: '',
     password: '',
     area: '',
+    isDemo: false,
    
     phoneNumber: '',
     aadharCardNumber: '',
@@ -205,7 +207,7 @@ const CompanyAddCustomer = () => {
       fullname: '',
       password: '',
       area: '',
-       
+       isDemo: false,
       phoneNumber: '',
       aadharCardNumber: '',
       panCardNumber: '',
@@ -243,6 +245,7 @@ const CompanyAddCustomer = () => {
     formDataToSend.append('phoneNumber', formData.phoneNumber);
     formDataToSend.append('email', `${formData.phoneNumber}@temp.com`);
     formDataToSend.append('role', 'CUSTOMER');
+    formDataToSend.append('isDemo', formData.isDemo);
     formDataToSend.append('type', formData.type); // ADDED - send type to backend
     // formDataToSend.append('documentNumber', formData.documentNumber); // ADD THIS
 
@@ -611,6 +614,38 @@ const CompanyAddCustomer = () => {
               {errors.area && (
                 <p className="mt-1 text-xs text-red-500">{errors.area}</p>
               )}
+            </div>
+
+            {/* // is demo check box */}
+               <div className="mb-4 flex items-center gap-3">
+              <input
+                id="isDemo"
+                type="checkbox"
+                checked={formData.isDemo}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    isDemo: e.target.checked,
+                  }))
+                }
+                className="h-5 w-5 cursor-pointer accent-orange-500"
+              />
+              <label
+                htmlFor="isDemo"
+                className="text-gray-700 cursor-pointer text-sm font-medium"
+              >
+                Demo Account
+              </label>
+
+              {/* <span
+                className={`rounded-full px-2 py-1 text-xs font-semibold ${
+                  formData.isDemo
+                    ? 'bg-orange-100 text-orange-700'
+                    : 'bg-gray-100 text-gray-600'
+                }`}
+              >
+                {formData.isDemo ? 'Demo Customer' : 'Live Customer'}
+              </span> */}
             </div>
 
             {/* Document Number - Required */}
