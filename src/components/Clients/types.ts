@@ -6,6 +6,7 @@ export interface User {
   dob: string | null;
   isVerified: boolean;
   isRejected: boolean;
+  isDemo: boolean;
 }
 
 export interface Wallet {
@@ -55,6 +56,7 @@ export interface Client {
   totalActiveTrade?: number;
   totalTrade?: number;
   pnl?: number;
+  isDemo?: boolean;
   totalUnrealizedPnL?: number;
   totalRealizedPnL?: number;
   totalEquity?: number;

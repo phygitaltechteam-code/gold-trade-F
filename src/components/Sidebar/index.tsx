@@ -36,6 +36,7 @@ import {
   LogOut,
 } from 'lucide-react';
 import { useGetProfile } from '@/lib/react-query/admin';
+import { useGetMasterbrokerProfile } from '@/lib/react-query/masterbroker';
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const location = useLocation();
@@ -52,7 +53,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     user?.role === 'SUPER_BROKER' || user?.role === 'SUPERBROKER';
     const isMasterBroker = user?.role === 'MASTER_BROKER';
 
-  const { data: profile } = isCompany ? useGetProfile() : { data: null };
+  const { data: profile } = isCompany ? useGetProfile() : useGetMasterbrokerProfile();
 
   // console.log('userrrr', user);
   console.log('isSuperBroker', isSuperBroker);
@@ -444,7 +445,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     <div className="relative z-50">
       <aside
         ref={sidebar}
-        className={`fixed inset-y-0 left-0 z-50 flex h-screen flex-col bg-white text-black transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed inset-y-0 left-0 z-50 flex h-screen flex-col  bg-white text-black transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
           } lg:static lg:translate-x-0`}
       >
         <div className="flex items-center justify-between px-4 py-3 lg:px-5 lg:py-6">
@@ -461,9 +462,13 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             }}
           >
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FF6321] shadow-lg shadow-orange-500/20 transition-transform duration-200 hover:scale-105 active:scale-95">
-                <img src={profile?.photo} className="" />
-              </div>
+             <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg shadow-lg shadow-orange-500/20 transition-transform duration-200 hover:scale-105 active:scale-95">
+  <img
+    src={profile?.photo}
+    alt="Profile"
+    className="h-full w-full object-cover"
+  />
+</div>
 
               {isExpanded && (
                 <div className="flex flex-col items-start overflow-hidden">

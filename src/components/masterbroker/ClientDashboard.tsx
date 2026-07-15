@@ -79,6 +79,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
   const {mutateAsync: statusChange, isPending} = useActivateCustomer();
   // const {data: allSuperBrocker} =useGetMasterClients();
   const {data: clients = [], refetch, isLoading} = useGetMasterClients();
+  const [customerFilter, setCustomerFilter] = useState('all');
 
   const {data: limit} = useGetMasterBrokerLimit();
   // console.log('limit..', limit?.customerLimit);
@@ -127,6 +128,22 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       ? parseFloat(clients[clients.length - 1]?.wallets?.amount) || 0
       : 0;
 
+  // const filteredClients = clients.filter((client: Client) => {
+  //   const matchesSearch =
+  //     client.user?.fullname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     client.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     client.user?.phoneNumber?.includes(searchTerm) ||
+  //     client.CRN?.toLowerCase().includes(searchTerm.toLowerCase());
+
+  //   const matchesBroker =
+  //     brokerFilter === 'all' || client?.broker?.user?.fullname === brokerFilter;
+  //   const matchesSuperBroker =
+  //     superBrokerFilter === 'all' ||
+  //     client?.broker?.superBroker?.user?.fullname === superBrokerFilter;
+
+  //   return matchesSearch && matchesBroker && matchesSuperBroker;
+  // });
+
   const filteredClients = clients.filter((client: Client) => {
     const matchesSearch =
       client.user?.fullname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -136,13 +153,26 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
 
     const matchesBroker =
       brokerFilter === 'all' || client?.broker?.user?.fullname === brokerFilter;
+
     const matchesSuperBroker =
       superBrokerFilter === 'all' ||
       client?.broker?.superBroker?.user?.fullname === superBrokerFilter;
 
-    return matchesSearch && matchesBroker && matchesSuperBroker;
-  });
+    const matchesCustomer =
+      customerFilter === 'all'
+        ? true
+        : customerFilter === 'active'
+          ? client.user?.isActive
+          : customerFilter === 'inactive'
+            ? !client.user?.isActive
+            : customerFilter === 'demo'
+              ? client.isDemo
+              : true;
 
+    return (
+      matchesSearch && matchesBroker && matchesSuperBroker && matchesCustomer
+    );
+  });
   const handleToggleClick = (client: Client, e: React.MouseEvent) => {
     e.stopPropagation();
     setSelectedClientId(client.id);
@@ -303,6 +333,21 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       },
     },
     {
+      header: 'Demo Account',
+      accessor: 'isDemo',
+      render: (row: Client) => (
+        <div className="pointer-events-none">
+          <input
+            type="checkbox"
+            checked={!!row.isDemo}
+            readOnly
+            disabled
+            className="h-4 w-4 accent-orange-500"
+          />
+        </div>
+      ),
+    },
+    {
       header: 'Status',
       accessor: 'user.isActive',
       render: (row: Client) => {
@@ -343,8 +388,8 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
         <button
           onClick={() => {
             // if (totalClients < limit) {
-              navigate({to: '/masterbroker/add-client'});
-           //}
+            navigate({to: '/masterbroker/add-client'});
+            //}
           }}
           disabled={totalClients >= limit}
           className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md transition-all ${
@@ -450,6 +495,19 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
               ))}
             </select>
           </div> */}
+
+          <div className="w-full md:w-56">
+            <select
+              value={customerFilter}
+              onChange={(e) => setCustomerFilter(e.target.value)}
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 md:py-3"
+            >
+              <option value="all">All Customers</option>
+              <option value="active">Active Customers</option>
+              <option value="inactive">Inactive Customers</option>
+              <option value="demo">Demo Customers</option>
+            </select>
+          </div>
         </div>
       </div>
 

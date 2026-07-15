@@ -77,6 +77,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
   const {mutateAsync: statusChange, isPending} = useActivateCustomer();
   const {data: allSuperBrocker} = useGetAllSuperBrocker();
   const {data: clients = [], refetch, isLoading, isFetching} = useGetClients();
+  const [customerFilter, setCustomerFilter] = useState("all");
 
   // Extract unique broker names for filter
   const brokers = Array.from(
@@ -112,6 +113,30 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
     0,
   );
 
+  const totalDemoTraders = clients.filter(
+    (c: Client) => c?.isDemo===true
+  ).length;
+
+  const totalWalletBalance = clients.reduce(
+    (sum: number, c: Client) => sum + (Number(c.walletBalance) || 0),
+    0,
+  );
+
+   const assetUnderControll = clients.reduce(
+    (sum: number, c: Client) => sum + (Number(c.assetUnderControll) || 0),
+    0,
+   )
+
+   const totalMarginAmount = clients.reduce(
+    (sum: number, c: Client) => sum + (Number(c.marginAmount) || 0),
+    0,
+   )
+
+   const totalTrades = clients.reduce(
+    (sum: number, c: Client) => sum + (Number(c.totalTrade) || 0),
+    0,
+   )
+
   // Total active trades count
   const totalActiveTrades = clients.reduce(
     (sum: number, c: Client) => sum + (c.totalActiveTrade || c._count?.trades || 0),
@@ -134,22 +159,56 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
               : parseFloat(clients[clients.length - 1]?.wallets?.amount as string) || 0))
       : 0;
 
+  // const filteredClients = clients.filter((client: Client) => {
+  //   const matchesSearch =
+  //     client.user?.fullname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     client.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     client.user?.phoneNumber?.includes(searchTerm) ||
+  //     client.CRN?.toLowerCase().includes(searchTerm.toLowerCase());
+
+  //   const matchesBroker =
+  //     brokerFilter === 'all' || client?.broker?.user?.fullname === brokerFilter;
+  //   const matchesSuperBroker =
+  //     superBrokerFilter === 'all' ||
+  //     client?.broker?.superBroker?.user?.fullname === superBrokerFilter;
+
+  //   return matchesSearch && matchesBroker && matchesSuperBroker;
+  // });
+
+
   const filteredClients = clients.filter((client: Client) => {
-    const matchesSearch =
-      client.user?.fullname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      client.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      client.user?.phoneNumber?.includes(searchTerm) ||
-      client.CRN?.toLowerCase().includes(searchTerm.toLowerCase());
+  const matchesSearch =
+    client.user?.fullname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.user?.phoneNumber?.includes(searchTerm) ||
+    client.CRN?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesBroker =
-      brokerFilter === 'all' || client?.broker?.user?.fullname === brokerFilter;
-    const matchesSuperBroker =
-      superBrokerFilter === 'all' ||
-      client?.broker?.superBroker?.user?.fullname === superBrokerFilter;
+  const matchesBroker =
+    brokerFilter === "all" ||
+    client?.broker?.user?.fullname === brokerFilter;
 
-    return matchesSearch && matchesBroker && matchesSuperBroker;
-  });
+  const matchesSuperBroker =
+    superBrokerFilter === "all" ||
+    client?.broker?.superBroker?.user?.fullname === superBrokerFilter;
 
+  const matchesCustomer =
+    customerFilter === "all"
+      ? true
+      : customerFilter === "active"
+      ? client.user?.isActive
+      : customerFilter === "inactive"
+      ? !client.user?.isActive
+      : customerFilter === "demo"
+      ? client.isDemo
+      : true;
+
+  return (
+    matchesSearch &&
+    matchesBroker &&
+    matchesSuperBroker &&
+    matchesCustomer
+  );
+});
   const handleToggleClick = (client: Client, e: React.MouseEvent) => {
     e.stopPropagation();
     setSelectedClientId(client.id);
@@ -301,6 +360,22 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
         );
       },
     },
+
+  {
+  header: 'Demo Account',
+  accessor: 'isDemo',
+  render: (row: Client) => (
+   <div className="pointer-events-none">
+  <input
+    type="checkbox"
+    checked={!!row.isDemo}
+    readOnly
+    disabled
+    className="h-4 w-4 accent-orange-500"
+  />
+</div>
+  ),
+},
     // {
     //   header: 'P&L',
     //   accessor: 'pnl',
@@ -347,6 +422,10 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
     },
   ];
 
+
+
+
+
   return (
     <motion.div
       initial={{opacity: 0, y: 20}}
@@ -380,9 +459,9 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       </div>
 
       {/* Stats Cards Grid - 6 cards */}
-      <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6 md:gap-4">
+      <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-7 md:gap-4">
         <StatCard
-          title="Total Clients"
+          title="Total Traders"
           value={totalClients.toLocaleString()}
           // subtext="Registered clients"
           icon={Users}
@@ -395,34 +474,63 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
           icon={Activity}
           isLoading={isLoading}
         />
+         <StatCard
+          title="Demo Traders"
+          value={totalDemoTraders.toLocaleString()}
+          // subtext="Active trading"
+          icon={Activity}
+          isLoading={isLoading}
+        />
         <StatCard
-          title="Business Generated"
-          value={formatCurrency(totalBusiness)}
+          title="Wallet Balance"
+          value={totalWalletBalance.toLocaleString()}
           // subtext="Total volume"
           icon={Briefcase}
           isLoading={isLoading}
         />
         <StatCard
+          title="Assets Under Contoll"
+          value={assetUnderControll.toLocaleString()}
+          // subtext="Total volume"
+          icon={Briefcase}
+          isLoading={isLoading}
+        />
+        {/* <StatCard
           title="Active Trades"
           value={totalActiveTrades.toLocaleString()}
           // subtext="Total trades"
           icon={TrendingUp}
           isLoading={isLoading}
-        />
-        <StatCard
+        /> */}
+        {/* <StatCard
           title="Total AUM"
           value={formatCurrency(totalAUM)}
           // subtext="Assets under mgmt"
           icon={Wallet}
           isLoading={isLoading}
+        /> */}
+
+         <StatCard
+          title="Total Margin Amount"
+          value={totalMarginAmount.toLocaleString()}
+          // subtext="Assets under mgmt"
+          icon={Wallet}
+          isLoading={isLoading}
         />
-        <StatCard
+         <StatCard
+          title="Total Trades"
+          value={totalTrades.toLocaleString()}
+          // subtext="Latest client"
+          icon={DollarSign}
+          isLoading={isLoading}
+        />
+        {/* <StatCard
           title="Last Wallet Bal"
           value={formatCurrency(lastWalletBalance)}
           // subtext="Latest client"
           icon={DollarSign}
           isLoading={isLoading}
-        />
+        /> */}
       </div>
 
       {/* Optimized Filters - Search + 2 Dropdowns in one line */}
@@ -471,8 +579,23 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
               ))}
             </select>
           </div>
+          <div className="w-full md:w-56">
+  <select
+    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 md:py-3"
+    value={customerFilter}
+    onChange={(e) => setCustomerFilter(e.target.value)}
+  >
+    <option value="all">All Customers</option>
+    <option value="active">Active Customers</option>
+    <option value="inactive">Inactive Customers</option>
+    <option value="demo">Demo Customers</option>
+  </select>
+</div>
         </div>
       </div>
+
+      {/* Customer Filter */}
+
 
       {/* Client Table - Original columns unchanged */}
       <GenericTable
