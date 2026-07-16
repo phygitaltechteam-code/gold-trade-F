@@ -777,6 +777,8 @@ const filteredPaymentData = useMemo(() => {
   });
 }, [paymentDataWithSr, paymentStartDate, paymentEndDate]);
 
+  const isDemoCount = profileData?.customers?.filter((item: any) => item.isDemo===false).length;
+
   return (
     <div className="max-w-9xl mx-auto p-4 md:p-6">
       {/* Back Button */}
@@ -1014,12 +1016,20 @@ const filteredPaymentData = useMemo(() => {
 
       {/* Statistics Cards */}
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
-        <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
+        {/* <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-black dark:text-white md:text-2xl">
             ₹{profileData?.totalBusiness?.toLocaleString() || '0'}
           </h4>
           <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
             Total Business
+          </span>
+        </div> */}
+         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
+          <h4 className="text-xl font-bold text-blue-500 md:text-2xl">
+            {isDemoCount|| 0}
+          </h4>
+          <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
+            Total Customers
           </span>
         </div>
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
@@ -1030,6 +1040,16 @@ const filteredPaymentData = useMemo(() => {
             Total Commission (History)
           </span>
         </div>
+
+        <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
+          <h4 className="text-xl font-bold text-orange-500 md:text-2xl">
+            ₹{paymentDataFromApi?.summary?.paidCommission.toLocaleString() || '0'}
+          </h4>
+          <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
+            Paid Commission
+          </span>
+        </div>
+
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-orange-500 md:text-2xl">
             ₹{paymentDataFromApi?.summary?.pendingCommission.toLocaleString() || '0'}
@@ -1038,14 +1058,7 @@ const filteredPaymentData = useMemo(() => {
             Pending Commission
           </span>
         </div>
-        <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
-          <h4 className="text-xl font-bold text-blue-500 md:text-2xl">
-            {profileData?.customers?.length || 0}
-          </h4>
-          <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
-            Total Customers
-          </span>
-        </div>
+       
       </div>
 
       {/* Tabs Section */}

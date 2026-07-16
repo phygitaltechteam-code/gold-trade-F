@@ -105,15 +105,16 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         icon: <UserCog size={22} />,
       },
       {
-        label: 'Live Monitoring',
-        path: '/TransactionLedger',
-        icon: <Activity size={22} />,
-      },
-      {
         label: 'Clients',
         path: '/clients/mainpage',
         icon: <Users size={22} />,
       },
+      {
+        label: 'Live Monitoring',
+        path: '/TransactionLedger',
+        icon: <Activity size={22} />,
+      },
+      
       {
         label: 'Pending Approvals',
         path: '/Approval/pendingapprovals',

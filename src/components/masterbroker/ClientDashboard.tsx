@@ -111,16 +111,16 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
   );
 
   // Total active trades count
-  const totalActiveTrades = clients.reduce(
-    (sum: number, c: Client) => sum + (c._count?.trades || 0),
-    0,
-  );
+  // const totalActiveTrades = clients.reduce(
+  //   (sum: number, c: Client) => sum + (c._count?.trades || 0),
+  //   0,
+  // );
 
-  // Total business generated
-  const totalBusiness = clients.reduce(
-    (sum: number, c: Client) => sum + (parseFloat(c.wallets?.amount) || 0),
-    0,
-  );
+  // // Total business generated
+  // const totalBusiness = clients.reduce(
+  //   (sum: number, c: Client) => sum + (parseFloat(c.wallets?.amount) || 0),
+  //   0,
+  // );
 
   // Last wallet balance (latest client's wallet)
   const lastWalletBalance =
@@ -272,22 +272,24 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
     },
     {
       header: 'Asset Under Control',
-      accessor: 'wallets.blockedAmount',
-      render: (row: Client) => {
-        const amount = parseFloat(row.wallets?.blockedAmount) || 0;
-        return (
+      accessor: 'assetUnderControl',
+      render: (row: Client) => (
+     
           <span className="whitespace-nowrap text-sm font-bold text-slate-900">
-            ₹{amount.toLocaleString()}
+            ₹{row.assetUnderControl.toLocaleString()}
           </span>
-        );
-      },
+        
+      ),
     },
+
+     
     {
       header: 'Margin Amount',
       accessor: 'marginAmount',
       render: (row: Client) => (
+        
         <span className="whitespace-nowrap text-sm font-bold text-slate-900">
-          ₹0.00
+         {row.marginAmount.toLocaleString()}
         </span>
       ),
     },
@@ -304,10 +306,10 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       header: 'Total Trade',
       accessor: 'totalTrade',
       render: (row: Client) => {
-        const amount = parseFloat(row.wallets?.amount) || 0;
+        // const amount = parseFloat(row.wallets?.amount) || 0;
         return (
           <span className="whitespace-nowrap text-sm font-bold text-orange-500">
-            ₹{amount.toLocaleString()}
+            ₹{row.totalTrade.toLocaleString()}
           </span>
         );
       },
@@ -373,6 +375,43 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
     },
   ];
 
+
+   const totalDemoTraders = clients.filter(
+    (c: Client) => c?.isDemo===true
+  ).length;
+
+  const totalWalletBalance = clients.reduce(
+    (sum: number, c: Client) => sum + (Number(c.walletBalance) || 0),
+    0,
+  );
+
+   const assetUnderControll = clients.reduce(
+    (sum: number, c: Client) => sum + (Number(c.assetUnderControl) || 0),
+    0,
+   )
+
+   const totalMarginAmount = clients.reduce(
+    (sum: number, c: Client) => sum + (Number(c.marginAmount) || 0),
+    0,
+   )
+
+   const totalTrades = clients.reduce(
+    (sum: number, c: Client) => sum + (Number(c.totalTrade) || 0),
+    0,
+   )
+
+  // Total active trades count
+  const totalActiveTrades = clients.reduce(
+    (sum: number, c: Client) => sum + (c.totalActiveTrade || c._count?.trades || 0),
+    0,
+  );
+
+  // Total business generated
+  const totalBusiness = clients.reduce(
+    (sum: number, c: Client) => sum + (Number(c.totalTrade) || 0),
+    0,
+  );
+
   return (
     <motion.div
       initial={{opacity: 0, y: 20}}
@@ -404,7 +443,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       </div>
 
       {/* Stats Cards Grid - 6 cards */}
-      <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6 md:gap-4">
+      {/* <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6 md:gap-4">
         <StatCard
           title="Total Clients"
           value={totalClients.toLocaleString()}
@@ -447,6 +486,79 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
           icon={DollarSign}
           isLoading={isLoading}
         />
+      </div> */}
+        <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-7 md:gap-4">
+        <StatCard
+          title="Total Traders"
+          value={totalClients.toLocaleString()}
+          // subtext="Registered clients"
+          icon={Users}
+          isLoading={isLoading}
+        />
+        <StatCard
+          title="Active Traders"
+          value={activeTraders.toLocaleString()}
+          // subtext="Active trading"
+          icon={Activity}
+          isLoading={isLoading}
+        />
+         <StatCard
+          title="Demo Traders"
+          value={totalDemoTraders.toLocaleString()}
+          // subtext="Active trading"
+          icon={Activity}
+          isLoading={isLoading}
+        />
+        <StatCard
+          title="Wallet Balance"
+          value={totalAUM.toLocaleString()}
+          // subtext="Total volume"
+          icon={Briefcase}
+          isLoading={isLoading}
+        />
+        <StatCard
+          title="Assets Under Contoll"
+          value={assetUnderControll.toLocaleString()}
+          // subtext="Total volume"
+          icon={Briefcase}
+          isLoading={isLoading}
+        />
+        {/* <StatCard
+          title="Active Trades"
+          value={totalActiveTrades.toLocaleString()}
+          // subtext="Total trades"
+          icon={TrendingUp}
+          isLoading={isLoading}
+        /> */}
+        {/* <StatCard
+          title="Total AUM"
+          value={formatCurrency(totalAUM)}
+          // subtext="Assets under mgmt"
+          icon={Wallet}
+          isLoading={isLoading}
+        /> */}
+
+         <StatCard
+          title="Total Margin Amount"
+          value={totalMarginAmount.toLocaleString()}
+          // subtext="Assets under mgmt"
+          icon={Wallet}
+          isLoading={isLoading}
+        />
+         <StatCard
+          title="Total Trades"
+          value={totalTrades.toLocaleString()}
+          // subtext="Latest client"
+          icon={DollarSign}
+          isLoading={isLoading}
+        />
+        {/* <StatCard
+          title="Last Wallet Bal"
+          value={formatCurrency(lastWalletBalance)}
+          // subtext="Latest client"
+          icon={DollarSign}
+          isLoading={isLoading}
+        /> */}
       </div>
 
       {/* Optimized Filters - Search + 2 Dropdowns in one line */}
