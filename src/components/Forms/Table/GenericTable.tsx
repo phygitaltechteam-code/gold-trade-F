@@ -1,6 +1,6 @@
-import React, {useState, useMemo} from 'react';
-import {ArrowUp, ArrowUpDown, Edit, Trash, Eye} from 'lucide-react';
-import {GrFormNext, GrFormPrevious} from 'react-icons/gr';
+import React, { useState, useMemo } from 'react';
+import { ArrowUp, ArrowUpDown, Edit, Trash, Eye } from 'lucide-react';
+import { GrFormNext, GrFormPrevious } from 'react-icons/gr';
 
 interface Column<T> {
   header: string;
@@ -13,18 +13,26 @@ interface GenericTableProps<T> {
   columns: Column<T>[];
   data: T[];
   onRowClick?: (row: T) => void;
+  onEdit?: (row: T) => void;
+  onDelete?: (row: T) => void;
+  onView?: (row: T) => void;
   rowsPerPage?: number;
   clickable?: boolean;
   isSearchable?: boolean;
+  showActions?: boolean;
 }
 
-const GenericTable = <T extends {id?: string}>({
+const GenericTable = <T extends { id?: string }>({
   columns,
   data,
   onRowClick,
+  onEdit,
+  onDelete,
+  onView,
   rowsPerPage = 10,
   clickable = true,
   isSearchable,
+  showActions = true,
 }: GenericTableProps<T>) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -90,6 +98,29 @@ const GenericTable = <T extends {id?: string}>({
     }
   };
 
+  const handleEditClick = (e: React.MouseEvent, row: T) => {
+    e.stopPropagation();
+    if (onEdit) {
+      onEdit(row);
+    }
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent, row: T) => {
+    e.stopPropagation();
+    if (onDelete) {
+      onDelete(row);
+    }
+  };
+
+  const handleViewClick = (e: React.MouseEvent, row: T) => {
+    e.stopPropagation();
+    if (onView) {
+      onView(row);
+    }
+  };
+
+  const hasActions = onEdit || onDelete || onView;
+
   return (
     <div className="overflow-hidden rounded-lg bg-white shadow-sm dark:bg-boxdark">
       {showSearch && (
@@ -127,6 +158,11 @@ const GenericTable = <T extends {id?: string}>({
                   </div>
                 </th>
               ))}
+              {showActions && hasActions && (
+                <th className="text-md px-4 py-3 text-left font-semibold text-black dark:text-white">
+                  Actions
+                </th>
+              )}
             </tr>
           </thead>
 
@@ -136,15 +172,14 @@ const GenericTable = <T extends {id?: string}>({
                 <tr
                   key={(row.id as string) || rowIndex}
                   onClick={() => handleRowClick(row)}
-                  className={`${clickable && onRowClick ? 'hover:bg-gray-50 cursor-pointer transition-colors dark:hover:bg-meta-4' : ''} ${
-                    (row as any).isDummy
+                  className={`${clickable && onRowClick ? 'hover:bg-gray-50 cursor-pointer transition-colors dark:hover:bg-meta-4' : ''} ${(row as any).isDummy
                       ? 'bg-[#eff4ff]'
                       : (row as any).perticular === 'BREAK'
                         ? 'bg-[#f5f2e5] text-orange-700'
                         : rowIndex % 2 === 0
                           ? 'bg-white dark:bg-boxdark'
                           : 'bg-neutral-50 dark:bg-meta-4'
-                  }`}
+                    }`}
                 >
                   <td className="text-gray-700 dark:text-gray-300 px-4 py-4.5 text-sm">
                     {(currentPage - 1) * rowsPerPage + rowIndex + 1}
@@ -192,7 +227,7 @@ const GenericTable = <T extends {id?: string}>({
 
                     const displayValue =
                       typeof cellValue === 'string' &&
-                      isValidDateString(cellValue)
+                        isValidDateString(cellValue)
                         ? formatDateInIST(cellValue)
                         : (cellValue ?? '-');
 
@@ -205,12 +240,45 @@ const GenericTable = <T extends {id?: string}>({
                       </td>
                     );
                   })}
+                  {showActions && hasActions && (
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        {onView && (
+                          <button
+                            onClick={(e) => handleViewClick(e, row)}
+                            className="text-blue-500 hover:text-blue-700 rounded p-1 transition-colors"
+                            title="View"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </button>
+                        )}
+                        {onEdit && (
+                          <button
+                            onClick={(e) => handleEditClick(e, row)}
+                            className="text-blue-500 hover:text-blue-700 rounded p-1 transition-colors"
+                            title="Edit"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                        )}
+                        {onDelete && (
+                          <button
+                            onClick={(e) => handleDeleteClick(e, row)}
+                            className="text-red-500 hover:text-red-700 rounded p-1 transition-colors"
+                            title="Delete"
+                          >
+                            <Trash className="h-4 w-4" />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  )}
                 </tr>
               ))
             ) : (
               <tr>
                 <td
-                  colSpan={columns.length + 1}
+                  colSpan={columns.length + 1 + (showActions && hasActions ? 1 : 0)}
                   className="text-gray-500 dark:text-gray-400 px-6 py-8 text-center text-sm"
                 >
                   <div className="flex flex-col items-center gap-2">
@@ -228,20 +296,23 @@ const GenericTable = <T extends {id?: string}>({
 
       {/* Pagination */}
       {data?.length > 0 && (
-        <div className="flex items-center justify-between border-t border-stroke px-4 py-2 dark:border-strokedark">
+        <div className="flex flex-wrap items-center justify-between border-t border-stroke px-4 py-2 dark:border-strokedark">
           <span className="dark:text-gray-300 text-sm">
             Page {currentPage} of {totalPages}
           </span>
-          <div className="space-x-2">
+          <div className="flex items-center gap-1">
             <button
-              className="hover:bg-gray-100 rounded p-1.5 dark:hover:bg-meta-4"
+              className="hover:bg-gray-100 rounded p-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed dark:hover:bg-meta-4"
               onClick={handlePrevPage}
               disabled={currentPage === 1}
             >
               <GrFormPrevious className="h-4 w-4" />
             </button>
+            <span className="text-xs text-gray-500 dark:text-gray-400 px-2">
+              {currentPage} / {totalPages}
+            </span>
             <button
-              className="hover:bg-gray-100 rounded p-1.5 dark:hover:bg-meta-4"
+              className="hover:bg-gray-100 rounded p-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed dark:hover:bg-meta-4"
               onClick={handleNextPage}
               disabled={currentPage === totalPages}
             >

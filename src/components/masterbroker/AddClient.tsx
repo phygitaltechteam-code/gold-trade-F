@@ -1,4 +1,4 @@
- import { useAddCustomer } from '@/lib/api/addcustomer'; // Changed this import
+import { useAddCustomer } from '@/lib/api/addcustomer'; // Changed this import
 // import { useGetBrokerData } from '@/lib/api/addbroker';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from '@tanstack/react-router';
@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { useAuthContext } from '@/context/AuthContext';
 import { X, ZoomIn } from 'lucide-react';
 
-// Define Zod schema for form data validation - ADDED type field
+// Define Zod schema for form data validation - ADDED stockHoldingLimit
 const CustomerSchema = z.object({
   fullname: z.string().min(1, 'Full name is required'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
@@ -15,19 +15,18 @@ const CustomerSchema = z.object({
   masterBrokerId: z.string().min(1, 'Please select a Broker'),
   area: z.string().min(1, 'Area is required'),
   isDemo: z.boolean(),
-  // commission: z.coerce.number().min(0, 'Commission must be a valid number'),
   aadharCardNumber: z.string().optional(),
   panCardNumber: z.string().optional(),
-  type: z.enum(['mega', 'mini'], { 
+  type: z.enum(['mega', 'mini'], {
     required_error: 'Please select a customer type',
     invalid_type_error: 'Type must be either mega or mini'
   }),
-  // documentNumber: z.string().min(1, 'Document number is required'), // ADD THIS
+  stockHoldingLimit: z.string().optional(),
 });
 
 const CompanyAddCustomer = () => {
   const navigate = useNavigate();
-  const addCustomer = useAddCustomer(); // Changed from useAddBroker to useAddCustomer
+  const addCustomer = useAddCustomer();
   const { user } = useAuthContext();
   const isMasterBroker = user?.role === 'MASTER_BROKER';
 
@@ -36,13 +35,12 @@ const CompanyAddCustomer = () => {
     password: '',
     area: '',
     isDemo: false,
-   
     phoneNumber: '',
     aadharCardNumber: '',
     panCardNumber: '',
     masterBrokerId: '',
-    type: '', // ADDED - no default value, user must select
-    // documentNumber: '', // ADD THIS
+    type: '',
+    stockHoldingLimit: '', // ADDED
   });
 
   const [images, setImages] = useState({
@@ -60,30 +58,8 @@ const CompanyAddCustomer = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // const { data: allbrockers } = useGetBrokerData();
-
-  // Extract brokers array from the nested response
-  // const brokers = useMemo(() => {
-  //   if (!allbrockers) return [];
-  //   if (allbrockers.data?.data) return allbrockers.data.data;
-  //   if (allbrockers.data) return allbrockers.data;
-  //   if (Array.isArray(allbrockers)) return allbrockers;
-  //   return [];
-  // }, [allbrockers]);
-
-  // Searchable Dropdown state
   const [searchTerm, setSearchTerm] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
-  // Filter brokers based on search term
-  // const filteredBrokers = useMemo(() => {
-  //   if (!searchTerm) return brokers;
-  //   return brokers.filter(
-  //     (b) =>
-  //       b.fullname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //       b.BKId?.toLowerCase().includes(searchTerm.toLowerCase())
-  //   );
-  // }, [brokers, searchTerm]);
 
   useEffect(() => {
     if (isMasterBroker && user) {
@@ -183,11 +159,6 @@ const CompanyAddCustomer = () => {
     try {
       CustomerSchema.parse(formData);
 
-      // if (!images.aadharCardF) {
-      //   toast.error('Aadhar Card image is required');
-      //   return false;
-      // }
-
       setErrors({});
       return true;
     } catch (error) {
@@ -207,13 +178,13 @@ const CompanyAddCustomer = () => {
       fullname: '',
       password: '',
       area: '',
-       isDemo: false,
+      isDemo: false,
       phoneNumber: '',
       aadharCardNumber: '',
       panCardNumber: '',
       masterBrokerId: '',
-      type: '', // ADDED - reset to empty
-      // documentNumber: '', // ADD THIS
+      type: '',
+      stockHoldingLimit: '', // ADDED
     });
     setImages({
       aadharCardF: null,
@@ -238,16 +209,20 @@ const CompanyAddCustomer = () => {
     setIsSubmitting(true);
 
     const formDataToSend = new FormData();
-    
-    // ALL REQUIRED FIELDS - ADDED type
+
+    // ALL REQUIRED FIELDS
     formDataToSend.append('fullname', formData.fullname);
     formDataToSend.append('password', formData.password);
     formDataToSend.append('phoneNumber', formData.phoneNumber);
     formDataToSend.append('email', `${formData.phoneNumber}@temp.com`);
     formDataToSend.append('role', 'CUSTOMER');
     formDataToSend.append('isDemo', formData.isDemo);
-    formDataToSend.append('type', formData.type); // ADDED - send type to backend
-    // formDataToSend.append('documentNumber', formData.documentNumber); // ADD THIS
+    formDataToSend.append('type', formData.type);
+    
+    // ADDED - Send stockHoldingLimit to backend
+    if (formData.stockHoldingLimit) {
+      formDataToSend.append('stockHoldingLimit', formData.stockHoldingLimit);
+    }
 
     // OPTIONAL FIELDS
     if (formData.aadharCardNumber) {
@@ -259,9 +234,6 @@ const CompanyAddCustomer = () => {
     if (formData.area) {
       formDataToSend.append('area', formData.area);
     }
-    // if (formData.commission) {
-    //   formDataToSend.append('brokeragePercent', formData.commission);
-    // }
     if (formData.masterBrokerId) {
       formDataToSend.append('masterBrokerId', formData.masterBrokerId);
     }
@@ -273,15 +245,6 @@ const CompanyAddCustomer = () => {
     if (images.panCard) {
       formDataToSend.append('panCard', images.panCard);
     }
-
-    // console.log('📤 Sending data with documentNumber:');
-    // for (let pair of formDataToSend.entries()) {
-    //   if (pair[1] instanceof File) {
-    //     console.log(`  ${pair[0]}: [File] ${pair[1].name}`);
-    //   } else {
-    //     console.log(`  ${pair[0]}: ${pair[1]}`);
-    //   }
-    // }
 
     try {
       await addCustomer.mutateAsync(formDataToSend);
@@ -367,7 +330,7 @@ const CompanyAddCustomer = () => {
           <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
             <div>
               <h1 className="text-xl font-bold text-white sm:text-2xl">
-                Customer Registration
+                Trader Registration
               </h1>
               <p className="mt-1 text-sm text-orange-100">
                 Please fill in all the required information
@@ -448,90 +411,6 @@ const CompanyAddCustomer = () => {
               )}
             </div>
 
-            {/* Searchable Broker Dropdown */}
-            {/* <div className="relative mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Assign to Broker <span className="text-red-500">*</span>
-              </label>
-              {isMasterBroker ? (
-                <input
-                  type="text"
-                  disabled
-                  value={`${user?.fullname || 'Super Broker'} (Current User)`}
-                  className="w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-100 p-2 font-semibold text-slate-500"
-                />
-              ) : (
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search Broker by Name or BK ID"
-                    value={
-                      isDropdownOpen
-                        ? searchTerm
-                        : brokers.find((b) => b.id === formData.BrokerId)
-                          ? `${brokers.find((b) => b.id === formData.BrokerId)?.fullname} (${brokers.find((b) => b.id === formData.BrokerId)?.BKId})`
-                          : ''
-                    }
-                    onChange={(e) => {
-                      setSearchTerm(e.target.value);
-                      setIsDropdownOpen(true);
-                    }}
-                    onFocus={() => {
-                      setIsDropdownOpen(true);
-                      setSearchTerm('');
-                    }}
-                    onBlur={() =>
-                      setTimeout(() => setIsDropdownOpen(false), 200)
-                    }
-                    className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.BrokerId ? 'border-red-500' : 'border-gray-300'
-                      }`}
-                  />
-                  {/* {isDropdownOpen && (
-                    <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
-                      {filteredBrokers.length > 0 ? (
-                        filteredBrokers.map((b) => (
-                          <div
-                            key={b.id}
-                            className="cursor-pointer px-4 py-2 transition-colors hover:bg-orange-50"
-                            onClick={() => {
-                              setFormData((prev) => ({
-                                ...prev,
-                                BrokerId: b.id,
-                              }));
-                              setSearchTerm('');
-                              setIsDropdownOpen(false);
-                              if (errors.BrokerId) {
-                                setErrors((prev) => ({
-                                  ...prev,
-                                  BrokerId: '',
-                                }));
-                              }
-                            }}
-                          >
-                            <div className="text-gray-900 font-medium">
-                              {b.fullname}
-                            </div>
-                            <div className="text-gray-500 text-xs">
-                              BK ID: {b.BKId}
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="text-gray-500 px-4 py-2 text-sm">
-                          {searchTerm ? 'No Brokers found' : 'No brokers available'}
-                        </div>
-                      )}
-                    </div>
-                  )} */}
-                {/* </div>
-              )}
-              {errors.BrokerId && !isMasterBroker && (
-                <p className="mt-1 text-xs text-red-500">
-                  {errors.BrokerId}
-                </p>
-              )}
-            </div> */} 
-
             {/* Customer Type - DROPDOWN */}
             <div className="mb-2 sm:mb-4">
               <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
@@ -541,9 +420,8 @@ const CompanyAddCustomer = () => {
                 name="type"
                 value={formData.type}
                 onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
-                  errors.type ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.type ? 'border-red-500' : 'border-gray-300'
+                  }`}
               >
                 <option value="">Select Customer Type</option>
                 <option value="mega">Mega</option>
@@ -551,6 +429,25 @@ const CompanyAddCustomer = () => {
               </select>
               {errors.type && (
                 <p className="mt-1 text-xs text-red-500">{errors.type}</p>
+              )}
+            </div>
+
+            {/* Stock Holding Limit - NEW FIELD */}
+            <div className="mb-2 sm:mb-4">
+              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
+                Stock Holding Limit
+              </label>
+              <input
+                type="text"
+                name="stockHoldingLimit"
+                value={formData.stockHoldingLimit}
+                onChange={handleInputChange}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.stockHoldingLimit ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                placeholder="Enter stock holding limit"
+              />
+              {errors.stockHoldingLimit && (
+                <p className="mt-1 text-xs text-red-500">{errors.stockHoldingLimit}</p>
               )}
             </div>
 
@@ -616,8 +513,8 @@ const CompanyAddCustomer = () => {
               )}
             </div>
 
-            {/* // is demo check box */}
-               <div className="mb-4 flex items-center gap-3">
+            {/* is demo check box */}
+            <div className="mb-4 flex items-center gap-3">
               <input
                 id="isDemo"
                 type="checkbox"
@@ -636,56 +533,7 @@ const CompanyAddCustomer = () => {
               >
                 Demo Account
               </label>
-
-              {/* <span
-                className={`rounded-full px-2 py-1 text-xs font-semibold ${
-                  formData.isDemo
-                    ? 'bg-orange-100 text-orange-700'
-                    : 'bg-gray-100 text-gray-600'
-                }`}
-              >
-                {formData.isDemo ? 'Demo Customer' : 'Live Customer'}
-              </span> */}
             </div>
-
-            {/* Document Number - Required */}
-            {/* <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Document Number <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="documentNumber"
-                value={formData.documentNumber}
-                onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.documentNumber ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                placeholder="Enter document number"
-              />
-              {errors.documentNumber && (
-                <p className="mt-1 text-xs text-red-500">{errors.documentNumber}</p>
-              )}
-            </div> */}
-
-            {/* Commission - Required */}
-            {/* <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Commission % <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                name="commission"
-                value={formData.commission}
-                onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.commission ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                placeholder="Enter Commission %"
-              />
-              {errors.commission && (
-                <p className="mt-1 text-xs text-red-500">{errors.commission}</p>
-              )}
-            </div> */}
           </div>
 
           {/* Document Upload Section */}

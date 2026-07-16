@@ -96,6 +96,28 @@ export const useGetSuperBrokerDataApi = () =>
     queryFn: () => getSuperBrokerData(),
   });
 
+export const useGetSuperBrokerByid = (id: string) => 
+  useQuery({
+    queryKey: ['get-superbroker', id],
+    queryFn: () => getSuperBrokerbyid(id),
+  });
+
+
+export const getSuperBrokerbyid = async (id: string) => {
+  try {
+    const token = getAccessToken();
+    const response = await api.get(`/super-broker/broker/${id}`, {
+      headers: {
+        Authorization: token ? `Bearer ${token}` : '',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching super broker data:', error);
+    throw error;
+  }
+};
+
 export const deleteBroker = async (id: string) => {
   try {
     const token = getAccessToken();

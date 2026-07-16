@@ -108,6 +108,7 @@ import { Route as AppKYCApprovalKycmainImport } from './routes/_app/KYCApproval/
 import { Route as AppApprovalPendingapprovalsImport } from './routes/_app/Approval/pendingapprovals'
 import { Route as AppApprovalCustomerregisterapproveImport } from './routes/_app/Approval/customerregisterapprove'
 import { Route as NativeTokenUserPassImport } from './routes/_native/token.$user.$pass'
+import { Route as AppMasterbrokerUpdateClientIdImport } from './routes/_app/masterbroker/update-client.$id'
 import { Route as AppMasterbrokerClientDetailsIdImport } from './routes/_app/masterbroker/client-details.$id'
 import { Route as AppCompanybrokerPendingbrokerbyIdImport } from './routes/_app/companybroker/pendingbrokerby.$id'
 import { Route as AppCompanybrokerMasterBrockerProfileIdImport } from './routes/_app/companybroker/master-brockerProfile.$id'
@@ -735,6 +736,13 @@ const NativeTokenUserPassRoute = NativeTokenUserPassImport.update({
   path: '/token/$user/$pass',
   getParentRoute: () => NativeRoute,
 } as any)
+
+const AppMasterbrokerUpdateClientIdRoute =
+  AppMasterbrokerUpdateClientIdImport.update({
+    id: '/masterbroker/update-client/$id',
+    path: '/masterbroker/update-client/$id',
+    getParentRoute: () => AppRoute,
+  } as any)
 
 const AppMasterbrokerClientDetailsIdRoute =
   AppMasterbrokerClientDetailsIdImport.update({
@@ -1629,6 +1637,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMasterbrokerClientDetailsIdImport
       parentRoute: typeof AppImport
     }
+    '/_app/masterbroker/update-client/$id': {
+      id: '/_app/masterbroker/update-client/$id'
+      path: '/masterbroker/update-client/$id'
+      fullPath: '/masterbroker/update-client/$id'
+      preLoaderRoute: typeof AppMasterbrokerUpdateClientIdImport
+      parentRoute: typeof AppImport
+    }
     '/_native/token/$user/$pass': {
       id: '/_native/token/$user/$pass'
       path: '/token/$user/$pass'
@@ -1743,6 +1758,7 @@ interface AppRouteChildren {
   AppCompanybrokerMasterBrockerProfileIdRoute: typeof AppCompanybrokerMasterBrockerProfileIdRoute
   AppCompanybrokerPendingbrokerbyIdRoute: typeof AppCompanybrokerPendingbrokerbyIdRoute
   AppMasterbrokerClientDetailsIdRoute: typeof AppMasterbrokerClientDetailsIdRoute
+  AppMasterbrokerUpdateClientIdRoute: typeof AppMasterbrokerUpdateClientIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -1859,6 +1875,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCompanybrokerPendingbrokerbyIdRoute:
     AppCompanybrokerPendingbrokerbyIdRoute,
   AppMasterbrokerClientDetailsIdRoute: AppMasterbrokerClientDetailsIdRoute,
+  AppMasterbrokerUpdateClientIdRoute: AppMasterbrokerUpdateClientIdRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
@@ -2002,6 +2019,7 @@ export interface FileRoutesByFullPath {
   '/companybroker/master-brockerProfile/$id': typeof AppCompanybrokerMasterBrockerProfileIdRoute
   '/companybroker/pendingbrokerby/$id': typeof AppCompanybrokerPendingbrokerbyIdRoute
   '/masterbroker/client-details/$id': typeof AppMasterbrokerClientDetailsIdRoute
+  '/masterbroker/update-client/$id': typeof AppMasterbrokerUpdateClientIdRoute
   '/token/$user/$pass': typeof NativeTokenUserPassRoute
 }
 
@@ -2113,6 +2131,7 @@ export interface FileRoutesByTo {
   '/companybroker/master-brockerProfile/$id': typeof AppCompanybrokerMasterBrockerProfileIdRoute
   '/companybroker/pendingbrokerby/$id': typeof AppCompanybrokerPendingbrokerbyIdRoute
   '/masterbroker/client-details/$id': typeof AppMasterbrokerClientDetailsIdRoute
+  '/masterbroker/update-client/$id': typeof AppMasterbrokerUpdateClientIdRoute
   '/token/$user/$pass': typeof NativeTokenUserPassRoute
 }
 
@@ -2229,6 +2248,7 @@ export interface FileRoutesById {
   '/_app/companybroker/master-brockerProfile/$id': typeof AppCompanybrokerMasterBrockerProfileIdRoute
   '/_app/companybroker/pendingbrokerby/$id': typeof AppCompanybrokerPendingbrokerbyIdRoute
   '/_app/masterbroker/client-details/$id': typeof AppMasterbrokerClientDetailsIdRoute
+  '/_app/masterbroker/update-client/$id': typeof AppMasterbrokerUpdateClientIdRoute
   '/_native/token/$user/$pass': typeof NativeTokenUserPassRoute
 }
 
@@ -2342,6 +2362,7 @@ export interface FileRouteTypes {
     | '/companybroker/master-brockerProfile/$id'
     | '/companybroker/pendingbrokerby/$id'
     | '/masterbroker/client-details/$id'
+    | '/masterbroker/update-client/$id'
     | '/token/$user/$pass'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -2452,6 +2473,7 @@ export interface FileRouteTypes {
     | '/companybroker/master-brockerProfile/$id'
     | '/companybroker/pendingbrokerby/$id'
     | '/masterbroker/client-details/$id'
+    | '/masterbroker/update-client/$id'
     | '/token/$user/$pass'
   id:
     | '__root__'
@@ -2566,6 +2588,7 @@ export interface FileRouteTypes {
     | '/_app/companybroker/master-brockerProfile/$id'
     | '/_app/companybroker/pendingbrokerby/$id'
     | '/_app/masterbroker/client-details/$id'
+    | '/_app/masterbroker/update-client/$id'
     | '/_native/token/$user/$pass'
   fileRoutesById: FileRoutesById
 }
@@ -2705,7 +2728,8 @@ export const routeTree = rootRoute
         "/_app/companybroker/clientdetail/$id",
         "/_app/companybroker/master-brockerProfile/$id",
         "/_app/companybroker/pendingbrokerby/$id",
-        "/_app/masterbroker/client-details/$id"
+        "/_app/masterbroker/client-details/$id",
+        "/_app/masterbroker/update-client/$id"
       ]
     },
     "/_auth": {
@@ -3154,6 +3178,10 @@ export const routeTree = rootRoute
     },
     "/_app/masterbroker/client-details/$id": {
       "filePath": "_app/masterbroker/client-details.$id.tsx",
+      "parent": "/_app"
+    },
+    "/_app/masterbroker/update-client/$id": {
+      "filePath": "_app/masterbroker/update-client.$id.tsx",
       "parent": "/_app"
     },
     "/_native/token/$user/$pass": {

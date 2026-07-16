@@ -69,9 +69,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 
   const profile = profileData?.data || profileData;
 
-  console.log('userrrr', user);
-  console.log('isSuperBroker', isSuperBroker);
-
   const isFixedOpenRef = useRef(false);
   const [isFixedOpen, setIsFixedOpen] = useState(false);
   const isExpanded = sidebarOpen || isFixedOpen;
@@ -145,7 +142,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         subRoutes: [
           {
             label: 'Profile',
-            path: '/company/profile',
+            path: '/profile',
             icon: <User size={18} />,
           },
           {
@@ -437,7 +434,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     return 'User';
   };
 
-  // Get user display name
   const getUserName = () => {
     if (profile?.fullname) return profile.fullname;
     if (profile?.user?.fullname) return profile.user.fullname;
@@ -446,24 +442,29 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     return 'GoldTrade';
   };
 
-  // Get user profile image
   const getUserImage = () => {
     if (profile?.photo) return profile.photo;
     if (profile?.user?.photo) return profile.user.photo;
     return '/default-avatar.png';
   };
 
+  // Width classes based on expanded state
+  const sidebarWidth = isExpanded ? 'w-64' : 'w-20';
+
   return (
     <div className="relative z-50">
       <aside
         ref={sidebar}
-        className={`fixed inset-y-0 left-0 z-50 flex h-screen flex-col bg-white text-black transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-          } lg:static lg:translate-x-0`}
+        className={`fixed inset-y-0 left-0 z-50 flex h-screen flex-col bg-white text-black shadow-lg transition-all duration-300 ease-in-out ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        } lg:static lg:translate-x-0 ${sidebarWidth}`}
       >
-        <div className="flex items-center justify-between px-4 py-3 lg:px-5 lg:py-6">
+        <div className={`flex items-center ${isExpanded ? 'px-4 py-3 lg:px-5 lg:py-6' : 'justify-center px-2 py-3 lg:py-6'}`}>
           <button
             ref={trigger}
-            className="flex items-center gap-3 rounded-lg transition-all duration-200 focus:outline-none"
+            className={`flex items-center gap-3 rounded-lg transition-all duration-200 focus:outline-none ${
+              !isExpanded ? 'justify-center' : ''
+            }`}
             onClick={() => {
               const nextState = !isExpanded;
               setSidebarOpen(nextState);
@@ -473,8 +474,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               setHoveredRect(null);
             }}
           >
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg shadow-lg shadow-orange-500/20 transition-transform duration-200 hover:scale-105 active:scale-95">
+            <div className={`flex ${isExpanded ? 'items-center gap-3' : 'items-center justify-center'}`}>
+              <div className={`flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg shadow-lg shadow-orange-500/20 transition-transform duration-200 hover:scale-105 active:scale-95 ${!isExpanded ? 'mx-auto' : ''}`}>
                 <img
                   src={getUserImage()}
                   alt="Profile"
@@ -483,7 +484,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               </div>
               {isExpanded && (
                 <div className="flex flex-col items-start overflow-hidden">
-                  <p className="font-bold text-black-2 text-sm">
+                  <p className="font-bold text-black-2 text-sm truncate max-w-[120px]">
                     {getUserName()}
                   </p>
                   <p className="bg-gradient-to-r from-[#FF6321] to-[#FF8C00] bg-clip-text text-xs font-semibold text-transparent">
@@ -496,12 +497,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         </div>
 
         <div className="no-scrollbar flex flex-col overflow-y-auto px-2 duration-300 ease-linear">
-          <nav className="mt-4 space-y-1 p-2">
+          <nav className={`${isExpanded ? 'mt-4 space-y-1 p-2' : 'mt-2 space-y-1 p-1'}`}>
             <ul>
               {sidebarRoutes.length > 0 ? (
                 sidebarRoutes.map((route, index) =>
                   route.subRoutes ? (
-                    <SidebarLinkGroup activeCondition={isExpanded} key={index}>
+                    <SidebarLinkGroup activeCondition={true} key={index}>
                       {(handleClick, open) => (
                         <div className="relative">
                           <button
@@ -522,6 +523,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                             }}
                             onClick={(e) => {
                               e.preventDefault();
+                              if (window.innerWidth < 1024) {
+                                handleClick(e);
+                                return;
+                              }
                               const rect = (
                                 e.currentTarget as HTMLElement
                               ).getBoundingClientRect();
@@ -536,22 +541,25 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                 subRoutes: route.subRoutes || [],
                               });
                             }}
-                            className={`group flex w-full items-center gap-2.5 rounded px-3 py-2 text-sm font-medium text-black hover:bg-primary/10 ${pathname.includes(route.path || '')
+                            className={`group flex w-full items-center gap-2.5 rounded px-3 py-2 text-sm font-medium text-black hover:bg-primary/10 ${
+                              pathname.includes(route.path || '')
                                 ? 'bg-primary/10'
                                 : ''
-                              }`}
+                            } ${!isExpanded ? 'justify-center' : ''}`}
                           >
-                            <span className="text-black transition-colors group-hover:text-primary">
+                            <span className={`text-black transition-colors group-hover:text-primary ${!isExpanded ? 'mx-auto' : ''}`}>
                               {route.icon}
                             </span>
                             {isExpanded && route.label}
                             {isExpanded && (
                               <IoIosArrowDown
-                                className={`ml-auto transform duration-200 ${open ? 'rotate-180' : ''}`}
+                                className={`ml-auto transform duration-200 ${
+                                  open ? 'rotate-180' : ''
+                                }`}
                               />
                             )}
                           </button>
-                          {isExpanded && open && (
+                          {open && isExpanded && (
                             <ul className="ml-6 mt-1 space-y-1">
                               {route.subRoutes.map((subRoute, subIndex) => (
                                 <li key={subIndex}>
@@ -598,14 +606,16 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                       <Link
                         to={route.path}
                         onMouseEnter={(e) => {
-                          const rect = (
-                            e.currentTarget as unknown as HTMLAnchorElement
-                          ).getBoundingClientRect();
-                          setHoveredLabel(route.label);
-                          setTooltipPos({
-                            top: rect.top + rect.height / 2,
-                            left: rect.right + 8,
-                          });
+                          if (!isExpanded) {
+                            const rect = (
+                              e.currentTarget as unknown as HTMLAnchorElement
+                            ).getBoundingClientRect();
+                            setHoveredLabel(route.label);
+                            setTooltipPos({
+                              top: rect.top + rect.height / 2,
+                              left: rect.right + 8,
+                            });
+                          }
                         }}
                         onMouseLeave={() => {
                           setHoveredLabel(null);
@@ -616,10 +626,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                           setShowSubRoutes(null);
                           setSidebarOpen(false);
                         }}
-                        className={`group flex w-full items-center gap-2.5 rounded px-3 py-2 text-sm font-medium text-black hover:bg-primary/10 ${pathname.includes(route.path) ? 'bg-primary/10' : ''
-                          }`}
+                        className={`group flex w-full items-center gap-2.5 rounded px-3 py-2 text-sm font-medium text-black hover:bg-primary/10 ${
+                          pathname.includes(route.path) ? 'bg-primary/10' : ''
+                        } ${!isExpanded ? 'justify-center' : ''}`}
                       >
-                        <span className="text-black transition-colors group-hover:text-primary">
+                        <span className={`text-black transition-colors group-hover:text-primary ${!isExpanded ? 'mx-auto' : ''}`}>
                           {route.icon}
                         </span>
                         {isExpanded && route.label}
@@ -637,9 +648,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         </div>
       </aside>
 
+      {/* Tooltip for collapsed sidebar */}
       {hoveredLabel && tooltipPos && !isExpanded && (
         <div
-          className="fixed z-50 rounded bg-white px-2 py-1 text-xs text-black shadow"
+          className="fixed z-[999] rounded-md bg-gray-800 px-3 py-1.5 text-xs font-medium text-white shadow-lg pointer-events-none"
           style={{
             top: tooltipPos.top,
             left: tooltipPos.left,
@@ -650,9 +662,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         </div>
       )}
 
-      {showSubRoutes && hoveredRect && (
+      {/* Submenu popup for collapsed sidebar */}
+      {showSubRoutes && hoveredRect && !isExpanded && (
         <div
-          className="fixed z-[999] w-56 overflow-y-auto rounded-md bg-white p-2 text-black shadow-lg"
+          className="fixed z-[999] w-56 overflow-y-auto rounded-md bg-white p-2 text-black shadow-lg border border-gray-200"
           style={{
             top: (() => {
               const menuItemCount = showSubRoutes.subRoutes.length;
@@ -689,9 +702,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     setSidebarOpen(false);
                   }
                 }}
-                className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm text-black hover:bg-primary/10"
+                className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm text-black hover:bg-primary/10 transition-colors"
               >
-                {subRoute.icon}
+                <span className="text-gray-600">{subRoute.icon}</span>
                 {subRoute.label}
               </button>
             ) : (
@@ -706,9 +719,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     setSidebarOpen(false);
                   }
                 }}
-                className="flex items-center gap-2 rounded px-3 py-2 text-sm text-black hover:bg-primary/10"
+                className="flex items-center gap-2 rounded px-3 py-2 text-sm text-black hover:bg-primary/10 transition-colors"
               >
-                {subRoute.icon}
+                <span className="text-gray-600">{subRoute.icon}</span>
                 {subRoute.label}
               </Link>
             ),

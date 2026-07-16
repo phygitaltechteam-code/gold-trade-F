@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from 'react';
-import {useNavigate} from '@tanstack/react-router';
-import {useAuthContext} from '@/context/AuthContext';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
+import { useAuthContext } from '@/context/AuthContext';
 import {
   Search,
   Plus,
@@ -14,8 +14,8 @@ import {
   Activity,
   DollarSign,
 } from 'lucide-react';
-import {Client} from './types';
-import {motion} from 'framer-motion';
+import { Client } from './types';
+import { motion } from 'framer-motion';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import {
   useActivateCustomer,
@@ -27,7 +27,7 @@ interface ClientDashboardProps {
   onSelectClient?: (client: Client) => void;
 }
 
-const StatCard = ({title, value, trend, icon: Icon, isLoading}: any) => (
+const StatCard = ({ title, value, trend, icon: Icon, isLoading }: any) => (
   <div className="group relative overflow-hidden rounded-lg border border-stroke bg-white p-4 shadow-sm transition-all hover:shadow-md md:p-5">
     <div className="flex items-start justify-between">
       <div className="flex-1">
@@ -52,11 +52,10 @@ const StatCard = ({title, value, trend, icon: Icon, isLoading}: any) => (
     {trend && !isLoading && (
       <div className="mt-2 flex items-center gap-2">
         <span
-          className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
-            trend > 0
+          className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${trend > 0
               ? 'bg-emerald-50 text-emerald-600'
               : 'bg-rose-50 text-rose-600'
-          }`}
+            }`}
         >
           {trend > 0 ? '↑' : '↓'} {Math.abs(trend)}%
         </span>
@@ -67,7 +66,7 @@ const StatCard = ({title, value, trend, icon: Icon, isLoading}: any) => (
 
 export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
   const navigate = useNavigate();
-  const {user} = useAuthContext();
+  const { user } = useAuthContext();
   const isBroker = user?.role === 'BROKER';
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [showPinModal, setShowPinModal] = useState(false);
@@ -76,13 +75,12 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [brokerFilter, setBrokerFilter] = useState<string>('all');
   const [superBrokerFilter, setSuperBrokerFilter] = useState<string>('all');
-  const {mutateAsync: statusChange, isPending} = useActivateCustomer();
-  // const {data: allSuperBrocker} =useGetMasterClients();
-  const {data: clients = [], refetch, isLoading} = useGetMasterClients();
+  const { mutateAsync: statusChange, isPending } = useActivateCustomer();
+  const { data: clients = [], refetch, isLoading } = useGetMasterClients();
   const [customerFilter, setCustomerFilter] = useState('all');
 
-  const {data: limit} = useGetMasterBrokerLimit();
-  // console.log('limit..', limit?.customerLimit);
+  const { data: limit } = useGetMasterBrokerLimit();
+
   // Extract unique broker names for filter
   const brokers = Array.from(
     new Set(clients.map((c: any) => c?.broker?.user?.fullname).filter(Boolean)),
@@ -110,39 +108,34 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
     0,
   );
 
-  // Total active trades count
-  // const totalActiveTrades = clients.reduce(
-  //   (sum: number, c: Client) => sum + (c._count?.trades || 0),
-  //   0,
-  // );
+  const totalDemoTraders = clients.filter(
+    (c: Client) => c?.isDemo === true
+  ).length;
 
-  // // Total business generated
-  // const totalBusiness = clients.reduce(
-  //   (sum: number, c: Client) => sum + (parseFloat(c.wallets?.amount) || 0),
-  //   0,
-  // );
+  const totalWalletBalance = clients.reduce(
+    (sum: number, c: Client) => sum + (Number(c.walletBalance) || 0),
+    0,
+  );
 
-  // Last wallet balance (latest client's wallet)
+  const assetUnderControll = clients.reduce(
+    (sum: number, c: Client) => sum + (Number(c.assetUnderControl) || 0),
+    0,
+  );
+
+  const totalMarginAmount = clients.reduce(
+    (sum: number, c: Client) => sum + (Number(c.marginAmount) || 0),
+    0,
+  );
+
+  const totalTrades = clients.reduce(
+    (sum: number, c: Client) => sum + (Number(c.totalTrade) || 0),
+    0,
+  );
+
   const lastWalletBalance =
     clients.length > 0
       ? parseFloat(clients[clients.length - 1]?.wallets?.amount) || 0
       : 0;
-
-  // const filteredClients = clients.filter((client: Client) => {
-  //   const matchesSearch =
-  //     client.user?.fullname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     client.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     client.user?.phoneNumber?.includes(searchTerm) ||
-  //     client.CRN?.toLowerCase().includes(searchTerm.toLowerCase());
-
-  //   const matchesBroker =
-  //     brokerFilter === 'all' || client?.broker?.user?.fullname === brokerFilter;
-  //   const matchesSuperBroker =
-  //     superBrokerFilter === 'all' ||
-  //     client?.broker?.superBroker?.user?.fullname === superBrokerFilter;
-
-  //   return matchesSearch && matchesBroker && matchesSuperBroker;
-  // });
 
   const filteredClients = clients.filter((client: Client) => {
     const matchesSearch =
@@ -173,6 +166,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       matchesSearch && matchesBroker && matchesSuperBroker && matchesCustomer
     );
   });
+
   const handleToggleClick = (client: Client, e: React.MouseEvent) => {
     e.stopPropagation();
     setSelectedClientId(client.id);
@@ -208,27 +202,28 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
   };
 
   const handleRowClick = (client: Client) => {
-    navigate({to: '/masterbroker/client-details/$id', params: {id: client.id}});
+    navigate({ to: '/masterbroker/client-details/$id', params: { id: client.id } });
   };
 
+  // Format currency with 2 decimal places
   const formatCurrency = (amount: number) => {
-    if (amount >= 10000000) {
-      return `₹${(amount / 10000000).toFixed(1)}Cr`;
-    } else if (amount >= 100000) {
-      return `₹${(amount / 100000).toFixed(1)}L`;
-    } else if (amount >= 1000) {
-      return `₹${(amount / 1000).toFixed(1)}k`;
-    }
-    return `₹${amount.toLocaleString()}`;
+    if (amount === undefined || amount === null) return '₹0.00';
+    return `₹${amount.toFixed(2)}`;
+  };
+
+  // Format number with 2 decimal places
+  const formatNumber = (num: number) => {
+    if (num === undefined || num === null) return '0.00';
+    return num.toFixed(2);
   };
 
   // Get the selected client for PIN modal
   const selectedClient = clients.find((c) => c.id === selectedClientId);
 
-  // Original columns - unchanged
+  // Columns with 2 decimal places
   const columns = [
     {
-      header: 'Client Name',
+      header: 'Trader Name',
       accessor: 'user.fullname',
       render: (row: Client) => (
         <div className="flex items-center gap-3">
@@ -240,24 +235,6 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
         </div>
       ),
     },
-    // {
-    //   header: 'Broker Name',
-    //   accessor: 'broker.user.fullname',
-    //   render: (row: Client) => (
-    //     <span className="whitespace-nowrap text-sm font-medium text-slate-600">
-    //       {row?.broker?.user?.fullname || 'N/A'}
-    //     </span>
-    //   ),
-    // },
-    // {
-    //   header: 'Super Broker Name',
-    //   accessor: 'broker.superBroker.user.fullname',
-    //   render: (row: Client) => (
-    //     <span className="whitespace-nowrap text-sm font-medium text-slate-600">
-    //       {row?.broker?.superBroker?.user?.fullname || 'N/A'}
-    //     </span>
-    //   ),
-    // },
     {
       header: 'Wallet Balance',
       accessor: 'wallets.amount',
@@ -265,7 +242,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
         const amount = parseFloat(row.wallets?.amount) || 0;
         return (
           <span className="whitespace-nowrap text-sm font-bold text-slate-900">
-            ₹{amount.toLocaleString()}
+            ₹{amount.toFixed(2)}
           </span>
         );
       },
@@ -274,22 +251,17 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       header: 'Asset Under Control',
       accessor: 'assetUnderControl',
       render: (row: Client) => (
-     
-          <span className="whitespace-nowrap text-sm font-bold text-slate-900">
-            ₹{row.assetUnderControl.toLocaleString()}
-          </span>
-        
+        <span className="whitespace-nowrap text-sm font-bold text-slate-900">
+          ₹{(row.assetUnderControl || 0).toFixed(2)}
+        </span>
       ),
     },
-
-     
     {
       header: 'Margin Amount',
       accessor: 'marginAmount',
       render: (row: Client) => (
-        
         <span className="whitespace-nowrap text-sm font-bold text-slate-900">
-         {row.marginAmount.toLocaleString()}
+          ₹{(row.marginAmount || 0).toFixed(2)}
         </span>
       ),
     },
@@ -305,14 +277,11 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
     {
       header: 'Total Trade',
       accessor: 'totalTrade',
-      render: (row: Client) => {
-        // const amount = parseFloat(row.wallets?.amount) || 0;
-        return (
-          <span className="whitespace-nowrap text-sm font-bold text-orange-500">
-            ₹{row.totalTrade.toLocaleString()}
-          </span>
-        );
-      },
+      render: (row: Client) => (
+        <span className="whitespace-nowrap text-sm font-bold text-orange-500">
+          ₹{(row.totalTrade || 0).toFixed(2)}
+        </span>
+      ),
     },
     {
       header: 'P&L',
@@ -322,14 +291,11 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
         const isProfit = pnl >= 0;
         return (
           <span
-            className={`whitespace-nowrap text-sm font-bold ${
-              isProfit ? 'text-green-600' : 'text-red-600'
-            }`}
+            className={`whitespace-nowrap text-sm font-bold ${isProfit ? 'text-green-600' : 'text-red-600'
+              }`}
           >
             {isProfit ? '+' : ''}
-            {pnl >= 0
-              ? `${pnl.toLocaleString()}`
-              : `-${Math.abs(pnl).toLocaleString()}`}
+            {pnl.toFixed(2)}
           </span>
         );
       },
@@ -375,193 +341,80 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
     },
   ];
 
-
-   const totalDemoTraders = clients.filter(
-    (c: Client) => c?.isDemo===true
-  ).length;
-
-  const totalWalletBalance = clients.reduce(
-    (sum: number, c: Client) => sum + (Number(c.walletBalance) || 0),
-    0,
-  );
-
-   const assetUnderControll = clients.reduce(
-    (sum: number, c: Client) => sum + (Number(c.assetUnderControl) || 0),
-    0,
-   )
-
-   const totalMarginAmount = clients.reduce(
-    (sum: number, c: Client) => sum + (Number(c.marginAmount) || 0),
-    0,
-   )
-
-   const totalTrades = clients.reduce(
-    (sum: number, c: Client) => sum + (Number(c.totalTrade) || 0),
-    0,
-   )
-
-  // Total active trades count
-  const totalActiveTrades = clients.reduce(
-    (sum: number, c: Client) => sum + (c.totalActiveTrade || c._count?.trades || 0),
-    0,
-  );
-
-  // Total business generated
-  const totalBusiness = clients.reduce(
-    (sum: number, c: Client) => sum + (Number(c.totalTrade) || 0),
-    0,
-  );
-
   return (
     <motion.div
-      initial={{opacity: 0, y: 20}}
-      animate={{opacity: 1, y: 0}}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
       className="max-w-9xl mx-auto px-4 py-6 md:px-6 md:py-8"
     >
       {/* Header */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4 md:mb-8">
         <h1 className="text-2xl font-semibold text-slate-900 md:text-3xl">
-          Client Management...
+         Trader Management...
         </h1>
 
         <button
           onClick={() => {
-            // if (totalClients < limit) {
-            navigate({to: '/masterbroker/add-client'});
-            //}
+            navigate({ to: '/masterbroker/add-client' });
           }}
           disabled={totalClients >= limit}
-          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md transition-all ${
-            totalClients >= limit
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md transition-all ${totalClients >= limit
               ? 'bg-gray-400 cursor-not-allowed opacity-70'
               : 'bg-gradient-to-r from-orange-500 to-red-500 hover:scale-[1.02] hover:from-orange-600 hover:to-red-600'
-          }`}
+            }`}
         >
           <Plus className="h-4 w-4" />
-          {totalClients >= limit ? 'Add Client Limit Reached' : 'Add Client'}
+          {totalClients >= limit ? 'Add TraderLimit Reached' : 'Add Trader'}
         </button>
       </div>
 
-      {/* Stats Cards Grid - 6 cards */}
-      {/* <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6 md:gap-4">
-        <StatCard
-          title="Total Clients"
-          value={totalClients.toLocaleString()}
-          // subtext="Registered clients"
-          icon={Users}
-          isLoading={isLoading}
-        />
-        <StatCard
-          title="Active Traders"
-          value={activeTraders.toLocaleString()}
-          // subtext="Active trading"
-          icon={Activity}
-          isLoading={isLoading}
-        />
-        <StatCard
-          title="Business Generated"
-          value={formatCurrency(totalBusiness)}
-          // subtext="Total volume"
-          icon={Briefcase}
-          isLoading={isLoading}
-        />
-        <StatCard
-          title="Active Trades"
-          value={totalActiveTrades.toLocaleString()}
-          // subtext="Total trades"
-          icon={TrendingUp}
-          isLoading={isLoading}
-        />
-        <StatCard
-          title="Total AUM"
-          value={formatCurrency(totalAUM)}
-          // subtext="Assets under mgmt"
-          icon={Wallet}
-          isLoading={isLoading}
-        />
-        <StatCard
-          title="Last Wallet Bal"
-          value={formatCurrency(lastWalletBalance)}
-          // subtext="Latest client"
-          icon={DollarSign}
-          isLoading={isLoading}
-        />
-      </div> */}
-        <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-7 md:gap-4">
+      {/* Stats Cards Grid with 2 decimal places */}
+      <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-7 md:gap-4">
         <StatCard
           title="Total Traders"
           value={totalClients.toLocaleString()}
-          // subtext="Registered clients"
           icon={Users}
           isLoading={isLoading}
         />
         <StatCard
           title="Active Traders"
           value={activeTraders.toLocaleString()}
-          // subtext="Active trading"
           icon={Activity}
           isLoading={isLoading}
         />
-         <StatCard
+        <StatCard
           title="Demo Traders"
           value={totalDemoTraders.toLocaleString()}
-          // subtext="Active trading"
           icon={Activity}
           isLoading={isLoading}
         />
         <StatCard
           title="Wallet Balance"
-          value={totalAUM.toLocaleString()}
-          // subtext="Total volume"
+          value={formatCurrency(totalAUM)}
           icon={Briefcase}
           isLoading={isLoading}
         />
         <StatCard
-          title="Assets Under Contoll"
-          value={assetUnderControll.toLocaleString()}
-          // subtext="Total volume"
+          title="Assets Under Control"
+          value={formatCurrency(assetUnderControll)}
           icon={Briefcase}
           isLoading={isLoading}
         />
-        {/* <StatCard
-          title="Active Trades"
-          value={totalActiveTrades.toLocaleString()}
-          // subtext="Total trades"
-          icon={TrendingUp}
-          isLoading={isLoading}
-        /> */}
-        {/* <StatCard
-          title="Total AUM"
-          value={formatCurrency(totalAUM)}
-          // subtext="Assets under mgmt"
-          icon={Wallet}
-          isLoading={isLoading}
-        /> */}
-
-         <StatCard
+        <StatCard
           title="Total Margin Amount"
-          value={totalMarginAmount.toLocaleString()}
-          // subtext="Assets under mgmt"
+          value={formatCurrency(totalMarginAmount)}
           icon={Wallet}
           isLoading={isLoading}
         />
-         <StatCard
+        <StatCard
           title="Total Trades"
-          value={totalTrades.toLocaleString()}
-          // subtext="Latest client"
+          value={formatNumber(totalTrades)}
           icon={DollarSign}
           isLoading={isLoading}
         />
-        {/* <StatCard
-          title="Last Wallet Bal"
-          value={formatCurrency(lastWalletBalance)}
-          // subtext="Latest client"
-          icon={DollarSign}
-          isLoading={isLoading}
-        /> */}
       </div>
 
-      {/* Optimized Filters - Search + 2 Dropdowns in one line */}
+      {/* Optimized Filters */}
       <div className="mb-6 rounded-2xl border border-black/5 bg-white p-4 shadow-sm md:p-6">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
           {/* Search Bar */}
@@ -576,54 +429,22 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
             />
           </div>
 
-          {/* Broker Filter */}
-          {/* <div className="w-full md:w-64">
-            <select
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 md:py-3"
-              value={brokerFilter}
-              onChange={(e) => setBrokerFilter(e.target.value)}
-            >
-              <option value="all">All Brokers</option>
-              {brokers.map((broker: any) => (
-                <option key={broker} value={broker}>
-                  {broker}
-                </option>
-              ))}
-            </select>
-          </div> */}
-
-          {/* Super Broker Filter */}
-          {/* <div className="w-full md:w-64">
-            <select
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 md:py-3"
-              value={superBrokerFilter}
-              onChange={(e) => setSuperBrokerFilter(e.target.value)}
-            >
-              <option value="all">All Super Brokers</option>
-              {superBrokers.map((sb: any) => (
-                <option key={sb} value={sb}>
-                  {sb}
-                </option>
-              ))}
-            </select>
-          </div> */}
-
           <div className="w-full md:w-56">
             <select
               value={customerFilter}
               onChange={(e) => setCustomerFilter(e.target.value)}
               className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 md:py-3"
             >
-              <option value="all">All Customers</option>
-              <option value="active">Active Customers</option>
-              <option value="inactive">Inactive Customers</option>
-              <option value="demo">Demo Customers</option>
+              <option value="all">All Trader</option>
+              <option value="active">Active Trader</option>
+              <option value="inactive">Inactive Trader</option>
+              <option value="demo">Demo Trader</option>
             </select>
           </div>
         </div>
       </div>
 
-      {/* Client Table - Original columns unchanged */}
+      {/* Client Table with 2 decimal places */}
       <GenericTable
         columns={columns}
         data={filteredClients}
@@ -686,11 +507,10 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
               <button
                 onClick={handleConfirm}
                 disabled={isPending}
-                className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${
-                  selectedClient?.user?.isActive
+                className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${selectedClient?.user?.isActive
                     ? 'bg-red-500 hover:bg-red-600'
                     : 'bg-emerald-500 hover:bg-emerald-600'
-                } disabled:opacity-50`}
+                  } disabled:opacity-50`}
               >
                 {isPending ? 'Processing...' : 'Confirm'}
               </button>

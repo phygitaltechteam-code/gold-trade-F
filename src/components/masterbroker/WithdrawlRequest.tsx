@@ -1,5 +1,5 @@
-import React, {useState, useMemo, useEffect} from 'react';
-import {useQueryClient} from '@tanstack/react-query';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   Search,
   Bell,
@@ -15,7 +15,7 @@ import {
   Edit,
   Trash,
 } from 'lucide-react';
-import {motion, AnimatePresence} from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import {
   useApproveWithdrawal,
@@ -53,7 +53,7 @@ interface WithdrawalRequest {
 }
 
 // Status Badge Component
-const StatusBadge = ({status}: {status: WithdrawalRequest['status']}) => {
+const StatusBadge = ({ status }: { status: WithdrawalRequest['status'] }) => {
   const styles = {
     Pending: 'bg-orange-50 text-orange-600 border-orange-100',
     Review: 'bg-yellow-50 text-yellow-600 border-yellow-100',
@@ -74,9 +74,9 @@ const StatusBadge = ({status}: {status: WithdrawalRequest['status']}) => {
 export default function WithdrawalRequest() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('Pending');
-  const {data: withdrawal, refetch} = useGetWithdrawal();
-  const {mutateAsync: approve} = useApproveWithdrawal();
-  const {mutateAsync: reject} = useRejectWithdrawal();
+  const { data: withdrawal, refetch } = useGetWithdrawal();
+  const { mutateAsync: approve } = useApproveWithdrawal();
+  const { mutateAsync: reject } = useRejectWithdrawal();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRequests, setSelectedRequests] = useState<string[]>([]);
   const [showApproveModal, setShowApproveModal] = useState(false);
@@ -89,70 +89,90 @@ export default function WithdrawalRequest() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [showMobileFilter, setShowMobileFilter] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false); // View More/View Less state
   const itemsPerPage = 5;
 
+  // Format currency with 2 decimal places - Safe version
+  const formatCurrency = (amount: any) => {
+    if (amount === undefined || amount === null) return '₹0.00';
+    // Parse string to number if needed
+    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+    if (isNaN(numAmount)) return '₹0.00';
+    return `₹${numAmount.toFixed(2)}`;
+  };
+
   const MOCK_DATA = useMemo(() => {
-    return withdrawal?.map((item: any, index: number) => ({
-      id: item.id,
-      requestId: `REQ${String(index + 1).padStart(3, '0')}`,
-      date: new Date(item.createdAt).toLocaleString('en-GB', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false,
-      }),
-      time: new Date(item.createdAt).toLocaleTimeString('en-IN', {
-        hour: '2-digit',
-        minute: '2-digit',
-      }),
+    return withdrawal?.map((item: any, index: number) => {
+      // Parse walletBalance if it's a string
+      const walletBalance = typeof item.walletBalance === 'string'
+        ? parseFloat(item.walletBalance)
+        : item.walletBalance || 0;
 
-      client: {
-        name: item.customer?.user?.fullname || item.customerName || 'N/A',
-        avatar: item.customer?.photo || '',
-        initials:
-          item.customer?.user?.fullname
-            ?.split(' ')
-            .map((n: string) => n[0])
-            .join('')
-            .toUpperCase() || 'NA',
-      },
+      // Parse amount if it's a string
+      const amount = typeof item.amount === 'string'
+        ? parseFloat(item.amount)
+        : item.amount || 0;
 
-      brokerName: item.brokerName || '-',
-      brokerNumber: item.brokerId || '-',
+      return {
+        id: item.id,
+        requestId: `REQ${String(index + 1).padStart(3, '0')}`,
+        date: new Date(item.createdAt).toLocaleString('en-GB', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false,
+        }),
+        time: new Date(item.createdAt).toLocaleTimeString('en-IN', {
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
 
-      superBrokerName: item.superBrokerName || '-',
-      superBrokerNumber: item.superBrokerId || '-',
+        client: {
+          name: item.customer?.user?.fullname || item.customerName || 'N/A',
+          avatar: item.customer?.photo || '',
+          initials:
+            item.customer?.user?.fullname
+              ?.split(' ')
+              .map((n: string) => n[0])
+              .join('')
+              .toUpperCase() || 'NA',
+        },
 
-      walletBalance: item.walletBalance || 0,
-      amount: item.amount || 0,
+        brokerName: item.brokerName || '-',
+        brokerNumber: item.brokerId || '-',
 
-      withdrawType: 'Bank Transfer',
+        superBrokerName: item.superBrokerName || '-',
+        superBrokerNumber: item.superBrokerId || '-',
 
-      detailAmount: item.amount || 0,
-      paidAmount: 0,
-      paidDateTime: '-',
+        walletBalance: walletBalance,
+        amount: amount,
 
-      fee: 0,
+        withdrawType: 'Bank Transfer',
 
-      bank: item.customer?.bank_Name || '-',
-      accountLast4: '----',
+        detailAmount: amount,
+        paidAmount: 0,
+        paidDateTime: '-',
 
-      status:
-        item.status === 'PENDING'
-          ? 'Pending'
-          : item.status === 'APPROVED'
-            ? 'Approved'
-            : item.status === 'REJECTED'
-              ? 'Rejected'
-              : 'Review',
+        fee: 0,
 
-      isHighValue: item.amount > 100000,
-      customer: item.customer,
-    })) || [];
+        bank: item.customer?.bank_Name || '-',
+        accountLast4: '----',
+
+        status:
+          item.status === 'PENDING'
+            ? 'Pending'
+            : item.status === 'APPROVED'
+              ? 'Approved'
+              : item.status === 'REJECTED'
+                ? 'Rejected'
+                : 'Review',
+
+        isHighValue: amount > 100000,
+        customer: item.customer,
+      };
+    }) || [];
   }, [withdrawal]);
 
   // Filter data based on active tab and search
@@ -177,19 +197,19 @@ export default function WithdrawalRequest() {
   const stats = useMemo(() => {
     const pendingAmount = MOCK_DATA?.filter(
       (r) => r.status === 'Pending',
-    ).reduce((sum, r) => sum + r.amount, 0);
+    ).reduce((sum, r) => sum + (typeof r.amount === 'number' ? r.amount : 0), 0);
 
     const processedToday = MOCK_DATA?.filter(
       (r) => r.date === 'Today' && r.status === 'Approved',
     ).length;
 
-    const totalOutflow = MOCK_DATA?.reduce((sum, r) => sum + r.amount, 0);
+    const totalOutflow = MOCK_DATA?.reduce((sum, r) => sum + (typeof r.amount === 'number' ? r.amount : 0), 0);
 
     return {
       pendingCount: MOCK_DATA?.filter((r) => r.status === 'Pending').length,
-      pendingAmount,
-      processedToday,
-      totalOutflow,
+      pendingAmount: pendingAmount || 0,
+      processedToday: processedToday || 0,
+      totalOutflow: totalOutflow || 0,
     };
   }, [MOCK_DATA]);
 
@@ -206,16 +226,10 @@ export default function WithdrawalRequest() {
 
   const showActions = activeTab !== 'Approved' && activeTab !== 'Rejected';
 
-  // Base columns (View Less)
-  const baseColumns = [
-    // {
-    //   header: 'Request ID',
-    //   accessor: (row: WithdrawalRequest) => (
-    //     <span className="text-gray-900 text-sm font-bold">{row.requestId}</span>
-    //   ),
-    // },
+  // All columns - showing all data with 2 decimal places
+  const allColumns = [
     {
-      header: 'Client Name',
+      header: 'Trader Name',
       accessor: (row: WithdrawalRequest) => (
         <div className="flex items-center gap-3">
           <div>
@@ -226,31 +240,17 @@ export default function WithdrawalRequest() {
         </div>
       ),
     },
-
     {
       header: 'Date',
       accessor: (row: WithdrawalRequest) => (
         <span className="text-gray-600 text-sm">{row.date}</span>
       ),
     },
-
-    // {
-    //   header: 'Broker Number',
-    //   accessor: (row: WithdrawalRequest) => (
-    //     <span className="text-gray-600 text-sm">{row.brokerNumber}</span>
-    //   ),
-    // },
-    // {
-    //   header: 'Super Broker Number',
-    //   accessor: (row: WithdrawalRequest) => (
-    //     <span className="text-gray-600 text-sm">{row.superBrokerNumber}</span>
-    //   ),
-    // },
     {
       header: 'Wallet Balance',
       accessor: (row: WithdrawalRequest) => (
         <div className="text-gray-900 text-left text-sm font-bold">
-          ₹{row.walletBalance.toLocaleString('en-IN')}
+          {formatCurrency(row.walletBalance)}
         </div>
       ),
     },
@@ -258,172 +258,44 @@ export default function WithdrawalRequest() {
       header: 'Withdraw Amount',
       accessor: (row: WithdrawalRequest) => (
         <div className="text-left text-sm font-bold text-orange-500">
-          ₹{row.amount.toLocaleString('en-IN')}
+          {formatCurrency(row.amount)}
         </div>
       ),
     },
-    // {
-    //   header: 'Withdraw Type',
-    //   accessor: (row: WithdrawalRequest) => (
-    //     <span className="bg-gray-100 rounded border border-slate-200 px-2 py-1 text-xs">
-    //       {row.withdrawType}
-    //     </span>
-    //   ),
-    // },
     {
       header: 'Status',
       accessor: (row: WithdrawalRequest) => <StatusBadge status={row.status} />,
     },
     ...(showActions
       ? [
-          {
-            header: 'Actions',
-            accessor: (row: WithdrawalRequest) => (
-              <div className="flex items-center justify-end gap-2">
-                <button
-                  onClick={() => handleReject(row.id)}
-                  className="text-gray-500 hover:bg-gray-100 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
-                >
-                  Reject
-                </button>
-                <button
-                  onClick={() => handleApprove(row.id)}
-                  className="rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm shadow-orange-200 transition-all hover:bg-orange-600"
-                >
-                  Approve
-                </button>
-              </div>
-            ),
-          },
-        ]
-      : []),
-  ];
-
-  // Expanded columns (View More) - includes additional fields
-  const expandedColumns = [
-    // {
-    //   header: 'Request ID',
-    //   accessor: (row: WithdrawalRequest) => (
-    //     <span className="text-gray-900 text-sm font-bold">{row.requestId}</span>
-    //   ),
-    // },
-    {
-      header: 'Client Name',
-      accessor: (row: WithdrawalRequest) => (
-        <div className="flex items-center gap-3">
-          <div>
-            <div className="text-gray-900 text-sm font-semibold">
-              {row.client.name}
+        {
+          header: 'Actions',
+          accessor: (row: WithdrawalRequest) => (
+            <div className="flex justify-left gap-2">
+              <button
+                onClick={() => handleReject(row.id)}
+                className="text-gray-500 hover:bg-gray-100 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
+              >
+                Reject
+              </button>
+              <button
+                onClick={() => handleApprove(row.id)}
+                className="rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm shadow-orange-200 transition-all hover:bg-orange-600"
+              >
+                Approve
+              </button>
             </div>
-          </div>
-        </div>
-      ),
-    },
-    // {
-    //   header: 'Broker Name',
-    //   accessor: (row: WithdrawalRequest) => (
-    //     <div>
-    //       <div className="text-gray-900 text-sm font-medium">
-    //         {row.brokerName}
-    //       </div>
-    //       <div className="text-gray-400 text-xs">{row.brokerNumber}</div>
-    //     </div>
-    //   ),
-    // },
-    // {
-    //   header: 'Super Broker Name',
-    //   accessor: (row: WithdrawalRequest) => (
-    //     <div>
-    //       <div className="text-gray-900 text-sm font-medium">
-    //         {row.superBrokerName}
-    //       </div>
-    //       <div className="text-gray-400 text-xs">{row.superBrokerNumber}</div>
-    //     </div>
-    //   ),
-    // },
-    {
-      header: 'Wallet Balance',
-      accessor: (row: WithdrawalRequest) => (
-        <div className="text-gray-900 text-right text-sm font-bold">
-          ₹{row.walletBalance.toLocaleString('en-IN')}
-        </div>
-      ),
-    },
-    {
-      header: 'Withdraw Amount',
-      accessor: (row: WithdrawalRequest) => (
-        <div className="text-right text-sm font-bold text-orange-500">
-          ₹{row.amount.toLocaleString('en-IN')}
-        </div>
-      ),
-    },
-    // {
-    //   header: 'Withdraw Type',
-    //   accessor: (row: WithdrawalRequest) => (
-    //     <span className="bg-gray-100 rounded border border-slate-200 px-2 py-1 text-xs">
-    //       {row.withdrawType}
-    //     </span>
-    //   ),
-    // },
-    // {
-    //   header: 'Paid Amount',
-    //   accessor: (row: WithdrawalRequest) => (
-    //     <div className="text-right text-sm font-bold text-emerald-600">
-    //       ₹{row.paidAmount.toLocaleString('en-IN')}
-    //     </div>
-    //   ),
-    // },
-    // {
-    //   header: 'Paid Date/Time',
-    //   accessor: (row: WithdrawalRequest) => (
-    //     <span className="text-gray-600 text-sm">{row.paidDateTime}</span>
-    //   ),
-    // },
-    {
-      header: 'Status',
-      accessor: (row: WithdrawalRequest) => <StatusBadge status={row.status} />,
-    },
-    ...(showActions
-      ? [
-          {
-            header: 'Actions',
-            accessor: (row: WithdrawalRequest) => (
-              <div className="flex items-center justify-end gap-2">
-                <button
-                  onClick={() => handleReject(row.id)}
-                  className="text-gray-500 hover:bg-gray-100 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
-                >
-                  Reject
-                </button>
-                <button
-                  onClick={() => handleApprove(row.id)}
-                  className="rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm shadow-orange-200 transition-all hover:bg-orange-600"
-                >
-                  Approve
-                </button>
-              </div>
-            ),
-          },
-        ]
+          ),
+        },
+      ]
       : []),
   ];
 
   // Handle approve/reject
-  // const handleApprove = (id: string) => {
-  //   approve(id);
-  // };
-
   const handleApprove = (id: string) => {
     setSelectedWithdrawalId(id);
     setShowApproveModal(true);
   };
-
-  // const handleReject = (id: string) => {
-  //   console.log('Rejecting:', id);
-  //   alert(`Rejected request ${id}`);
-  //   reject(id);
-
-  // };
 
   const handleReject = (id: string) => {
     setSelectedWithdrawalId(id);
@@ -443,8 +315,6 @@ export default function WithdrawalRequest() {
     alert(`Rejected ${selectedRequests.length} requests`);
     setSelectedRequests([]);
   };
-
-  const columns = isExpanded ? expandedColumns : baseColumns;
 
   return (
     <div className="font-sans min-h-screen bg-[#F8F9FB] text-[#1A1D21]">
@@ -482,24 +352,24 @@ export default function WithdrawalRequest() {
           </div>
         </div>
 
-        {/* Summary Cards - Dynamic */}
+        {/* Summary Cards - with 2 decimal places */}
         <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 lg:gap-6">
           <SummaryCard
             title="Pending Review"
-            value={stats?.pendingCount?.toString()}
-            subValue={`₹${stats?.pendingAmount?.toLocaleString('en-IN')} total value`}
+            value={stats?.pendingCount?.toString() || '0'}
+            subValue={`${formatCurrency(stats?.pendingAmount || 0)} total value`}
             icon={<Hourglass className="text-gray-500 h-5 w-5" />}
           />
           <SummaryCard
             title="Processed Today"
-            value={stats?.processedToday?.toString()}
+            value={stats?.processedToday?.toString() || '0'}
             subValue="+12% vs yesterday"
             subValueColor="text-emerald-500"
             icon={<CheckCircle2 className="text-gray-500 h-5 w-5" />}
           />
           <SummaryCard
             title="Liquidity Outflow"
-            value={`₹${(stats?.totalOutflow / 100000).toFixed(1)}L`}
+            value={formatCurrency(stats?.totalOutflow || 0)}
             subValue="Daily cap remaining: ₹3.8L"
             icon={<TrendingDown className="text-gray-500 h-5 w-5" />}
           />
@@ -509,9 +379,9 @@ export default function WithdrawalRequest() {
         <AnimatePresence>
           {selectedRequests.length > 0 && (
             <motion.div
-              initial={{opacity: 0, y: -20}}
-              animate={{opacity: 1, y: 0}}
-              exit={{opacity: 0, y: -20}}
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
               className="mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-orange-200 bg-orange-50 p-3"
             >
               <span className="text-sm font-medium text-orange-700">
@@ -551,22 +421,20 @@ export default function WithdrawalRequest() {
                     setActiveTab(tab);
                     setCurrentPage(1);
                   }}
-                  className={`relative whitespace-nowrap pb-2 text-xs font-medium transition-all sm:text-sm ${
-                    activeTab === tab
-                      ? 'text-orange-500'
-                      : 'text-gray-500 hover:text-gray-700'
-                  }`}
+                  className={`relative whitespace-nowrap pb-2 text-xs font-medium transition-all sm:text-sm ${activeTab === tab
+                    ? 'text-orange-500'
+                    : 'text-gray-500 hover:text-gray-700'
+                    }`}
                 >
                   {tab}
                   {statusCounts[tab] > 0 && (
                     <span
-                      className={`ml-2 rounded-md px-1.5 py-0.5 text-[10px] ${
-                        tab === 'Pending'
-                          ? 'bg-orange-50 text-orange-600'
-                          : tab === 'Approved'
-                            ? 'bg-emerald-50 text-emerald-600'
-                            : 'bg-red-50 text-red-600'
-                      }`}
+                      className={`ml-2 rounded-md px-1.5 py-0.5 text-[10px] ${tab === 'Pending'
+                        ? 'bg-orange-50 text-orange-600'
+                        : tab === 'Approved'
+                          ? 'bg-emerald-50 text-emerald-600'
+                          : 'bg-red-50 text-red-600'
+                        }`}
                     >
                       {statusCounts[tab]}
                     </span>
@@ -589,14 +457,6 @@ export default function WithdrawalRequest() {
               >
                 <Filter className="text-gray-600 h-4 w-4" />
               </button>
-
-              {/* View More/View Less Button */}
-              <button
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
-              >
-                {isExpanded ? 'View Less' : 'View More'}
-              </button>
             </div>
           </div>
 
@@ -604,9 +464,9 @@ export default function WithdrawalRequest() {
           <AnimatePresence>
             {showMobileFilter && (
               <motion.div
-                initial={{opacity: 0, height: 0}}
-                animate={{opacity: 1, height: 'auto'}}
-                exit={{opacity: 0, height: 0}}
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
                 className="bg-gray-50/50 border-b border-stroke p-4 sm:hidden"
               >
                 <h3 className="text-gray-400 mb-2 text-xs font-bold">
@@ -626,24 +486,24 @@ export default function WithdrawalRequest() {
             )}
           </AnimatePresence>
 
-          {/* Generic Table */}
+          {/* Generic Table with all columns */}
           <GenericTable
             data={filteredData}
-            columns={columns}
+            columns={allColumns}
             rowsPerPage={itemsPerPage}
             paginationOff={false}
           />
         </div>
       </main>
+
+      {/* Approve Modal */}
       {showApproveModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
             <h2 className="mb-2 text-lg font-semibold">Approve Withdrawal</h2>
-
             <p className="text-gray-600 mb-6 text-sm">
               Are you sure you want to approve this withdrawal request?
             </p>
-
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => {
@@ -654,14 +514,12 @@ export default function WithdrawalRequest() {
               >
                 Cancel
               </button>
-
               <button
                 onClick={async () => {
                   if (!selectedWithdrawalId) return;
-
                   try {
                     await approve(selectedWithdrawalId);
-                    refetch(); // Add this line
+                    refetch();
                     setShowApproveModal(false);
                     setSelectedWithdrawalId(null);
                   } catch (error) {
@@ -676,17 +534,17 @@ export default function WithdrawalRequest() {
           </div>
         </div>
       )}
+
+      {/* Reject Modal */}
       {showRejectModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
             <h2 className="mb-2 text-lg font-semibold text-red-600">
               Reject Withdrawal
             </h2>
-
             <p className="text-gray-600 mb-4 text-sm">
               Please enter a reason for rejection.
             </p>
-
             <textarea
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
@@ -694,7 +552,6 @@ export default function WithdrawalRequest() {
               rows={4}
               className="w-full rounded-lg border p-3"
             />
-
             <div className="mt-6 flex justify-end gap-3">
               <button
                 onClick={() => {
@@ -706,16 +563,13 @@ export default function WithdrawalRequest() {
               >
                 Cancel
               </button>
-
               <button
                 onClick={async () => {
                   if (!selectedWithdrawalId) return;
-
                   if (!rejectReason.trim()) {
                     alert('Please enter a rejection reason');
                     return;
                   }
-
                   try {
                     await reject({
                       id: selectedWithdrawalId,
@@ -723,7 +577,7 @@ export default function WithdrawalRequest() {
                     });
                     await queryClient.invalidateQueries({
                       queryKey: ['withdrawal'],
-                    }); // Add this line
+                    });
                     setShowRejectModal(false);
                     setSelectedWithdrawalId(null);
                     setRejectReason('');

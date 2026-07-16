@@ -30,8 +30,6 @@ export const useGetMasterClientById = (id: string) => {
   });
 };
 
-
-
 export const useMasterSendDeposite = () => {
   return useMutation({
     mutationFn: async (data: {
@@ -487,4 +485,64 @@ export const getMasterBrokerLimit = async ()=>{
     console.log('error', error);
   }
 
+}
+
+
+export const useMasterBrokerEditClient = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({id, data}: {id: string; data: any}) =>
+      masterBrokerEditClient(id, data),
+
+    onSuccess: () => {
+      toast.success('Client Updated Successfully!');
+      queryClient.invalidateQueries({queryKey: ['customer']});
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message || 'Failed To Update Client!';
+      toast.error(errorMessage);
+    },
+  });
+};
+
+export const masterBrokerEditClient = async (id: string, data: any) => {
+  try {
+    const response = await api.put(`/master-broker/customer/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating client', error);
+    throw error;
+  }
+}
+
+
+export const useMasterBrokerDeleteClient = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({id, data}: {id: string; data: any}) =>
+      masterBrokerDeleteClient(id, data),
+
+    onSuccess: () => {
+      toast.success('Client Deleted Successfully!');
+      queryClient.invalidateQueries({queryKey: ['customer']});
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message || 'Failed To Delete Client!';
+      toast.error(errorMessage);
+    },
+  });
+};
+
+export const masterBrokerDeleteClient = async (id: string, data: any) => {
+  try {
+    const response = await api.delete(`/master-broker/customer/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting client', error);
+    throw error;
+  }
 }

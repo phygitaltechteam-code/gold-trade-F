@@ -1,4 +1,4 @@
-import React, {useState, useMemo, useEffect} from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import {
   ChevronLeft,
@@ -27,12 +27,12 @@ import {
   EyeOff,
   Eye,
 } from 'lucide-react';
-import {motion} from 'framer-motion';
-import {Client} from './types';
+import { motion } from 'framer-motion';
+import { Client } from './types';
 
-import {FiEdit2, FiSave, FiX, FiEye} from 'react-icons/fi';
-import {Route} from '@/routes/_app/masterbroker/client-details.$id';
-import {useNavigate} from '@tanstack/react-router';
+import { FiEdit2, FiSave, FiX, FiEye } from 'react-icons/fi';
+import { Route } from '@/routes/_app/masterbroker/client-details.$id';
+import { useNavigate } from '@tanstack/react-router';
 import toast from 'react-hot-toast';
 import {
   useAddMargin,
@@ -42,10 +42,10 @@ import {
   useSendWithdraw,
   useUpdateCustomer,
 } from '@/lib/api/masterpanelapi/masterapi';
-import {useGetMasterClientLedger} from '@/lib/api/masterpanelapi/profile';
+import { useGetMasterClientLedger } from '@/lib/api/masterpanelapi/profile';
 // import { useAddMargin, useSendDeposite, useSendWithdraw, useUpdateCustomer } from '../Clients/mutationapi';
 
-const DocCard = ({name, type, status, icon: Icon, color, url}: any) => (
+const DocCard = ({ name, type, status, icon: Icon, color, url }: any) => (
   <a
     href={url}
     target="_blank"
@@ -66,11 +66,11 @@ const DocCard = ({name, type, status, icon: Icon, color, url}: any) => (
 );
 
 export const ClientDetail: React.FC = () => {
-  const {id} = Route.useParams();
+  const { id } = Route.useParams();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
-  const {data: clientData, isLoading, refetch} = useGetMasterClientById(id);
-  const {data: ledgerDataaa, isPending} = useGetMasterClientLedger(id);
+  const { data: clientData, isLoading, refetch } = useGetMasterClientById(id);
+  const { data: ledgerDataaa, isPending } = useGetMasterClientLedger(id);
 
   const displayClient = clientData;
   const [activeTab, setActiveTab] = useState('ledger');
@@ -95,17 +95,19 @@ export const ClientDetail: React.FC = () => {
     address: '',
     type: '',
     password: '',
+    stockHoldingLimit: '',
+
   });
 
   const intradayLeverage = clientData?.intradayLeverage ?? '';
   const deliveryLeverage = clientData?.deliveryLeverage ?? '';
 
   const updateCustomer = useUpdateCustomer();
-  const {mutateAsync: sendDeposite, isPending: isDepositPending} =
+  const { mutateAsync: sendDeposite, isPending: isDepositPending } =
     useMasterSendDeposite();
-  const {mutateAsync: sendWithdraw, isPending: isWithdrawPending} =
+  const { mutateAsync: sendWithdraw, isPending: isWithdrawPending } =
     useSendWithdraw();
-  const {mutateAsync: addMargin, isPending: isMarginPending} = useAddMargin();
+  const { mutateAsync: addMargin, isPending: isMarginPending } = useAddMargin();
 
   // Trading Ledger Data from API
   const tradingLedgerData = useMemo(() => {
@@ -169,24 +171,24 @@ export const ClientDetail: React.FC = () => {
 
   const totalPnL = Array.isArray(ledgerDataaa?.data?.data)
     ? ledgerDataaa.data.data.reduce((sum: number, item: any) => {
-        return sum + Number(item.pnl ?? item['p&l'] ?? 0);
-      }, 0)
+      return sum + Number(item.pnl ?? item['p&l'] ?? 0);
+    }, 0)
     : 0;
 
   console.log('ledgerData  api fetch newwww', ledgerDataaa);
 
   const baseColumns = [
-    {header: 'Date & Time', accessor: 'dateTime'},
-    {header: 'Customer Name', accessor: 'customerName'},
-    {header: 'Script', accessor: 'script'},
-    {header: 'Qty/Lot', accessor: (item: any) => formatQtyLot(item)},
-    {header: 'Buy Price', accessor: 'buyPrice'},
-    {header: 'Sell Price', accessor: 'sellPrice'},
-    {header: 'Buy Time', accessor: 'buyTime'},
-    {header: 'Sell Time', accessor: 'sellTime'},
-    {header: 'Status', accessor: 'status'},
-    {header: 'P&L', accessor: (item: any) => formatPnL(item)},
-    {header: 'Master Broker Commission', accessor: 'masterBrokerCommission'},
+    { header: 'Date & Time', accessor: 'dateTime' },
+    { header: 'Customer Name', accessor: 'customerName' },
+    { header: 'Script', accessor: 'script' },
+    { header: 'Qty/Lot', accessor: (item: any) => formatQtyLot(item) },
+    { header: 'Buy Price', accessor: 'buyPrice' },
+    { header: 'Sell Price', accessor: 'sellPrice' },
+    { header: 'Buy Time', accessor: 'buyTime' },
+    { header: 'Sell Time', accessor: 'sellTime' },
+    { header: 'Status', accessor: 'status' },
+    { header: 'P&L', accessor: (item: any) => formatPnL(item) },
+    { header: 'Master Broker Commission', accessor: 'masterBrokerCommission' },
   ];
 
   const ledgerRows =
@@ -209,9 +211,9 @@ export const ClientDetail: React.FC = () => {
   // Filter data by date range
 
   const paymentColumns = [
-    {header: 'Date/Time', accessor: 'dateTime'},
-    {header: 'Amount', accessor: 'amount'},
-    {header: 'Wallet Amount', accessor: 'walletAmount'},
+    { header: 'Date/Time', accessor: 'dateTime' },
+    { header: 'Amount', accessor: 'amount' },
+    { header: 'Wallet Amount', accessor: 'walletAmount' },
   ];
 
   // Trading Ledger Columns - No Sr column
@@ -226,11 +228,10 @@ export const ClientDetail: React.FC = () => {
       accessor: 'type',
       render: (item: any) => (
         <span
-          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-            item.type === 'CREDIT'
-              ? 'bg-green-100 text-green-700'
-              : 'bg-red-100 text-red-700'
-          }`}
+          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${item.type === 'CREDIT'
+            ? 'bg-green-100 text-green-700'
+            : 'bg-red-100 text-red-700'
+            }`}
         >
           {item.type === 'CREDIT' ? 'Credit' : 'Debit'}
         </span>
@@ -241,9 +242,8 @@ export const ClientDetail: React.FC = () => {
       accessor: 'amount',
       render: (item: any) => (
         <span
-          className={`font-semibold ${
-            item.type === 'CREDIT' ? 'text-green-600' : 'text-red-600'
-          }`}
+          className={`font-semibold ${item.type === 'CREDIT' ? 'text-green-600' : 'text-red-600'
+            }`}
         >
           {item.amount}
         </span>
@@ -263,8 +263,8 @@ export const ClientDetail: React.FC = () => {
   ];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const {name, value} = e.target;
-    setEditData((prev) => ({...prev, [name]: value}));
+    const { name, value } = e.target;
+    setEditData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSave = async () => {
@@ -297,6 +297,9 @@ export const ClientDetail: React.FC = () => {
         updateData.password = editData.password;
       }
 
+      if (editData.stockHoldingLimit && editData.stockHoldingLimit !== stockHoldingLimit) {
+        updateData.stockHoldingLimit = editData.stockHoldingLimit;
+      }
       if (
         editData.panCardNumber &&
         editData.panCardNumber !== displayClient?.panCardNumber
@@ -330,6 +333,7 @@ export const ClientDetail: React.FC = () => {
         address: '',
         password: '',
         type: '',
+        stockHoldingLimit: '',
       });
     } catch (error: any) {
       console.error('Error updating profile:', error);
@@ -347,6 +351,7 @@ export const ClientDetail: React.FC = () => {
       address: '',
       password: '',
       type: '',
+      stockHoldingLimit: '',
     });
     setIsEditing(false);
   };
@@ -354,7 +359,7 @@ export const ClientDetail: React.FC = () => {
   // get ledger data
 
   const handleBack = () => {
-    navigate({to: '/masterbroker/client-dashboard'});
+    navigate({ to: '/masterbroker/client-dashboard' });
   };
 
   const handleEditClick = () => {
@@ -367,6 +372,7 @@ export const ClientDetail: React.FC = () => {
       address: displayClient?.address || '',
       password: '',
       type: displayClient?.type || '',
+      stockHoldingLimit: displayClient?.stockHoldingLimit || '',
     });
     setIsEditing(true);
   };
@@ -414,8 +420,7 @@ export const ClientDetail: React.FC = () => {
       }
 
       toast.success(
-        `₹${walletAmount} ${
-          walletActionType === 'add' ? 'deposited' : 'withdrawn'
+        `₹${walletAmount} ${walletActionType === 'add' ? 'deposited' : 'withdrawn'
         } successfully!`,
       );
 
@@ -429,7 +434,7 @@ export const ClientDetail: React.FC = () => {
       console.error('Error processing transaction:', error);
       toast.error(
         error?.response?.data?.message ||
-          'Transaction failed. Please check your PIN and try again.',
+        'Transaction failed. Please check your PIN and try again.',
       );
     }
   };
@@ -492,7 +497,7 @@ export const ClientDetail: React.FC = () => {
       console.error('Error adding margin:', error);
       toast.error(
         error?.response?.data?.message ||
-          'Failed to add margin. Please check your PIN and try again.',
+        'Failed to add margin. Please check your PIN and try again.',
       );
     }
   };
@@ -501,7 +506,7 @@ export const ClientDetail: React.FC = () => {
     return (
       <div className="mx-auto max-w-7xl px-6 py-8 text-center">
         <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin text-orange-500" />
-        <p className="text-slate-500">Loading client details...</p>
+        <p className="text-slate-500">Loading Trader details...</p>
       </div>
     );
   }
@@ -509,6 +514,7 @@ export const ClientDetail: React.FC = () => {
   const fullName = displayClient?.user?.fullname || 'Unknown';
   const email = displayClient?.user?.email || 'N/A';
   const phone = displayClient?.user?.phoneNumber || 'N/A';
+  const stockHoldingLimit = displayClient?.stockHoldingLimit || 'N/A';
   const isActive = displayClient?.user?.isActive || false;
   const isVerified = displayClient?.user?.isVerified || false;
   const walletAmountValue = parseFloat(displayClient?.wallets?.amount || '0');
@@ -519,8 +525,8 @@ export const ClientDetail: React.FC = () => {
 
   return (
     <motion.div
-      initial={{opacity: 0, x: 20}}
-      animate={{opacity: 1, x: 0}}
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
       className="max-w-9xl mx-auto px-4 py-6 md:px-6 md:py-8"
     >
       {/* Header */}
@@ -652,7 +658,7 @@ export const ClientDetail: React.FC = () => {
           <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
             <div className="flex flex-wrap items-center justify-between rounded-t-lg border-b border-stroke bg-gradient-to-r from-orange-500 to-red-500 px-4 py-3 md:px-6 md:py-4">
               <h2 className="text-lg font-semibold text-white md:text-xl">
-                Client Profile
+                Trader Profile
               </h2>
               {!isEditing ? (
                 <button
@@ -721,20 +727,19 @@ export const ClientDetail: React.FC = () => {
 
                 <div>
                   <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-                    Aadhar Number
+                    Stock Holding Limit
                   </label>
                   {isEditing ? (
                     <input
                       type="text"
-                      name="aadharCardNumber"
-                      value={editData.aadharCardNumber}
+                      name="stockHoldingLimit"
+                      value={editData.stockHoldingLimit}
                       onChange={handleInputChange}
                       className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
-                      placeholder="Enter 12-digit Aadhar number"
                     />
                   ) : (
                     <p className="text-sm text-black dark:text-white md:text-base">
-                      {aadharNumber}
+                      {stockHoldingLimit}
                     </p>
                   )}
                 </div>
@@ -846,7 +851,7 @@ export const ClientDetail: React.FC = () => {
                 </div>
                 <div>
                   <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-                    Customer Type <span className="text-red-500">*</span>
+                    Trader Type <span className="text-red-500">*</span>
                   </label>
                   {isEditing ? (
                     <select
@@ -932,13 +937,12 @@ export const ClientDetail: React.FC = () => {
             <div className="mb-4 flex flex-wrap border-b border-slate-100 md:mb-6">
               <button
                 onClick={() => setActiveTab('ledger')}
-                className={`px-3 py-2 text-xs font-semibold transition-colors md:px-4 md:py-3 md:text-sm ${
-                  activeTab === 'ledger'
-                    ? 'border-b-2 border-orange-500 text-orange-500'
-                    : 'text-slate-500 hover:text-slate-700'
-                }`}
+                className={`px-3 py-2 text-xs font-semibold transition-colors md:px-4 md:py-3 md:text-sm ${activeTab === 'ledger'
+                  ? 'border-b-2 border-orange-500 text-orange-500'
+                  : 'text-slate-500 hover:text-slate-700'
+                  }`}
               >
-                Client Ledger
+                Trader Ledger
               </button>
               {/* <button
                 onClick={() => setActiveTab('payment')}
@@ -952,11 +956,10 @@ export const ClientDetail: React.FC = () => {
               </button> */}
               <button
                 onClick={() => setActiveTab('tradingledger')}
-                className={`px-3 py-2 text-xs font-semibold transition-colors md:px-4 md:py-3 md:text-sm ${
-                  activeTab === 'tradingledger'
-                    ? 'border-b-2 border-orange-500 text-orange-500'
-                    : 'text-slate-500 hover:text-slate-700'
-                }`}
+                className={`px-3 py-2 text-xs font-semibold transition-colors md:px-4 md:py-3 md:text-sm ${activeTab === 'tradingledger'
+                  ? 'border-b-2 border-orange-500 text-orange-500'
+                  : 'text-slate-500 hover:text-slate-700'
+                  }`}
               >
                 Trading Ledger ({tradingLedgerData.length})
               </button>
@@ -1027,22 +1030,20 @@ export const ClientDetail: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setWalletActionType('add')}
-                className={`rounded-lg py-2 text-sm font-semibold transition-all ${
-                  walletActionType === 'add'
-                    ? 'bg-white text-orange-500 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-800'
-                }`}
+                className={`rounded-lg py-2 text-sm font-semibold transition-all ${walletActionType === 'add'
+                  ? 'bg-white text-orange-500 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-800'
+                  }`}
               >
                 Deposit
               </button>
               <button
                 type="button"
                 onClick={() => setWalletActionType('withdraw')}
-                className={`rounded-lg py-2 text-sm font-semibold transition-all ${
-                  walletActionType === 'withdraw'
-                    ? 'bg-white text-orange-500 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-800'
-                }`}
+                className={`rounded-lg py-2 text-sm font-semibold transition-all ${walletActionType === 'withdraw'
+                  ? 'bg-white text-orange-500 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-800'
+                  }`}
               >
                 Withdraw
               </button>

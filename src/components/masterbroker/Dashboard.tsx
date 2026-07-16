@@ -179,9 +179,10 @@ const Dashboard: React.FC = () => {
     return new Intl.NumberFormat('en-IN').format(num);
   };
 
+  // Format currency with 2 decimal places
   const formatCurrency = (amount: number) => {
-    if (amount === undefined || amount === null) return '₹0';
-    return `₹${amount.toLocaleString('en-IN')}`;
+    if (amount === undefined || amount === null) return '₹0.00';
+    return `₹${amount.toFixed(2)}`;
   };
 
   // Extract data from API response
@@ -287,7 +288,7 @@ const Dashboard: React.FC = () => {
             iconColor="text-emerald-500"
           />
           <FinancialStatCard
-            title="Total Customer Wallet Balance"
+            title="Total Traders Wallet Balance"
             amount={formatCurrency(dashboardStats.totalCustomerWalletBalance)}
             icon={Wallet}
             iconColor="text-blue-500"
