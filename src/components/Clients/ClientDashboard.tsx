@@ -264,7 +264,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
   // Original columns - unchanged
   const columns = [
     {
-      header: 'Client Name',
+      header: 'Trader Name',
       accessor: 'user.fullname',
       render: (row: Client) => (
         <div className="flex items-center gap-3">
@@ -435,7 +435,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       {/* Header */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4 md:mb-8">
         <h1 className="text-2xl font-semibold text-slate-900 md:text-3xl">
-          Client Management...
+          Trader Management
         </h1>
       
         <div className="flex items-center gap-3">
@@ -452,7 +452,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
             className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:scale-[1.02] hover:from-orange-600 hover:to-red-600"
           >
             <Plus className="h-4 w-4" />
-            Add Customer
+            Add Trader
           </button>
         </div>
 

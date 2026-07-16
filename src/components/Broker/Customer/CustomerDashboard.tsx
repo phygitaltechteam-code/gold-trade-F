@@ -292,7 +292,7 @@ export const CustomerDashboard: React.FC<ClientDashboardProps> = ({
               className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:scale-[1.02] hover:from-orange-600 hover:to-red-600"
             >
               <Plus className="h-4 w-4" />
-              Add Customer
+              Add Trader
             </button>
           </div>
         )}

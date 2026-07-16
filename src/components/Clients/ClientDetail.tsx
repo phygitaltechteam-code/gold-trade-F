@@ -79,6 +79,7 @@ export const ClientDetail: React.FC = () => {
     password: '',
     type: '',
     panCardNumber: '',
+    stockHoldingLimit: 0,
   });
 
   useEffect(() => {
@@ -207,7 +208,7 @@ export const ClientDetail: React.FC = () => {
   }, [clientData]);
   const ledgerColumns = [
     {header: 'Date & Time', accessor: 'dateTime'},
-    {header: 'Customer Name', accessor: 'customerName'},
+    {header: 'Trader Name', accessor: 'customerName'},
     {header: 'Script', accessor: 'script'},
     {header: 'Qty/Lot', accessor: (item) => formatQtyLot(item)},
     {header: 'Buy Price', accessor: 'buyPrice'},
@@ -311,8 +312,14 @@ export const ClientDetail: React.FC = () => {
       if (editData.password) {
         updateData.password = editData.password;
       }
-        if (editData.type && editData.type !== displayClient?.type) {
+      if (editData.type && editData.type !== displayClient?.type) {
         updateData.type = editData.type;
+      }
+      if (
+        editData.stockHoldingLimit !== undefined &&
+        Number(editData.stockHoldingLimit) !== Number(displayClient?.stockHoldingLimit || 0)
+      ) {
+        updateData.stockHoldingLimit = Number(editData.stockHoldingLimit);
       }
 
       if (Object.keys(updateData).length === 0) {
@@ -337,6 +344,7 @@ export const ClientDetail: React.FC = () => {
         password: '',
         type: '',
         panCardNumber: '',
+        stockHoldingLimit: 0
       });
     } catch (error: any) {
       console.error('Error updating profile:', error);
@@ -354,6 +362,7 @@ export const ClientDetail: React.FC = () => {
       password: '',
       type: '',
       panCardNumber: '',
+      stockHoldingLimit: 0
     });
     setIsEditing(false);
   };
@@ -372,6 +381,7 @@ export const ClientDetail: React.FC = () => {
       password: '',
       type: displayClient?.type || '',
       panCardNumber: displayClient?.panCardNumber || '', 
+      stockHoldingLimit: displayClient?.stockHoldingLimit || 0,
     });
     setIsEditing(true);
   };
@@ -591,6 +601,8 @@ const handleWalletSubmit = async (e: React.FormEvent) => {
             aadharNumber={aadharNumber}
             panCardNumber={displayClient?.panCardNumber || 'N/A'}
             type={displayClient?.type || 'N/A'}
+            stockHoldingLimit={displayClient?.stockHoldingLimit || 'N/A'}
+            
           />
 
           {/* Documentation Component */}

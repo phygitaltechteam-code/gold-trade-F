@@ -194,7 +194,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
   const customerColumns = [
 
     {
-      header: 'Customer Name',
+      header: 'Trader Name',
       accessor: 'user.fullname',
       render: (item: any) => (
         <div className="font-semibold text-black">
@@ -607,7 +607,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
                 : 'text-bodydark2'
                 }`}
             >
-              Clients ({profileData?.customers?.length || 0})
+              Traders ({profileData?.customers?.length || 0})
             </button>
           </div>
         </div>
@@ -653,7 +653,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
             <div className="overflow-x-auto">
               <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                 <h3 className="text-base font-semibold text-black dark:text-white md:text-lg">
-                  Customers List
+                  Traders List
                 </h3>
                 <span className="text-sm text-gray-500">
                   Total: {customersList.length} customers

@@ -9,6 +9,7 @@ interface EditData {
   address: string;
   password?: string;
   panCardNumber: string;
+  stockHoldingLimit:number
   type: string;
 }
 
@@ -25,6 +26,7 @@ interface ClientProfileInfoProps {
   aadharNumber: string;
   panCardNumber: string;
   type: string;
+  stockHoldingLimit:number
 }
 
 export const ClientProfileInfo: React.FC<ClientProfileInfoProps> = ({
@@ -39,6 +41,7 @@ export const ClientProfileInfo: React.FC<ClientProfileInfoProps> = ({
   fullName,
   phone,
   aadharNumber,
+  stockHoldingLimit,
   panCardNumber,
   type,
 }) => {
@@ -46,7 +49,7 @@ export const ClientProfileInfo: React.FC<ClientProfileInfoProps> = ({
     <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
       <div className="flex flex-wrap items-center justify-between rounded-t-lg border-b border-stroke bg-gradient-to-r from-orange-500 to-red-500 px-4 py-3 md:px-6 md:py-4">
         <h2 className="text-lg font-semibold text-white md:text-xl">
-          Client Profile
+          Trader Profile
         </h2>
         {!isEditing ? (
           <button
@@ -205,6 +208,26 @@ export const ClientProfileInfo: React.FC<ClientProfileInfoProps> = ({
             )}                           
           </div>
 
+          <div>
+            <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
+              Stock Holding Limit 
+            </label>
+            {isEditing ? (
+              <input
+                type="number"
+                name="stockHoldingLimit"
+                value={editData.stockHoldingLimit}
+                onChange={handleInputChange}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
+              />
+            ) : (
+              <p className="text-sm text-black dark:text-white md:text-base">
+                {stockHoldingLimit !== undefined ? stockHoldingLimit : 'N/A'}
+              </p>
+            )}                           
+          </div>
+
+
           
                 <div>
                   <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
@@ -226,6 +249,9 @@ export const ClientProfileInfo: React.FC<ClientProfileInfoProps> = ({
                     </p>
                   )}
                 </div>
+
+                
+
 
 
         </div>

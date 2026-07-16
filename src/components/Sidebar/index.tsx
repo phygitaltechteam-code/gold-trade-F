@@ -116,7 +116,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         icon: <UserCog size={22} />,
       },
       {
-        label: 'Clients',
+        label: 'Traders',
         path: '/clients/mainpage',
         icon: <Users size={22} />,
       },
@@ -523,8 +523,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                             }}
                             onClick={(e) => {
                               e.preventDefault();
-                              if (window.innerWidth < 1024) {
-                                handleClick(e);
+                              if (isExpanded) {
+                                handleClick();
                                 return;
                               }
                               const rect = (

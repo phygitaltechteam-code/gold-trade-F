@@ -22,6 +22,8 @@ const CustomerSchema = z.object({
     required_error: 'Please select a customer type',
     invalid_type_error: 'Type must be either mega or mini',
   }),
+  stockHoldingLimit: z.string().optional(),
+
   // documentNumber: z.string().min(1, 'Document number is required'), // ADD THIS
 });
 
@@ -43,6 +45,7 @@ const CompanyAddCustomer = () => {
     isDemo: false,
     type: '', // ADDED - no default value, user must select
     // documentNumber: '', // ADD THIS
+    stockHoldingLimit: '',
   });
 
   const [images, setImages] = useState({
@@ -215,6 +218,7 @@ const CompanyAddCustomer = () => {
       isDemo: false,
       type: '', // ADDED - reset to empty
       // documentNumber: '', // ADD THIS
+      stockHoldingLimit: '',
     });
     setImages({
       aadharCardF: null,
@@ -249,7 +253,9 @@ const CompanyAddCustomer = () => {
     formDataToSend.append('isDemo', formData.isDemo);
     formDataToSend.append('type', formData.type); // ADDED - send type to backend
     // formDataToSend.append('documentNumber', formData.documentNumber); // ADD THIS
-
+   if (formData.stockHoldingLimit) {
+      formDataToSend.append('stockHoldingLimit', formData.stockHoldingLimit);
+    }
     // OPTIONAL FIELDS
     if (formData.aadharCardNumber) {
       formDataToSend.append('aadharCardNumber', formData.aadharCardNumber);
@@ -368,7 +374,7 @@ const CompanyAddCustomer = () => {
           <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
             <div>
               <h1 className="text-xl font-bold text-white sm:text-2xl">
-                Customer Registration
+                Trader Registration
               </h1>
               <p className="mt-1 text-sm text-orange-100">
                 Please fill in all the required information
@@ -556,6 +562,23 @@ const CompanyAddCustomer = () => {
               </select>
               {errors.type && (
                 <p className="mt-1 text-xs text-red-500">{errors.type}</p>
+              )}
+            </div>
+             <div className="mb-2 sm:mb-4">
+              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
+                Stock Holding Limit
+              </label>
+              <input
+                type="text"
+                name="stockHoldingLimit"
+                value={formData.stockHoldingLimit}
+                onChange={handleInputChange}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.stockHoldingLimit ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                placeholder="Enter stock holding limit"
+              />
+              {errors.stockHoldingLimit && (
+                <p className="mt-1 text-xs text-red-500">{errors.stockHoldingLimit}</p>
               )}
             </div>
 

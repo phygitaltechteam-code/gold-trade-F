@@ -1,18 +1,26 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { FiEdit2, FiSave, FiX, FiArrowLeft, FiPlus, FiPrinter } from 'react-icons/fi';
+import React, {useState, useEffect, useMemo} from 'react';
+import {
+  FiEdit2,
+  FiSave,
+  FiX,
+  FiArrowLeft,
+  FiPlus,
+  FiPrinter,
+} from 'react-icons/fi';
 import GenericTable from '@/components/Forms/Table/GenericTable';
-import { useNavigate } from '@tanstack/react-router';
+import {useNavigate} from '@tanstack/react-router';
 import toast from 'react-hot-toast';
-import { Eye, EyeOff } from 'lucide-react';
+import {Eye, EyeOff} from 'lucide-react';
 import {
   useAddAdminBrokerCommission,
   useGetAllAdminBrockerById,
   useUpdateAdminBrokerProfile,
   useGetBrokerLedger,
   useGetBrokerPaymentHistory,
+  useGetAllBrokerTraders,
 } from '@/lib/api/addbroker';
-import { Route } from '@/routes/_app/companybroker/BrokerProfile.$id';
-import { Client } from '../Clients/types';
+import {Route} from '@/routes/_app/companybroker/BrokerProfile.$id';
+import {Client} from '../Clients/types';
 
 // Format date function
 const formatDateTime = (dateString: string) => {
@@ -35,7 +43,7 @@ const formatDateTime = (dateString: string) => {
 };
 
 const BrokerProfile = () => {
-  const { id } = Route.useParams();
+  const {id} = Route.useParams();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('ledger');
@@ -57,10 +65,11 @@ const BrokerProfile = () => {
     'credit',
   );
 
-  const { data: profileData, refetch } = useGetAllAdminBrockerById(id);
-  const { mutate: updateBrokerProfile, isPending: isUpdating } =
+  const {data: profileData, refetch} = useGetAllAdminBrockerById(id);
+  const {data: traderdata, refetch: traderRefetch} = useGetAllBrokerTraders(id);
+  const {mutate: updateBrokerProfile, isPending: isUpdating} =
     useUpdateAdminBrokerProfile();
-  const { mutate: addBrokerCommission, isPending: isCommissionPending } =
+  const {mutate: addBrokerCommission, isPending: isCommissionPending} =
     useAddAdminBrokerCommission();
 
   const [editData, setEditData] = useState({
@@ -72,6 +81,8 @@ const BrokerProfile = () => {
     area: '',
     password: '',
   });
+
+  console.log('traderdata', traderdata);
 
   // Update editData when profileData loads
   useEffect(() => {
@@ -110,7 +121,7 @@ const BrokerProfile = () => {
 
   // Initialize dates with current week range
   useEffect(() => {
-    const { startDate, endDate } = getCurrentWeekRange();
+    const {startDate, endDate} = getCurrentWeekRange();
     setLedgerStartDate(startDate);
     setLedgerEndDate(endDate);
     setPaymentStartDate(startDate);
@@ -121,14 +132,12 @@ const BrokerProfile = () => {
   const {
     data: ledgerDataFromApi,
     isLoading: isLoadingLedger,
-    refetch: refetchLedger
+    refetch: refetchLedger,
   } = useGetBrokerLedger(id);
 
   // Get broker payment history from API
-  const {
-    data: paymentDataFromApi,
-    isLoading: isLoadingPayment,
-  } = useGetBrokerPaymentHistory(id);
+  const {data: paymentDataFromApi, isLoading: isLoadingPayment} =
+    useGetBrokerPaymentHistory(id);
   // Transform API data to match your table format
   // Transform API data to match your table format
   const ledgerData = useMemo(() => {
@@ -138,7 +147,8 @@ const BrokerProfile = () => {
 
     // Helper to format commission values
     const formatCommission = (value: any) => {
-      if (value === null || value === undefined || isNaN(Number(value))) return '-';
+      if (value === null || value === undefined || isNaN(Number(value)))
+        return '-';
       return `₹${Number(value).toFixed(2)}`;
     };
 
@@ -147,20 +157,35 @@ const BrokerProfile = () => {
       dateTime: formatDateTime(item.dateTime),
       customerName: item.customerName || item.customername || '-',
       script: item.script || '-',
-      qty: item.qty && item.lotSize ? `${item.qty}/${item.lotSize}` : item.qty || '-',
+      qty:
+        item.qty && item.lotSize
+          ? `${item.qty}/${item.lotSize}`
+          : item.qty || '-',
       buyPrice: item.buyPrice ? `₹${Number(item.buyPrice).toFixed(2)}` : '-',
       sellPrice: item.sellPrice ? `₹${Number(item.sellPrice).toFixed(2)}` : '-',
       status: item.status || 'Pending',
-      pnl: item.pnl ? `₹${Number(item.pnl).toFixed(2)}` : item['p&l'] ? `₹${Number(item['p&l']).toFixed(2)}` : '-',
+      pnl: item.pnl
+        ? `₹${Number(item.pnl).toFixed(2)}`
+        : item['p&l']
+          ? `₹${Number(item['p&l']).toFixed(2)}`
+          : '-',
       buyTime: item.buyTime ? formatDateTime(item.buyTime) : '-',
       sellTime: item.sellTime ? formatDateTime(item.sellTime) : '-',
-      brokerCommission: formatCommission(item.brokerCommission || item.brokercommission),
+      brokerCommission: formatCommission(
+        item.brokerCommission || item.brokercommission,
+      ),
       orderType: item.orderType || '-',
       holdingType: item.holdingType || '-',
       price: item.price ? `₹${Number(item.price).toFixed(2)}` : '-',
-      paidAmount: item.paidAmount ? `₹${Number(item.paidAmount).toFixed(2)}` : '-',
-      marginAmount: item.marginAmount ? `₹${Number(item.marginAmount).toFixed(2)}` : '-',
-      transactionAmount: item.transactionAmount ? `₹${Number(item.transactionAmount).toFixed(2)}` : '-',
+      paidAmount: item.paidAmount
+        ? `₹${Number(item.paidAmount).toFixed(2)}`
+        : '-',
+      marginAmount: item.marginAmount
+        ? `₹${Number(item.marginAmount).toFixed(2)}`
+        : '-',
+      transactionAmount: item.transactionAmount
+        ? `₹${Number(item.transactionAmount).toFixed(2)}`
+        : '-',
       paymentStatus: item.paymentStatus || '-',
       transactionId: item.transactionId || '-',
     }));
@@ -168,25 +193,28 @@ const BrokerProfile = () => {
 
   // Transform API data for payment history
   // Transform API data for payment history
-const paymentData = useMemo(() => {
-  if (!paymentDataFromApi || !Array.isArray(paymentDataFromApi.data)) {
-    return [];
-  }
+  const paymentData = useMemo(() => {
+    if (!paymentDataFromApi || !Array.isArray(paymentDataFromApi.data)) {
+      return [];
+    }
 
-  return paymentDataFromApi.data.map((item: any) => ({
-    // Store the original date for filtering
-    rawDate: item.date || item.createdAt || item.paymentDate || item.paidDate,
-    date: formatDateTime(item.date || item.createdAt || item.paymentDate || item.paidDate),
-    commissionGenerated: item.commissionGenerated || item.totalCommission || 0,
-    pendingGenerated: item.commissionGenerated - item.paidCommission  || 0,
-    paidCommission: item.paidCommission || item.paidAmount || 0,
-    paidDate: item.paidDate ? formatDateTime(item.paidDate) : '-',
-    status: item.status || item.paymentStatus || 'Pending',
-    transactionId: item.transactionId || '-',
-    paymentMethod: item.paymentMethod || '-',
-    note: item.note || '-',
-  }));
-}, [paymentDataFromApi]);
+    return paymentDataFromApi.data.map((item: any) => ({
+      // Store the original date for filtering
+      rawDate: item.date || item.createdAt || item.paymentDate || item.paidDate,
+      date: formatDateTime(
+        item.date || item.createdAt || item.paymentDate || item.paidDate,
+      ),
+      commissionGenerated:
+        item.commissionGenerated || item.totalCommission || 0,
+      pendingGenerated: item.commissionGenerated - item.paidCommission || 0,
+      paidCommission: item.paidCommission || item.paidAmount || 0,
+      paidDate: item.paidDate ? formatDateTime(item.paidDate) : '-',
+      status: item.status || item.paymentStatus || 'Pending',
+      transactionId: item.transactionId || '-',
+      paymentMethod: item.paymentMethod || '-',
+      note: item.note || '-',
+    }));
+  }, [paymentDataFromApi]);
 
   // Get customers from profileData and add SR number
   const customersList = useMemo(() => {
@@ -196,6 +224,22 @@ const paymentData = useMemo(() => {
       srNo: index + 1,
     }));
   }, [profileData?.customers]);
+
+  const totalActiveUsers = traderdata?.data.filter(
+    (item: any) => item.user?.isActive,
+  ).length;
+
+  const traderTable = traderdata?.data.map((item: any, index: number) => ({
+    tradername: item?.user?.fullname,
+    walletBalance: item?.walletBalance,
+    assetUnderControl: item?.assetUnderControl,
+    marginAmount: item?.marginAmount,
+    totalActiveUsers: item?.totalActiveTrade,
+    totalTrade: item?.totalTrade,
+    isDemo: item?.isDemo,
+  }));
+
+  console.log('traderTable', traderTable);
 
   // Commission History Data
   const commissionHistoryList = useMemo(() => {
@@ -235,12 +279,12 @@ const paymentData = useMemo(() => {
   }, [paymentData]);
 
   const handleBack = () => {
-    navigate({ to: '/companybroker/displaybroker' });
+    navigate({to: '/companybroker/displaybroker'});
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setEditData((prev) => ({ ...prev, [name]: value }));
+    const {name, value} = e.target;
+    setEditData((prev) => ({...prev, [name]: value}));
   };
 
   const handleSave = () => {
@@ -389,20 +433,28 @@ const paymentData = useMemo(() => {
     switch (activeTab) {
       case 'ledger':
         tableData = filteredLedgerData;
-        tableColumns = isLedgerExpanded ? expandedLedgerColumns : baseLedgerColumns;
+        tableColumns = isLedgerExpanded
+          ? expandedLedgerColumns
+          : baseLedgerColumns;
         tableTitle = 'Ledger Records';
-        dateRange = ledgerStartDate && ledgerEndDate ? `(${ledgerStartDate} to ${ledgerEndDate})` : '';
+        dateRange =
+          ledgerStartDate && ledgerEndDate
+            ? `(${ledgerStartDate} to ${ledgerEndDate})`
+            : '';
         break;
       case 'payment':
         tableData = filteredPaymentData;
         tableColumns = paymentColumns;
         tableTitle = 'Payment History';
-        dateRange = paymentStartDate && paymentEndDate ? `(${paymentStartDate} to ${paymentEndDate})` : '';
+        dateRange =
+          paymentStartDate && paymentEndDate
+            ? `(${paymentStartDate} to ${paymentEndDate})`
+            : '';
         break;
       case 'customer':
-        tableData = customersList;
+        tableData = traderTable;
         tableColumns = customerColumns;
-        tableTitle = 'Clients';
+        tableTitle = 'Trader';
         break;
       case 'commission':
         tableData = commissionHistoryList;
@@ -423,7 +475,8 @@ const paymentData = useMemo(() => {
     // Create print container
     const printContainer = document.createElement('div');
     printContainer.id = 'print-tables';
-    printContainer.style.cssText = 'padding: 20px; font-family: Arial, sans-serif; background: white;';
+    printContainer.style.cssText =
+      'padding: 20px; font-family: Arial, sans-serif; background: white;';
 
     // Helper to get value from item
     const getValue = (item: any, accessor: string) => {
@@ -441,12 +494,18 @@ const paymentData = useMemo(() => {
         return item.type || '-';
       }
       if (accessor === 'user.fullname') return item?.user?.fullname || '-';
-      if (accessor === 'user.phoneNumber') return item?.user?.phoneNumber || '-';
+      if (accessor === 'user.phoneNumber')
+        return item?.user?.phoneNumber || '-';
       if (accessor === 'CRN') return item?.CRN || '-';
-      if (accessor === 'brokeragePercent') return item?.brokeragePercent ? `${item.brokeragePercent}%` : '-';
+      if (accessor === 'brokeragePercent')
+        return item?.brokeragePercent ? `${item.brokeragePercent}%` : '-';
       if (accessor === 'address') return item?.address || item?.area || '-';
-      if (accessor === 'totalBrokers' || accessor === 'totalBusiness' ||
-        accessor === 'totalCommission' || accessor === 'pendingCommission') {
+      if (
+        accessor === 'totalBrokers' ||
+        accessor === 'totalBusiness' ||
+        accessor === 'totalCommission' ||
+        accessor === 'pendingCommission'
+      ) {
         return '-';
       }
       if (accessor.includes('.')) {
@@ -462,7 +521,12 @@ const paymentData = useMemo(() => {
     };
 
     // Generate table HTML
-    const generateTable = (title: string, data: any[], columns: any[], range?: string) => {
+    const generateTable = (
+      title: string,
+      data: any[],
+      columns: any[],
+      range?: string,
+    ) => {
       let html = `
       <div style="margin-bottom: 25px; page-break-inside: avoid;">
         <div style="font-size: 16px; font-weight: bold; margin-bottom: 10px; color: #1a1a1a;">
@@ -573,29 +637,29 @@ const paymentData = useMemo(() => {
 
   // Base Ledger Columns
   const baseLedgerColumns = [
-    { header: 'Date & Time', accessor: 'dateTime' },
-    { header: 'Customer Name', accessor: 'customerName' },
-    { header: 'Script', accessor: 'script' },
-    { header: 'Qty/Lot', accessor: 'qty' },
-    { header: 'Buy Price', accessor: 'buyPrice' },
-    { header: 'Sell Price', accessor: 'sellPrice' },
-    { header: 'Status', accessor: 'status' },
-    { header: 'P&L', accessor: 'pnl' },
-  // ];
+    {header: 'Date & Time', accessor: 'dateTime'},
+    {header: 'Customer Name', accessor: 'customerName'},
+    {header: 'Script', accessor: 'script'},
+    {header: 'Qty/Lot', accessor: 'qty'},
+    {header: 'Buy Price', accessor: 'buyPrice'},
+    {header: 'Sell Price', accessor: 'sellPrice'},
+    {header: 'Status', accessor: 'status'},
+    {header: 'P&L', accessor: 'pnl'},
+    // ];
 
-  // // Expanded Ledger Columns
-  // const expandedLedgerColumns = [
-    { header: 'Date & Time', accessor: 'dateTime' },
-    { header: 'Customer Name', accessor: 'customerName' },
-    { header: 'Script', accessor: 'script' },
-    { header: 'Qty/Lot', accessor: 'qty' },
-    { header: 'Buy Price', accessor: 'buyPrice' },
-    { header: 'Sell Price', accessor: 'sellPrice' },
-    { header: 'Buy Time', accessor: 'buyTime' },
-    { header: 'Sell Time', accessor: 'sellTime' },
-    { header: 'Status', accessor: 'status' },
-    { header: 'P&L', accessor: 'pnl' },
-    { header: 'Broker commission', accessor: 'brokerCommission' },
+    // // Expanded Ledger Columns
+    // const expandedLedgerColumns = [
+    {header: 'Date & Time', accessor: 'dateTime'},
+    {header: 'Customer Name', accessor: 'customerName'},
+    {header: 'Script', accessor: 'script'},
+    {header: 'Qty/Lot', accessor: 'qty'},
+    {header: 'Buy Price', accessor: 'buyPrice'},
+    {header: 'Sell Price', accessor: 'sellPrice'},
+    {header: 'Buy Time', accessor: 'buyTime'},
+    {header: 'Sell Time', accessor: 'sellTime'},
+    {header: 'Status', accessor: 'status'},
+    {header: 'P&L', accessor: 'pnl'},
+    {header: 'Broker commission', accessor: 'brokerCommission'},
   ];
 
   // const ledgerColumns = isLedgerExpanded
@@ -604,60 +668,72 @@ const paymentData = useMemo(() => {
 
   // Column definitions for the Payment History table
   const paymentColumns = [
-    { header: 'S.No', accessor: 'sr' },
+    {header: 'S.No', accessor: 'sr'},
     {
       header: 'Date',
       accessor: 'date',
-      render: (item: any) => <span>{item.date}</span>
+      render: (item: any) => <span>{item.date}</span>,
     },
     {
       header: 'Commission Generated',
       accessor: 'commissionGenerated',
-      render: (item: any) => <span>₹{item.commissionGenerated?.toLocaleString() || '0'}</span>
+      render: (item: any) => (
+        <span>₹{item.commissionGenerated?.toLocaleString() || '0'}</span>
+      ),
     },
     {
       header: 'Pending Commission',
       accessor: 'pendingGenerated',
-      render: (item: any) => <span>₹{item.pendingGenerated?.toLocaleString() || '0'}</span>
+      render: (item: any) => (
+        <span>₹{item.pendingGenerated?.toLocaleString() || '0'}</span>
+      ),
     },
     {
       header: 'Paid Commission',
       accessor: 'paidCommission',
-      render: (item: any) => <span>₹{item.paidCommission?.toLocaleString() || '0'}</span>
+      render: (item: any) => (
+        <span>₹{item.paidCommission?.toLocaleString() || '0'}</span>
+      ),
     },
     {
       header: 'Paid Date',
-      accessor: 'paidDate'
+      accessor: 'paidDate',
     },
     {
       header: 'Status',
       accessor: 'status',
       render: (item: any) => (
-        <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${item.status === 'Paid' ? 'bg-green-100 text-green-700' :
-            item.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
-              'bg-gray-100 text-gray-700'
-          }`}>
+        <span
+          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+            item.status === 'Paid'
+              ? 'bg-green-100 text-green-700'
+              : item.status === 'Pending'
+                ? 'bg-yellow-100 text-yellow-700'
+                : 'bg-gray-100 text-gray-700'
+          }`}
+        >
           {item.status}
         </span>
-      )
+      ),
     },
   ];
 
   // Commission History Columns with clickable amount
   const commissionColumns = [
-    { header: 'S.No', accessor: 'sr' },
-    { header: 'Date & Time', accessor: 'createdAt' },
+    {header: 'S.No', accessor: 'sr'},
+    {header: 'Date & Time', accessor: 'createdAt'},
     {
       header: 'Type',
       accessor: 'type',
       render: (item: any) => (
         <span
-          className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${item.type === 'TRANSFER'
-            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
-            : item.type === 'CREDIT'
-              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
-              : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
-            }`}
+          className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
+            item.type === 'TRANSFER'
+              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
+              : item.type === 'CREDIT'
+                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+          }`}
         >
           {item.type === 'TRANSFER'
             ? 'Transfer'
@@ -740,168 +816,210 @@ const paymentData = useMemo(() => {
   //   },
   // ];
 
-    const customerColumns = [
-      {
-        header: 'Client Name',
-        accessor: 'user.fullname',
-        render: (row: Client) => (
-          <div className="flex items-center gap-3">
-            <div>
-              <div className="whitespace-nowrap text-sm font-medium text-slate-900">
-                {row.user?.fullname}
-              </div>
-            </div>
-          </div>
-        ),
-      },
-      // {
-      //   header: 'Broker Name',
-      //   accessor: 'broker.user.fullname',
-      //   render: (row: Client) => (
-      //     <span className="whitespace-nowrap text-sm font-medium text-slate-600">
-      //       {row?.broker?.user?.fullname || 'N/A'}
-      //     </span>
-      //   ),
-      // },
-      // {
-      //   header: 'Super Broker Name',
-      //   accessor: 'broker.superBroker.user.fullname',
-      //   render: (row: Client) => (
-      //     <span className="whitespace-nowrap text-sm font-medium text-slate-600">
-      //       {row?.broker?.superBroker?.user?.fullname || 'N/A'}
-      //     </span>
-      //   ),
-      // },
-      {
-        header: 'Wallet Balance',
-        accessor: 'wallets.amount',
-        // isSort:true,
-        render: (row: Client) => {
-          const amount = row.walletBalance !== undefined 
-            ? Number(row.walletBalance) 
-            : (typeof row.wallets?.amount === 'number' 
-                ? row.wallets.amount 
-                : parseFloat(row.wallets?.amount as string) || 0);
-          return (
-            <span className="whitespace-nowrap text-sm font-bold text-slate-900">
-              ₹{amount.toLocaleString()}
-            </span>
-          );
-        },
-      },
-      {
-        header: 'Asset Under Control',
-        accessor: 'wallets.blockedAmount',
-        render: (row: Client) => {
-          const amount = row.assetUnderControl !== undefined 
-            ? Number(row.assetUnderControl) 
-            : (typeof row.wallets?.blockedAmount === 'number' 
-                ? row.wallets.blockedAmount 
-                : parseFloat(row.wallets?.blockedAmount as string) || 0);
-          return (
-            <span className="whitespace-nowrap text-sm font-bold text-slate-900">
-              ₹{amount.toLocaleString()}
-            </span>
-          );
-        },
-      },
-      {
-        header: 'Margin Amount',
-        accessor: 'marginAmount',
-        render: (row: Client) => {
-          const amount = row.marginAmount !== undefined ? Number(row.marginAmount) : 0;
-          return (
-            <span className="whitespace-nowrap text-sm font-bold text-slate-900">
-              ₹{amount.toLocaleString()}
-            </span>
-          );
-        },
-      },
-      {
-        header: 'Total Active Trade',
-        accessor: 'totalActiveTrade',
-        render: (row: Client) => (
-          <span className="whitespace-nowrap text-sm font-medium text-slate-600">
-            {row.totalActiveTrade !== undefined ? row.totalActiveTrade : (row._count?.trades || 0)}
-          </span>
-        ),
-      },
-      {
-        header: 'Total Trade',
-        accessor: 'totalTrade',
-        render: (row: Client) => {
-          const amount = row.totalTrade !== undefined ? Number(row.totalTrade) : (parseFloat(row.wallets?.amount as string) || 0);
-          return (
-            <span className="whitespace-nowrap text-sm font-bold text-orange-500">
-              ₹{amount.toLocaleString()}
-            </span>
-          );
-        },
-      },
-  
-    {
-    header: 'Demo Account',
-    accessor: 'isDemo',
+  //   const customerColumns = [
+  //     {
+  //       header: 'Trader Name',
+  //       accessor: 'tradername',
+  //       render: (row: Client) => (
+  //         <div className="flex items-center gap-3">
+  //           <div>
+  //             <div className="whitespace-nowrap text-sm font-medium text-slate-900">
+  //               {row.user?.fullname}
+  //             </div>
+  //           </div>
+  //         </div>
+  //       ),
+  //     },
+  //     // {
+  //     //   header: 'Broker Name',
+  //     //   accessor: 'broker.user.fullname',
+  //     //   render: (row: Client) => (
+  //     //     <span className="whitespace-nowrap text-sm font-medium text-slate-600">
+  //     //       {row?.broker?.user?.fullname || 'N/A'}
+  //     //     </span>
+  //     //   ),
+  //     // },
+  //     // {
+  //     //   header: 'Super Broker Name',
+  //     //   accessor: 'broker.superBroker.user.fullname',
+  //     //   render: (row: Client) => (
+  //     //     <span className="whitespace-nowrap text-sm font-medium text-slate-600">
+  //     //       {row?.broker?.superBroker?.user?.fullname || 'N/A'}
+  //     //     </span>
+  //     //   ),
+  //     // },
+  //     {
+  //       header: 'Wallet Balance',
+  //       accessor: 'walletBalance',
+  //       // isSort:true,
+  //       // render: (row: Client) => {
+  //       //   const amount = row.walletBalance !== undefined
+  //       //     ? Number(row.walletBalance)
+  //       //     : (typeof row.wallets?.amount === 'number'
+  //       //         ? row.wallets.amount
+  //       //         : parseFloat(row.wallets?.amount as string) || 0);
+  //       //   return (
+  //       //     <span className="whitespace-nowrap text-sm font-bold text-slate-900">
+  //       //       ₹{amount.toLocaleString()}
+  //       //     </span>
+  //       //   );
+  //       // },
+  //     },
+  //     {
+  //       header: 'Asset Under Control',
+  //       accessor: 'assetUnderControl',
+  //       // render: (row: Client) => {
+  //       //   const amount = row.assetUnderControl !== undefined
+  //       //     ? Number(row.assetUnderControl)
+  //       //     : (typeof row.wallets?.blockedAmount === 'number'
+  //       //         ? row.wallets.blockedAmount
+  //       //         : parseFloat(row.wallets?.blockedAmount as string) || 0);
+  //       //   return (
+  //       //     <span className="whitespace-nowrap text-sm font-bold text-slate-900">
+  //       //       ₹{row?.assetUnderControl.toLocaleString()}
+  //       //     </span>
+  //       //   );
+  //       // },
+  //     },
+  //     {
+  //       header: 'Margin Amount',
+  //       accessor: 'marginAmount',
+  //       // render: (row: Client) => {
+  //       //   const amount = row.marginAmount !== undefined ? Number(row.marginAmount) : 0;
+  //       //   return (
+  //       //     <span className="whitespace-nowrap text-sm font-bold text-slate-900">
+  //       //       ₹{amount.toLocaleString()}
+  //       //     </span>
+  //       //   );
+  //       // },
+  //     },
+  //     {
+  //       header: 'Total Active Trade',
+  //       accessor: 'totalActiveUsers',
+  //       render: (row: Client) => (
+  //         <span className="whitespace-nowrap text-sm font-medium text-slate-600">
+  //           {row.totalActiveTrade !== undefined ? row.totalActiveTrade : (row._count?.trades || 0)}
+  //         </span>
+  //       ),
+  //     },
+  //     {
+  //       header: 'Total Trade',
+  //       accessor: 'totalTrade',
+  //       render: (row: Client) => {
+  //         const amount = row.totalTrade !== undefined ? Number(row.totalTrade) : (parseFloat(row.wallets?.amount as string) || 0);
+  //         return (
+  //           <span className="whitespace-nowrap text-sm font-bold text-orange-500">
+  //             ₹{amount.toLocaleString()}
+  //           </span>
+  //         );
+  //       },
+  //     },
+
+  //   {
+  //   header: 'Demo Account',
+  //   accessor: 'isDemo',
+  //   render: (row: Client) => (
+  //    <div className="pointer-events-none">
+  //   <input
+  //     type="checkbox"
+  //     checked={!!row.isDemo}
+  //     readOnly
+  //     disabled
+  //     className="h-4 w-4 accent-orange-500"
+  //   />
+  // </div>
+  //   ),
+  // },
+  //     // {
+  //     //   header: 'P&L',
+  //     //   accessor: 'pnl',
+  //     //   render: (row: Client) => {
+  //     //     const pnl = row.pnl !== undefined ? Number(row.pnl) : 0;
+  //     //     const isProfit = pnl >= 0;
+  //     //     return (
+  //     //       <span
+  //     //         className={`whitespace-nowrap text-sm font-bold ${
+  //     //           isProfit ? 'text-green-600' : 'text-red-600'
+  //     //         }`}
+  //     //       >
+  //     //         {isProfit ? '+' : ''}
+  //     //         {pnl >= 0
+  //     //           ? `${pnl.toLocaleString()}`
+  //     //           : `-${Math.abs(pnl).toLocaleString()}`}
+  //     //       </span>
+  //     //     );
+  //     //   },
+  //     // },
+  //     // {
+  //     //   header: 'Status',
+  //     //   accessor: 'user.isActive',
+  //     //   render: (row: Client) => {
+  //     //     const isActive = row.user?.isActive === true;
+  //     //     return (
+  //     //       <div
+  //     //         className="flex items-center gap-2"
+  //     //         onClick={(e) => e.stopPropagation()}
+  //     //       >
+  //     //         <label className="relative inline-flex cursor-pointer items-center">
+  //     //           <input
+  //     //             type="checkbox"
+  //     //             className="peer sr-only"
+  //     //             checked={isActive}
+  //     //             onChange={(e) => handleToggleClick(row, e)}
+  //     //             disabled={isPending}
+  //     //           />
+  //     //           <div className="relative h-5 w-9 rounded-full bg-slate-200 transition-colors after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-4 peer-disabled:opacity-50" />
+  //     //         </label>
+  //     //       </div>
+  //     //     );
+  //     //   },
+  //     // },
+  //   ];
+
+  const customerColumns = [
+    {header: 'Trader Name', accessor: 'tradername'},
+    {header: 'Wallet Balance', accessor: 'walletBalance'},
+    {header: 'Asset Under Control', accessor: 'assetUnderControl'},
+    {header: 'Margin Amount', accessor: 'marginAmount'},
+    {header: 'Total Active Trade', accessor: 'totalActiveUsers'},
+    {header: 'Total Trade', accessor: 'totalTrade'},
+    {header: 'Demo Account', accessor: 'isDemo',
+
     render: (row: Client) => (
-     <div className="pointer-events-none">
-    <input
-      type="checkbox"
-      checked={!!row.isDemo}
-      readOnly
-      disabled
-      className="h-4 w-4 accent-orange-500"
-    />
-  </div>
+      <div className="pointer-events-none">
+        <input
+          type="checkbox"
+          checked={!!row.isDemo}
+          readOnly
+          disabled
+          className="h-4 w-4 accent-orange-500"
+        />
+      </div>
     ),
-  },
-      // {
-      //   header: 'P&L',
-      //   accessor: 'pnl',
-      //   render: (row: Client) => {
-      //     const pnl = row.pnl !== undefined ? Number(row.pnl) : 0;
-      //     const isProfit = pnl >= 0;
-      //     return (
-      //       <span
-      //         className={`whitespace-nowrap text-sm font-bold ${
-      //           isProfit ? 'text-green-600' : 'text-red-600'
-      //         }`}
-      //       >
-      //         {isProfit ? '+' : ''}
-      //         {pnl >= 0
-      //           ? `${pnl.toLocaleString()}`
-      //           : `-${Math.abs(pnl).toLocaleString()}`}
-      //       </span>
-      //     );
-      //   },
-      // },
-      // {
-      //   header: 'Status',
-      //   accessor: 'user.isActive',
-      //   render: (row: Client) => {
-      //     const isActive = row.user?.isActive === true;
-      //     return (
-      //       <div
-      //         className="flex items-center gap-2"
-      //         onClick={(e) => e.stopPropagation()}
-      //       >
-      //         <label className="relative inline-flex cursor-pointer items-center">
-      //           <input
-      //             type="checkbox"
-      //             className="peer sr-only"
-      //             checked={isActive}
-      //             onChange={(e) => handleToggleClick(row, e)}
-      //             disabled={isPending}
-      //           />
-      //           <div className="relative h-5 w-9 rounded-full bg-slate-200 transition-colors after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-4 peer-disabled:opacity-50" />
-      //         </label>
-      //       </div>
-      //     );
-      //   },
-      // },
-    ];
-  
+    },
+  ];
 
-
+//   assetUnderControl
+// : 
+// 1109000
+// isDemo
+// : 
+// true
+// marginAmount
+// : 
+// 0
+// totalActiveUsers
+// : 
+// 22
+// totalTrade
+// : 
+// 7990.4
+// tradername
+// : 
+// "new customer"
+// walletBalance
+// : 
+// 992008.00192
 
   // Filter ledger data by date range
   const filteredLedgerData = useMemo(() => {
@@ -918,30 +1036,33 @@ const paymentData = useMemo(() => {
 
   // Filter payment data by date range
   // Filter payment data by date range
-const filteredPaymentData = useMemo(() => {
-  if (!paymentStartDate || !paymentEndDate) return paymentDataWithSr;
-  
-  return paymentDataWithSr.filter((item: any) => {
-    // Try multiple possible date fields
-    const dateValue = item.rawDate || item.date || item.paidDate || item.createdAt;
-    
-    if (!dateValue) return true; // Include items without date
-    
-    const itemDate = new Date(dateValue);
-    
-    // Check if date is valid
-    if (isNaN(itemDate.getTime())) return true; // Include invalid dates
-    
-    const startDate = new Date(paymentStartDate);
-    const endDate = new Date(paymentEndDate);
-    startDate.setHours(0, 0, 0, 0);
-    endDate.setHours(23, 59, 59, 999);
-    
-    return itemDate >= startDate && itemDate <= endDate;
-  });
-}, [paymentDataWithSr, paymentStartDate, paymentEndDate]);
+  const filteredPaymentData = useMemo(() => {
+    if (!paymentStartDate || !paymentEndDate) return paymentDataWithSr;
 
-  const isDemoCount = profileData?.customers?.filter((item: any) => item.isDemo===false).length;
+    return paymentDataWithSr.filter((item: any) => {
+      // Try multiple possible date fields
+      const dateValue =
+        item.rawDate || item.date || item.paidDate || item.createdAt;
+
+      if (!dateValue) return true; // Include items without date
+
+      const itemDate = new Date(dateValue);
+
+      // Check if date is valid
+      if (isNaN(itemDate.getTime())) return true; // Include invalid dates
+
+      const startDate = new Date(paymentStartDate);
+      const endDate = new Date(paymentEndDate);
+      startDate.setHours(0, 0, 0, 0);
+      endDate.setHours(23, 59, 59, 999);
+
+      return itemDate >= startDate && itemDate <= endDate;
+    });
+  }, [paymentDataWithSr, paymentStartDate, paymentEndDate]);
+
+  const isDemoCount = profileData?.customers?.filter(
+    (item: any) => item.isDemo === false,
+  ).length;
 
   return (
     <div className="max-w-9xl mx-auto p-4 md:p-6">
@@ -1188,9 +1309,9 @@ const filteredPaymentData = useMemo(() => {
             Total Business
           </span>
         </div> */}
-         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-blue-500 md:text-2xl">
-            {isDemoCount|| 0}
+            {isDemoCount || 0}
           </h4>
           <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
             Total Customers
@@ -1207,7 +1328,9 @@ const filteredPaymentData = useMemo(() => {
 
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-orange-500 md:text-2xl">
-            ₹{paymentDataFromApi?.summary?.paidCommission.toLocaleString() || '0'}
+            ₹
+            {paymentDataFromApi?.summary?.paidCommission.toLocaleString() ||
+              '0'}
           </h4>
           <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
             Paid Commission
@@ -1216,13 +1339,14 @@ const filteredPaymentData = useMemo(() => {
 
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-orange-500 md:text-2xl">
-            ₹{paymentDataFromApi?.summary?.pendingCommission.toLocaleString() || '0'}
+            ₹
+            {paymentDataFromApi?.summary?.pendingCommission.toLocaleString() ||
+              '0'}
           </h4>
           <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
             Pending Commission
           </span>
         </div>
-       
       </div>
 
       {/* Tabs Section */}
@@ -1231,31 +1355,33 @@ const filteredPaymentData = useMemo(() => {
           <div className="flex flex-wrap">
             <button
               onClick={() => setActiveTab('ledger')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'ledger'
-                ? 'border-b-2 border-orange-500 text-orange-500'
-                : 'text-bodydark2'
-                }`}
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
+                activeTab === 'ledger'
+                  ? 'border-b-2 border-orange-500 text-orange-500'
+                  : 'text-bodydark2'
+              }`}
             >
               Ledger
             </button>
             <button
               onClick={() => setActiveTab('payment')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 
-                ${activeTab === 'payment'
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
+                activeTab === 'payment'
                   ? 'border-b-2 border-orange-500 text-orange-500'
                   : 'text-bodydark2'
-                }`}
+              }`}
             >
               Payment History
             </button>
             <button
               onClick={() => setActiveTab('customer')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'customer'
-                ? 'border-b-2 border-orange-500 text-orange-500'
-                : 'text-bodydark2'
-                }`}
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
+                activeTab === 'customer'
+                  ? 'border-b-2 border-orange-500 text-orange-500'
+                  : 'text-bodydark2'
+              }`}
             >
-              Clients ({profileData?.customers?.length || 0})
+              Trader ({profileData?.customers?.length || 0})
             </button>
             {/* <button
               onClick={() => setActiveTab('commission')}
@@ -1318,7 +1444,7 @@ const filteredPaymentData = useMemo(() => {
                   {(ledgerStartDate || ledgerEndDate) && (
                     <button
                       onClick={() => {
-                        const { startDate, endDate } = getCurrentWeekRange();
+                        const {startDate, endDate} = getCurrentWeekRange();
                         setLedgerStartDate(startDate);
                         setLedgerEndDate(endDate);
                       }}
@@ -1350,7 +1476,6 @@ const filteredPaymentData = useMemo(() => {
               )}
             </div>
           ) : activeTab === 'payment' ? (
-
             <div className="overflow-x-auto">
               <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                 <h3 className="text-base font-semibold text-black dark:text-white md:text-lg">
@@ -1382,7 +1507,7 @@ const filteredPaymentData = useMemo(() => {
                   {(paymentStartDate || paymentEndDate) && (
                     <button
                       onClick={() => {
-                        const { startDate, endDate } = getCurrentWeekRange();
+                        const {startDate, endDate} = getCurrentWeekRange();
                         setPaymentStartDate(startDate);
                         setPaymentEndDate(endDate);
                       }}
@@ -1435,7 +1560,7 @@ const filteredPaymentData = useMemo(() => {
                 </h3>
               </div>
               <GenericTable
-                data={customersList}
+                data={traderTable}
                 columns={customerColumns}
                 searchAble={true}
                 searchFields={['user.fullname', 'CRN']}
@@ -1499,20 +1624,22 @@ const filteredPaymentData = useMemo(() => {
               <button
                 type="button"
                 onClick={() => setCommissionType('credit')}
-                className={`rounded-lg py-2 text-sm font-semibold transition-all ${commissionType === 'credit'
-                  ? 'bg-white text-orange-500 shadow-sm'
-                  : 'text-slate-600 hover:text-slate-800'
-                  }`}
+                className={`rounded-lg py-2 text-sm font-semibold transition-all ${
+                  commissionType === 'credit'
+                    ? 'bg-white text-orange-500 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-800'
+                }`}
               >
                 Credit (+)
               </button>
               <button
                 type="button"
                 onClick={() => setCommissionType('debit')}
-                className={`rounded-lg py-2 text-sm font-semibold transition-all ${commissionType === 'debit'
-                  ? 'bg-white text-orange-500 shadow-sm'
-                  : 'text-slate-600 hover:text-slate-800'
-                  }`}
+                className={`rounded-lg py-2 text-sm font-semibold transition-all ${
+                  commissionType === 'debit'
+                    ? 'bg-white text-orange-500 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-800'
+                }`}
               >
                 Debit (-)
               </button>

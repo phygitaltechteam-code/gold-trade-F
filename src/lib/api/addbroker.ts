@@ -221,6 +221,11 @@ export const useGetAllAdminBrockerById = (id: string) =>
     queryKey: ['brocker', id],
     queryFn: () => getAllAdminBrockerById(id),
   });
+  export const useGetAllBrokerTraders = (id: string) =>
+  useQuery({
+    queryKey: ['Traders', id],
+    queryFn: () => getBrokerTraders(id),
+  });
 
 export const getAllAdminBrockerById = async (id: string) => {
   try {
@@ -231,6 +236,16 @@ export const getAllAdminBrockerById = async (id: string) => {
     throw error;
   }
 };
+
+export const getBrokerTraders = (id: string) => {
+  try{
+    const response = api.get(`/company/broker/customers/${id}`);
+    return response;
+  } catch (error) {
+    console.error('Error fetching brokers:', error);
+    throw error;
+  }
+}
 
 export const useUpdateAdminBrokerProfile = () => {
   const queryClient = useQueryClient();

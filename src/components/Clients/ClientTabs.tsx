@@ -31,7 +31,7 @@ export const ClientTabs: React.FC<ClientTabsProps> = ({
               : 'text-slate-500 hover:text-slate-700'
           }`}
         >
-          Client Ledger ({tradingLedgerData.length})
+          Trader Ledger ({tradingLedgerData.length})
         </button>
         {/* <button
           onClick={() => setActiveTab('payment')}

@@ -424,7 +424,7 @@ const showActions = activeTab === 'Pending';
   
   const baseColumns = [
   {
-    header: 'Client Name',
+    header: 'Trader Name',
     accessor: (row: WithdrawalRequest) => (
       <div className="flex items-center gap-3">
         <div>

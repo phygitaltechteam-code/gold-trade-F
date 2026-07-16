@@ -687,7 +687,7 @@ const PendingApprovals: React.FC = () => {
                   }`}
               >
                 <Users className="h-4 w-4" />
-                Customers
+                Traders
                 <span
                   className={`ml-1 rounded-full px-2 py-0.5 text-xs ${activeTab === 'clients'
                       ? 'bg-orange-100 text-orange-600'
