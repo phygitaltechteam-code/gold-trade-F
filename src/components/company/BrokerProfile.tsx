@@ -722,11 +722,11 @@ const paymentData = useMemo(() => {
         </span>
       ),
     },
-    {
-      header: 'Total Business',
-      accessor: 'totalBusiness',
-      render: () => <span className="text-gray-700">-</span>,
-    },
+    // {
+    //   header: 'Total Business',
+    //   accessor: 'totalBusiness',
+    //   render: () => <span className="text-gray-700">-</span>,
+    // },
     {
       header: 'Total Commission',
       accessor: 'totalCommission',

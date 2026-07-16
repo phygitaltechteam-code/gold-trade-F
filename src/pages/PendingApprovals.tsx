@@ -1,4 +1,4 @@
-import React, {useState, useMemo} from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   useGetBrokerData,
   useGetSuperBrokerData,
@@ -6,7 +6,7 @@ import {
   useApproveBroker,
   useUpdateBroker,
 } from '@/lib/api/addbroker';
-import GenericTable, {Column} from '@/components/Forms/Table/GenericTable';
+import GenericTable, { Column } from '@/components/Forms/Table/GenericTable';
 import {
   Search,
   Filter,
@@ -27,7 +27,7 @@ import {
   useGetCustomer,
   useUpdateCustomer,
 } from '@/lib/api/customer';
-import {useNavigate} from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 
 const PendingApprovals: React.FC = () => {
   const navigate = useNavigate();
@@ -64,8 +64,8 @@ const PendingApprovals: React.FC = () => {
     refetch: refetchBrokers,
   } = useGetBrokerData();
 
-  const {data: superBrokerResponse} = useGetSuperBrokerData();
-  
+  const { data: superBrokerResponse } = useGetSuperBrokerData();
+
 
   const {
     data: customerResponse,
@@ -81,6 +81,8 @@ const PendingApprovals: React.FC = () => {
   const acceptCustomerMutation = useAcceptCustomer();
   const deleteCustomerMutation = useDeleteCustomer();
   const updateCustomerMutation = useUpdateCustomer();
+
+
 
   // Extract Broker Lists Safely
   const brokerList = useMemo(() => {
@@ -128,11 +130,11 @@ const PendingApprovals: React.FC = () => {
 
   // Row click handlers for navigation
   const handleBrokerRowClick = (broker: any) => {
-    navigate({to: `/companybroker/pendingbrokerby/${broker.id}`});
+    navigate({ to: `/companybroker/pendingbrokerby/${broker.id}` });
   };
 
   const handleClientRowClick = (client: any) => {
-    navigate({to: `/companybroker/clientdetail/${client.id}`});
+    navigate({ to: `/companybroker/clientdetail/${client.id}` });
   };
 
   // Handlers for Broker
@@ -351,26 +353,26 @@ const PendingApprovals: React.FC = () => {
         </div>
       ),
     },
-      {
-  header: 'Date',
-  accessor: 'createdAt',
-  render: (item: any) => {
-    if (!item.createdAt) return <span className="font-mono text-sm">N/A</span>;
-    
-    const date = new Date(item.createdAt);
-    const formattedDate = date.toLocaleString('en-IN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-    });
-    
-    return <span className="font-mono text-sm whitespace-nowrap">{formattedDate}</span>;
-  },
-},
+    {
+      header: 'Date',
+      accessor: 'createdAt',
+      render: (item: any) => {
+        if (!item.createdAt) return <span className="font-mono text-sm">N/A</span>;
+
+        const date = new Date(item.createdAt);
+        const formattedDate = date.toLocaleString('en-IN', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false,
+        });
+
+        return <span className="font-mono text-sm whitespace-nowrap">{formattedDate}</span>;
+      },
+    },
     {
       header: 'Phone Number',
       accessor: 'phoneNumber',
@@ -378,22 +380,22 @@ const PendingApprovals: React.FC = () => {
         <span className="font-mono text-sm">{item.phoneNumber || 'N/A'}</span>
       ),
     },
-   
-{
-  header: 'Super Broker',
-  accessor: 'superBroker',
-  render: (item: any) => {
-    const superBrokerName =
-      item?.superBroker?.user?.fullname ||
-      item?.superBroker?.fullname ||
-      'Unassigned';
-    return (
-      <span className="text-gray-700 text-sm">
-        {superBrokerName}
-      </span>
-    );
-  },
-},
+
+    {
+      header: 'Super Broker',
+      accessor: 'superBroker',
+      render: (item: any) => {
+        const superBrokerName =
+          item?.superBroker?.user?.fullname ||
+          item?.superBroker?.fullname ||
+          'Unassigned';
+        return (
+          <span className="text-gray-700 text-sm">
+            {superBrokerName}
+          </span>
+        );
+      },
+    },
     {
       header: 'Area',
       accessor: 'area',
@@ -409,6 +411,71 @@ const PendingApprovals: React.FC = () => {
           {item.brokeragePercent ? `${item.brokeragePercent}%` : '0%'}
         </span>
       ),
+    },
+    {
+      header: 'Actions',
+      accessor: 'id',
+      render: (item: any) => {
+        const isVerified = item?.user?.isVerified;
+        const isRejected = item?.user?.isRejected;
+        const isPending = !isVerified && !isRejected;
+
+        return (
+          <div className="flex items-center gap-1.5">
+            {isPending && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleApproveBroker(item);
+                }}
+                disabled={approveBrokerMutation.isPending}
+                className="rounded-lg bg-emerald-50 p-2 text-emerald-600 transition-all hover:bg-emerald-100 hover:text-emerald-700 active:scale-95 disabled:opacity-50"
+                title="Verify Broker"
+              >
+                <UserCheck className="h-4 w-4" />
+              </button>
+            )}
+            {isVerified && (
+              <button
+                disabled={true}
+                className="bg-gray-100 text-gray-400 cursor-not-allowed rounded-lg p-2"
+                title="Already Verified"
+              >
+                <UserCheck className="h-4 w-4" />
+              </button>
+            )}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setEditingBroker({
+                  id: item.id,
+                  fullname: item?.user?.fullname || '',
+                  email: item?.user?.email || '',
+                  phoneNumber: item?.user?.phoneNumber || '',
+                  brokerId: item?.brokerId || '',
+                  area: item?.area || '',
+                  commission: item?.brokeragePercent || '',
+                });
+              }}
+              className="rounded-lg bg-blue-50 p-2 text-blue-600 transition-all hover:bg-blue-100 hover:text-blue-700 active:scale-95"
+              title="Edit Broker"
+            >
+              <Edit3 className="h-4 w-4" />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteBroker(item);
+              }}
+              disabled={deleteBrokerMutation.isPending}
+              className="rounded-lg bg-rose-50 p-2 text-rose-600 transition-all hover:bg-rose-100 hover:text-rose-700 active:scale-95 disabled:opacity-50"
+              title="Delete Broker"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+        );
+      },
     },
   ];
 
@@ -427,26 +494,26 @@ const PendingApprovals: React.FC = () => {
       ),
     },
 
-     {
-  header: 'Date',
-  accessor: 'createdAt',
-  render: (item: any) => {
-    if (!item.createdAt) return <span className="font-mono text-sm">N/A</span>;
-    
-    const date = new Date(item.createdAt);
-    const formattedDate = date.toLocaleString('en-IN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-    });
-    
-    return <span className="font-mono text-sm whitespace-nowrap">{formattedDate}</span>;
-  },
-},
+    {
+      header: 'Date',
+      accessor: 'createdAt',
+      render: (item: any) => {
+        if (!item.createdAt) return <span className="font-mono text-sm">N/A</span>;
+
+        const date = new Date(item.createdAt);
+        const formattedDate = date.toLocaleString('en-IN', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false,
+        });
+
+        return <span className="font-mono text-sm whitespace-nowrap">{formattedDate}</span>;
+      },
+    },
 
     {
       header: 'Phone Number',
@@ -456,22 +523,22 @@ const PendingApprovals: React.FC = () => {
           {item?.user?.phoneNumber || 'N/A'}
         </span>
       ),
-    },{
-  header: 'Super Broker',
-  accessor: 'superBroker',
-  render: (item: any) => {
-    const superBrokerName =
-      item?.broker?.superBroker?.user?.fullname ||
-      item?.broker?.superBroker?.fullname ||
-      'Unassigned';
-    
-    return (
-      <span className="text-gray-700 text-sm">
-        {superBrokerName}
-      </span>
-    );
-  },
-},
+    }, {
+      header: 'Super Broker',
+      accessor: 'superBroker',
+      render: (item: any) => {
+        const superBrokerName =
+          item?.broker?.superBroker?.user?.fullname ||
+          item?.broker?.superBroker?.fullname ||
+          'Unassigned';
+
+        return (
+          <span className="text-gray-700 text-sm">
+            {superBrokerName}
+          </span>
+        );
+      },
+    },
     {
       header: 'Broker',
       accessor: 'brokerId',
@@ -593,20 +660,18 @@ const PendingApprovals: React.FC = () => {
                   setActiveTab('brokers');
                   setStatusFilter('PENDING');
                 }}
-                className={`flex items-center gap-2 rounded-t-lg px-4 py-2.5 text-sm font-medium transition-all md:px-6 ${
-                  activeTab === 'brokers'
+                className={`flex items-center gap-2 rounded-t-lg px-4 py-2.5 text-sm font-medium transition-all md:px-6 ${activeTab === 'brokers'
                     ? 'border-b-2 border-orange-500 text-orange-600'
                     : 'text-gray-500 hover:text-gray-700'
-                }`}
+                  }`}
               >
                 <Building className="h-4 w-4" />
                 Brokers
                 <span
-                  className={`ml-1 rounded-full px-2 py-0.5 text-xs ${
-                    activeTab === 'brokers'
+                  className={`ml-1 rounded-full px-2 py-0.5 text-xs ${activeTab === 'brokers'
                       ? 'bg-orange-100 text-orange-600'
                       : 'bg-gray-100 text-gray-600'
-                  }`}
+                    }`}
                 >
                   {pendingBrokersCount}
                 </span>
@@ -616,20 +681,18 @@ const PendingApprovals: React.FC = () => {
                   setActiveTab('clients');
                   setStatusFilter('PENDING');
                 }}
-                className={`flex items-center gap-2 rounded-t-lg px-4 py-2.5 text-sm font-medium transition-all md:px-6 ${
-                  activeTab === 'clients'
+                className={`flex items-center gap-2 rounded-t-lg px-4 py-2.5 text-sm font-medium transition-all md:px-6 ${activeTab === 'clients'
                     ? 'border-b-2 border-orange-500 text-orange-600'
                     : 'text-gray-500 hover:text-gray-700'
-                }`}
+                  }`}
               >
                 <Users className="h-4 w-4" />
                 Customers
                 <span
-                  className={`ml-1 rounded-full px-2 py-0.5 text-xs ${
-                    activeTab === 'clients'
+                  className={`ml-1 rounded-full px-2 py-0.5 text-xs ${activeTab === 'clients'
                       ? 'bg-orange-100 text-orange-600'
                       : 'bg-gray-100 text-gray-600'
-                  }`}
+                    }`}
                 >
                   {pendingClientsCount}
                 </span>
@@ -640,21 +703,19 @@ const PendingApprovals: React.FC = () => {
             <div className="flex items-center gap-2 rounded-lg border border-stroke bg-white p-1">
               <button
                 onClick={() => setStatusFilter('PENDING')}
-                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all md:px-4 md:text-sm ${
-                  statusFilter === 'PENDING'
+                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all md:px-4 md:text-sm ${statusFilter === 'PENDING'
                     ? 'bg-orange-500 text-white shadow-sm'
                     : 'text-gray-600 hover:bg-gray-100'
-                }`}
+                  }`}
               >
                 Pending Only
               </button>
               <button
                 onClick={() => setStatusFilter('ALL')}
-                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all md:px-4 md:text-sm ${
-                  statusFilter === 'ALL'
+                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all md:px-4 md:text-sm ${statusFilter === 'ALL'
                     ? 'bg-orange-500 text-white shadow-sm'
                     : 'text-gray-600 hover:bg-gray-100'
-                }`}
+                  }`}
               >
                 All Records
               </button>
@@ -908,8 +969,8 @@ const PendingApprovals: React.FC = () => {
                     required
                   />
                 </div>
-                
-                    
+
+
                 <div>
                   <label className="text-gray-700 text-sm font-semibold">
                     Phone Number

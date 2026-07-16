@@ -1,12 +1,12 @@
-import React, {useState, useMemo, useEffect} from 'react';
-import {FiArrowLeft, FiPlus} from 'react-icons/fi';
+import React, { useState, useMemo, useEffect } from 'react';
+import { FiArrowLeft, FiPlus } from 'react-icons/fi';
 import {
   useGetAllMasterBrockerById,
   useUpdateMasterBrokerProfile,
   useAddCommission,
   useGetMasterbrokerLedgerById,
 } from '@/lib/react-query/masterbroker';
-import {useNavigate} from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import toast from 'react-hot-toast';
 
 // Subcomponents
@@ -17,28 +17,25 @@ import { PaymentTab } from './PaymentTab';
 import { CommissionTab } from './CommissionTab';
 import { BrokersTab } from './BrokersTab';
 import { CommissionModal } from './CommissionModal';
+import GenericTable from '@/components/Forms/Table/GenericTable';
 
-interface MasterBrokerProfileProps { 
+interface MasterBrokerProfileProps {
   id: string;
 }
+
 const formatQtyLot = (item) => {
   if (!item) return '-';
   const qty = item.qty || item.Qty || 0;
   const lotSize = item.lotSize || item.lotSize || 0;
-  // If lotSize exists and is different from qty, show as "qty/lot"
   if (lotSize && lotSize !== qty) {
     return `${qty}/${lotSize}`;
   }
-  // If only qty exists or they're the same, just show qty
   return qty;
 };
 
-// Format P&L with proper sign and color
-// Format P&L with proper sign and color
 const formatPnL = (item) => {
   const pnl = item.pnl || item['p&l'] || 0;
   const sign = pnl > 0 ? '+' : '';
-  // ✅ Fix: Show only 2 decimal places
   return `${sign}${Number(pnl).toFixed(2)}`;
 };
 
@@ -64,11 +61,11 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
   const [showCommissionPin, setShowCommissionPin] = useState(false);
   const [commissionType, setCommissionType] = useState<'credit' | 'debit'>('credit');
 
-  const {data: profileData, refetch} = useGetAllMasterBrockerById(id);
-  const {data: ledgerData = []} = useGetMasterbrokerLedgerById(id);
-  const {mutate: updateMasterBrokerProfile, isPending: isUpdating} =
+  const { data: profileData, refetch } = useGetAllMasterBrockerById(id);
+  const { data: ledgerData = [] } = useGetMasterbrokerLedgerById(id);
+  const { mutate: updateMasterBrokerProfile, isPending: isUpdating } =
     useUpdateMasterBrokerProfile();
-  const {mutate: addCommission, isPending: isCommissionPending} =
+  const { mutate: addCommission, isPending: isCommissionPending } =
     useAddCommission();
 
   const [editData, setEditData] = useState({
@@ -77,6 +74,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
     commission: '',
     area: '',
     aadharCardNumber: '',
+    customerLimit: '',
     password: '',
   });
 
@@ -89,6 +87,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
         commission: profileData?.upcomingBrokeragePercent?.toString() || '',
         area: profileData?.area || '',
         aadharCardNumber: profileData?.aadharCardNumber || '',
+        customerLimit: profileData?.customerLimit?.toString() || '',
         password: '',
       });
     }
@@ -116,7 +115,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
 
   // Initialize dates with current week range
   useEffect(() => {
-    const {startDate, endDate} = getCurrentWeekRange();
+    const { startDate, endDate } = getCurrentWeekRange();
     setLedgerStartDate(startDate);
     setLedgerEndDate(endDate);
     setPaymentStartDate(startDate);
@@ -133,6 +132,15 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
       srNo: index + 1,
     }));
   }, [profileData?.brokers]);
+
+  // Get customers from profileData and add SR number
+  const customersList = useMemo(() => {
+    const customers = profileData?.customers || [];
+    return customers.map((customer: any, index: number) => ({
+      ...customer,
+      srNo: index + 1,
+    }));
+  }, [profileData?.customers]);
 
   // Commission History Data from API
   const commissionHistoryList = useMemo(() => {
@@ -182,32 +190,104 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
     }));
   }, [paymentData]);
 
+  // Customer Table Columns - Same as Broker Profile
+  const customerColumns = [
+
+    {
+      header: 'Customer Name',
+      accessor: 'user.fullname',
+      render: (item: any) => (
+        <div className="font-semibold text-black">
+          {item?.user?.fullname || '-'}
+        </div>
+      ),
+    },
+    {
+      header: 'Phone Number',
+      accessor: 'user.phoneNumber',
+      render: (item: any) => (
+        <span className="text-gray-700">{item?.user?.phoneNumber || '-'}</span>
+      ),
+    },
+    {
+      header: 'CRN',
+      accessor: 'CRN',
+      render: (item: any) => (
+        <span className="font-mono text-gray-600 text-sm font-medium">
+          {item?.CRN || '-'}
+        </span>
+      ),
+    },
+    {
+      header: 'Commission',
+      accessor: 'brokeragePercent',
+      render: (item: any) => (
+        <span className="rounded border border-orange-100 bg-orange-50 px-2 py-1 text-xs font-bold text-orange-600">
+          {item?.brokeragePercent ? `${item.brokeragePercent}%` : '-'}
+        </span>
+      ),
+    },
+    {
+      header: 'Address',
+      accessor: 'address',
+      render: (item: any) => (
+        <span className="text-gray-700 text-sm">
+          {item?.address || item?.area || '-'}
+        </span>
+      ),
+    },
+    {
+      header: 'Total Business',
+      accessor: 'totalBusiness',
+      render: (item: any) => (
+        <span className="font-semibold text-gray-700">
+          ₹{item?.totalBusiness?.toLocaleString() || '0'}
+        </span>
+      ),
+    },
+    {
+      header: 'Total Commission',
+      accessor: 'totalCommission',
+      render: (item: any) => (
+        <span className="font-semibold text-green-600">
+          ₹{item?.totalCommission?.toLocaleString() || '0'}
+        </span>
+      ),
+    },
+    {
+      header: 'Pending Commission',
+      accessor: 'pendingCommission',
+      render: (item: any) => (
+        <span className="font-semibold text-orange-500">
+          ₹{item?.pendingCommission?.toLocaleString() || '0'}
+        </span>
+      ),
+    },
+  ];
+
   const baseLedgerColumns = [
-    {header: 'Date & Time', accessor: 'dateTime'},
-    {header: 'Customer Name', accessor: 'customerName'},
-    {header: 'Script', accessor: 'script'},
-    {header: 'Qty/Lot', accessor: (item) => formatQtyLot(item)},
-    {header: 'Buy Price', accessor: 'buyPrice'},
-    {header: 'Sell Price', accessor: 'sellPrice'},
-    {header: 'Status', accessor: 'status'},
-    {header: 'P&L', accessor: (item) => formatPnL(item)},
-    
+    { header: 'Date & Time', accessor: 'dateTime' },
+    { header: 'Customer Name', accessor: 'customerName' },
+    { header: 'Script', accessor: 'script' },
+    { header: 'Qty/Lot', accessor: (item) => formatQtyLot(item) },
+    { header: 'Buy Price', accessor: 'buyPrice' },
+    { header: 'Sell Price', accessor: 'sellPrice' },
+    { header: 'Status', accessor: 'status' },
+    { header: 'P&L', accessor: (item) => formatPnL(item) },
   ];
 
   const expandedLedgerColumns = [
-    {header: 'Date & Time', accessor: 'dateTime'},
-    {header: 'Customer Name', accessor: 'customerName'},
-    {header: 'Script', accessor: 'script'},
-    {header: 'Qty/Lot', accessor: (item) => formatQtyLot(item)},
-    {header: 'Buy Price', accessor: 'buyPrice'},
-    {header: 'Sell Price', accessor: 'sellPrice'},
-    {header: 'Buy Time', accessor: 'buyTime'},
-    {header: 'Sell Time', accessor: 'sellTime'},
-    {header: 'Status', accessor: 'status'},
-    {header: 'P&L', accessor: (item) => formatPnL(item)},
-    {header: 'Admin Commission', accessor: 'companyCommission'},
-    {header: 'Super Broker Commission', accessor: 'superBrokerCommission'},
-    {header: 'Broker Commission', accessor: 'brokerCommission'},
+    { header: 'Date & Time', accessor: 'dateTime' },
+    { header: 'Customer Name', accessor: 'customerName' },
+    { header: 'Script', accessor: 'script' },
+    { header: 'Qty/Lot', accessor: (item) => formatQtyLot(item) },
+    { header: 'Buy Price', accessor: 'buyPrice' },
+    { header: 'Sell Price', accessor: 'sellPrice' },
+    { header: 'Buy Time', accessor: 'buyTime' },
+    { header: 'Sell Time', accessor: 'sellTime' },
+    { header: 'Status', accessor: 'status' },
+    { header: 'P&L', accessor: (item) => formatPnL(item) },
+    { header: 'Master Commission', accessor: 'masterBrokerCommission' },
   ];
 
   const ledgerColumns = isLedgerExpanded
@@ -215,16 +295,16 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
     : baseLedgerColumns;
 
   const paymentColumns = [
-    {header: 'Date', accessor: 'date'},
-    {header: 'Commission Generated', accessor: 'commissionGenerated'},
-    {header: 'Paid Amount', accessor: 'paidAmount'},
-    {header: 'Paid Date', accessor: 'paidDate'},
-    {header: 'Status', accessor: 'status'},
+    { header: 'Date', accessor: 'date' },
+    { header: 'Commission Generated', accessor: 'commissionGenerated' },
+    { header: 'Paid Amount', accessor: 'paidAmount' },
+    { header: 'Paid Date', accessor: 'paidDate' },
+    { header: 'Status', accessor: 'status' },
   ];
 
   // Commission History Columns
   const commissionColumns = [
-    {header: 'S.No', accessor: 'srNo'},
+
     {
       header: 'Date & Time',
       accessor: 'createdAt',
@@ -232,12 +312,12 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
         <span className="text-sm">
           {item.createdAt
             ? new Date(item.createdAt).toLocaleString('en-IN', {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              })
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })
             : '-'}
         </span>
       ),
@@ -303,11 +383,6 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
       render: () => <span className="text-gray-700">-</span>,
     },
     {
-      header: 'Total Business',
-      accessor: 'totalBusiness',
-      render: () => <span className="text-gray-700">-</span>,
-    },
-    {
       header: 'Total Commission',
       accessor: 'totalCommission',
       render: () => <span className="text-gray-700">-</span>,
@@ -320,8 +395,8 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
   ];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const {name, value} = e.target;
-    setEditData((prev) => ({...prev, [name]: value}));
+    const { name, value } = e.target;
+    setEditData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSave = () => {
@@ -341,6 +416,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
       commission: editData.commission,
       area: editData.area,
       aadharCardNumber: editData.aadharCardNumber,
+      customerLimit: editData.customerLimit,
     };
 
     if (editData.password) {
@@ -383,7 +459,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
   };
 
   const handleBack = () => {
-    navigate({to: '/companybroker/display-master-broker'});
+    navigate({ to: '/companybroker/display-master-broker' });
   };
 
   const handleCommissionSubmit = async (e: React.FormEvent) => {
@@ -488,60 +564,47 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
       />
 
       {/* Statistics Cards Component */}
-      <MasterBrokerStats profileData={profileData} />
+      {/* <MasterBrokerStats profileData={profileData} /> */}
 
       {/* Tabs and Tables Section */}
       <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex flex-wrap items-center justify-between border-b border-stroke dark:border-strokedark">
-          <div className="flex">
+          <div className="flex flex-wrap">
             <button
               onClick={() => setActiveTab('ledger')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
-                activeTab === 'ledger'
-                  ? 'border-b-2 border-orange-500 text-orange-500'
-                  : 'text-bodydark2'
-              }`}
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'ledger'
+                ? 'border-b-2 border-orange-500 text-orange-500'
+                : 'text-bodydark2'
+                }`}
             >
               Ledger
             </button>
             <button
               onClick={() => setActiveTab('payment')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
-                activeTab === 'payment'
-                  ? 'border-b-2 border-orange-500 text-orange-500'
-                  : 'text-bodydark2'
-              }`}
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'payment'
+                ? 'border-b-2 border-orange-500 text-orange-500'
+                : 'text-bodydark2'
+                }`}
             >
               Payment History
             </button>
             <button
               onClick={() => setActiveTab('commission')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
-                activeTab === 'commission'
-                  ? 'border-b-2 border-orange-500 text-orange-500'
-                  : 'text-bodydark2'
-              }`}
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'commission'
+                ? 'border-b-2 border-orange-500 text-orange-500'
+                : 'text-bodydark2'
+                }`}
             >
               Commission History ({profileData?.commissionHistories?.length || 0})
             </button>
-            {/* <button
-              onClick={() => setActiveTab('broker')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
-                activeTab === 'broker'
-                  ? 'border-b-2 border-orange-500 text-orange-500'
-                  : 'text-bodydark2'
-              }`}
-            >
-              okers ({profileData?.brokers?.length || 0})
-            </button> */}
-          </div>
-          <div className="px-4 py-2">
             <button
-              onClick={handleOpenCommissionModal}
-              className="flex items-center gap-2 rounded-lg bg-orange-500 px-3 py-1.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-orange-600 md:px-4 md:py-2"
+              onClick={() => setActiveTab('customers')}
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'customers'
+                ? 'border-b-2 border-orange-500 text-orange-500'
+                : 'text-bodydark2'
+                }`}
             >
-              <FiPlus className="h-4 w-4" />
-              Add Commission
+              Clients ({profileData?.customers?.length || 0})
             </button>
           </div>
         </div>
@@ -581,6 +644,26 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
               filteredCommissionHistory={filteredCommissionHistory}
               commissionColumns={commissionColumns}
             />
+          )}
+
+          {activeTab === 'customers' && (
+            <div className="overflow-x-auto">
+              <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                <h3 className="text-base font-semibold text-black dark:text-white md:text-lg">
+                  Customers List
+                </h3>
+                <span className="text-sm text-gray-500">
+                  Total: {customersList.length} customers
+                </span>
+              </div>
+              <GenericTable
+                data={customersList}
+                columns={customerColumns}
+                searchAble={true}
+                searchFields={['user.fullname', 'CRN', 'user.phoneNumber']}
+                itemsPerPage={10}
+              />
+            </div>
           )}
 
           {activeTab === 'broker' && (

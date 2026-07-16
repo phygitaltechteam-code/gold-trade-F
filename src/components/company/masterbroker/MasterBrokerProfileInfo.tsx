@@ -8,6 +8,7 @@ interface EditData {
   commission: string;
   area: string;
   aadharCardNumber: string;
+  customerLimit?: string;
   password?: string;
 }
 
@@ -168,6 +169,27 @@ export const MasterBrokerProfileInfo: React.FC<MasterBrokerProfileInfoProps> = (
             ) : (
               <p className="text-sm font-semibold text-orange-600 dark:text-white md:text-base">
                 {profileData?.upcomingBrokeragePercent || '0'}%
+              </p>
+            )}
+          </div>
+
+          {/* Customer Limit */}
+          <div>
+            <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
+              Customer Limit
+            </label>
+            {isEditing ? (
+              <input
+                type="number"
+                name="customerLimit"
+                value={editData.customerLimit || ''}
+                onChange={handleInputChange}
+                placeholder="Enter customer limit"
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
+              />
+            ) : (
+              <p className="text-sm text-black dark:text-white md:text-base">
+                {profileData?.customerLimit || profileData?.customer_limit || 'Unlimited'}
               </p>
             )}
           </div>

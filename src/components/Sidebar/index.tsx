@@ -34,15 +34,16 @@ import {
   Receipt,
   Key,
   LogOut,
+  User,
 } from 'lucide-react';
 import { useGetProfile } from '@/lib/react-query/admin';
 import { useGetMasterbrokerProfile } from '@/lib/react-query/masterbroker';
+import { useGetSuperbrokerProfile } from '@/lib/react-query/superbrocker';
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const location = useLocation();
   const { pathname } = location;
   const { user } = useAuthContext();
-  // const {data: profile} = useGetProfile();
 
   const isCompany = user?.role === 'COMPANY';
   const isSuperAdmin = user?.role === 'SUPERADMIN';
@@ -51,11 +52,24 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const isCustomer = user?.role === 'CUSTOMER';
   const isSuperBroker =
     user?.role === 'SUPER_BROKER' || user?.role === 'SUPERBROKER';
-    const isMasterBroker = user?.role === 'MASTER_BROKER';
+  const isMasterBroker = user?.role === 'MASTER_BROKER';
 
-  const { data: profile } = isCompany ? useGetProfile() : useGetMasterbrokerProfile();
+  // Get profile based on role
+  let profileData;
+  if (isCompany) {
+    const { data } = useGetProfile();
+    profileData = data;
+  } else if (isMasterBroker) {
+    const { data } = useGetMasterbrokerProfile();
+    profileData = data;
+  } else if (isSuperBroker) {
+    const { data } = useGetSuperbrokerProfile();
+    profileData = data;
+  }
 
-  // console.log('userrrr', user);
+  const profile = profileData?.data || profileData;
+
+  console.log('userrrr', user);
   console.log('isSuperBroker', isSuperBroker);
 
   const isFixedOpenRef = useRef(false);
@@ -114,7 +128,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         path: '/TransactionLedger',
         icon: <Activity size={22} />,
       },
-      
+
       {
         label: 'Pending Approvals',
         path: '/Approval/pendingapprovals',
@@ -125,32 +139,22 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         path: '/withdrawlreq/withdrawlRequest',
         icon: <HandCoins size={22} />,
       },
-      // {
-      //   label: 'Financial Reports',
-      //   path: '/Report/financialReport',
-      //   icon: <BarChart3 size={22} />,
-      // },
-      // {
-      //   label: 'Admin Registration',
-      //   path: '/superadmin/superadmin',
-      //   icon: <UserCog size={22} />,
-      // },
-      // {
-      //   label: 'Settings',
-      //   icon: <Settings size={22} />,
-      //   subRoutes: [
-      //     // {
-      //     //   label: 'Change Password',
-      //     //   path: '/change-password',
-      //     //   icon: <Key size={18} />,
-      //     // },
-      //     // {
-      //     //   label: 'Logout',
-      //     //   onClick: () => handleSignOut(),
-      //     //   icon: <LogOut size={18} />,
-      //     // },
-      //   ],
-      // },
+      {
+        label: 'Settings',
+        icon: <Settings size={22} />,
+        subRoutes: [
+          {
+            label: 'Profile',
+            path: '/company/profile',
+            icon: <User size={18} />,
+          },
+          {
+            label: 'Logout',
+            onClick: () => handleSignOut(),
+            icon: <LogOut size={18} />,
+          },
+        ],
+      },
     ]
     : isSuperAdmin
       ? [
@@ -189,6 +193,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           icon: <Settings size={22} />,
           subRoutes: [
             {
+              label: 'Profile',
+              path: '/superadmin/profile',
+              icon: <User size={18} />,
+            },
+            {
               label: 'Change Password',
               path: '/change-password',
               icon: <Key size={18} />,
@@ -223,22 +232,17 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             path: '/broker/brokerprofiles',
             icon: <UserCog size={22} />,
           },
-          // {
-          //   label: 'Settings',
-          //   icon: <Settings size={22} />,
-          //   subRoutes: [
-          //     {
-          //       label: 'Profile',
-          //       path: '/broker/brokerprofiles',
-          //       icon: <UserCog size={22} />,
-          //     },
-          //     {
-          //       label: 'Logout',
-          //       onClick: () => handleSignOut(),
-          //       icon: <LogOut size={18} />,
-          //     },
-          //   ],
-          // },
+          {
+            label: 'Settings',
+            icon: <Settings size={22} />,
+            subRoutes: [
+              {
+                label: 'Logout',
+                onClick: () => handleSignOut(),
+                icon: <LogOut size={18} />,
+              },
+            ],
+          },
         ]
         : isCustomer
           ? [
@@ -292,41 +296,24 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 icon: <Receipt size={22} />,
               },
               {
-                label: 'Profile',
-                path: '/broker/superbrokerprofile',
-                icon: <UserCog size={22} />,
+                label: 'Settings',
+                icon: <Settings size={22} />,
+                subRoutes: [
+                  {
+                    label: 'Profile',
+                    path: '/broker/superbrokerprofile',
+                    icon: <User size={18} />,
+                  },
+                  {
+                    label: 'Logout',
+                    onClick: () => handleSignOut(),
+                    icon: <LogOut size={18} />,
+                  },
+                ],
               },
             ]
-          : isSuperBroker
-            ? [
-                {
-                  label: 'Dashboard',
-                  path: '/superbroker/superbrokerdashbaord',
-                  icon: <LayoutDashboard size={22} />,
-                },
-                {
-                  label: 'Broker List',
-                  path: '/broker/displaybroker',
-                  icon: <UserCog size={22} />,
-                },
-                {
-                  label: 'Commission History',
-                  path: '/superbrokercommissionhistory',
-                  icon: <HandCoins size={22} />,
-                },
-                {
-                  label: 'Transaction Ledger',
-                  path: '/superbrokertransaction',
-                  icon: <Receipt size={22} />,
-                },
-                {
-                  label: 'Profile',
-                  path: '/broker/superbrokerprofile',
-                  icon: <UserCog size={22} />,
-                },
-              ]
-             : isMasterBroker
-            ? [
+            : isMasterBroker
+              ? [
                 {
                   label: 'Dashboard',
                   path: '/masterbroker/dashboard',
@@ -342,22 +329,29 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   path: '/masterbroker/ledger-transaction',
                   icon: <HandCoins size={22} />,
                 },
-                // {
-                //   label: 'Pending Approvels',
-                //   path: '/masterbroker/pending-approvel',
-                //   icon: <Receipt size={22} />,
-                // },
-                // {
-                //   label: 'Financial Report',
-                //   path: '/masterbroker/financial-report',
-                //   icon: <UserCog size={22} />,
-                // },
                 {
                   label: 'Widraw Request',
                   path: '/masterbroker/widrawrequest',
                   icon: <UserCog size={22} />,
                 },
-              ] :[];
+                {
+                  label: 'Settings',
+                  icon: <Settings size={22} />,
+                  subRoutes: [
+                    {
+                      label: 'Profile',
+                      path: '/masterbroker/profile',
+                      icon: <User size={18} />,
+                    },
+                    {
+                      label: 'Logout',
+                      onClick: () => handleSignOut(),
+                      icon: <LogOut size={18} />,
+                    },
+                  ],
+                },
+              ]
+              : [];
 
   const trigger = useRef<HTMLButtonElement>(null);
   const sidebar = useRef<HTMLDivElement>(null);
@@ -437,16 +431,33 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     if (isAdmin) return 'Admin';
     if (isCompany) return 'Company';
     if (isSuperBroker) return 'Super Broker';
+    if (isMasterBroker) return 'Master Broker';
     if (isBroker) return 'Broker';
     if (isCustomer) return 'Customer';
     return 'User';
+  };
+
+  // Get user display name
+  const getUserName = () => {
+    if (profile?.fullname) return profile.fullname;
+    if (profile?.user?.fullname) return profile.user.fullname;
+    if (user?.fullname) return user.fullname;
+    if (user?.name) return user.name;
+    return 'GoldTrade';
+  };
+
+  // Get user profile image
+  const getUserImage = () => {
+    if (profile?.photo) return profile.photo;
+    if (profile?.user?.photo) return profile.user.photo;
+    return '/default-avatar.png';
   };
 
   return (
     <div className="relative z-50">
       <aside
         ref={sidebar}
-        className={`fixed inset-y-0 left-0 z-50 flex h-screen flex-col  bg-white text-black transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed inset-y-0 left-0 z-50 flex h-screen flex-col bg-white text-black transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
           } lg:static lg:translate-x-0`}
       >
         <div className="flex items-center justify-between px-4 py-3 lg:px-5 lg:py-6">
@@ -463,18 +474,19 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             }}
           >
             <div className="flex items-center gap-3">
-             <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg shadow-lg shadow-orange-500/20 transition-transform duration-200 hover:scale-105 active:scale-95">
-  <img
-    src={profile?.photo}
-    alt="Profile"
-    className="h-full w-full object-cover"
-  />
-</div>
-
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg shadow-lg shadow-orange-500/20 transition-transform duration-200 hover:scale-105 active:scale-95">
+                <img
+                  src={getUserImage()}
+                  alt="Profile"
+                  className="h-full w-full object-cover"
+                />
+              </div>
               {isExpanded && (
                 <div className="flex flex-col items-start overflow-hidden">
-                  <p className="font-bold text-black-2">GoldTrade</p>
-                  <p className="bg-gradient-to-r from-[#FF6321] to-[#FF8C00] bg-clip-text text-xl font-bold text-transparent">
+                  <p className="font-bold text-black-2 text-sm">
+                    {getUserName()}
+                  </p>
+                  <p className="bg-gradient-to-r from-[#FF6321] to-[#FF8C00] bg-clip-text text-xs font-semibold text-transparent">
                     {getRoleText()}
                   </p>
                 </div>
@@ -553,7 +565,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                       }}
                                       className="block w-full rounded px-3 py-2 text-left text-sm text-black hover:bg-primary/20"
                                     >
-                                      {subRoute.label}
+                                      <span className="flex items-center gap-2">
+                                        {subRoute.icon}
+                                        {subRoute.label}
+                                      </span>
                                     </button>
                                   ) : (
                                     <Link
@@ -565,7 +580,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                       }}
                                       className="block rounded px-3 py-2 text-sm text-black hover:bg-primary/20"
                                     >
-                                      {subRoute.label}
+                                      <span className="flex items-center gap-2">
+                                        {subRoute.icon}
+                                        {subRoute.label}
+                                      </span>
                                     </Link>
                                   )}
                                 </li>
@@ -673,6 +691,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 }}
                 className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm text-black hover:bg-primary/10"
               >
+                {subRoute.icon}
                 {subRoute.label}
               </button>
             ) : (
@@ -689,6 +708,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 }}
                 className="flex items-center gap-2 rounded px-3 py-2 text-sm text-black hover:bg-primary/10"
               >
+                {subRoute.icon}
                 {subRoute.label}
               </Link>
             ),

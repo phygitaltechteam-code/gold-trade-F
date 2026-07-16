@@ -437,6 +437,11 @@ export const DisplayScripts: React.FC = () => {
     {
       header: 'Name',
       accessor: 'name',
+      render: (row: Script) => {
+        // Extract only the base name without date/expiry
+        const cleanName = row.name?.replace(/\d+[A-Z]{3}FUT$/, '') || row.name;
+        return <span>{cleanName}</span>;
+      }
     },
     {
       header: 'Symbol',
@@ -527,14 +532,12 @@ export const DisplayScripts: React.FC = () => {
 
             <p className="mb-4 text-sm text-slate-600">
               {selectedScriptDetails.isOn
-                ? `Are you sure you want to disable ${
-                    selectedScriptDetails.name ||
-                    selectedScriptDetails.symbol
-                  }?`
-                : `Are you sure you want to enable ${
-                    selectedScriptDetails.name ||
-                    selectedScriptDetails.symbol
-                  }?`}
+                ? `Are you sure you want to disable ${selectedScriptDetails.name ||
+                selectedScriptDetails.symbol
+                }?`
+                : `Are you sure you want to enable ${selectedScriptDetails.name ||
+                selectedScriptDetails.symbol
+                }?`}
             </p>
 
             <p className="mb-2 text-sm font-medium text-slate-700">
@@ -577,11 +580,10 @@ export const DisplayScripts: React.FC = () => {
               <button
                 onClick={handleConfirmStatusChange}
                 disabled={togglingId !== null}
-                className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${
-                  selectedScriptDetails.isOn
+                className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${selectedScriptDetails.isOn
                     ? 'bg-red-500 hover:bg-red-600'
                     : 'bg-emerald-500 hover:bg-emerald-600'
-                } disabled:opacity-50`}
+                  } disabled:opacity-50`}
               >
                 {togglingId !== null ? 'Processing...' : 'Confirm'}
               </button>

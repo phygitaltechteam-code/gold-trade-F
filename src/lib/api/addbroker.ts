@@ -189,7 +189,7 @@ export const useApproveBroker = () => {
   return useMutation({
     mutationFn: approveBroker,
     onSuccess: () => {
-      toast.success('Broker Approved Successfully!');
+      // toast.success('Broker Approved Successfully!');
       queryClient.invalidateQueries({queryKey: ['get-broker']});
     },
     onError: (error: any) => {

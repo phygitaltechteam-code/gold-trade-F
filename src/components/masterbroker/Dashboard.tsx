@@ -1,5 +1,5 @@
-import React, {useState, useEffect, useRef} from 'react';
-import {motion} from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import {
   Landmark,
   Wallet,
@@ -20,16 +20,15 @@ import {
   CreditCard,
   Activity,
 } from 'lucide-react';
-import {useAuthContext} from '@/context/AuthContext';
+import { useAuthContext } from '@/context/AuthContext';
 import toast from 'react-hot-toast';
 import GenericButton from '@/components/Forms/Buttons/GenericButton';
-// import {useGetCompanyDashboard} from '@/lib/api/dashboard';
-import {cn} from '@/utils/utilities';
 import { useGetMasterBrokerDashboard } from '@/lib/api/dashboard';
+import { cn } from '@/utils/utilities';
 
 // Animation variants
 const containerVariants = {
-  hidden: {opacity: 0},
+  hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
@@ -39,7 +38,7 @@ const containerVariants = {
 };
 
 const itemVariants = {
-  hidden: {opacity: 0, y: 20},
+  hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
@@ -67,7 +66,6 @@ const StatCard = ({
         <h4 className="mt-2 text-xl font-bold text-black dark:text-white md:text-2xl">
           {value}
         </h4>
-        {/* {subValue && <p className="text-gray-500 mt-1 text-xs">{subValue}</p>} */}
       </div>
       <div className={`rounded-lg p-2 ${iconColor.replace('text', 'bg')}/10`}>
         {Icon && <Icon className={`h-5 w-5 ${iconColor} md:h-6 md:w-6`} />}
@@ -101,12 +99,12 @@ const FinancialStatCard = ({
 );
 
 const Dashboard: React.FC = () => {
-  const {user} = useAuthContext();
+  const { user } = useAuthContext();
   const [selectedPeriod, setSelectedPeriod] = useState<
     '30d' | '7d' | '24h' | 'custom'
   >('30d');
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [customDateRange, setCustomDateRange] = useState({start: '', end: ''});
+  const [customDateRange, setCustomDateRange] = useState({ start: '', end: '' });
   const datePickerRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -183,41 +181,22 @@ const Dashboard: React.FC = () => {
 
   const formatCurrency = (amount: number) => {
     if (amount === undefined || amount === null) return '₹0';
-    if (amount >= 10000000) {
-      return `₹${(amount / 10000000).toFixed(2)}Cr`;
-    } else if (amount >= 100000) {
-      return `₹${(amount / 100000).toFixed(1)}L`;
-    } else if (amount >= 1000) {
-      return `₹${(amount / 1000).toFixed(1)}k`;
-    }
-    return `₹${formatNumber(amount)}`;
+    return `₹${amount.toLocaleString('en-IN')}`;
   };
 
   // Extract data from API response
   const dashboardStats = {
-    // User Statistics
-    // noOfSuperBroker: dashboardData?.cards?.superBrokers?.total ?? 0,
-    // activeSuperBrokers: dashboardData?.cards?.superBrokers?.active ?? 0,
-    // noOfBroker: dashboardData?.cards?.brokers?.total ?? 0,
-    // activeBrokers: dashboardData?.cards?.brokers?.active ?? 0,
     noOfCustomer: dashboardData?.cards?.customers?.total ?? 0,
     activeCustomers: dashboardData?.cards?.customers?.active ?? 0,
     totalActiveTrends: dashboardData?.cards?.activeTrends?.total ?? 0,
-    totalActiveTrendsAmount: 0, // Not available in current API
-
-    // Financial Metrics
+    totalActiveTrendsAmount: 0,
     adminCommission: dashboardData?.cards?.adminCommission ?? 0,
-    // superBrokerTotalCommission:
-    //   dashboardData?.cards?.superBrokerTotalCommission ?? 0,
-    // totalBrokerCommission: dashboardData?.cards?.totalBrokerCommission ?? 0,
-    // totalAdminProfitLoss: dashboardData?.cards?.totalAdminPnL ?? 0,
     totalCustomerWalletBalance:
       dashboardData?.cards?.totalCustomerWalletBalance ?? 0,
+    totalAdminPnL: dashboardData?.cards?.totalAdminPnL ?? 0,
     pendingSuperBrokerCommission:
       dashboardData?.cards?.pendingSuperBrokerCommission ?? 0,
     pendingBrokerCommission: dashboardData?.cards?.pendingBrokerCommission ?? 0,
-
-    // Financials
     totalDeposits: dashboardData?.financials?.totalDeposits ?? 0,
     totalWithdrawals: dashboardData?.financials?.totalWithdrawals ?? 0,
     netCashFlow: dashboardData?.financials?.netCashFlow ?? 0,
@@ -284,26 +263,14 @@ const Dashboard: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Row 1: User Statistics Cards */}
-        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
-          {/* <StatCard
-            title="No. of Super Brokers"
-            value={formatNumber(dashboardStats.noOfSuperBroker)}
-            // subValue={`${dashboardStats.activeSuperBrokers} Active`}
-            icon={Award}
-            iconColor="text-purple-500"
-          /> */}
-          {/* <StatCard
-            title="No. of Brokers"
-            value={formatNumber(dashboardStats.noOfBroker)}
-            // subValue={`${dashboardStats.activeBrokers} Active`}
-            icon={Briefcase}
-            iconColor="text-blue-500"
-          /> */}
+        {/* Cards - All in one row */}
+        <motion.div
+          variants={itemVariants}
+          className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5"
+        >
           <StatCard
             title="No. of Customers"
             value={formatNumber(dashboardStats.noOfCustomer)}
-            // subValue={`${dashboardStats.activeCustomers} Active`}
             icon={Users}
             iconColor="text-green-500"
           />
@@ -313,61 +280,25 @@ const Dashboard: React.FC = () => {
             icon={Activity}
             iconColor="text-orange-500"
           />
-        {/* </div> */}
-
-        {/* Row 2: Commission Cards */}
-        {/* <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4"> */}
           <FinancialStatCard
             title="Admin Commission"
             amount={formatCurrency(dashboardStats.adminCommission)}
             icon={IndianRupee}
             iconColor="text-emerald-500"
           />
-          {/* <FinancialStatCard
-            title="Super Broker Total Commission"
-            amount={formatCurrency(dashboardStats.superBrokerTotalCommission)}
-            icon={Wallet}
-            iconColor="text-blue-500"
-          /> */}
-          {/* <FinancialStatCard
-            title="Total Broker Commission"
-            amount={formatCurrency(dashboardStats.totalBrokerCommission)}
-            icon={Landmark}
-            iconColor="text-indigo-500"
-          /> */}
-          {/* <FinancialStatCard
-            title="Total Admin P&L"
-            amount={formatCurrency(dashboardStats.totalAdminProfitLoss)}
-            icon={PieChart}
-            iconColor={
-              dashboardStats.totalAdminProfitLoss >= 0
-                ? 'text-green-500'
-                : 'text-red-500'
-            }
-          /> */}
-        {/* </div> */}
-
-        {/* Row 3: Wallet & Pending Commissions */}
-        {/* <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4"> */}
           <FinancialStatCard
             title="Total Customer Wallet Balance"
             amount={formatCurrency(dashboardStats.totalCustomerWalletBalance)}
             icon={Wallet}
-            iconColor="text-green-500"
-          />
-          {/* <FinancialStatCard
-            title="Pending Super Broker Commission"
-            amount={formatCurrency(dashboardStats.pendingSuperBrokerCommission)}
-            icon={Clock}
-            iconColor="text-orange-500"
+            iconColor="text-blue-500"
           />
           <FinancialStatCard
-            title="Pending Broker Commission"
-            amount={formatCurrency(dashboardStats.pendingBrokerCommission)}
-            icon={Clock}
-            iconColor="text-orange-500"
-          /> */}
-        </div>
+            title="Total Profit & Loss"
+            amount={formatCurrency(dashboardStats.totalAdminPnL)}
+            icon={TrendingUp}
+            iconColor={dashboardStats.totalAdminPnL >= 0 ? 'text-green-500' : 'text-red-500'}
+          />
+        </motion.div>
       </div>
     </motion.div>
   );

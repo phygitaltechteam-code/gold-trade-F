@@ -1,15 +1,15 @@
-import {useAddBroker} from '@/lib/api/addbroker';
-import React, {useState, useEffect} from 'react';
-import {useNavigate} from '@tanstack/react-router';
+import { useAddBroker } from '@/lib/api/addbroker';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import toast from 'react-hot-toast';
-import {z} from 'zod';
-import {useAuthContext} from '@/context/AuthContext';
-import {X, ZoomIn} from 'lucide-react';
-import {useApproveBroker, useUpdateBroker} from '@/lib/api/addbroker';
-import {useParams} from '@tanstack/react-router';
-import {Route} from '@/routes/_app/companybroker/pendingbrokerby.$id';
-import {useGetPendingBrokers} from '@/lib/api/customer';
-import {useGetAllSuperBrocker} from '@/lib/react-query/superbrocker';
+import { z } from 'zod';
+import { useAuthContext } from '@/context/AuthContext';
+import { X, ZoomIn } from 'lucide-react';
+import { useApproveBroker, useUpdateBroker } from '@/lib/api/addbroker';
+import { useParams } from '@tanstack/react-router';
+import { Route } from '@/routes/_app/companybroker/pendingbrokerby.$id';
+import { useGetPendingBrokers } from '@/lib/api/customer';
+import { useGetAllSuperBrocker } from '@/lib/react-query/superbrocker';
 
 // Define Zod schema for form data validation
 const BrokerSchema = z.object({
@@ -24,9 +24,9 @@ const BrokerSchema = z.object({
 });
 
 const PendingBrokerByid = () => {
-  const {id} = Route.useParams();
+  const { id } = Route.useParams();
   const navigate = useNavigate();
-  const {user} = useAuthContext();
+  const { user } = useAuthContext();
   const isSuperBroker = user?.role === 'SUPERBROKER';
 
   // Queries and Mutations
@@ -35,7 +35,7 @@ const PendingBrokerByid = () => {
     isLoading: isLoadingBroker,
     refetch,
   } = useGetPendingBrokers(id);
-  const {data: superBrokersData} = useGetAllSuperBrocker();
+  const { data: superBrokersData } = useGetAllSuperBrocker();
   const updateBrokerMutation = useUpdateBroker();
   const approveBrokerMutation = useApproveBroker();
 
@@ -121,7 +121,7 @@ const PendingBrokerByid = () => {
   }, [isSuperBroker, user]);
 
   const handleInputChange = (e) => {
-    const {name, value} = e.target;
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -277,14 +277,14 @@ const PendingBrokerByid = () => {
         superBrokerId: formData.superBrokerId,
       });
       toast.success('Broker approved successfully!');
-      navigate({to: '/Approval/pendingapprovals'});
+      navigate({ to: '/Approval/pendingapprovals' });
     } catch (error) {
       console.error('Approve error:', error);
       toast.error(error?.response?.data?.message || 'Failed to approve broker');
     }
   };
 
-  const ImageUploadField = ({label, field, required}) => (
+  const ImageUploadField = ({ label, field, required }) => (
     <div className="mb-4">
       <label className="text-gray-700 mb-2 block text-sm font-medium">
         {label} {required && <span className="text-red-500">*</span>}
@@ -386,7 +386,7 @@ const PendingBrokerByid = () => {
                 </button>
               )}
               <button
-                onClick={() => navigate({to: '/Approval/pendingapprovals'})}
+                onClick={() => navigate({ to: `/companybroker/BrokerProfile/${id}` })}
                 className="hover:bg-gray-100 rounded-lg bg-white px-4 py-2 text-sm font-medium text-orange-500 transition-all"
               >
                 Back to List
@@ -408,9 +408,8 @@ const PendingBrokerByid = () => {
                 value={formData.fullname}
                 onChange={handleInputChange}
                 disabled={!isEditing}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
-                  !isEditing ? 'bg-gray-100' : 'bg-white'
-                } ${errors.fullname ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${!isEditing ? 'bg-gray-100' : 'bg-white'
+                  } ${errors.fullname ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="Enter full name"
               />
               {errors.fullname && (
@@ -430,9 +429,8 @@ const PendingBrokerByid = () => {
                 onChange={handleInputChange}
                 disabled={!isEditing}
                 maxLength={10}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
-                  !isEditing ? 'bg-gray-100' : 'bg-white'
-                } ${errors.phoneNumber ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${!isEditing ? 'bg-gray-100' : 'bg-white'
+                  } ${errors.phoneNumber ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="Enter 10-digit phone number"
               />
               {errors.phoneNumber && (
@@ -480,11 +478,9 @@ const PendingBrokerByid = () => {
                   value={formData.superBrokerId}
                   onChange={handleInputChange}
                   disabled={!isEditing}
-                  className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
-                    !isEditing ? 'bg-gray-100' : 'bg-white'
-                  } ${
-                    errors.superBrokerId ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${!isEditing ? 'bg-gray-100' : 'bg-white'
+                    } ${errors.superBrokerId ? 'border-red-500' : 'border-gray-300'
+                    }`}
                 >
                   <option value="">Select Super Broker</option>
                   {superBrokersList.map((sb) => (
@@ -513,9 +509,8 @@ const PendingBrokerByid = () => {
                 onChange={handleInputChange}
                 disabled={!isEditing}
                 maxLength={12}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
-                  !isEditing ? 'bg-gray-100' : 'bg-white'
-                }`}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${!isEditing ? 'bg-gray-100' : 'bg-white'
+                  }`}
                 placeholder="Enter 12-digit Aadhar number"
               />
             </div>
@@ -532,9 +527,8 @@ const PendingBrokerByid = () => {
                 onChange={handleInputChange}
                 disabled={!isEditing}
                 maxLength={10}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
-                  !isEditing ? 'bg-gray-100' : 'bg-white'
-                }`}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${!isEditing ? 'bg-gray-100' : 'bg-white'
+                  }`}
                 placeholder="Enter PAN card number"
               />
             </div>
@@ -550,9 +544,8 @@ const PendingBrokerByid = () => {
                 value={formData.area}
                 onChange={handleInputChange}
                 disabled={!isEditing}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
-                  !isEditing ? 'bg-gray-100' : 'bg-white'
-                } ${errors.area ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${!isEditing ? 'bg-gray-100' : 'bg-white'
+                  } ${errors.area ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="Enter Area"
               />
               {errors.area && (
@@ -572,9 +565,8 @@ const PendingBrokerByid = () => {
                 value={formData.commission}
                 onChange={handleInputChange}
                 disabled={!isEditing}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
-                  !isEditing ? 'bg-gray-100' : 'bg-white'
-                } ${errors.commission ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${!isEditing ? 'bg-gray-100' : 'bg-white'
+                  } ${errors.commission ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="Enter Commission %"
               />
               {errors.commission && (

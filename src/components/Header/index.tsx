@@ -1,22 +1,21 @@
-import React, {useEffect, useState} from 'react';
-import DropdownUser from './DropdownUser';
+import React, { useEffect, useState } from 'react';
 import DarkModeSwitcher from './DarkModeSwitcher';
-import {useAuthContext} from '@/context/AuthContext';
-import {FiMenu, FiX} from 'react-icons/fi';
-import {LuSearch} from 'react-icons/lu';
-import {useNotification} from '@/lib/api/adminApi';
+import { useAuthContext } from '@/context/AuthContext';
+import { FiMenu, FiX } from 'react-icons/fi';
+import { LuSearch } from 'react-icons/lu';
+import { useNotification } from '@/lib/api/adminApi';
 // import DropdownNotification from './DropdownNotification';
 
 const Header = (props: {
   sidebarOpen: string | boolean | undefined;
   setSidebarOpen: (arg0: boolean) => void;
 }) => {
-  const {user} = useAuthContext();
+  const { user } = useAuthContext();
   // const {data} = useNotification(user?.roleId!);
   // console.log(data)
   return (
-    <header className="sticky top-0 z-999 flex w-full bg-white drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none">
-      <div className="flex flex-grow items-center justify-between px-4 py-4 shadow-2 md:px-6 2xl:px-11">
+    <header className="sticky top-0 z-999 flex h-16 w-full bg-white drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none md:h-18 lg:h-20">
+      <div className="flex w-full items-center justify-between px-4 py-2 shadow-2 md:px-6 2xl:px-11">
         <div className="flex items-center gap-2 sm:gap-4 lg:hidden">
           {/* <!-- Hamburger Toggle BTN --> */}
 
@@ -56,7 +55,10 @@ const Header = (props: {
             {/* <DarkModeSwitcher /> */}
           </ul>
 
-          <DropdownUser />
+
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 md:h-10 md:w-10"></div>
+          </div>
         </div>
       </div>
     </header>
