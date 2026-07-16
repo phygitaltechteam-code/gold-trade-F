@@ -16,6 +16,7 @@ export const useGetMasterClients = () => {
   });
 };
 
+
 export const getMasterClientById = async (id: string) => {
   const response = await api.get(`/master-broker/customer/${id}`);
   console.log('GET Client By ID', response.data);
