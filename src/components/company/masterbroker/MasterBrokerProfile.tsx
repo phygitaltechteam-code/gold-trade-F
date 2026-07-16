@@ -266,33 +266,36 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
   ];
 
   const baseLedgerColumns = [
-    { header: 'Date & Time', accessor: 'dateTime' },
-    { header: 'Customer Name', accessor: 'customerName' },
-    { header: 'Script', accessor: 'script' },
-    { header: 'Qty/Lot', accessor: (item) => formatQtyLot(item) },
-    { header: 'Buy Price', accessor: 'buyPrice' },
-    { header: 'Sell Price', accessor: 'sellPrice' },
-    { header: 'Status', accessor: 'status' },
-    { header: 'P&L', accessor: (item) => formatPnL(item) },
+    {header: 'Date & Time', accessor: 'dateTime'},
+    {header: 'Customer Name', accessor: 'customerName'},
+    {header: 'Script', accessor: 'script'},
+    {header: 'Qty/Lot', accessor: (item) => formatQtyLot(item)},
+    {header: 'Buy Price', accessor: 'buyPrice'},
+    {header: 'Sell Price', accessor: 'sellPrice'},
+    {header: 'Status', accessor: 'status'},
+    {header: 'P&L', accessor: (item) => formatPnL(item)},
+    
+  // ];
+
+  // const expandedLedgerColumns = [
+    {header: 'Date & Time', accessor: 'dateTime'},
+    {header: 'Customer Name', accessor: 'customerName'},
+    {header: 'Script', accessor: 'script'},
+    {header: 'Qty/Lot', accessor: (item) => formatQtyLot(item)},
+    {header: 'Buy Price', accessor: 'buyPrice'},
+    {header: 'Sell Price', accessor: 'sellPrice'},
+    {header: 'Buy Time', accessor: 'buyTime'},
+    {header: 'Sell Time', accessor: 'sellTime'},
+    {header: 'Status', accessor: 'status'},
+    {header: 'P&L', accessor: (item) => formatPnL(item)},
+    {header: 'Admin Commission', accessor: 'companyCommission'},
+    {header: 'Super Broker Commission', accessor: 'superBrokerCommission'},
+    {header: 'Broker Commission', accessor: 'brokerCommission'},
   ];
 
-  const expandedLedgerColumns = [
-    { header: 'Date & Time', accessor: 'dateTime' },
-    { header: 'Customer Name', accessor: 'customerName' },
-    { header: 'Script', accessor: 'script' },
-    { header: 'Qty/Lot', accessor: (item) => formatQtyLot(item) },
-    { header: 'Buy Price', accessor: 'buyPrice' },
-    { header: 'Sell Price', accessor: 'sellPrice' },
-    { header: 'Buy Time', accessor: 'buyTime' },
-    { header: 'Sell Time', accessor: 'sellTime' },
-    { header: 'Status', accessor: 'status' },
-    { header: 'P&L', accessor: (item) => formatPnL(item) },
-    { header: 'Master Commission', accessor: 'masterBrokerCommission' },
-  ];
-
-  const ledgerColumns = isLedgerExpanded
-    ? expandedLedgerColumns
-    : baseLedgerColumns;
+  // const ledgerColumns = isLedgerExpanded
+  //   ? expandedLedgerColumns
+  //   : baseLedgerColumns;
 
   const paymentColumns = [
     { header: 'Date', accessor: 'date' },
@@ -619,7 +622,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
               isLedgerExpanded={isLedgerExpanded}
               setIsLedgerExpanded={setIsLedgerExpanded}
               filteredLedgerData={filteredLedgerData}
-              ledgerColumns={ledgerColumns}
+              ledgerColumns={baseLedgerColumns}
             />
           )}
 

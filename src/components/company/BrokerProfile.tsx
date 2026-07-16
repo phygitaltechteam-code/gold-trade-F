@@ -12,6 +12,7 @@ import {
   useGetBrokerPaymentHistory,
 } from '@/lib/api/addbroker';
 import { Route } from '@/routes/_app/companybroker/BrokerProfile.$id';
+import { Client } from '../Clients/types';
 
 // Format date function
 const formatDateTime = (dateString: string) => {
@@ -580,10 +581,10 @@ const paymentData = useMemo(() => {
     { header: 'Sell Price', accessor: 'sellPrice' },
     { header: 'Status', accessor: 'status' },
     { header: 'P&L', accessor: 'pnl' },
-  ];
+  // ];
 
-  // Expanded Ledger Columns
-  const expandedLedgerColumns = [
+  // // Expanded Ledger Columns
+  // const expandedLedgerColumns = [
     { header: 'Date & Time', accessor: 'dateTime' },
     { header: 'Customer Name', accessor: 'customerName' },
     { header: 'Script', accessor: 'script' },
@@ -597,9 +598,9 @@ const paymentData = useMemo(() => {
     { header: 'Broker commission', accessor: 'brokerCommission' },
   ];
 
-  const ledgerColumns = isLedgerExpanded
-    ? expandedLedgerColumns
-    : baseLedgerColumns;
+  // const ledgerColumns = isLedgerExpanded
+  //   ? expandedLedgerColumns
+  //   : baseLedgerColumns;
 
   // Column definitions for the Payment History table
   const paymentColumns = [
@@ -678,66 +679,229 @@ const paymentData = useMemo(() => {
   ];
 
   // Customer Table Columns
-  const customerColumns = [
+  // const customerColumns = [
+  //   {
+  //     header: 'Customer Name',
+  //     accessor: 'user.fullname',
+  //     render: (item: any) => (
+  //       <div className="font-semibold text-black">
+  //         {item?.user?.fullname || '-'}
+  //       </div>
+  //     ),
+  //   },
+  //   {
+  //     header: 'Phone Number',
+  //     accessor: 'user.phoneNumber',
+  //     render: (item: any) => (
+  //       <span className="text-gray-700">{item?.user?.phoneNumber || '-'}</span>
+  //     ),
+  //   },
+  //   {
+  //     header: 'CRN',
+  //     accessor: 'CRN',
+  //     render: (item: any) => (
+  //       <span className="font-mono text-gray-600 text-sm font-medium">
+  //         {item?.CRN || '-'}
+  //       </span>
+  //     ),
+  //   },
+  //   {
+  //     header: 'Commission',
+  //     accessor: 'brokeragePercent',
+  //     render: (item: any) => (
+  //       <span className="rounded border border-orange-100 bg-orange-50 px-2 py-1 text-xs font-bold text-orange-600">
+  //         {item?.brokeragePercent ? `${item.brokeragePercent}%` : '-'}
+  //       </span>
+  //     ),
+  //   },
+  //   {
+  //     header: 'Address',
+  //     accessor: 'address',
+  //     render: (item: any) => (
+  //       <span className="text-gray-700 text-sm">
+  //         {item?.address || item?.area || '-'}
+  //       </span>
+  //     ),
+  //   },
+  //   {
+  //     header: 'Total Business',
+  //     accessor: 'totalBusiness',
+  //     render: () => <span className="text-gray-700">-</span>,
+  //   },
+  //   {
+  //     header: 'Total Commission',
+  //     accessor: 'totalCommission',
+  //     render: () => <span className="text-gray-700">-</span>,
+  //   },
+  //   {
+  //     header: 'Pending Commission',
+  //     accessor: 'pendingCommission',
+  //     render: () => <span className="text-gray-700">-</span>,
+  //   },
+  // ];
+
+    const customerColumns = [
+      {
+        header: 'Client Name',
+        accessor: 'user.fullname',
+        render: (row: Client) => (
+          <div className="flex items-center gap-3">
+            <div>
+              <div className="whitespace-nowrap text-sm font-medium text-slate-900">
+                {row.user?.fullname}
+              </div>
+            </div>
+          </div>
+        ),
+      },
+      // {
+      //   header: 'Broker Name',
+      //   accessor: 'broker.user.fullname',
+      //   render: (row: Client) => (
+      //     <span className="whitespace-nowrap text-sm font-medium text-slate-600">
+      //       {row?.broker?.user?.fullname || 'N/A'}
+      //     </span>
+      //   ),
+      // },
+      // {
+      //   header: 'Super Broker Name',
+      //   accessor: 'broker.superBroker.user.fullname',
+      //   render: (row: Client) => (
+      //     <span className="whitespace-nowrap text-sm font-medium text-slate-600">
+      //       {row?.broker?.superBroker?.user?.fullname || 'N/A'}
+      //     </span>
+      //   ),
+      // },
+      {
+        header: 'Wallet Balance',
+        accessor: 'wallets.amount',
+        // isSort:true,
+        render: (row: Client) => {
+          const amount = row.walletBalance !== undefined 
+            ? Number(row.walletBalance) 
+            : (typeof row.wallets?.amount === 'number' 
+                ? row.wallets.amount 
+                : parseFloat(row.wallets?.amount as string) || 0);
+          return (
+            <span className="whitespace-nowrap text-sm font-bold text-slate-900">
+              ₹{amount.toLocaleString()}
+            </span>
+          );
+        },
+      },
+      {
+        header: 'Asset Under Control',
+        accessor: 'wallets.blockedAmount',
+        render: (row: Client) => {
+          const amount = row.assetUnderControl !== undefined 
+            ? Number(row.assetUnderControl) 
+            : (typeof row.wallets?.blockedAmount === 'number' 
+                ? row.wallets.blockedAmount 
+                : parseFloat(row.wallets?.blockedAmount as string) || 0);
+          return (
+            <span className="whitespace-nowrap text-sm font-bold text-slate-900">
+              ₹{amount.toLocaleString()}
+            </span>
+          );
+        },
+      },
+      {
+        header: 'Margin Amount',
+        accessor: 'marginAmount',
+        render: (row: Client) => {
+          const amount = row.marginAmount !== undefined ? Number(row.marginAmount) : 0;
+          return (
+            <span className="whitespace-nowrap text-sm font-bold text-slate-900">
+              ₹{amount.toLocaleString()}
+            </span>
+          );
+        },
+      },
+      {
+        header: 'Total Active Trade',
+        accessor: 'totalActiveTrade',
+        render: (row: Client) => (
+          <span className="whitespace-nowrap text-sm font-medium text-slate-600">
+            {row.totalActiveTrade !== undefined ? row.totalActiveTrade : (row._count?.trades || 0)}
+          </span>
+        ),
+      },
+      {
+        header: 'Total Trade',
+        accessor: 'totalTrade',
+        render: (row: Client) => {
+          const amount = row.totalTrade !== undefined ? Number(row.totalTrade) : (parseFloat(row.wallets?.amount as string) || 0);
+          return (
+            <span className="whitespace-nowrap text-sm font-bold text-orange-500">
+              ₹{amount.toLocaleString()}
+            </span>
+          );
+        },
+      },
+  
     {
-      header: 'Customer Name',
-      accessor: 'user.fullname',
-      render: (item: any) => (
-        <div className="font-semibold text-black">
-          {item?.user?.fullname || '-'}
-        </div>
-      ),
-    },
-    {
-      header: 'Phone Number',
-      accessor: 'user.phoneNumber',
-      render: (item: any) => (
-        <span className="text-gray-700">{item?.user?.phoneNumber || '-'}</span>
-      ),
-    },
-    {
-      header: 'CRN',
-      accessor: 'CRN',
-      render: (item: any) => (
-        <span className="font-mono text-gray-600 text-sm font-medium">
-          {item?.CRN || '-'}
-        </span>
-      ),
-    },
-    {
-      header: 'Commission',
-      accessor: 'brokeragePercent',
-      render: (item: any) => (
-        <span className="rounded border border-orange-100 bg-orange-50 px-2 py-1 text-xs font-bold text-orange-600">
-          {item?.brokeragePercent ? `${item.brokeragePercent}%` : '-'}
-        </span>
-      ),
-    },
-    {
-      header: 'Address',
-      accessor: 'address',
-      render: (item: any) => (
-        <span className="text-gray-700 text-sm">
-          {item?.address || item?.area || '-'}
-        </span>
-      ),
-    },
-    // {
-    //   header: 'Total Business',
-    //   accessor: 'totalBusiness',
-    //   render: () => <span className="text-gray-700">-</span>,
-    // },
-    {
-      header: 'Total Commission',
-      accessor: 'totalCommission',
-      render: () => <span className="text-gray-700">-</span>,
-    },
-    {
-      header: 'Pending Commission',
-      accessor: 'pendingCommission',
-      render: () => <span className="text-gray-700">-</span>,
-    },
-  ];
+    header: 'Demo Account',
+    accessor: 'isDemo',
+    render: (row: Client) => (
+     <div className="pointer-events-none">
+    <input
+      type="checkbox"
+      checked={!!row.isDemo}
+      readOnly
+      disabled
+      className="h-4 w-4 accent-orange-500"
+    />
+  </div>
+    ),
+  },
+      // {
+      //   header: 'P&L',
+      //   accessor: 'pnl',
+      //   render: (row: Client) => {
+      //     const pnl = row.pnl !== undefined ? Number(row.pnl) : 0;
+      //     const isProfit = pnl >= 0;
+      //     return (
+      //       <span
+      //         className={`whitespace-nowrap text-sm font-bold ${
+      //           isProfit ? 'text-green-600' : 'text-red-600'
+      //         }`}
+      //       >
+      //         {isProfit ? '+' : ''}
+      //         {pnl >= 0
+      //           ? `${pnl.toLocaleString()}`
+      //           : `-${Math.abs(pnl).toLocaleString()}`}
+      //       </span>
+      //     );
+      //   },
+      // },
+      // {
+      //   header: 'Status',
+      //   accessor: 'user.isActive',
+      //   render: (row: Client) => {
+      //     const isActive = row.user?.isActive === true;
+      //     return (
+      //       <div
+      //         className="flex items-center gap-2"
+      //         onClick={(e) => e.stopPropagation()}
+      //       >
+      //         <label className="relative inline-flex cursor-pointer items-center">
+      //           <input
+      //             type="checkbox"
+      //             className="peer sr-only"
+      //             checked={isActive}
+      //             onChange={(e) => handleToggleClick(row, e)}
+      //             disabled={isPending}
+      //           />
+      //           <div className="relative h-5 w-9 rounded-full bg-slate-200 transition-colors after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-4 peer-disabled:opacity-50" />
+      //         </label>
+      //       </div>
+      //     );
+      //   },
+      // },
+    ];
+  
+
+
 
   // Filter ledger data by date range
   const filteredLedgerData = useMemo(() => {
@@ -1163,12 +1327,12 @@ const filteredPaymentData = useMemo(() => {
                       This Week
                     </button>
                   )}
-                  <button
+                  {/* <button
                     onClick={() => setIsLedgerExpanded(!isLedgerExpanded)}
                     className="rounded bg-orange-500 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-orange-600 md:px-4 md:py-2 md:text-sm"
                   >
                     {isLedgerExpanded ? 'View Less' : 'View More'}
-                  </button>
+                  </button> */}
                 </div>
               </div>
               {isLoadingLedger ? (
@@ -1179,7 +1343,7 @@ const filteredPaymentData = useMemo(() => {
                 // Always show the table, even with empty data
                 <GenericTable
                   data={filteredLedgerData}
-                  columns={ledgerColumns}
+                  columns={baseLedgerColumns}
                   paginationOff={true}
                   emptyMessage="No ledger records found"
                 />
@@ -1267,7 +1431,7 @@ const filteredPaymentData = useMemo(() => {
             <div className="overflow-x-auto">
               <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                 <h3 className="text-base font-semibold text-black dark:text-white md:text-lg">
-                  Customers List
+                  Traders List
                 </h3>
               </div>
               <GenericTable

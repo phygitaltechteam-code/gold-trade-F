@@ -198,27 +198,27 @@ const DisplayMasterBroker = ({refreshTrigger}) => {
     //     <span>{row.totalBrokers || row._count?.brokers || 0}</span>
     //   ),
     // },
-    {
-      header: 'Total Business',
-      accessor: 'totalBusiness',
-      render: (row) => (
-        <span>₹{(row.totalBusiness || 0).toLocaleString()}</span>
-      ),
-    },
-    {
-      header: 'Total Commission',
-      accessor: 'totalCommission',
-      render: (row) => (
-        <span>₹{(row.totalCommission || 0).toLocaleString()}</span>
-      ),
-    },
-    {
-      header: 'Pending Commission',
-      accessor: 'pendingCommission',
-      render: (row) => (
-        <span>₹{(row.pendingCommission || 0).toLocaleString()}</span>
-      ),
-    },
+    // {
+    //   header: 'Total Business',
+    //   accessor: 'totalBusiness',
+    //   render: (row) => (
+    //     <span>₹{(row.totalBusiness || 0).toLocaleString()}</span>
+    //   ),
+    // },
+    // {
+    //   header: 'Total Commission',
+    //   accessor: 'totalCommission',
+    //   render: (row) => (
+    //     <span>₹{(row.totalCommission || 0).toLocaleString()}</span>
+    //   ),
+    // },
+    // {
+    //   header: 'Pending Commission',
+    //   accessor: 'pendingCommission',
+    //   render: (row) => (
+    //     <span>₹{(row.pendingCommission || 0).toLocaleString()}</span>
+    //   ),
+    // },
     {
       header: 'Status',
       accessor: 'isActive',
