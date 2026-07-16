@@ -42,10 +42,10 @@ const formatPnL = (item) => {
     {header: 'Sell Price', accessor: 'sellPrice'},
     {header: 'Status', accessor: 'status'},
     {header: 'P&L', accessor: (item) => formatPnL(item)},
-  ];
+  // ];
 
-  // Full detailed view columns
-  const expandedColumns = [
+  // // Full detailed view columns
+  // const expandedColumns = [
     {header: 'Date & Time', accessor: 'dateTime'},
     {header: 'Customer Name', accessor: 'customerName'},
     {header: 'Script', accessor: 'script'},
@@ -96,7 +96,7 @@ const formatPnL = (item) => {
 
   const transactionData = getTransactionData();
   const filteredData = filterDataByDate(transactionData);
-  const columns = isExpanded ? expandedColumns : baseColumns;
+  // const columns = isExpanded ? expandedColumns : baseColumns;
 
   return (
     <div className="mx-auto w-full p-4 md:p-6">
@@ -146,12 +146,12 @@ const formatPnL = (item) => {
                   Clear
                 </button>
               )}
-              <button
+              {/* <button
                 onClick={() => setIsExpanded(!isExpanded)}
                 className="rounded bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 mr-2"
               >
                 {isExpanded ? 'View Less' : 'View More'}
-              </button>
+              </button> */}
                <button
                 onClick={() =>refetch() }
                 className="rounded bg-orange-500 flex px-1 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 mr-2"
@@ -164,7 +164,7 @@ const formatPnL = (item) => {
           <div className="overflow-x-auto">
             <GenericTable
               data={filteredData}
-              columns={columns}
+              columns={baseColumns}
               // paginationOff={false}
             />
           </div>

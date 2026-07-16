@@ -474,7 +474,7 @@ const showActions = activeTab === 'Pending';
     accessor: (row: WithdrawalRequest) => <StatusBadge status={row.status} />,
   },
  
-  ...(showActions ? [
+  // ...(showActions ? [
     {
       header: 'Actions',
       accessor: (row: WithdrawalRequest) => (
@@ -494,7 +494,7 @@ const showActions = activeTab === 'Pending';
         </div>
       ),
     }
-  ] : []),
+  // ] : []),
 ];
 // Expanded columns (View More) - includes additional fields
 const expandedColumns = [
@@ -619,7 +619,7 @@ const expandedColumns = [
     setSelectedRequests([]);
   };
 
-  const columns = isExpanded ? expandedColumns : baseColumns;
+  // const columns = isExpanded ? expandedColumns : baseColumns;
 
   return (
     <div className="font-sans min-h-screen bg-[#F8F9FB] text-[#1A1D21]">
@@ -764,12 +764,12 @@ const expandedColumns = [
               </button>
 
               {/* View More/View Less Button */}
-              <button
+              {/* <button
                 onClick={() => setIsExpanded(!isExpanded)}
                 className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
               >
                 {isExpanded ? 'View Less' : 'View More'}
-              </button>
+              </button> */}
                <button
                 onClick={() =>refetch() }
                 className="rounded bg-orange-500 flex px-1 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 mr-2"
@@ -808,7 +808,7 @@ const expandedColumns = [
           {/* Generic Table */}
           <GenericTable
             data={filteredData}
-            columns={columns}
+            columns={baseColumns}
             rowsPerPage={itemsPerPage}
             paginationOff={false}
           />

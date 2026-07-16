@@ -260,9 +260,9 @@ const SuperBrokerProfile = () => {
     { header: 'Sell Price', accessor: 'sellPrice' },
     { header: 'Status', accessor: 'status' },
     { header: 'P&L', accessor: 'pnl' },
-  ];
+  // ];
 
-  const expandedLedgerColumns = [
+  // const expandedLedgerColumns = [
     { header: 'Customer Name', accessor: 'customerName' },
     { header: 'Script', accessor: 'script' },
     { header: 'Qty/Lot', accessor: 'qty' },
@@ -275,9 +275,9 @@ const SuperBrokerProfile = () => {
     { header: 'Super Broker commission', accessor: 'superBrokerCommission' },
   ];
 
-  const ledgerColumns = isLedgerExpanded
-    ? expandedLedgerColumns
-    : baseLedgerColumns;
+  // const ledgerColumns = isLedgerExpanded
+  //   ? expandedLedgerColumns
+  //   : baseLedgerColumns;
 
   const paymentColumns = [
   { header: 'S.No', accessor: 'sr' },
@@ -574,7 +574,8 @@ const SuperBrokerProfile = () => {
     switch (activeTab) {
       case 'ledger':
         tableData = filteredLedgerData;
-        tableColumns = isLedgerExpanded ? expandedLedgerColumns : baseLedgerColumns;
+        // tableColumns = isLedgerExpanded ? expandedLedgerColumns : baseLedgerColumns;
+        tableColumns = baseLedgerColumns;
         tableTitle = 'Ledger Records';
         dateRange = ledgerStartDate && ledgerEndDate ? `(${ledgerStartDate} to ${ledgerEndDate})` : '';
         break;
@@ -1085,12 +1086,12 @@ const SuperBrokerProfile = () => {
                       className="rounded border border-stroke bg-transparent px-2 py-1 text-xs outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-3 md:py-1 md:text-sm"
                     />
                   </div>
-                  <button
+                  {/* <button
                     onClick={() => setIsLedgerExpanded(!isLedgerExpanded)}
                     className="rounded bg-orange-500 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-orange-600 md:px-4 md:py-2 md:text-sm"
                   >
                     {isLedgerExpanded ? 'View Less' : 'View More'}
-                  </button>
+                  </button> */}
                 </div>
               </div>
               {isLoadingLedger ? (
@@ -1100,7 +1101,7 @@ const SuperBrokerProfile = () => {
               ) : (
                 <GenericTable
                   data={filteredLedgerData}
-                  columns={ledgerColumns}
+                  columns={baseLedgerColumns}
                   paginationOff={true}
                 />
               )}

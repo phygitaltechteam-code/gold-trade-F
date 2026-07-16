@@ -51,12 +51,12 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({
               className="rounded border border-stroke bg-transparent px-2 py-1 text-xs outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-3 md:py-1 md:text-sm"
             />
           </div>
-          <button
+          {/* <button
             onClick={() => setIsLedgerExpanded(!isLedgerExpanded)}
             className="rounded bg-orange-500 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-orange-600 md:px-4 md:py-2 md:text-sm"
           >
             {isLedgerExpanded ? 'View Less' : 'View More'}
-          </button>
+          </button> */}
         </div>
       </div>
       <GenericTable
