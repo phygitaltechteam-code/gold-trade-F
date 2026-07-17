@@ -487,10 +487,10 @@ const SuperBrokerProfile = () => {
   const handleCommissionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!commissionAmount || parseFloat(commissionAmount) <= 0) {
-      toast.error('Please enter a valid commission amount');
-      return;
-    }
+    // if (!commissionAmount || parseFloat(commissionAmount) <= 0) {
+    //   toast.error('Please enter a valid commission amount');
+    //   return;
+    // }
 
     if (!commissionPin) {
       toast.error('Please enter security PIN');
@@ -517,9 +517,7 @@ const SuperBrokerProfile = () => {
           setCommissionAmount('');
           setCommissionPin('');
           setShowCommissionPin(false);
-          toast.success(
-            `Commission ${commissionType === 'credit' ? 'added' : 'deducted'} successfully`,
-          );
+         
           refetch();
           refetchPayment();
         },
@@ -1229,7 +1227,7 @@ const SuperBrokerProfile = () => {
               Commission Transaction
             </h3>
 
-            <div className="mb-4 space-y-2 rounded-lg border border-blue-100 bg-blue-50 p-3">
+            {/* <div className="mb-4 space-y-2 rounded-lg border border-blue-100 bg-blue-50 p-3">
               <p className="text-sm font-medium text-blue-800">
                 Current Financial Summary
               </p>
@@ -1242,7 +1240,7 @@ const SuperBrokerProfile = () => {
                   </strong>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {pendingCommission > 0 && (
               <div className="mb-4 rounded-lg border border-orange-100 bg-orange-50 p-3">

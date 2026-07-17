@@ -123,14 +123,14 @@ export const MasterBrokerProfileInfo: React.FC<MasterBrokerProfileInfoProps> = (
           </div>
 
           {/* Email */}
-          <div>
+          {/* <div>
             <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
               Email
             </label>
             <p className="text-sm text-black dark:text-white md:text-base">
               {profileData?.email || 'N/A'}
             </p>
-          </div>
+          </div> */}
 
           {/* Aadhar Number */}
           <div>
@@ -189,7 +189,7 @@ export const MasterBrokerProfileInfo: React.FC<MasterBrokerProfileInfoProps> = (
               />
             ) : (
               <p className="text-sm text-black dark:text-white md:text-base">
-                {profileData?.customerLimit || profileData?.customer_limit || 'Unlimited'}
+                {profileData?.customerLimit || profileData?.customer_limit || 0}
               </p>
             )}
           </div>

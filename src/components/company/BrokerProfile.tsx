@@ -370,10 +370,10 @@ const BrokerProfile = () => {
   const handleCommissionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!commissionAmount || parseFloat(commissionAmount) <= 0) {
-      toast.error('Please enter a valid commission amount');
-      return;
-    }
+    // if (!commissionAmount || parseFloat(commissionAmount) <= 0) {
+    //   toast.error('Please enter a valid commission amount');
+    //   return;
+    // }
 
     if (!commissionPin) {
       toast.error('Please enter security PIN');
@@ -1580,7 +1580,7 @@ const BrokerProfile = () => {
             </h3>
 
             {/* Show current financial summary */}
-            <div className="mb-4 space-y-2 rounded-lg border border-blue-100 bg-blue-50 p-3">
+            {/* <div className="mb-4 space-y-2 rounded-lg border border-blue-100 bg-blue-50 p-3">
               <p className="text-sm font-medium text-blue-800">
                 Current Financial Summary
               </p>
@@ -1603,10 +1603,10 @@ const BrokerProfile = () => {
                   </strong>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* Show pending commission info for this transaction */}
-            {profileData?.pendingCommission > 0 && (
+            {/* {profileData?.pendingCommission > 0 && (
               <div className="mb-4 rounded-lg border border-orange-100 bg-orange-50 p-3">
                 <p className="text-sm text-orange-700">
                   Current Pending Amount:{' '}
@@ -1618,7 +1618,7 @@ const BrokerProfile = () => {
                   This transaction will update the pending amount
                 </p>
               </div>
-            )}
+            )} */}
 
             <div className="mb-6 grid grid-cols-2 gap-2 rounded-xl bg-slate-100 p-1">
               <button

@@ -83,20 +83,25 @@ const DisplayBroker = ({refreshTrigger, onBrokerAdded}) => {
       header: 'Aadhar Number',
       accessor: 'aadharCardNumber',
     },
-    {
-      header: 'KYC Status',
-      accessor: (row) => (
-        <span
-          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-            row.isKycCompleted
-              ? 'bg-green-100 text-green-700'
-              : 'bg-yellow-100 text-yellow-700'
-          }`}
-        >
-          {row.isKycCompleted ? 'Completed' : 'Pending'}
-        </span>
-      ),
-    },
+{
+  header: 'Status',
+  accessor: (row) => (
+    <span
+      className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${
+        row.isActive || row.IsOn
+          ? 'bg-green-100 text-green-700'
+          : 'bg-red-100 text-red-700'
+      }`}
+    >
+      <span className={`h-1.5 w-1.5 rounded-full ${
+        row.isActive || row.IsOn ? 'bg-green-500' : 'bg-red-500'
+      }`}></span>
+      {row.isActive || row.IsOn ? 'Active' : 'Inactive'}
+    </span>
+  ),
+},
+
+
     {
       header: 'Created At',
       accessor: (row) =>
@@ -137,11 +142,11 @@ const DisplayBroker = ({refreshTrigger, onBrokerAdded}) => {
         columns={columns}
         data={brokers || []}
         onRowClick={handleRowClick}
-        onView={handleView}
+        // onView={handleView}
         onEdit={handleEdit}
         onDelete={handleDelete}
         clickable={true}
-        viewTooltip="View Broker"
+        // viewTooltip="View Broker"
         editTooltip="Edit Broker"
         deleteTooltip="Delete Broker"
       />

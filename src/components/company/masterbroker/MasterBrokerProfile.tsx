@@ -5,6 +5,7 @@ import {
   useUpdateMasterBrokerProfile,
   useAddCommission,
   useGetMasterbrokerLedgerById,
+  useGetMasterbrokertraderdById,
 } from '@/lib/react-query/masterbroker';
 import { useNavigate } from '@tanstack/react-router';
 import toast from 'react-hot-toast';
@@ -63,10 +64,12 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
 
   const { data: profileData, refetch } = useGetAllMasterBrockerById(id);
   const { data: ledgerData = [] } = useGetMasterbrokerLedgerById(id);
+  const { data: tradersData = [] } = useGetMasterbrokertraderdById(id);
   const { mutate: updateMasterBrokerProfile, isPending: isUpdating } =
     useUpdateMasterBrokerProfile();
   const { mutate: addCommission, isPending: isCommissionPending } =
     useAddCommission();
+    
 
   const [editData, setEditData] = useState({
     fullname: '',
@@ -548,7 +551,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
           className="text-gray-700 hover:bg-gray-50 flex items-center gap-2 rounded-lg border border-stroke bg-white px-4 py-2 text-sm font-medium transition-all hover:text-orange-500"
         >
           <FiArrowLeft className="h-4 w-4" />
-          Back to Master Brokers
+          Back to Master Brokers.
         </button>
       </div>
 
@@ -582,15 +585,15 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
             >
               Ledger
             </button>
-            <button
+            {/* <button
               onClick={() => setActiveTab('payment')}
               className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'payment'
                 ? 'border-b-2 border-orange-500 text-orange-500'
                 : 'text-bodydark2'
                 }`}
             >
-              Payment History
-            </button>
+              Payment History */}
+            {/* </button>
             <button
               onClick={() => setActiveTab('commission')}
               className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'commission'
@@ -599,7 +602,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
                 }`}
             >
               Commission History ({profileData?.commissionHistories?.length || 0})
-            </button>
+            </button> */}
             <button
               onClick={() => setActiveTab('customers')}
               className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'customers'
@@ -653,7 +656,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
             <div className="overflow-x-auto">
               <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                 <h3 className="text-base font-semibold text-black dark:text-white md:text-lg">
-                  Traders List
+                  Traders List.
                 </h3>
                 <span className="text-sm text-gray-500">
                   Total: {customersList.length} customers
