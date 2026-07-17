@@ -1,301 +1,7 @@
-// import React, {useEffect, useState} from 'react';
-// import toast from 'react-hot-toast';
-// import {useGetScriptsData} from '@/lib/api/addbroker';
-// import GenericTable from '@/components/Forms/Table/GenericTable';
-// import {Eye, EyeOff} from 'lucide-react';
-
-// type Script = {
-//   id: number | string;
-//   symbol: string;
-//   name: string;
-//   type: string;
-//   lastPrice: string;
-//   expiry: string;
-//   instrumentsToken: number;
-//   isActive?: boolean;
-// };
-
-// const STORAGE_KEY = 'script_statuses';
-
-// export const DisplayScripts: React.FC = () => {
-//   const {data:scrpiData, isLoading, isPending, isSuccess} = useGetScriptsData();
-//   const [scripts, setScripts] = useState<Script[]>([]);
-//   const [togglingId, setTogglingId] = useState<number | string | null>(null);
-//   console.log("dataaaaaaaaaaaaaaa",scrpiData)
-
-//   console.log("scriptsssss",scripts)
-//   // PIN Modal State
-//   const [showPinModal, setShowPinModal] = useState(false);
-//   const [selectedScript, setSelectedScript] = useState<Script | null>(null);
-//   const [pin, setPin] = useState('');
-//   const [showPin, setShowPin] = useState(false);
-
-//   // Load stored statuses from localStorage
-//   const loadStoredStatuses = () => {
-//     const stored = localStorage.getItem(STORAGE_KEY);
-//     if (stored) {
-//       try {
-//         return JSON.parse(stored);
-//       } catch {
-//         return {};
-//       }
-//     }
-//     return {};
-//   };
-
-//   const storeStatuses = (statuses: Record<string, boolean>) => {
-//     localStorage.setItem(STORAGE_KEY, JSON.stringify(statuses));
-//   };
-
-//   useEffect(() => {
-//     if (Array.isArray(scrpiData)) {
-//       const storedStatuses = loadStoredStatuses();
-//       const formattedData = scrpiData?.data?.map((item: Script) => ({
-//         ...item,
-//         isActive:
-//           storedStatuses[item.id] !== undefined
-//             ? storedStatuses[item.id]
-//             : false,
-//       }));
-//       setScripts(formattedData);
-//     }
-//   }, [scrpiData, isLoading, isPending, isSuccess]);
-
-//   const handleToggle = (script: Script, e: React.MouseEvent) => {
-//     e.stopPropagation();
-//     setSelectedScript(script);
-//     setShowPinModal(true);
-//     setPin('');
-//     setShowPin(false);
-//   };
-
-//   const handleConfirmStatusChange = async () => {
-//     if (!pin) {
-//       toast.error('Please enter PIN');
-//       return;
-//     }
-
-//     if (pin.length < 4) {
-//       toast.error('PIN must be at least 4 digits');
-//       return;
-//     }
-
-//     setTogglingId(selectedScript?.id || null);
-//     const newStatus = !selectedScript?.isActive;
-
-//     try {
-//       // Update localStorage immediately
-//       const storedStatuses = loadStoredStatuses();
-//       storedStatuses[selectedScript!.id] = newStatus;
-//       storeStatuses(storedStatuses);
-
-//       // Update local state
-//       setScripts((prev) =>
-//         prev.map((s) =>
-//           s.id === selectedScript?.id ? {...s, isActive: newStatus} : s,
-//         ),
-//       );
-
-//       // Simulate API call (replace with actual API)
-//       await new Promise((resolve) => setTimeout(resolve, 500));
-
-//       toast.success(
-//         `Script ${newStatus ? 'enabled' : 'disabled'} successfully!`,
-//       );
-
-//       setShowPinModal(false);
-//       setPin('');
-//       setSelectedScript(null);
-//     } catch (err) {
-//       console.error(err);
-//       // Revert on error
-//       const storedStatuses = loadStoredStatuses();
-//       storedStatuses[selectedScript!.id] = !newStatus;
-//       storeStatuses(storedStatuses);
-
-//       setScripts((prev) =>
-//         prev.map((s) =>
-//           s.id === selectedScript?.id ? {...s, isActive: !newStatus} : s,
-//         ),
-//       );
-//       toast.error('Failed to toggle script');
-//     } finally {
-//       setTogglingId(null);
-//     }
-//   };
-
-//   const handleRowClick = (script: Script) => {
-//     console.log('Row clicked:', script);
-//     // Navigate to script details if needed
-//   };
-
-//   const columns = [
-//     {
-//       header: 'Name',
-//       accessor: 'name',
-//     },
-//     {
-//       header: 'Symbol',
-//       accessor: 'symbol',
-//     },
-//     {
-//       header: 'Type',
-//       accessor: 'type',
-//     },
-//     {
-//       header: 'Price',
-//       accessor: 'lastPrice',
-//       render: (row: Script) => (
-//         <span>₹{Number(row.lastPrice || 0).toLocaleString('en-IN')}</span>
-//       ),
-//     },
-//     {
-//       header: 'Expiry',
-//       accessor: 'expiry',
-//       render: (row: Script) => (
-//         <span>
-//           {row.expiry ? new Date(row.expiry).toLocaleDateString('en-IN') : '-'}
-//         </span>
-//       ),
-//     },
-
-//     {
-//       header: 'Action',
-//       accessor: 'id',
-//       render: (row: Script) => (
-//         <div
-//           className="flex items-center gap-2"
-//           onClick={(e) => e.stopPropagation()}
-//         >
-//           <label className="relative inline-flex cursor-pointer items-center">
-//             <input
-//               type="checkbox"
-//               className="peer sr-only"
-//               checked={row.isActive || false}
-//               onChange={(e) => handleToggle(row, e)}
-//               disabled={togglingId === row.id}
-//             />
-//             <div className="relative h-5 w-9 rounded-full bg-slate-200 transition-colors after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-4 peer-disabled:opacity-50" />
-//           </label>
-//         </div>
-//       ),
-//     },
-//   ];
-
-//   if (isLoading) {
-//     return (
-//       <div className="flex h-64 items-center justify-center">
-//         <div className="h-8 w-8 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
-//       </div>
-//     );
-//   }
-
-//   if (!isSuccess) {
-//     return (
-//       <div className="p-6 text-center text-red-600">Failed to load scripts</div>
-//     );
-//   }
-
-//   const selectedScriptDetails = scripts.find(
-//     (s) => s.id === selectedScript?.id,
-//   );
-
-//   return (
-//     <>
-//       <div className="p-4 sm:p-6 lg:p-8">
-//         <div className="mb-6">
-//           <h1 className="text-gray-900 text-2xl font-semibold">
-//             Scripts Management
-//           </h1>
-//           <p className="text-gray-500 mt-1 text-sm">
-//             Manage your trading scripts and their status
-//           </p>
-//         </div>
-
-//         <GenericTable
-//           columns={columns}
-//           data={scripts}
-//           onRowClick={handleRowClick}
-//           clickable={true}
-//           rowsPerPage={10}
-//         />
-//       </div>
-
-//       {/* PIN Modal */}
-//       {showPinModal && selectedScriptDetails && (
-//         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-//           <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-lg">
-//             <h2 className="mb-4 text-lg font-semibold text-slate-900">
-//               {selectedScriptDetails?.isActive ? 'Disable' : 'Enable'} Script
-//             </h2>
-//             <p className="mb-4 text-sm text-slate-600">
-//               {selectedScriptDetails?.isActive
-//                 ? `Are you sure you want to disable ${selectedScriptDetails?.name || selectedScriptDetails?.symbol}?`
-//                 : `Are you sure you want to enable ${selectedScriptDetails?.name || selectedScriptDetails?.symbol}?`}
-//             </p>
-//             <p className="mb-2 text-sm font-medium text-slate-700">
-//               Enter Security PIN to confirm:
-//             </p>
-
-//             <div className="relative">
-//               <input
-//                 type={showPin ? 'text' : 'password'}
-//                 placeholder="Enter Security PIN"
-//                 value={pin}
-//                 onChange={(e) => setPin(e.target.value)}
-//                 className="border-gray-300 w-full rounded-lg border px-4 py-2 pr-10 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
-//                 autoFocus
-//                 onKeyPress={(e) => {
-//                   if (e.key === 'Enter') {
-//                     handleConfirmStatusChange();
-//                   }
-//                 }}
-//               />
-//               <button
-//                 type="button"
-//                 onClick={() => setShowPin(!showPin)}
-//                 className="text-gray-500 hover:text-gray-700 absolute right-3 top-1/2 -translate-y-1/2"
-//               >
-//                 {showPin ? <EyeOff size={18} /> : <Eye size={18} />}
-//               </button>
-//             </div>
-
-//             <div className="mt-5 flex justify-end gap-3">
-//               <button
-//                 onClick={() => {
-//                   setShowPinModal(false);
-//                   setPin('');
-//                   setSelectedScript(null);
-//                 }}
-//                 className="border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg border px-4 py-2 text-sm font-medium transition-colors"
-//               >
-//                 Cancel
-//               </button>
-//               <button
-//                 onClick={handleConfirmStatusChange}
-//                 disabled={togglingId !== null}
-//                 className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${
-//                   selectedScriptDetails?.isActive
-//                     ? 'bg-red-500 hover:bg-red-600'
-//                     : 'bg-emerald-500 hover:bg-emerald-600'
-//                 } disabled:opacity-50`}
-//               >
-//                 {togglingId !== null ? 'Processing...' : 'Confirm'}
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//       )}
-//     </>
-//   );
-// };
-
-// export default DisplayScripts;
-
 import React, { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import GenericTable from '@/components/Forms/Table/GenericTable';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Search } from 'lucide-react';
 import {
   useGetScript,
   useUpdateScriptStatus,
@@ -324,11 +30,11 @@ export const DisplayScripts: React.FC = () => {
   const { mutateAsync: updateScriptStatus } = useUpdateScriptStatus();
 
   const [scripts, setScripts] = useState<Script[]>([]);
-  const [togglingId, setTogglingId] = useState<number | string | null>(null);
+  const [changedScripts, setChangedScripts] = useState<Set<string | number>>(new Set());
+  const [searchTerm, setSearchTerm] = useState('');
 
   // PIN Modal State
   const [showPinModal, setShowPinModal] = useState(false);
-  const [selectedScript, setSelectedScript] = useState<Script | null>(null);
   const [pin, setPin] = useState('');
   const [showPin, setShowPin] = useState(false);
 
@@ -354,24 +60,61 @@ export const DisplayScripts: React.FC = () => {
     });
   }, [scripts]);
 
+  // Filter scripts based on search term
+  const filteredScripts = useMemo(() => {
+    if (!searchTerm.trim()) return finalScript;
+
+    const query = searchTerm.toLowerCase().trim();
+    return finalScript.filter((script) => {
+      return (
+        script.name?.toLowerCase().includes(query) ||
+        script.symbol?.toLowerCase().includes(query) ||
+        script.type?.toLowerCase().includes(query)
+      );
+    });
+  }, [finalScript, searchTerm]);
+
+  // Handle toggle - just update local state, no popup
   const handleToggle = (script: Script, e: React.MouseEvent) => {
     e.stopPropagation();
-    setSelectedScript(script);
-    setShowPinModal(true);
-    setPin('');
-    setShowPin(false);
+
+    // Toggle the script status locally
+    setScripts((prev) =>
+      prev.map((s) =>
+        s.id === script.id ? { ...s, isOn: !s.isOn } : s,
+      )
+    );
+
+    // Track changed scripts
+    setChangedScripts((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(script.id)) {
+        newSet.delete(script.id);
+      } else {
+        newSet.add(script.id);
+      }
+      return newSet;
+    });
   };
 
   const closeModal = () => {
     setShowPinModal(false);
     setPin('');
     setShowPin(false);
-    setSelectedScript(null);
   };
 
-  const handleConfirmStatusChange = async () => {
-    if (!selectedScript) return;
+  // Handle Save All - Show PIN popup
+  const handleSaveAll = () => {
+    if (changedScripts.size === 0) {
+      toast.info('No changes to save');
+      return;
+    }
+    setShowPinModal(true);
+    setPin('');
+    setShowPin(false);
+  };
 
+  const handleConfirmSave = async () => {
     if (!pin.trim()) {
       toast.error('Please enter PIN');
       return;
@@ -382,63 +125,44 @@ export const DisplayScripts: React.FC = () => {
       return;
     }
 
-    const scriptId = selectedScript.id;
-    const oldStatus = !!selectedScript.isOn;
-    const newStatus = !oldStatus;
+    // Get only the changed scripts with assetId and isOn status
+    const scriptsToUpdate = scripts
+      .filter((s) => changedScripts.has(s.id))
+      .map((s) => ({
+        assetId: s.id,
+        isOn: s.isOn || false,
+      }));
+    const updateCount = scriptsToUpdate.length;
 
-    setTogglingId(scriptId);
+    if (updateCount === 0) {
+      toast.info('No changes to save');
+      closeModal();
+      return;
+    }
 
     try {
-      // Optimistic update
-      setScripts((prev) =>
-        prev.map((s) =>
-          s.id === scriptId ? { ...s, isOn: newStatus } : s,
-        ),
-      );
-
-      // API call
-      await updateScriptStatus(scriptId);
-
-      // Sync with backend response
+      await updateScriptStatus({
+        assets: scriptsToUpdate,
+      });
       await refetch();
-
-      toast.success(
-        `Script ${newStatus ? 'enabled' : 'disabled'} successfully!`,
-      );
-
+      setChangedScripts(new Set());
       closeModal();
     } catch (error) {
-      console.error('Toggle error:', error);
-
-      // Rollback if API fails
-      setScripts((prev) =>
-        prev.map((s) =>
-          s.id === scriptId ? { ...s, isOn: oldStatus } : s,
-        ),
-      );
-
-      toast.error('Failed to toggle script');
-    } finally {
-      setTogglingId(null);
+      console.error('Save error:', error);
+      toast.error('Failed to update scripts');
+      await refetch();
     }
   };
 
   const handleRowClick = (script: Script) => {
     console.log('Row clicked:', script);
-    // Navigate to script details if needed
   };
-
-  // Always derive selected script from latest scripts state
-  const selectedScriptDetails = selectedScript
-    ? scripts.find((s) => s.id === selectedScript.id)
-    : null;
 
   const columns = [
     {
       header: 'Name',
       accessor: 'name',
       render: (row: Script) => {
-        // Extract only the base name without date/expiry
         const cleanName = row.name?.replace(/\d+[A-Z]{3}FUT$/, '') || row.name;
         return <span>{cleanName}</span>;
       }
@@ -463,6 +187,16 @@ export const DisplayScripts: React.FC = () => {
       ),
     },
     {
+      header: 'Status',
+      accessor: 'isOn',
+      render: (row: Script) => (
+        <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${row.isOn ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+          }`}>
+          {row.isOn ? 'Active' : 'Inactive'}
+        </span>
+      ),
+    },
+    {
       header: 'Action',
       accessor: 'id',
       render: (row: Script) => (
@@ -476,9 +210,8 @@ export const DisplayScripts: React.FC = () => {
               className="peer sr-only"
               checked={!!row.isOn}
               onChange={(e) => handleToggle(row, e)}
-              disabled={togglingId === row.id}
             />
-            <div className="relative h-5 w-9 rounded-full bg-slate-200 transition-colors after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-4 peer-disabled:opacity-50" />
+            <div className="relative h-5 w-9 rounded-full bg-slate-200 transition-colors after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-4" />
           </label>
         </div>
       ),
@@ -504,44 +237,72 @@ export const DisplayScripts: React.FC = () => {
   return (
     <>
       <div className="p-4 sm:p-6 lg:p-8">
-        <div className="mb-6">
-          <h1 className="text-gray-900 text-2xl font-semibold">
-            Scripts Management
-          </h1>
-          <p className="text-gray-500 mt-1 text-sm">
-            Manage your trading scripts and their status
-          </p>
+        <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+          <div>
+            <h1 className="text-black text-2xl font-semibold">
+              Scripts Management
+            </h1>
+            <p className="text-gray-500 mt-1 text-sm">
+              Manage your trading scripts and their status
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            {/* Search Bar */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search by name, symbol or type..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full rounded-lg border border-stroke bg-white py-2 pl-10 pr-4 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 sm:w-64"
+              />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2"
+                >
+                  <span className="text-gray-400 hover:text-gray-600 text-sm">✕</span>
+                </button>
+              )}
+            </div>
+
+            {/* Save Button */}
+            <button
+              onClick={handleSaveAll}
+              // disabled={changedScripts.size === 0}
+              className={`px-4 py-2 rounded-lg text-white font-medium transition-colors whitespace-nowrap bg-orange-500 hover:bg-orange-600`}
+            >
+              Save
+            </button>
+          </div>
         </div>
 
         <GenericTable
           columns={columns}
-          data={finalScript}
+          data={filteredScripts}
           onRowClick={handleRowClick}
           clickable={true}
           rowsPerPage={10}
         />
       </div>
 
-      {/* PIN Modal */}
-      {showPinModal && selectedScriptDetails && (
+      {/* PIN Modal - Only on Save button click */}
+      {showPinModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-lg">
             <h2 className="mb-4 text-lg font-semibold text-slate-900">
-              {selectedScriptDetails.isOn ? 'Disable' : 'Enable'} Script
+              Confirm Save Changes
             </h2>
 
             <p className="mb-4 text-sm text-slate-600">
-              {selectedScriptDetails.isOn
-                ? `Are you sure you want to disable ${selectedScriptDetails.name ||
-                selectedScriptDetails.symbol
-                }?`
-                : `Are you sure you want to enable ${selectedScriptDetails.name ||
-                selectedScriptDetails.symbol
-                }?`}
+              You are about to update {changedScripts.size} script(s).
+              Enter your security PIN to confirm.
             </p>
 
             <p className="mb-2 text-sm font-medium text-slate-700">
-              Enter Security PIN to confirm:
+              Enter Security PIN:
             </p>
 
             <div className="relative">
@@ -554,7 +315,7 @@ export const DisplayScripts: React.FC = () => {
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
-                    handleConfirmStatusChange();
+                    handleConfirmSave();
                   }
                 }}
               />
@@ -572,20 +333,15 @@ export const DisplayScripts: React.FC = () => {
               <button
                 onClick={closeModal}
                 className="border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg border px-4 py-2 text-sm font-medium transition-colors"
-                disabled={togglingId !== null}
               >
                 Cancel
               </button>
 
               <button
-                onClick={handleConfirmStatusChange}
-                disabled={togglingId !== null}
-                className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${selectedScriptDetails.isOn
-                    ? 'bg-red-500 hover:bg-red-600'
-                    : 'bg-emerald-500 hover:bg-emerald-600'
-                  } disabled:opacity-50`}
+                onClick={handleConfirmSave}
+                className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-600"
               >
-                {togglingId !== null ? 'Processing...' : 'Confirm'}
+                Confirm Save
               </button>
             </div>
           </div>

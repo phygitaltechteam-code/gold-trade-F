@@ -88,7 +88,7 @@ export const updateProfile = async (data: profilePayload) => {
 };
 
 
-  export type TradingTimePayload = {
+export type TradingTimePayload = {
   stockHoldingLimit?: number;
   holdingStatus?: boolean;
   gttStatus?: boolean;
@@ -109,7 +109,7 @@ export const setTradingTime = async (data: TradingTimePayload) => {
 };
 
 
-  export const getTradingTime = async () => {
+export const getTradingTime = async () => {
   try {
     const response = await api.get(`master-broker/profile/site`);
     return response.data;
@@ -153,19 +153,21 @@ export const getScriptsData = async () => {
   }
 };
 
-export const  updateScriptStatus = async (id: string) => {
+
+
+export const updateScriptStatus = async (data: { assets: { assestId: string | number; isOn: boolean }[] }) => {
   try {
-    const response = await api.patch(`/master-broker/profile/assets/${id}`);
-    console.log('API response for scripts:', response);
-    return response;
+    const response = await api.patch(`/master-broker/profile/assets`, data);
+    // console.log('API response for scripts:', response);
+    return response.data;
   } catch (error) {
     console.error('Error to status change:', error);
     throw error;
   }
 };
 
-export const getClientLedger = async (id:string) => {
-    console.log("call api" , id)
+export const getClientLedger = async (id: string) => {
+  console.log("call api", id)
   try {
     const response = await api.get(`/master-broker/customer/ledger/${id}`);
     console.log('ledger datam api ', response);

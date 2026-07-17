@@ -1,8 +1,8 @@
-import React, {useState, useMemo} from 'react';
+import React, { useState, useMemo } from 'react';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import { useGetTransactionLedger } from '@/lib/api/masterpanelapi/masterapi';
 import { RefreshCcw } from 'lucide-react';
-import {motion} from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   Activity,
   TrendingUp,
@@ -14,7 +14,7 @@ import {
 
 // Animation variants
 const containerVariants = {
-  hidden: {opacity: 0},
+  hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
@@ -24,7 +24,7 @@ const containerVariants = {
 };
 
 const itemVariants = {
-  hidden: {opacity: 0, y: 20},
+  hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
@@ -63,7 +63,7 @@ const StatCard = ({
 const TransactionLedger = () => {
   const [ledgerStartDate, setLedgerStartDate] = useState('');
   const [ledgerEndDate, setLedgerEndDate] = useState('');
-  const {data: transactionLedgerData, refetch, isLoading} = useGetTransactionLedger();
+  const { data: transactionLedgerData, refetch, isLoading } = useGetTransactionLedger();
 
   // Calculate statistics from transaction data
   const calculateStats = (data) => {
@@ -136,17 +136,17 @@ const TransactionLedger = () => {
 
   // All columns - showing all data (removed the View More toggle)
   const allColumns = [
-    {header: 'Date & Time', accessor: 'dateTime'},
-    {header: 'Trader Name', accessor: 'customerName'},
-    {header: 'Script', accessor: 'script'},
-    {header: 'Qty/Lot', accessor: (item) => formatQtyLot(item)},
-    {header: 'Buy Price', accessor: 'buyPrice'},
-    {header: 'Sell Price', accessor: 'sellPrice'},
-    {header: 'Buy Time', accessor: 'buyTime'},
-    {header: 'Sell Time', accessor: 'sellTime'},
-    {header: 'Status', accessor: 'status'},
-    {header: 'P&L', accessor: (item) => formatPnL(item)},
-    {header: 'Master Broker Commission', accessor: 'masterBrokerCommission'},
+    { header: 'Date & Time', accessor: 'dateTime' },
+    { header: 'Trader Name', accessor: 'customerName' },
+    { header: 'Script', accessor: 'script' },
+    { header: 'Qty/Lot', accessor: (item) => formatQtyLot(item) },
+    { header: 'Buy Price', accessor: 'buyPrice' },
+    { header: 'Sell Price', accessor: 'sellPrice' },
+    { header: 'Buy Time', accessor: 'buyTime' },
+    { header: 'Sell Time', accessor: 'sellTime' },
+    { header: 'Status', accessor: 'status' },
+    { header: 'P&L', accessor: (item) => formatPnL(item) },
+    { header: 'Master Broker Commission', accessor: 'masterBrokerCommission' },
   ];
 
   // Extract data array safely
@@ -188,17 +188,27 @@ const TransactionLedger = () => {
   // Calculate statistics
   const stats = calculateStats(transactionData);
 
-  // Format currency
+  // Format currency with Indian comma system and hide .00
   const formatCurrency = (amount) => {
     if (amount === undefined || amount === null) return '₹0';
-    if (amount >= 10000000) {
-      return `₹${(amount / 10000000).toFixed(2)}Cr`;
-    } else if (amount >= 100000) {
-      return `₹${(amount / 100000).toFixed(1)}L`;
-    } else if (amount >= 1000) {
-      return `₹${(amount / 1000).toFixed(1)}k`;
+
+    const formatted = Number(amount).toFixed(2);
+
+    if (formatted.endsWith('.00')) {
+      return `₹${Math.round(amount).toLocaleString('en-IN')}`;
     }
-    return `₹${amount.toFixed(2)}`;
+
+    // Split into integer and decimal parts and format integer with Indian commas
+    const parts = formatted.split('.');
+    const integerPart = Number(parts[0]).toLocaleString('en-IN');
+    const decimalPart = parts[1];
+    return `₹${integerPart}.${decimalPart}`;
+  };
+
+  // Helper function to format numbers
+  const formatNumber = (num) => {
+    if (num === undefined || num === null) return '0';
+    return new Intl.NumberFormat('en-IN').format(num);
   };
 
   return (
@@ -296,7 +306,6 @@ const TransactionLedger = () => {
                     Clear
                   </button>
                 )}
-                {/* View More button removed */}
                 <button
                   onClick={() => refetch()}
                   className="flex items-center gap-2 rounded bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
@@ -318,12 +327,6 @@ const TransactionLedger = () => {
       </div>
     </motion.div>
   );
-};
-
-// Helper function to format numbers
-const formatNumber = (num) => {
-  if (num === undefined || num === null) return '0';
-  return new Intl.NumberFormat('en-IN').format(num);
 };
 
 export default TransactionLedger;

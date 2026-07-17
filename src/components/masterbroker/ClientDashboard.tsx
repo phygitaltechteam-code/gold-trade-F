@@ -53,8 +53,8 @@ const StatCard = ({ title, value, trend, icon: Icon, isLoading }: any) => (
       <div className="mt-2 flex items-center gap-2">
         <span
           className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${trend > 0
-              ? 'bg-emerald-50 text-emerald-600'
-              : 'bg-rose-50 text-rose-600'
+            ? 'bg-emerald-50 text-emerald-600'
+            : 'bg-rose-50 text-rose-600'
             }`}
         >
           {trend > 0 ? '↑' : '↓'} {Math.abs(trend)}%
@@ -205,22 +205,43 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
     navigate({ to: '/masterbroker/client-details/$id', params: { id: client.id } });
   };
 
-  // Format currency with 2 decimal places
-  const formatCurrency = (amount: number) => {
-    if (amount === undefined || amount === null) return '₹0.00';
-    return `₹${amount.toFixed(2)}`;
+  // Format number with Indian comma system
+  const formatNumber = (num: number) => {
+    if (num === undefined || num === null) return '0';
+    return new Intl.NumberFormat('en-IN').format(num);
   };
 
-  // Format number with 2 decimal places
-  const formatNumber = (num: number) => {
-    if (num === undefined || num === null) return '0.00';
-    return num.toFixed(2);
+ // Format currency with Indian comma system and hide .00
+const formatCurrency = (amount: number) => {
+  if (amount === undefined || amount === null) return '₹0';
+
+  // Check if the amount has decimal places
+  const formatted = amount.toFixed(2);
+  // If it ends with .00, return without decimal places
+  if (formatted.endsWith('.00')) {
+    return `₹${Math.round(amount).toLocaleString('en-IN')}`;
+  }
+  // Otherwise show with 2 decimal places with Indian comma system
+  // Split into integer and decimal parts
+  const parts = formatted.split('.');
+  const integerPart = Number(parts[0]).toLocaleString('en-IN');
+  const decimalPart = parts[1];
+  return `₹${integerPart}.${decimalPart}`;
+};
+  // Format currency for table (with 2 decimal places, hide .00)
+  const formatTableCurrency = (amount: number) => {
+    if (amount === undefined || amount === null) return '₹0';
+    const formatted = amount.toFixed(2);
+    if (formatted.endsWith('.00')) {
+      return `₹${Math.round(amount).toLocaleString('en-IN')}`;
+    }
+    return `₹${formatted}`;
   };
 
   // Get the selected client for PIN modal
   const selectedClient = clients.find((c) => c.id === selectedClientId);
 
-  // Columns with 2 decimal places
+  // Columns with proper formatting
   const columns = [
     {
       header: 'Trader Name',
@@ -242,7 +263,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
         const amount = parseFloat(row.wallets?.amount) || 0;
         return (
           <span className="whitespace-nowrap text-sm font-bold text-slate-900">
-            ₹{amount.toFixed(2)}
+            {formatTableCurrency(amount)}
           </span>
         );
       },
@@ -252,7 +273,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       accessor: 'assetUnderControl',
       render: (row: Client) => (
         <span className="whitespace-nowrap text-sm font-bold text-slate-900">
-          ₹{(row.assetUnderControl || 0).toFixed(2)}
+          {formatTableCurrency(row.assetUnderControl || 0)}
         </span>
       ),
     },
@@ -261,7 +282,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       accessor: 'marginAmount',
       render: (row: Client) => (
         <span className="whitespace-nowrap text-sm font-bold text-slate-900">
-          ₹{(row.marginAmount || 0).toFixed(2)}
+          {formatTableCurrency(row.marginAmount || 0)}
         </span>
       ),
     },
@@ -279,7 +300,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       accessor: 'totalTrade',
       render: (row: Client) => (
         <span className="whitespace-nowrap text-sm font-bold text-orange-500">
-          ₹{(row.totalTrade || 0).toFixed(2)}
+          {formatTableCurrency(row.totalTrade || 0)}
         </span>
       ),
     },
@@ -350,7 +371,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       {/* Header */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4 md:mb-8">
         <h1 className="text-2xl font-semibold text-slate-900 md:text-3xl">
-         Trader Management...
+          Trader Management...
         </h1>
 
         <button
@@ -359,8 +380,8 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
           }}
           disabled={totalClients >= limit}
           className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md transition-all ${totalClients >= limit
-              ? 'bg-gray-400 cursor-not-allowed opacity-70'
-              : 'bg-gradient-to-r from-orange-500 to-red-500 hover:scale-[1.02] hover:from-orange-600 hover:to-red-600'
+            ? 'bg-gray-400 cursor-not-allowed opacity-70'
+            : 'bg-gradient-to-r from-orange-500 to-red-500 hover:scale-[1.02] hover:from-orange-600 hover:to-red-600'
             }`}
         >
           <Plus className="h-4 w-4" />
@@ -368,7 +389,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
         </button>
       </div>
 
-      {/* Stats Cards Grid with 2 decimal places */}
+      {/* Stats Cards Grid */}
       <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-7 md:gap-4">
         <StatCard
           title="Total Traders"
@@ -444,7 +465,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
         </div>
       </div>
 
-      {/* Client Table with 2 decimal places */}
+      {/* Client Table */}
       <GenericTable
         columns={columns}
         data={filteredClients}
@@ -508,8 +529,8 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
                 onClick={handleConfirm}
                 disabled={isPending}
                 className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${selectedClient?.user?.isActive
-                    ? 'bg-red-500 hover:bg-red-600'
-                    : 'bg-emerald-500 hover:bg-emerald-600'
+                  ? 'bg-red-500 hover:bg-red-600'
+                  : 'bg-emerald-500 hover:bg-emerald-600'
                   } disabled:opacity-50`}
               >
                 {isPending ? 'Processing...' : 'Confirm'}

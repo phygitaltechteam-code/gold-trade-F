@@ -91,15 +91,22 @@ export default function WithdrawalRequest() {
   const [showMobileFilter, setShowMobileFilter] = useState(false);
   const itemsPerPage = 5;
 
-  // Format currency with 2 decimal places - Safe version
+  // Format currency - Hide .00 if present
   const formatCurrency = (amount: any) => {
-    if (amount === undefined || amount === null) return '₹0.00';
+    if (amount === undefined || amount === null) return '₹0';
     // Parse string to number if needed
     const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-    if (isNaN(numAmount)) return '₹0.00';
-    return `₹${numAmount.toFixed(2)}`;
-  };
+    if (isNaN(numAmount)) return '₹0';
 
+    // Check if the amount has decimal places
+    const formatted = numAmount.toFixed(2);
+    // If it ends with .00, return without decimal places
+    if (formatted.endsWith('.00')) {
+      return `₹${Math.round(numAmount).toLocaleString('en-IN')}`;
+    }
+    // Otherwise show with 2 decimal places
+    return `₹${formatted}`;
+  };
   const MOCK_DATA = useMemo(() => {
     return withdrawal?.map((item: any, index: number) => {
       // Parse walletBalance if it's a string

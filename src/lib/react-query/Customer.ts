@@ -1,5 +1,5 @@
 // lib/api/customer.ts
-import {api} from '@/utils/axios';
+import { api } from '@/utils/axios';
 
 export const getAllCustomer = async () => {
   try {
@@ -8,7 +8,7 @@ export const getAllCustomer = async () => {
   } catch (error) {
     console.error('Error fetching customers:', error);
     throw error;
-  }   
+  }
 };
 
 export const getCustomerById = async (id: string) => {

@@ -104,7 +104,7 @@ const ChamkiTrading = () => {
             <table className="w-full border-collapse">
               <tbody>
                 {/* Trading Time Row */}
-                <tr className="border-b border-stroke">
+                {/* <tr className="border-b border-stroke">
                   <td className="py-4 pr-15">
                     <div className="space-y-1">
                       <label className="text-gray-500 text-xs font-semibold uppercase tracking-wider">
@@ -152,7 +152,7 @@ const ChamkiTrading = () => {
                       </div>
                     </div>
                   </td>
-                </tr>
+                </tr> */}
 
                 {/* Holding Status Row */}
                 <tr className="border-b border-stroke">

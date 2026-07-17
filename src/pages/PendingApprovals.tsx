@@ -66,7 +66,6 @@ const PendingApprovals: React.FC = () => {
 
   const { data: superBrokerResponse } = useGetSuperBrokerData();
 
-
   const {
     data: customerResponse,
     isLoading: isLoadingCustomers,
@@ -81,8 +80,6 @@ const PendingApprovals: React.FC = () => {
   const acceptCustomerMutation = useAcceptCustomer();
   const deleteCustomerMutation = useDeleteCustomer();
   const updateCustomerMutation = useUpdateCustomer();
-
-
 
   // Extract Broker Lists Safely
   const brokerList = useMemo(() => {
@@ -155,7 +152,7 @@ const PendingApprovals: React.FC = () => {
         id: brokerToApprove.id,
         superBrokerId: selectedSuperBrokerForApprove,
       });
-      toast.success('Broker approved successfully');
+      // toast.success('Broker approved successfully');
       setShowApproveModal(false);
       setBrokerToApprove(null);
       setSelectedSuperBrokerForApprove('');
@@ -174,7 +171,7 @@ const PendingApprovals: React.FC = () => {
     ) {
       try {
         await deleteBrokerMutation.mutateAsync(broker.id);
-        toast.success('Broker deleted successfully');
+        // toast.success('Broker deleted successfully');
         refetchBrokers();
       } catch (error) {
         console.error(error);
@@ -183,15 +180,40 @@ const PendingApprovals: React.FC = () => {
     }
   };
 
+  // FIX: Correctly set editingBroker with proper field mapping
+  const handleEditBroker = (broker: any) => {
+    setEditingBroker({
+      id: broker.id,
+      fullname: broker?.user?.fullname || broker.fullname || '',
+      email: broker?.user?.email || broker.email || '',
+      phoneNumber: broker?.user?.phoneNumber || broker.phoneNumber || '',
+      area: broker.area || '',
+      brokeragePercent: broker.brokeragePercent || broker.brokeragePercent || '',
+      aadharCardNumber: broker.aadharCardNumber || '',
+      panCardNumber: broker.panCardNumber || '',
+      address: broker.address || '',
+    });
+  };
+
   const handleSaveBrokerEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingBroker) return;
+
     try {
       await updateBrokerMutation.mutateAsync({
         id: editingBroker.id,
-        data: editingBroker,
+        data: {
+          fullname: editingBroker.fullname,
+          email: editingBroker.email,
+          phoneNumber: editingBroker.phoneNumber,
+          area: editingBroker.area,
+          brokeragePercent: editingBroker.brokeragePercent,
+          aadharCardNumber: editingBroker.aadharCardNumber,
+          panCardNumber: editingBroker.panCardNumber,
+          address: editingBroker.address,
+        },
       });
-      toast.success('Broker updated successfully');
+      // toast.success('Broker updated successfully');
       setEditingBroker(null);
       refetchBrokers();
     } catch (error) {
@@ -229,13 +251,32 @@ const PendingApprovals: React.FC = () => {
     }
   };
 
+  // FIX: Correctly set editingClient with proper field mapping
+  const handleEditClient = (client: any) => {
+    setEditingClient({
+      id: client.id,
+      fullname: client?.user?.fullname || client.fullname || '',
+      email: client?.user?.email || client.email || '',
+      phoneNumber: client?.user?.phoneNumber || client.phoneNumber || '',
+      brokerId: client.brokerId || '',
+      address: client.address || client.area || '',
+    });
+  };
+
   const handleSaveClientEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingClient) return;
+
     try {
       await updateCustomerMutation.mutateAsync({
         id: editingClient.id,
-        data: editingClient,
+        data: {
+          fullname: editingClient.fullname,
+          email: editingClient.email,
+          phoneNumber: editingClient.phoneNumber,
+          address: editingClient.address,
+          brokerId: editingClient.brokerId,
+        },
       });
       toast.success('Customer updated successfully');
       setEditingClient(null);
@@ -447,15 +488,7 @@ const PendingApprovals: React.FC = () => {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                setEditingBroker({
-                  id: item.id,
-                  fullname: item?.user?.fullname || '',
-                  email: item?.user?.email || '',
-                  phoneNumber: item?.user?.phoneNumber || '',
-                  brokerId: item?.brokerId || '',
-                  area: item?.area || '',
-                  commission: item?.brokeragePercent || '',
-                });
+                handleEditBroker(item);
               }}
               className="rounded-lg bg-blue-50 p-2 text-blue-600 transition-all hover:bg-blue-100 hover:text-blue-700 active:scale-95"
               title="Edit Broker"
@@ -597,15 +630,7 @@ const PendingApprovals: React.FC = () => {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                setEditingClient({
-                  id: item.id,
-                  fullname: item?.user?.fullname || '',
-                  email: item?.user?.email || '',
-                  phoneNumber: item?.user?.phoneNumber || '',
-                  brokerId: item?.brokerId || '',
-                  area: item?.area || '',
-                  commission: item?.brokeragePercent || '',
-                });
+                handleEditClient(item);
               }}
               className="rounded-lg bg-blue-50 p-2 text-blue-600 transition-all hover:bg-blue-100 hover:text-blue-700 active:scale-95"
               title="Edit Customer"
@@ -661,16 +686,16 @@ const PendingApprovals: React.FC = () => {
                   setStatusFilter('PENDING');
                 }}
                 className={`flex items-center gap-2 rounded-t-lg px-4 py-2.5 text-sm font-medium transition-all md:px-6 ${activeTab === 'brokers'
-                    ? 'border-b-2 border-orange-500 text-orange-600'
-                    : 'text-gray-500 hover:text-gray-700'
+                  ? 'border-b-2 border-orange-500 text-orange-600'
+                  : 'text-gray-500 hover:text-gray-700'
                   }`}
               >
                 <Building className="h-4 w-4" />
                 Brokers
                 <span
                   className={`ml-1 rounded-full px-2 py-0.5 text-xs ${activeTab === 'brokers'
-                      ? 'bg-orange-100 text-orange-600'
-                      : 'bg-gray-100 text-gray-600'
+                    ? 'bg-orange-100 text-orange-600'
+                    : 'bg-gray-100 text-gray-600'
                     }`}
                 >
                   {pendingBrokersCount}
@@ -682,16 +707,16 @@ const PendingApprovals: React.FC = () => {
                   setStatusFilter('PENDING');
                 }}
                 className={`flex items-center gap-2 rounded-t-lg px-4 py-2.5 text-sm font-medium transition-all md:px-6 ${activeTab === 'clients'
-                    ? 'border-b-2 border-orange-500 text-orange-600'
-                    : 'text-gray-500 hover:text-gray-700'
+                  ? 'border-b-2 border-orange-500 text-orange-600'
+                  : 'text-gray-500 hover:text-gray-700'
                   }`}
               >
                 <Users className="h-4 w-4" />
                 Traders
                 <span
                   className={`ml-1 rounded-full px-2 py-0.5 text-xs ${activeTab === 'clients'
-                      ? 'bg-orange-100 text-orange-600'
-                      : 'bg-gray-100 text-gray-600'
+                    ? 'bg-orange-100 text-orange-600'
+                    : 'bg-gray-100 text-gray-600'
                     }`}
                 >
                   {pendingClientsCount}
@@ -704,8 +729,8 @@ const PendingApprovals: React.FC = () => {
               <button
                 onClick={() => setStatusFilter('PENDING')}
                 className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all md:px-4 md:text-sm ${statusFilter === 'PENDING'
-                    ? 'bg-orange-500 text-white shadow-sm'
-                    : 'text-gray-600 hover:bg-gray-100'
+                  ? 'bg-orange-500 text-white shadow-sm'
+                  : 'text-gray-600 hover:bg-gray-100'
                   }`}
               >
                 Pending Only
@@ -713,8 +738,8 @@ const PendingApprovals: React.FC = () => {
               <button
                 onClick={() => setStatusFilter('ALL')}
                 className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all md:px-4 md:text-sm ${statusFilter === 'ALL'
-                    ? 'bg-orange-500 text-white shadow-sm'
-                    : 'text-gray-600 hover:bg-gray-100'
+                  ? 'bg-orange-500 text-white shadow-sm'
+                  : 'text-gray-600 hover:bg-gray-100'
                   }`}
               >
                 All Records
@@ -784,7 +809,6 @@ const PendingApprovals: React.FC = () => {
                 <GenericTable
                   data={filteredBrokers}
                   columns={brokerColumns}
-                  onRowClick={handleBrokerRowClick}
                   clickable={true}
                   searchAble={false}
                   itemsPerPage={10}
@@ -940,7 +964,7 @@ const PendingApprovals: React.FC = () => {
         {/* Edit Broker Modal */}
         {editingBroker && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-            <div className="animate-in fade-in zoom-in-95 w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl duration-200">
+            <div className="animate-in fade-in zoom-in-95 w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl duration-200">
               <div className="flex items-center justify-between border-b border-stroke pb-4">
                 <h3 className="text-gray-900 text-xl font-bold">Edit Broker</h3>
                 <button
@@ -952,76 +976,76 @@ const PendingApprovals: React.FC = () => {
               </div>
 
               <form onSubmit={handleSaveBrokerEdit} className="mt-4 space-y-4">
-                <div>
-                  <label className="text-gray-700 text-sm font-semibold">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    value={editingBroker.fullname || ''}
-                    onChange={(e) =>
-                      setEditingBroker({
-                        ...editingBroker,
-                        fullname: e.target.value,
-                      })
-                    }
-                    className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
-                    required
-                  />
-                </div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div>
+                    <label className="text-gray-700 text-sm font-semibold">
+                      Full Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={editingBroker.fullname || ''}
+                      onChange={(e) =>
+                        setEditingBroker({
+                          ...editingBroker,
+                          fullname: e.target.value,
+                        })
+                      }
+                      className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                      required
+                    />
+                  </div>
 
+                  <div>
+                    <label className="text-gray-700 text-sm font-semibold">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      value={editingBroker.email || ''}
+                      onChange={(e) =>
+                        setEditingBroker({
+                          ...editingBroker,
+                          email: e.target.value,
+                        })
+                      }
+                      className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                    />
+                  </div>
 
-                <div>
-                  <label className="text-gray-700 text-sm font-semibold">
-                    Phone Number
-                  </label>
-                  <input
-                    type="text"
-                    value={editingBroker.phoneNumber || ''}
-                    onChange={(e) =>
-                      setEditingBroker({
-                        ...editingBroker,
-                        phoneNumber: e.target.value,
-                      })
-                    }
-                    className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
-                    required
-                  />
-                </div>
+                  <div>
+                    <label className="text-gray-700 text-sm font-semibold">
+                      Phone Number <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={editingBroker.phoneNumber || ''}
+                      onChange={(e) =>
+                        setEditingBroker({
+                          ...editingBroker,
+                          phoneNumber: e.target.value,
+                        })
+                      }
+                      className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                      required
+                    />
+                  </div>
 
-                <div>
-                  <label className="text-gray-700 text-sm font-semibold">
-                    Area
-                  </label>
-                  <input
-                    type="text"
-                    value={editingBroker.area || ''}
-                    onChange={(e) =>
-                      setEditingBroker({
-                        ...editingBroker,
-                        area: e.target.value,
-                      })
-                    }
-                    className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-gray-700 text-sm font-semibold">
-                    Commission %
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={editingBroker.brokeragePercent || ''}
-                    onChange={(e) =>
-                      setEditingBroker({
-                        ...editingBroker,
-                        brokeragePercent: parseFloat(e.target.value),
-                      })
-                    }
-                    className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
-                  />
+                  <div>
+                    <label className="text-gray-700 text-sm font-semibold">
+                      Area
+                    </label>
+                    <input
+                      type="text"
+                      value={editingBroker.area || ''}
+                      onChange={(e) =>
+                        setEditingBroker({
+                          ...editingBroker,
+                          area: e.target.value,
+                        })
+                      }
+                      className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                    />
+                  </div>
                 </div>
 
                 <div className="flex justify-end gap-3 border-t border-stroke pt-4">
@@ -1052,9 +1076,7 @@ const PendingApprovals: React.FC = () => {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
             <div className="animate-in fade-in zoom-in-95 w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl duration-200">
               <div className="flex items-center justify-between border-b border-stroke pb-4">
-                <h3 className="text-gray-900 text-xl font-bold">
-                  Edit Customer
-                </h3>
+                <h3 className="text-gray-900 text-xl font-bold">Edit Customer</h3>
                 <button
                   onClick={() => setEditingClient(null)}
                   className="text-gray-400 hover:bg-gray-100 hover:text-gray-600 rounded-lg p-1 transition-all"
@@ -1064,98 +1086,100 @@ const PendingApprovals: React.FC = () => {
               </div>
 
               <form onSubmit={handleSaveClientEdit} className="mt-4 space-y-4">
-                <div>
-                  <label className="text-gray-700 text-sm font-semibold">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    value={editingClient.fullname || ''}
-                    onChange={(e) =>
-                      setEditingClient({
-                        ...editingClient,
-                        fullname: e.target.value,
-                      })
-                    }
-                    className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
-                    required
-                  />
-                </div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div>
+                    <label className="text-gray-700 text-sm font-semibold">
+                      Full Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={editingClient.fullname || ''}
+                      onChange={(e) =>
+                        setEditingClient({
+                          ...editingClient,
+                          fullname: e.target.value,
+                        })
+                      }
+                      className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                      required
+                    />
+                  </div>
 
-                <div>
-                  <label className="text-gray-700 text-sm font-semibold">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    value={editingClient.email || ''}
-                    onChange={(e) =>
-                      setEditingClient({
-                        ...editingClient,
-                        email: e.target.value,
-                      })
-                    }
-                    className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
-                    required
-                  />
-                </div>
+                  <div>
+                    <label className="text-gray-700 text-sm font-semibold">
+                      Email <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      value={editingClient.email || ''}
+                      onChange={(e) =>
+                        setEditingClient({
+                          ...editingClient,
+                          email: e.target.value,
+                        })
+                      }
+                      className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                      required
+                    />
+                  </div>
 
-                <div>
-                  <label className="text-gray-700 text-sm font-semibold">
-                    Phone Number
-                  </label>
-                  <input
-                    type="text"
-                    value={editingClient.phoneNumber || ''}
-                    onChange={(e) =>
-                      setEditingClient({
-                        ...editingClient,
-                        phoneNumber: e.target.value,
-                      })
-                    }
-                    className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
-                    required
-                  />
-                </div>
+                  <div>
+                    <label className="text-gray-700 text-sm font-semibold">
+                      Phone Number <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={editingClient.phoneNumber || ''}
+                      onChange={(e) =>
+                        setEditingClient({
+                          ...editingClient,
+                          phoneNumber: e.target.value,
+                        })
+                      }
+                      className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                      required
+                    />
+                  </div>
 
-                <div>
-                  <label className="text-gray-700 text-sm font-semibold">
-                    Address
-                  </label>
-                  <input
-                    type="text"
-                    value={editingClient.address || editingClient.area || ''}
-                    onChange={(e) =>
-                      setEditingClient({
-                        ...editingClient,
-                        address: e.target.value,
-                      })
-                    }
-                    className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
-                  />
-                </div>
+                  <div>
+                    <label className="text-gray-700 text-sm font-semibold">
+                      Address
+                    </label>
+                    <input
+                      type="text"
+                      value={editingClient.address || editingClient.area || ''}
+                      onChange={(e) =>
+                        setEditingClient({
+                          ...editingClient,
+                          address: e.target.value,
+                        })
+                      }
+                      className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                    />
+                  </div>
 
-                <div>
-                  <label className="text-gray-700 text-sm font-semibold">
-                    Assign Broker
-                  </label>
-                  <select
-                    value={editingClient.brokerId || ''}
-                    onChange={(e) =>
-                      setEditingClient({
-                        ...editingClient,
-                        brokerId: e.target.value,
-                      })
-                    }
-                    className="text-gray-900 mt-1 w-full cursor-pointer appearance-none rounded-xl border border-stroke bg-white p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
-                  >
-                    <option value="">Select Broker</option>
-                    {brokerList.map((b: any) => (
-                      <option key={b.id} value={b.id}>
-                        {b.fullname} ({b.BKId || b.id?.substring(0, 6)})
-                      </option>
-                    ))}
-                  </select>
+                  <div>
+                    <label className="text-gray-700 text-sm font-semibold">
+                      Assign Broker
+                    </label>
+                    <select
+                      value={editingClient.brokerId || ''}
+                      onChange={(e) =>
+                        setEditingClient({
+                          ...editingClient,
+                          brokerId: e.target.value,
+                        })
+                      }
+                      className="text-gray-900 mt-1 w-full cursor-pointer appearance-none rounded-xl border border-stroke bg-white p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                    >
+                      <option value="">Select Broker</option>
+                      {brokerList.map((b: any) => (
+                        <option key={b.id} value={b.id}>
+                          {b.fullname} ({b.BKId || b.id?.substring(0, 6)})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 <div className="flex justify-end gap-3 border-t border-stroke pt-4">

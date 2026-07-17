@@ -154,24 +154,22 @@
 // export default SuperBrokerTransactionLedger;
 
 //Super Broker Transaction Ledger
-
 import React, { useState } from 'react';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import { useGetSuperBrokerTransactionLedger } from '@/lib/react-query/transactionledger';
 import { RefreshCcw } from 'lucide-react';
 
 const SuperBrokerTransactionLedger = () => {
-  const [isExpanded, setIsExpanded] = useState(false);
   const [ledgerStartDate, setLedgerStartDate] = useState('');
   const [ledgerEndDate, setLedgerEndDate] = useState('');
-  const { data: transactionLedgerResponse, isLoading, error , refetch } = useGetSuperBrokerTransactionLedger();
+  const { data: transactionLedgerResponse, isLoading, error, refetch } = useGetSuperBrokerTransactionLedger();
   console.log('Raw API Response:', transactionLedgerResponse);
 
   // Format Qty/Lot
   const formatQtyLot = (item) => {
     if (!item) return '-';
-const qty = item.qty ?? item.Qty ?? 0;
-const lotSize = item.lotSize ?? item.lotsize ?? 0;
+    const qty = item.qty ?? item.Qty ?? 0;
+    const lotSize = item.lotSize ?? item.lotsize ?? 0;
     // If lotSize exists and is different from qty, show as "qty/lot"
     if (lotSize && lotSize !== qty) {
       return `${qty}/${lotSize}`;
@@ -180,25 +178,8 @@ const lotSize = item.lotSize ?? item.lotsize ?? 0;
     return qty;
   };
 
-  // Simplified view columns
-  const baseColumns = [
-    { header: 'Date & Time', accessor: 'dateTime' },
-    { header: 'Customer Name', accessor: 'customerName' },
-    { header: 'Script', accessor: 'script' },
-    {
-      header: 'Qty/Lot',
-      accessor: (item) => formatQtyLot(item),
-    },
-    { header: 'Buy Price', accessor: 'buyPrice' },
-    { header: 'Sell Price', accessor: 'sellPrice' },
-    // { header: 'Status', accessor: 'status' },
-    // { header: 'Price', accessor: 'price' },
-    { header: 'Buy Time', accessor: 'buyTime' },
-    { header: 'Sell Time', accessor: 'sellTime' },
-  ];
-
-  // Full detailed view columns
-  const expandedColumns = [
+  // All columns - displaying all data (removed View More toggle)
+  const allColumns = [
     { header: 'Date & Time', accessor: 'dateTime' },
     { header: 'Customer Name', accessor: 'customerName' },
     { header: 'Broker Name', accessor: 'brokerName' },
@@ -211,21 +192,9 @@ const lotSize = item.lotSize ?? item.lotsize ?? 0;
     { header: 'Sell Price', accessor: 'sellPrice' },
     { header: 'Buy Time', accessor: 'buyTime' },
     { header: 'Sell Time', accessor: 'sellTime' },
-    // { header: 'Order Type', accessor: 'orderType' },
-    // { header: 'Holding Type', accessor: 'holdingType' },
-    // { header: 'Price', accessor: 'price' },
-    // { header: 'Transaction Amount', accessor: 'transactionAmount' },
-    // { header: 'Paid Amount', accessor: 'paidAmount' },
-    // { header: 'Margin Amount', accessor: 'marginAmount' },
-    // { header: 'Payment Status', accessor: 'paymentStatus' },
     { header: 'Status', accessor: 'status' },
     { header: 'P&L', accessor: 'pnl' },
     { header: 'Super Broker Commission', accessor: 'superBrokerCommission' },
-    // { header: 'Company Commission', accessor: 'companyCommission' },
-    // { header: 'Notes', accessor: 'notes' },
-    // { header: 'Transaction ID', accessor: 'transactionId' },
-    // { header: 'Trade ID', accessor: 'tradeId' },
-    // { header: 'Order ID', accessor: 'orderId' },
   ];
 
   // Extract data array safely from the response
@@ -285,13 +254,11 @@ const lotSize = item.lotSize ?? item.lotsize ?? 0;
   const filteredData = filterDataByDate(transactionData);
   console.log('Filtered Data:', filteredData);
 
-  const columns = isExpanded ? expandedColumns : baseColumns;
-
   return (
     <div className="mx-auto w-full p-4 md:p-6">
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-xl font-semibold text-black dark:text-white">
-          Transaction Ledger..
+          Transaction Ledger
         </h2>
         <div className="text-sm text-gray-500">
           Total Records: {filteredData.length}
@@ -336,23 +303,18 @@ const lotSize = item.lotSize ?? item.lotsize ?? 0;
                 </button>
               )}
               <button
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="rounded bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
+                onClick={() => refetch()}
+                className="flex items-center gap-2 rounded bg-orange-500 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-orange-600"
               >
-                {isExpanded ? 'View Less' : 'View More Details'}
-              </button>
-               <button
-                onClick={() =>refetch() }
-                className="rounded bg-orange-500 flex px-1 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 mr-2"
-              >
-                <RefreshCcw size={20}/>Refresh
+                <RefreshCcw size={18} />
+                Refresh
               </button>
             </div>
           </div>
           <div className="overflow-x-auto">
             <GenericTable
               data={filteredData}
-              columns={columns}
+              columns={allColumns}
               paginationOff={false}
             />
           </div>

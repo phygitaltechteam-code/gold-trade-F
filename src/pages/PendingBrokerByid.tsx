@@ -74,11 +74,7 @@ const PendingBrokerByid = () => {
   const superBrokersList =
     superBrokersData?.data?.data || superBrokersData?.data || [];
 
-  const filteredSuperBrokers = superBrokersList.filter(
-    (sb) =>
-      sb.fullname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      sb.BKId?.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+
 
   // Populate form with broker data when loaded
   useEffect(() => {

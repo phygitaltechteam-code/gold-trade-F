@@ -7,33 +7,15 @@ import GenericTable from '@/components/Forms/Table/GenericTable';
 import toast from 'react-hot-toast';
 
 const CustomerHolding = () => {
-    const [isEnabled, setIsEnabled] = useState(false);
-    const [isGttEnabled, setIsGttEnabled] = useState(false);
-    const [isStopLossEnabled, setIsStopLossEnabled] = useState(false);
-    const [isLimitEnabled, setIsLimitEnabled] = useState(false);
-    const [isTargetEnabled, setIsTargetEnabled] = useState(false);
-    const [isStopLossTargetEnabled, setIsStopLossTargetEnabled] = useState(false);
+
     const [searchTerm, setSearchTerm] = useState('');
     const [stockLimits, setStockLimits] = useState<Record<string, string>>({});
     const [originalStockLimits, setOriginalStockLimits] = useState<Record<string, string>>({});
     const [isSaving, setIsSaving] = useState(false);
     const [applyToAllLimit, setApplyToAllLimit] = useState<string>('');
-
-    const { data: tradeData } = useGetTradeTime();
-    console.log('tradeee', tradeData);
     const { data: clients = [], refetch, isLoading } = useGetMasterClients();
     const { mutate: saveCustomerHolding, isPending } = useCustomerHolding();
 
-    useEffect(() => {
-        if (tradeData) {
-            setIsEnabled(tradeData?.holdingStatus);
-            setIsGttEnabled(tradeData?.gttStatus);
-            setIsStopLossEnabled(tradeData?.stoplossStatus);
-            setIsLimitEnabled(tradeData?.limitStatus);
-            setIsTargetEnabled(tradeData?.targetStatus);
-            setIsStopLossTargetEnabled(tradeData?.stoplossAndTargetStatus);
-        }
-    }, [tradeData]);
 
     // Initialize stock limits from client data
     useEffect(() => {
@@ -47,47 +29,14 @@ const CustomerHolding = () => {
         }
     }, [clients]);
 
-    const submit = () => {
-        const payload = {
-            holdingStatus: isEnabled,
-            gttStatus: isGttEnabled,
-            stoplossStatus: isStopLossEnabled,
-            limitStatus: isLimitEnabled,
-            targetStatus: isTargetEnabled,
-            stoplossAndTargetStatus: isStopLossTargetEnabled,
-        };
-
-        console.log('Saving trading time settings:', payload);
-        toast.success('Trading time settings saved successfully!');
-    };
-
-    const handleStopLossToggle = () => {
-        const newStopLoss = !isStopLossEnabled;
-        setIsStopLossEnabled(newStopLoss);
-        if (!newStopLoss) {
-            setIsStopLossTargetEnabled(false);
-        }
-    };
-
-    const handleTargetToggle = () => {
-        const newTarget = !isTargetEnabled;
-        setIsTargetEnabled(newTarget);
-        if (!newTarget) {
-            setIsStopLossTargetEnabled(false);
-        }
-    };
-
-    const handleStopLossTargetToggle = () => {
-        const newValue = !isStopLossTargetEnabled;
-        setIsStopLossTargetEnabled(newValue);
-        if (newValue) {
-            setIsStopLossEnabled(true);
-            setIsTargetEnabled(true);
-        }
-    };
 
     // Handle stock limit change for a customer
     const handleStockLimitChange = (customerId: string, value: string) => {
+        // Validate that value is a number (only digits allowed)
+        if (value !== '' && !/^\d+$/.test(value)) {
+            toast.error('Please enter only numbers');
+            return;
+        }
         setStockLimits((prev) => ({
             ...prev,
             [customerId]: value,
@@ -98,6 +47,12 @@ const CustomerHolding = () => {
     const handleApplyToAll = () => {
         if (!applyToAllLimit) {
             toast.error('Please enter a limit value');
+            return;
+        }
+
+        // Validate that applyToAllLimit is a number
+        if (!/^\d+$/.test(applyToAllLimit)) {
+            toast.error('Please enter only numbers');
             return;
         }
 
@@ -135,6 +90,15 @@ const CustomerHolding = () => {
             return;
         }
 
+        // Validate all limits before saving
+        for (const customer of customers) {
+            if (!/^\d+$/.test(customer.stockHoldingLimit)) {
+                toast.error('Please ensure all limits are valid numbers');
+                setIsSaving(false);
+                return;
+            }
+        }
+
         // Save all customers at once - Send array of {customerId, stockHoldingLimit}
         saveCustomerHolding({
             customers: customers,
@@ -163,8 +127,8 @@ const CustomerHolding = () => {
         );
     });
 
-    // Check if any changes were made
-    const hasChanges = () => {
+    // Check if any changes were made - use useMemo for better performance
+    const hasChanges = React.useMemo(() => {
         for (const client of clients) {
             const currentLimit = stockLimits[client.id] || '';
             const originalLimit = originalStockLimits[client.id] || '';
@@ -173,7 +137,20 @@ const CustomerHolding = () => {
             }
         }
         return false;
-    };
+    }, [stockLimits, originalStockLimits, clients]);
+
+    // Get total number of customers with changes
+    const getChangedCount = React.useMemo(() => {
+        let count = 0;
+        for (const client of clients) {
+            const currentLimit = stockLimits[client.id] || '';
+            const originalLimit = originalStockLimits[client.id] || '';
+            if (currentLimit !== originalLimit) {
+                count++;
+            }
+        }
+        return count;
+    }, [stockLimits, originalStockLimits, clients]);
 
     // Customer Table Columns
     const customerColumns = [
@@ -186,7 +163,6 @@ const CustomerHolding = () => {
                         <div className="text-sm font-medium text-slate-900">
                             {row.user?.fullname || 'N/A'}
                         </div>
-                       
                     </div>
                 </div>
             ),
@@ -206,59 +182,28 @@ const CustomerHolding = () => {
 
                 return (
                     <input
-                        type="number"
-                        min="0"
+                        type="text"
                         value={currentLimit}
                         onChange={(e) => handleStockLimitChange(row.id, e.target.value)}
                         className="w-40 rounded-lg border border-stroke px-3 py-1.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                         placeholder="Enter limit"
+                        pattern="[0-9]*"
+                        inputMode="numeric"
                     />
                 );
             },
         },
     ];
 
-    // Get total number of customers with changes
-    const getChangedCount = () => {
-        let count = 0;
-        for (const client of clients) {
-            const currentLimit = stockLimits[client.id] || '';
-            const originalLimit = originalStockLimits[client.id] || '';
-            if (currentLimit !== originalLimit) {
-                count++;
-            }
-        }
-        return count;
-    };
-
     return (
         <div className="font-sans min-h-screen bg-[#F8F9FA] text-[#1A1A1A]">
             <main className="mx-auto max-w-7xl space-y-4 px-4 py-4 sm:space-y-6 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
-
                 {/* Customer Stock Holding Limit Table */}
                 <section className="overflow-hidden rounded-xl border border-stroke bg-white p-6 shadow-sm">
                     <div className="mb-4 flex flex-col justify-between gap-4 border-b border-stroke pb-4 sm:flex-row sm:items-center">
-                        <h2 className="text-lg font-semibold">Customer Stock Holding Limits</h2>
+                        <h2 className="text-lg font-semibold">Minimum Stock Holding Time (In Minutes)</h2>
 
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                            {/* Apply to All Input */}
-                            <div className="flex items-center gap-2">
-                                <input
-                                    type="number"
-                                    min="0"
-                                    value={applyToAllLimit}
-                                    onChange={(e) => setApplyToAllLimit(e.target.value)}
-                                    className="w-40 rounded-lg border border-stroke px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                                    placeholder="Enter limit"
-                                />
-                                <button
-                                    onClick={handleApplyToAll}
-                                    className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-600"
-                                >
-                                    Apply to All
-                                </button>
-                            </div>
-
                             {/* Search Input */}
                             <div className="relative w-full sm:w-64">
                                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -270,6 +215,46 @@ const CustomerHolding = () => {
                                     className="w-full rounded-lg border border-stroke bg-white py-2 pl-10 pr-4 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                                 />
                             </div>
+
+                            {/* Conditional: Show Apply to All OR Save Button */}
+                            {!hasChanges ? (
+                                // Show Apply to All when no changes
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="text"
+                                        value={applyToAllLimit}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            if (value === '' || /^\d+$/.test(value)) {
+                                                setApplyToAllLimit(value);
+                                            }
+                                        }}
+                                        className="w-40 rounded-lg border border-stroke px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                                        placeholder="Enter limit"
+                                        pattern="[0-9]*"
+                                        inputMode="numeric"
+                                    />
+                                    <button
+                                        onClick={handleApplyToAll}
+                                        className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
+                                    >
+                                        Apply to All
+                                    </button>
+                                </div>
+                            ) : (
+                                // Show Save button when changes exist
+                                <button
+                                    onClick={handleSaveAllStockLimits}
+                                    disabled={isSaving || isPending}
+                                    className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${isSaving || isPending
+                                            ? 'bg-gray-400 cursor-not-allowed'
+                                            : 'bg-orange-500 hover:bg-orange-600'
+                                        }`}
+                                >
+                                    <Database className="h-4 w-4" />
+                                    <span>{isSaving || isPending ? 'Saving...' : 'Save Changes'}</span>
+                                </button>
+                            )}
                         </div>
                     </div>
 
@@ -289,27 +274,6 @@ const CustomerHolding = () => {
                                 clickable={false}
                             />
 
-                            {/* Save Button on the Right Side with change count */}
-                            <div className="mt-4 flex items-center justify-between">
-                                <div>
-                                    {hasChanges() && (
-                                        <span className="text-sm text-orange-500">
-                                            {getChangedCount()} customer(s) have unsaved changes
-                                        </span>
-                                    )}
-                                </div>
-                                <button
-                                    onClick={handleSaveAllStockLimits}
-                                    disabled={isSaving || isPending }
-                                    className={`flex items-center gap-2 rounded-lg px-6 py-2.5 text-sm font-medium text-white transition-colors ${isSaving || isPending || !hasChanges()
-                                        ? 'bg-gray-400 cursor-not-allowed'
-                                        : 'bg-orange-500 hover:bg-orange-600'
-                                        }`}
-                                >
-                                    <Database className="h-4 w-4" />
-                                    <span>{isSaving || isPending ? 'Saving...' : 'Save All'}</span>
-                                </button>
-                            </div>
                         </>
                     )}
                 </section>

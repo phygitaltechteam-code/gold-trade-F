@@ -173,16 +173,27 @@ const Dashboard: React.FC = () => {
     }
   }, [selectedPeriod]);
 
-  // Format functions
+  // Format number with Indian comma system
   const formatNumber = (num: number) => {
     if (num === undefined || num === null) return '0';
     return new Intl.NumberFormat('en-IN').format(num);
   };
 
-  // Format currency with 2 decimal places
+  // Format currency with proper Indian comma system and hide .00
   const formatCurrency = (amount: number) => {
-    if (amount === undefined || amount === null) return '₹0.00';
-    return `₹${amount.toFixed(2)}`;
+    if (amount === undefined || amount === null) return '₹0';
+
+    // Check if the amount has decimal places
+    const formatted = amount.toFixed(2);
+    // If it ends with .00, return without decimal places
+    if (formatted.endsWith('.00')) {
+      return `₹${Math.round(amount).toLocaleString('en-IN')}`;
+    }
+    // Otherwise show with 2 decimal places with Indian comma system
+    const parts = formatted.split('.');
+    const integerPart = Number(parts[0]).toLocaleString('en-IN');
+    const decimalPart = parts[1];
+    return `₹${integerPart}.${decimalPart}`;
   };
 
   // Extract data from API response
@@ -288,7 +299,7 @@ const Dashboard: React.FC = () => {
             iconColor="text-emerald-500"
           />
           <FinancialStatCard
-            title="Total Traders Wallet Balance"
+            title="Assets Under Control"
             amount={formatCurrency(dashboardStats.totalCustomerWalletBalance)}
             icon={Wallet}
             iconColor="text-blue-500"

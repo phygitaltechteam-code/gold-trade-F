@@ -53,162 +53,6 @@ interface WithdrawalRequest {
   isHighValue?: boolean;
 }
 
-const MOCK_DATA: WithdrawalRequest[] = [
-  {
-    id: '1',
-    requestId: '#W-94821',
-    date: 'Today',
-    time: '10:42 AM',
-    client: { name: 'John Doe', tier: 'Gold Tier', initials: 'JD' },
-    brokerName: 'Capital Brokerage',
-    brokerNumber: 'BRK-00123',
-    superBrokerName: 'Global Markets Group',
-    superBrokerNumber: 'SBR-00456',
-    walletBalance: 45000.0,
-    amount: 15400.0,
-    withdrawType: 'Bank Transfer',
-    detailAmount: 15385.0,
-    paidAmount: 15385.0,
-    paidDateTime: '2024-01-15 14:30:00',
-    fee: 15.0,
-    bank: 'Chase Bank',
-    accountLast4: '8821',
-    status: 'Pending',
-  },
-  {
-    id: '2',
-    requestId: '#W-94820',
-    date: 'Today',
-    time: '09:15 AM',
-    client: { name: 'Alice Smith', tier: 'Standard Tier', initials: 'AS' },
-    brokerName: 'TradeCorp',
-    brokerNumber: 'BRK-00456',
-    superBrokerName: 'Alpha Financial',
-    superBrokerNumber: 'SBR-00123',
-    walletBalance: 12000.0,
-    amount: 2100.0,
-    withdrawType: 'Crypto Wallet',
-    detailAmount: 2095.0,
-    paidAmount: 2095.0,
-    paidDateTime: '2024-01-15 11:20:00',
-    fee: 5.0,
-    bank: 'Wells Fargo',
-    accountLast4: '4492',
-    status: 'Pending',
-  },
-  {
-    id: '3',
-    requestId: '#W-94819',
-    date: 'Today',
-    time: '08:30 AM',
-    client: {
-      name: 'Marcus Chen',
-      tier: 'Platinum Tier',
-      initials: 'MC',
-      avatar: 'https://picsum.photos/seed/marcus/40/40',
-    },
-    brokerName: 'Asia Wealth',
-    brokerNumber: 'BRK-00789',
-    superBrokerName: 'Global Markets Group',
-    superBrokerNumber: 'SBR-00456',
-    walletBalance: 250000.0,
-    amount: 85000.0,
-    withdrawType: 'Wire Transfer',
-    detailAmount: 84950.0,
-    paidAmount: 0,
-    paidDateTime: 'Pending',
-    fee: 50.0,
-    bank: 'HSBC Global',
-    accountLast4: '1102',
-    status: 'Review',
-    isHighValue: true,
-  },
-  {
-    id: '4',
-    requestId: '#W-94818',
-    date: 'Yesterday',
-    time: '11:55 PM',
-    client: { name: 'Robert King', tier: 'Standard Tier', initials: 'RK' },
-    brokerName: 'King Investments',
-    brokerNumber: 'BRK-00999',
-    superBrokerName: 'Alpha Financial',
-    superBrokerNumber: 'SBR-00123',
-    walletBalance: 3400.0,
-    amount: 850.0,
-    withdrawType: 'Bank Transfer',
-    detailAmount: 848.0,
-    paidAmount: 848.0,
-    paidDateTime: '2024-01-14 09:45:00',
-    fee: 2.0,
-    bank: 'Bank of America',
-    accountLast4: '9931',
-    status: 'Pending',
-  },
-  {
-    id: '5',
-    requestId: '#W-94802',
-    date: 'Yesterday',
-    time: '04:20 PM',
-    client: { name: 'Sarah Lee', tier: 'Silver Tier', initials: 'SL' },
-    brokerName: 'TradeCorp',
-    brokerNumber: 'BRK-00456',
-    superBrokerName: 'Global Markets Group',
-    superBrokerNumber: 'SBR-00456',
-    walletBalance: 9800.0,
-    amount: 4200.0,
-    withdrawType: 'PayPal',
-    detailAmount: 4196.0,
-    paidAmount: 0,
-    paidDateTime: 'Pending',
-    fee: 4.0,
-    bank: 'Citibank',
-    accountLast4: '2381',
-    status: 'On Hold',
-  },
-  {
-    id: '6',
-    requestId: '#W-94795',
-    date: 'Yesterday',
-    time: '02:10 PM',
-    client: { name: 'David Brown', tier: 'Gold Tier', initials: 'DB' },
-    brokerName: 'Capital Brokerage',
-    brokerNumber: 'BRK-00123',
-    superBrokerName: 'Alpha Financial',
-    superBrokerNumber: 'SBR-00123',
-    walletBalance: 65000.0,
-    amount: 12500.0,
-    withdrawType: 'Wire Transfer',
-    detailAmount: 12488.0,
-    paidAmount: 12488.0,
-    paidDateTime: '2024-01-13 16:20:00',
-    fee: 12.0,
-    bank: 'Chase Bank',
-    accountLast4: '5543',
-    status: 'Approved',
-  },
-  {
-    id: '7',
-    requestId: '#W-94788',
-    date: '2 days ago',
-    time: '11:30 AM',
-    client: { name: 'Emma Wilson', tier: 'Standard Tier', initials: 'EW' },
-    brokerName: 'King Investments',
-    brokerNumber: 'BRK-00999',
-    superBrokerName: 'Global Markets Group',
-    superBrokerNumber: 'SBR-00456',
-    walletBalance: 8000.0,
-    amount: 3200.0,
-    withdrawType: 'Bank Transfer',
-    detailAmount: 3197.0,
-    paidAmount: 0,
-    paidDateTime: 'Rejected',
-    fee: 3.0,
-    bank: 'Wells Fargo',
-    accountLast4: '7789',
-    status: 'Rejected',
-  },
-];
-
 // Status Badge Component
 const StatusBadge = ({ status }: { status: WithdrawalRequest['status'] }) => {
   const styles = {
@@ -231,7 +75,7 @@ const StatusBadge = ({ status }: { status: WithdrawalRequest['status'] }) => {
 export default function WithdrawalRequest() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('Pending');
-  const { data: withdrawal , refetch } = useGetWithdrawal();
+  const { data: withdrawal, refetch } = useGetWithdrawal();
   const { mutateAsync: approve } = useApproveWithdrawal();
   const { mutateAsync: reject } = useRejectWithdrawal();
   console.log('withdrawallll', withdrawal);
@@ -245,75 +89,18 @@ export default function WithdrawalRequest() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [showMobileFilter, setShowMobileFilter] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false); // View More/View Less state
+  const [isExpanded, setIsExpanded] = useState(false);
   const itemsPerPage = 5;
-// State variable
 
-// showActions हा activeTab वर अवलंबून असेल
-const showActions = activeTab === 'Pending';
-  // const MOCK_DATA: WithdrawalRequest[] =
-  //   withdrawal?.map((item: any, index: number) => ({
-  //     id: item.id,
-  //     requestId: `REQ${String(index + 1).padStart(3, '0')}`,
-
-  //     date: 'Today',
-  //     time: new Date(item.createdAt).toLocaleTimeString('en-IN', {
-  //       hour: '2-digit',
-  //       minute: '2-digit',
-  //     }),
-
-  //     client: {
-  //       name: item.customer?.user?.fullname || 'N/A',
-  //       avatar: item.customer?.photo || '',
-  //       initials:
-  //         item.customer?.user?.fullname
-  //           ?.split(' ')
-  //           .map((n: string) => n[0])
-  //           .join('')
-  //           .toUpperCase() || 'NA',
-  //     },
-
-  //     brokerName: '-',
-  //     brokerNumber: '-',
-
-  //     superBrokerName: '-',
-  //     superBrokerNumber: '-',
-
-  //     walletBalance: 0,
-
-  //     amount: item.amount || 0,
-
-  //     withdrawType: 'Bank Transfer',
-
-  //     detailAmount: item.amount || 0,
-  //     paidAmount: 0,
-  //     paidDateTime: '-',
-
-  //     fee: 0,
-
-  //     bank: item.customer?.bank_Name || '-',
-  //     accountLast4: '----',
-
-  //     status:
-  //       item.status === 'PENDING'
-  //         ? 'Pending'
-  //         : item.status === 'APPROVED'
-  //           ? 'Approved'
-  //           : item.status === 'REJECTED'
-  //             ? 'Rejected'
-  //             : 'Review',
-
-  //     isHighValue: item.amount > 100000,
-
-  //     customer: item.customer,
-  //   })) || [];
+  // Only show actions when on Pending tab
+  const showActions = activeTab === 'Pending';
 
   const MOCK_DATA: WithdrawalRequest[] =
     withdrawal?.map((item: any, index: number) => ({
       id: item.id,
       requestId: `REQ${String(index + 1).padStart(3, '0')}`,
 
-        date: new Date(item.createdAt).toLocaleString('en-GB', {
+      date: new Date(item.createdAt).toLocaleString('en-GB', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
@@ -344,7 +131,7 @@ const showActions = activeTab === 'Pending';
       superBrokerName: item.superBrokerName || '-',
       superBrokerNumber: item.superBrokerId || '-',
 
-      walletBalance:item.walletBalance || 0,
+      walletBalance: item.walletBalance || 0,
       amount: item.amount || 0,
 
       withdrawType: 'Bank Transfer',
@@ -371,15 +158,10 @@ const showActions = activeTab === 'Pending';
       customer: item.customer,
     })) || [];
 
-
-  // Filter d
-  // ata based on active tab and search
+  // Filter data based on active tab and search
   const filteredData = useMemo(() => {
     return MOCK_DATA?.filter((req) => {
-      // Tab filter
       const matchesTab = activeTab === req.status;
-
-      // Search filter
       const matchesSearch =
         searchTerm === '' ||
         req.requestId.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -421,184 +203,86 @@ const showActions = activeTab === 'Pending';
       Rejected: MOCK_DATA?.filter((r) => r.status === 'Rejected').length,
     };
   }, []);
-  
-  const baseColumns = [
-  {
-    header: 'Trader Name',
-    accessor: (row: WithdrawalRequest) => (
-      <div className="flex items-center gap-3">
-        <div>
-          <div className="text-gray-900 text-sm font-semibold">
-            {row?.client?.name}
-          </div>
-        </div>
-      </div>
-    ),
-  },
-  {
-    header: 'Date',
-    accessor: (row: WithdrawalRequest) => (
-      <span className="text-gray-600 text-sm">{row.date}</span>
-    ),
-  },
-  {
-    header: 'Broker Number',
-    accessor: (row: WithdrawalRequest) => (
-      <span className="text-gray-600 text-sm">{row.brokerNumber}</span>
-    ),
-  },
-  {
-    header: 'Super Broker Number',
-    accessor: (row: WithdrawalRequest) => (
-      <span className="text-gray-600 text-sm">{row.superBrokerNumber}</span>
-    ),
-  },
-  {
-    header: 'Wallet Balance',
-    accessor: (row: WithdrawalRequest) => (
-      <div className="text-gray-900 text-sm text-center font-bold">
-        ₹{row.walletBalance.toLocaleString('en-IN')}
-      </div>
-    ),
-  },
-  {
-    header: 'Withdraw Amount',
-    accessor: (row: WithdrawalRequest) => (
-      <div className="text-center text-sm font-bold text-orange-500">
-        ₹{row.amount.toLocaleString('en-IN')}
-      </div>
-    ),
-  },
-  {
-    header: 'Status',
-    accessor: (row: WithdrawalRequest) => <StatusBadge status={row.status} />,
-  },
- 
-  // ...(showActions ? [
-    {
-      header: 'Actions',
-      accessor: (row: WithdrawalRequest) => (
-        <div className="flex items-center justify-end gap-2">
-          <button
-            onClick={() => handleReject(row.id)}
-            className="text-gray-500 hover:bg-gray-100 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
-          >
-            Reject
-          </button>
-          <button
-            onClick={() => handleApprove(row.id)}
-            className="rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm shadow-orange-200 transition-all hover:bg-orange-600"
-          >
-            Approve
-          </button>
-        </div>
-      ),
-    }
-  // ] : []),
-];
-// Expanded columns (View More) - includes additional fields
-const expandedColumns = [
-  {
-    header: 'Client Name',
-    accessor: (row: WithdrawalRequest) => (
-      <div className="flex items-center gap-3">
-        <div>
-          <div className="text-gray-900 text-sm font-semibold">
-            {row.client.name}
-          </div>
-        </div>
-      </div>
-    ),
-  },
-  {
-    header: 'Broker Name',
-    accessor: (row: WithdrawalRequest) => (
-      <div>
-        <div className="text-gray-900 text-sm font-medium">
-          {row.brokerName}
-        </div>
-        <div className="text-gray-400 text-xs">{row.brokerNumber}</div>
-      </div>
-    ),
-  },
-  {
-    header: 'Super Broker Name',
-    accessor: (row: WithdrawalRequest) => (
-      <div>
-        <div className="text-gray-900 text-sm font-medium">
-          {row.superBrokerName}
-        </div>
-        <div className="text-gray-400 text-xs">{row.superBrokerNumber}</div>
-      </div>
-    ),
-  },
-  {
-    header: 'Wallet Balance',
-    accessor: (row: WithdrawalRequest) => (
-      <div className="text-gray-900 text-right text-sm font-bold">
-        ₹{row.walletBalance.toLocaleString('en-IN')}
-      </div>
-    ),
-  },
-  {
-    header: 'Withdraw Amount',
-    accessor: (row: WithdrawalRequest) => (
-      <div className="text-right text-sm font-bold text-orange-500">
-        ₹{row.amount.toLocaleString('en-IN')}
-      </div>
-    ),
-  },
-  {
-    header: 'Withdraw Type',
-    accessor: (row: WithdrawalRequest) => (
-      <span className="bg-gray-100 rounded border border-slate-200 px-2 py-1 text-xs">
-        {row.withdrawType}
-      </span>
-    ),
-  },
-  {
-    header: 'Status',
-    accessor: (row: WithdrawalRequest) => <StatusBadge status={row.status} />,
-  },
-  
-  ...(showActions ? [
-    {
-      header: 'Actions',
-      accessor: (row: WithdrawalRequest) => (
-        <div className="flex items-center justify-end gap-2">
-          <button
-            onClick={() => handleReject(row.id)}
-            className="text-gray-500 hover:bg-gray-100 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
-          >
-            Reject
-          </button>
-          <button
-            onClick={() => handleApprove(row.id)}
-            className="rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm shadow-orange-200 transition-all hover:bg-orange-600"
-          >
-            Approve
-          </button>
-        </div>
-      ),
-    }
-  ] : []),
-];
-  // Handle approve/reject
-  // const handleApprove = (id: string) => {
-  //   approve(id);
-  // };
 
+  // Base columns - without Actions for Approved and Rejected tabs
+  const baseColumns = [
+    {
+      header: 'Trader Name',
+      accessor: (row: WithdrawalRequest) => (
+        <div className="flex items-center gap-3">
+          <div>
+            <div className="text-gray-900 text-sm font-semibold">
+              {row?.client?.name}
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: 'Date',
+      accessor: (row: WithdrawalRequest) => (
+        <span className="text-gray-600 text-sm">{row.date}</span>
+      ),
+    },
+    {
+      header: 'Broker Number',
+      accessor: (row: WithdrawalRequest) => (
+        <span className="text-gray-600 text-sm">{row.brokerNumber}</span>
+      ),
+    },
+    {
+      header: 'Super Broker Number',
+      accessor: (row: WithdrawalRequest) => (
+        <span className="text-gray-600 text-sm">{row.superBrokerNumber}</span>
+      ),
+    },
+    {
+      header: 'Wallet Balance',
+      accessor: (row: WithdrawalRequest) => (
+        <div className="text-gray-900 text-sm text-center font-bold">
+          ₹{row.walletBalance.toLocaleString('en-IN')}
+        </div>
+      ),
+    },
+    {
+      header: 'Withdraw Amount',
+      accessor: (row: WithdrawalRequest) => (
+        <div className="text-center text-sm font-bold text-orange-500">
+          ₹{row.amount.toLocaleString('en-IN')}
+        </div>
+      ),
+    },
+    {
+      header: 'Status',
+      accessor: (row: WithdrawalRequest) => <StatusBadge status={row.status} />,
+    },
+    // Actions column - only shown when on Pending tab
+    ...(showActions ? [{
+      header: 'Actions',
+      accessor: (row: WithdrawalRequest) => (
+        <div className="flex items-center justify-end gap-2">
+          <button
+            onClick={() => handleReject(row.id)}
+            className="text-gray-500 hover:bg-gray-100 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
+          >
+            Reject
+          </button>
+          <button
+            onClick={() => handleApprove(row.id)}
+            className="rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm shadow-orange-200 transition-all hover:bg-orange-600"
+          >
+            Approve
+          </button>
+        </div>
+      ),
+    }] : []),
+  ];
+
+  // Handle approve/reject
   const handleApprove = (id: string) => {
     setSelectedWithdrawalId(id);
     setShowApproveModal(true);
   };
-
-  // const handleReject = (id: string) => {
-  //   console.log('Rejecting:', id);
-  //   alert(`Rejected request ${id}`);
-  //   reject(id);
-
-  // };
 
   const handleReject = (id: string) => {
     setSelectedWithdrawalId(id);
@@ -618,8 +302,6 @@ const expandedColumns = [
     alert(`Rejected ${selectedRequests.length} requests`);
     setSelectedRequests([]);
   };
-
-  // const columns = isExpanded ? expandedColumns : baseColumns;
 
   return (
     <div className="font-sans min-h-screen bg-[#F8F9FB] text-[#1A1D21]">
@@ -763,18 +445,11 @@ const expandedColumns = [
                 <Filter className="text-gray-600 h-4 w-4" />
               </button>
 
-              {/* View More/View Less Button */}
-              {/* <button
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
-              >
-                {isExpanded ? 'View Less' : 'View More'}
-              </button> */}
-               <button
-                onClick={() =>refetch() }
+              <button
+                onClick={() => refetch()}
                 className="rounded bg-orange-500 flex px-1 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 mr-2"
               >
-                <RefreshCcw size={20}/>Refresh
+                <RefreshCcw size={20} /> Refresh
               </button>
             </div>
           </div>
@@ -814,17 +489,15 @@ const expandedColumns = [
           />
         </div>
       </main>
+
+      {/* Approve Modal */}
       {showApproveModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
-            <h2 className="mb-2 text-lg font-semibold">
-              Approve Withdrawal
-            </h2>
-
+            <h2 className="mb-2 text-lg font-semibold">Approve Withdrawal</h2>
             <p className="mb-6 text-sm text-gray-600">
               Are you sure you want to approve this withdrawal request?
             </p>
-
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => {
@@ -835,14 +508,12 @@ const expandedColumns = [
               >
                 Cancel
               </button>
-
               <button
                 onClick={async () => {
                   if (!selectedWithdrawalId) return;
-
                   try {
                     await approve(selectedWithdrawalId);
-                    await queryClient.invalidateQueries({ queryKey: ['withdrawal'] }); // Add this line
+                    await queryClient.invalidateQueries({ queryKey: ['withdrawal'] });
                     setShowApproveModal(false);
                     setSelectedWithdrawalId(null);
                   } catch (error) {
@@ -857,17 +528,17 @@ const expandedColumns = [
           </div>
         </div>
       )}
+
+      {/* Reject Modal */}
       {showRejectModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
             <h2 className="mb-2 text-lg font-semibold text-red-600">
               Reject Withdrawal
             </h2>
-
             <p className="mb-4 text-sm text-gray-600">
               Please enter a reason for rejection.
             </p>
-
             <textarea
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
@@ -875,7 +546,6 @@ const expandedColumns = [
               rows={4}
               className="w-full rounded-lg border p-3"
             />
-
             <div className="mt-6 flex justify-end gap-3">
               <button
                 onClick={() => {
@@ -887,22 +557,19 @@ const expandedColumns = [
               >
                 Cancel
               </button>
-
               <button
                 onClick={async () => {
                   if (!selectedWithdrawalId) return;
-
                   if (!rejectReason.trim()) {
                     alert('Please enter a rejection reason');
                     return;
                   }
-
                   try {
                     await reject({
                       id: selectedWithdrawalId,
                       reason: rejectReason,
                     });
-                    await queryClient.invalidateQueries({ queryKey: ['withdrawal'] }); // Add this line
+                    await queryClient.invalidateQueries({ queryKey: ['withdrawal'] });
                     setShowRejectModal(false);
                     setSelectedWithdrawalId(null);
                     setRejectReason('');
