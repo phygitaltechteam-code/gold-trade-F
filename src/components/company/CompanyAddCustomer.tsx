@@ -293,7 +293,7 @@ const CompanyAddCustomer = () => {
     try {
       await addCustomer.mutateAsync(formDataToSend);
       resetForm();
-      toast.success('Customer registered successfully!');
+      // toast.success('Customer registered successfully!');
       navigate({to: '/clients/mainpage'});
     } catch (error: any) {
       console.error('Error:', error);
