@@ -110,8 +110,11 @@ import { Route as AppApprovalCustomerregisterapproveImport } from './routes/_app
 import { Route as NativeTokenUserPassImport } from './routes/_native/token.$user.$pass'
 import { Route as AppMasterbrokerUpdateClientIdImport } from './routes/_app/masterbroker/update-client.$id'
 import { Route as AppMasterbrokerClientDetailsIdImport } from './routes/_app/masterbroker/client-details.$id'
+import { Route as AppCompanybrokerPendingtradeprofileIdImport } from './routes/_app/companybroker/pendingtradeprofile.$id'
 import { Route as AppCompanybrokerPendingbrokerbyIdImport } from './routes/_app/companybroker/pendingbrokerby.$id'
+import { Route as AppCompanybrokerPedningbrokerprofileIdImport } from './routes/_app/companybroker/pedningbrokerprofile.$id'
 import { Route as AppCompanybrokerMasterBrockerProfileIdImport } from './routes/_app/companybroker/master-brockerProfile.$id'
+import { Route as AppCompanybrokerCompanytradebyidIdImport } from './routes/_app/companybroker/companytradebyid.$id'
 import { Route as AppCompanybrokerClientdetailIdImport } from './routes/_app/companybroker/clientdetail.$id'
 import { Route as AppCompanybrokerSuperbrockerProfileIdImport } from './routes/_app/companybroker/SuperbrockerProfile.$id'
 import { Route as AppCompanybrokerBrokerProfileIdImport } from './routes/_app/companybroker/BrokerProfile.$id'
@@ -751,6 +754,13 @@ const AppMasterbrokerClientDetailsIdRoute =
     getParentRoute: () => AppRoute,
   } as any)
 
+const AppCompanybrokerPendingtradeprofileIdRoute =
+  AppCompanybrokerPendingtradeprofileIdImport.update({
+    id: '/companybroker/pendingtradeprofile/$id',
+    path: '/companybroker/pendingtradeprofile/$id',
+    getParentRoute: () => AppRoute,
+  } as any)
+
 const AppCompanybrokerPendingbrokerbyIdRoute =
   AppCompanybrokerPendingbrokerbyIdImport.update({
     id: '/companybroker/pendingbrokerby/$id',
@@ -758,10 +768,24 @@ const AppCompanybrokerPendingbrokerbyIdRoute =
     getParentRoute: () => AppRoute,
   } as any)
 
+const AppCompanybrokerPedningbrokerprofileIdRoute =
+  AppCompanybrokerPedningbrokerprofileIdImport.update({
+    id: '/companybroker/pedningbrokerprofile/$id',
+    path: '/companybroker/pedningbrokerprofile/$id',
+    getParentRoute: () => AppRoute,
+  } as any)
+
 const AppCompanybrokerMasterBrockerProfileIdRoute =
   AppCompanybrokerMasterBrockerProfileIdImport.update({
     id: '/companybroker/master-brockerProfile/$id',
     path: '/companybroker/master-brockerProfile/$id',
+    getParentRoute: () => AppRoute,
+  } as any)
+
+const AppCompanybrokerCompanytradebyidIdRoute =
+  AppCompanybrokerCompanytradebyidIdImport.update({
+    id: '/companybroker/companytradebyid/$id',
+    path: '/companybroker/companytradebyid/$id',
     getParentRoute: () => AppRoute,
   } as any)
 
@@ -1616,6 +1640,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCompanybrokerClientdetailIdImport
       parentRoute: typeof AppImport
     }
+    '/_app/companybroker/companytradebyid/$id': {
+      id: '/_app/companybroker/companytradebyid/$id'
+      path: '/companybroker/companytradebyid/$id'
+      fullPath: '/companybroker/companytradebyid/$id'
+      preLoaderRoute: typeof AppCompanybrokerCompanytradebyidIdImport
+      parentRoute: typeof AppImport
+    }
     '/_app/companybroker/master-brockerProfile/$id': {
       id: '/_app/companybroker/master-brockerProfile/$id'
       path: '/companybroker/master-brockerProfile/$id'
@@ -1623,11 +1654,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCompanybrokerMasterBrockerProfileIdImport
       parentRoute: typeof AppImport
     }
+    '/_app/companybroker/pedningbrokerprofile/$id': {
+      id: '/_app/companybroker/pedningbrokerprofile/$id'
+      path: '/companybroker/pedningbrokerprofile/$id'
+      fullPath: '/companybroker/pedningbrokerprofile/$id'
+      preLoaderRoute: typeof AppCompanybrokerPedningbrokerprofileIdImport
+      parentRoute: typeof AppImport
+    }
     '/_app/companybroker/pendingbrokerby/$id': {
       id: '/_app/companybroker/pendingbrokerby/$id'
       path: '/companybroker/pendingbrokerby/$id'
       fullPath: '/companybroker/pendingbrokerby/$id'
       preLoaderRoute: typeof AppCompanybrokerPendingbrokerbyIdImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/companybroker/pendingtradeprofile/$id': {
+      id: '/_app/companybroker/pendingtradeprofile/$id'
+      path: '/companybroker/pendingtradeprofile/$id'
+      fullPath: '/companybroker/pendingtradeprofile/$id'
+      preLoaderRoute: typeof AppCompanybrokerPendingtradeprofileIdImport
       parentRoute: typeof AppImport
     }
     '/_app/masterbroker/client-details/$id': {
@@ -1755,8 +1800,11 @@ interface AppRouteChildren {
   AppCompanybrokerBrokerProfileIdRoute: typeof AppCompanybrokerBrokerProfileIdRoute
   AppCompanybrokerSuperbrockerProfileIdRoute: typeof AppCompanybrokerSuperbrockerProfileIdRoute
   AppCompanybrokerClientdetailIdRoute: typeof AppCompanybrokerClientdetailIdRoute
+  AppCompanybrokerCompanytradebyidIdRoute: typeof AppCompanybrokerCompanytradebyidIdRoute
   AppCompanybrokerMasterBrockerProfileIdRoute: typeof AppCompanybrokerMasterBrockerProfileIdRoute
+  AppCompanybrokerPedningbrokerprofileIdRoute: typeof AppCompanybrokerPedningbrokerprofileIdRoute
   AppCompanybrokerPendingbrokerbyIdRoute: typeof AppCompanybrokerPendingbrokerbyIdRoute
+  AppCompanybrokerPendingtradeprofileIdRoute: typeof AppCompanybrokerPendingtradeprofileIdRoute
   AppMasterbrokerClientDetailsIdRoute: typeof AppMasterbrokerClientDetailsIdRoute
   AppMasterbrokerUpdateClientIdRoute: typeof AppMasterbrokerUpdateClientIdRoute
 }
@@ -1870,10 +1918,16 @@ const AppRouteChildren: AppRouteChildren = {
   AppCompanybrokerSuperbrockerProfileIdRoute:
     AppCompanybrokerSuperbrockerProfileIdRoute,
   AppCompanybrokerClientdetailIdRoute: AppCompanybrokerClientdetailIdRoute,
+  AppCompanybrokerCompanytradebyidIdRoute:
+    AppCompanybrokerCompanytradebyidIdRoute,
   AppCompanybrokerMasterBrockerProfileIdRoute:
     AppCompanybrokerMasterBrockerProfileIdRoute,
+  AppCompanybrokerPedningbrokerprofileIdRoute:
+    AppCompanybrokerPedningbrokerprofileIdRoute,
   AppCompanybrokerPendingbrokerbyIdRoute:
     AppCompanybrokerPendingbrokerbyIdRoute,
+  AppCompanybrokerPendingtradeprofileIdRoute:
+    AppCompanybrokerPendingtradeprofileIdRoute,
   AppMasterbrokerClientDetailsIdRoute: AppMasterbrokerClientDetailsIdRoute,
   AppMasterbrokerUpdateClientIdRoute: AppMasterbrokerUpdateClientIdRoute,
 }
@@ -2016,8 +2070,11 @@ export interface FileRoutesByFullPath {
   '/companybroker/BrokerProfile/$id': typeof AppCompanybrokerBrokerProfileIdRoute
   '/companybroker/SuperbrockerProfile/$id': typeof AppCompanybrokerSuperbrockerProfileIdRoute
   '/companybroker/clientdetail/$id': typeof AppCompanybrokerClientdetailIdRoute
+  '/companybroker/companytradebyid/$id': typeof AppCompanybrokerCompanytradebyidIdRoute
   '/companybroker/master-brockerProfile/$id': typeof AppCompanybrokerMasterBrockerProfileIdRoute
+  '/companybroker/pedningbrokerprofile/$id': typeof AppCompanybrokerPedningbrokerprofileIdRoute
   '/companybroker/pendingbrokerby/$id': typeof AppCompanybrokerPendingbrokerbyIdRoute
+  '/companybroker/pendingtradeprofile/$id': typeof AppCompanybrokerPendingtradeprofileIdRoute
   '/masterbroker/client-details/$id': typeof AppMasterbrokerClientDetailsIdRoute
   '/masterbroker/update-client/$id': typeof AppMasterbrokerUpdateClientIdRoute
   '/token/$user/$pass': typeof NativeTokenUserPassRoute
@@ -2128,8 +2185,11 @@ export interface FileRoutesByTo {
   '/companybroker/BrokerProfile/$id': typeof AppCompanybrokerBrokerProfileIdRoute
   '/companybroker/SuperbrockerProfile/$id': typeof AppCompanybrokerSuperbrockerProfileIdRoute
   '/companybroker/clientdetail/$id': typeof AppCompanybrokerClientdetailIdRoute
+  '/companybroker/companytradebyid/$id': typeof AppCompanybrokerCompanytradebyidIdRoute
   '/companybroker/master-brockerProfile/$id': typeof AppCompanybrokerMasterBrockerProfileIdRoute
+  '/companybroker/pedningbrokerprofile/$id': typeof AppCompanybrokerPedningbrokerprofileIdRoute
   '/companybroker/pendingbrokerby/$id': typeof AppCompanybrokerPendingbrokerbyIdRoute
+  '/companybroker/pendingtradeprofile/$id': typeof AppCompanybrokerPendingtradeprofileIdRoute
   '/masterbroker/client-details/$id': typeof AppMasterbrokerClientDetailsIdRoute
   '/masterbroker/update-client/$id': typeof AppMasterbrokerUpdateClientIdRoute
   '/token/$user/$pass': typeof NativeTokenUserPassRoute
@@ -2245,8 +2305,11 @@ export interface FileRoutesById {
   '/_app/companybroker/BrokerProfile/$id': typeof AppCompanybrokerBrokerProfileIdRoute
   '/_app/companybroker/SuperbrockerProfile/$id': typeof AppCompanybrokerSuperbrockerProfileIdRoute
   '/_app/companybroker/clientdetail/$id': typeof AppCompanybrokerClientdetailIdRoute
+  '/_app/companybroker/companytradebyid/$id': typeof AppCompanybrokerCompanytradebyidIdRoute
   '/_app/companybroker/master-brockerProfile/$id': typeof AppCompanybrokerMasterBrockerProfileIdRoute
+  '/_app/companybroker/pedningbrokerprofile/$id': typeof AppCompanybrokerPedningbrokerprofileIdRoute
   '/_app/companybroker/pendingbrokerby/$id': typeof AppCompanybrokerPendingbrokerbyIdRoute
+  '/_app/companybroker/pendingtradeprofile/$id': typeof AppCompanybrokerPendingtradeprofileIdRoute
   '/_app/masterbroker/client-details/$id': typeof AppMasterbrokerClientDetailsIdRoute
   '/_app/masterbroker/update-client/$id': typeof AppMasterbrokerUpdateClientIdRoute
   '/_native/token/$user/$pass': typeof NativeTokenUserPassRoute
@@ -2359,8 +2422,11 @@ export interface FileRouteTypes {
     | '/companybroker/BrokerProfile/$id'
     | '/companybroker/SuperbrockerProfile/$id'
     | '/companybroker/clientdetail/$id'
+    | '/companybroker/companytradebyid/$id'
     | '/companybroker/master-brockerProfile/$id'
+    | '/companybroker/pedningbrokerprofile/$id'
     | '/companybroker/pendingbrokerby/$id'
+    | '/companybroker/pendingtradeprofile/$id'
     | '/masterbroker/client-details/$id'
     | '/masterbroker/update-client/$id'
     | '/token/$user/$pass'
@@ -2470,8 +2536,11 @@ export interface FileRouteTypes {
     | '/companybroker/BrokerProfile/$id'
     | '/companybroker/SuperbrockerProfile/$id'
     | '/companybroker/clientdetail/$id'
+    | '/companybroker/companytradebyid/$id'
     | '/companybroker/master-brockerProfile/$id'
+    | '/companybroker/pedningbrokerprofile/$id'
     | '/companybroker/pendingbrokerby/$id'
+    | '/companybroker/pendingtradeprofile/$id'
     | '/masterbroker/client-details/$id'
     | '/masterbroker/update-client/$id'
     | '/token/$user/$pass'
@@ -2585,8 +2654,11 @@ export interface FileRouteTypes {
     | '/_app/companybroker/BrokerProfile/$id'
     | '/_app/companybroker/SuperbrockerProfile/$id'
     | '/_app/companybroker/clientdetail/$id'
+    | '/_app/companybroker/companytradebyid/$id'
     | '/_app/companybroker/master-brockerProfile/$id'
+    | '/_app/companybroker/pedningbrokerprofile/$id'
     | '/_app/companybroker/pendingbrokerby/$id'
+    | '/_app/companybroker/pendingtradeprofile/$id'
     | '/_app/masterbroker/client-details/$id'
     | '/_app/masterbroker/update-client/$id'
     | '/_native/token/$user/$pass'
@@ -2726,8 +2798,11 @@ export const routeTree = rootRoute
         "/_app/companybroker/BrokerProfile/$id",
         "/_app/companybroker/SuperbrockerProfile/$id",
         "/_app/companybroker/clientdetail/$id",
+        "/_app/companybroker/companytradebyid/$id",
         "/_app/companybroker/master-brockerProfile/$id",
+        "/_app/companybroker/pedningbrokerprofile/$id",
         "/_app/companybroker/pendingbrokerby/$id",
+        "/_app/companybroker/pendingtradeprofile/$id",
         "/_app/masterbroker/client-details/$id",
         "/_app/masterbroker/update-client/$id"
       ]
@@ -3168,12 +3243,24 @@ export const routeTree = rootRoute
       "filePath": "_app/companybroker/clientdetail.$id.tsx",
       "parent": "/_app"
     },
+    "/_app/companybroker/companytradebyid/$id": {
+      "filePath": "_app/companybroker/companytradebyid.$id.tsx",
+      "parent": "/_app"
+    },
     "/_app/companybroker/master-brockerProfile/$id": {
       "filePath": "_app/companybroker/master-brockerProfile.$id.tsx",
       "parent": "/_app"
     },
+    "/_app/companybroker/pedningbrokerprofile/$id": {
+      "filePath": "_app/companybroker/pedningbrokerprofile.$id.tsx",
+      "parent": "/_app"
+    },
     "/_app/companybroker/pendingbrokerby/$id": {
       "filePath": "_app/companybroker/pendingbrokerby.$id.tsx",
+      "parent": "/_app"
+    },
+    "/_app/companybroker/pendingtradeprofile/$id": {
+      "filePath": "_app/companybroker/pendingtradeprofile.$id.tsx",
       "parent": "/_app"
     },
     "/_app/masterbroker/client-details/$id": {

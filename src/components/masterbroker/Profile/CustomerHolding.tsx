@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Database, Clock3, ChevronUp, ChevronDown, Users, Search, CheckCircle, XCircle } from 'lucide-react';
+import { Database, Clock3, ChevronUp, ChevronDown, Users, Search, CheckCircle, XCircle, Eye, EyeOff } from 'lucide-react';
 import { useGetTradeTime, useSetTradingTime } from '@/lib/api/masterpanelapi/profile';
 import { useGetMasterClients } from '@/lib/api/masterpanelapi/masterapi';
 import { useCustomerHolding } from '@/lib/api/masterpanelapi/customerholding';
@@ -13,9 +13,14 @@ const CustomerHolding = () => {
     const [originalStockLimits, setOriginalStockLimits] = useState<Record<string, string>>({});
     const [isSaving, setIsSaving] = useState(false);
     const [applyToAllLimit, setApplyToAllLimit] = useState<string>('');
+    
+    // PIN Modal State
+    const [showPinModal, setShowPinModal] = useState(false);
+    const [pin, setPin] = useState('');
+    const [showPin, setShowPin] = useState(false);
+    
     const { data: clients = [], refetch, isLoading } = useGetMasterClients();
     const { mutate: saveCustomerHolding, isPending } = useCustomerHolding();
-
 
     // Initialize stock limits from client data
     useEffect(() => {
@@ -28,7 +33,6 @@ const CustomerHolding = () => {
             setOriginalStockLimits(limits);
         }
     }, [clients]);
-
 
     // Handle stock limit change for a customer
     const handleStockLimitChange = (customerId: string, value: string) => {
@@ -66,8 +70,49 @@ const CustomerHolding = () => {
         setApplyToAllLimit('');
     };
 
-    // Save all stock limits at once - Send as array
+    const closeModal = () => {
+        setShowPinModal(false);
+        setPin('');
+        setShowPin(false);
+    };
+
+    // Save all stock limits at once - Show PIN popup first
     const handleSaveAllStockLimits = () => {
+        // Check if there are any changes
+        const customers: { customerId: string; stockHoldingLimit: string }[] = [];
+        clients.forEach((client: any) => {
+            const currentLimit = stockLimits[client.id] || '';
+            const originalLimit = originalStockLimits[client.id] || '';
+            if (currentLimit !== originalLimit) {
+                customers.push({
+                    customerId: client.id,
+                    stockHoldingLimit: currentLimit,
+                });
+            }
+        });
+
+        if (customers.length === 0) {
+            toast.info('No changes to save');
+            return;
+        }
+
+        // Show PIN modal instead of saving directly
+        setShowPinModal(true);
+        setPin('');
+        setShowPin(false);
+    };
+
+    const handleConfirmSave = async () => {
+        if (!pin.trim()) {
+            toast.error('Please enter PIN');
+            return;
+        }
+
+        if (pin.trim().length < 4) {
+            toast.error('PIN must be at least 4 digits');
+            return;
+        }
+
         setIsSaving(true);
 
         // Prepare array of customer IDs and their stock limits
@@ -75,7 +120,6 @@ const CustomerHolding = () => {
         clients.forEach((client: any) => {
             const currentLimit = stockLimits[client.id] || '';
             const originalLimit = originalStockLimits[client.id] || '';
-            // Only include customers that have changes
             if (currentLimit !== originalLimit) {
                 customers.push({
                     customerId: client.id,
@@ -87,6 +131,7 @@ const CustomerHolding = () => {
         if (customers.length === 0) {
             toast.info('No changes to save');
             setIsSaving(false);
+            closeModal();
             return;
         }
 
@@ -102,11 +147,13 @@ const CustomerHolding = () => {
         // Save all customers at once - Send array of {customerId, stockHoldingLimit}
         saveCustomerHolding({
             customers: customers,
+            securityPin: pin,
         }, {
             onSuccess: () => {
                 toast.success(`${customers.length} customer(s) stock holding limits updated successfully!`);
                 setOriginalStockLimits({ ...stockLimits });
                 refetch();
+                closeModal();
             },
             onError: (error: any) => {
                 toast.error(error?.response?.data?.message || 'Failed to update stock holding limits');
@@ -246,10 +293,11 @@ const CustomerHolding = () => {
                                 <button
                                     onClick={handleSaveAllStockLimits}
                                     disabled={isSaving || isPending}
-                                    className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${isSaving || isPending
+                                    className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${
+                                        isSaving || isPending
                                             ? 'bg-gray-400 cursor-not-allowed'
                                             : 'bg-orange-500 hover:bg-orange-600'
-                                        }`}
+                                    }`}
                                 >
                                     <Database className="h-4 w-4" />
                                     <span>{isSaving || isPending ? 'Saving...' : 'Save Changes'}</span>
@@ -274,10 +322,79 @@ const CustomerHolding = () => {
                                 clickable={false}
                             />
 
+                            {/* Show change count at the bottom when there are changes */}
+                            {hasChanges && (
+                                <div className="mt-4 flex items-center justify-end">
+                                    <span className="text-sm text-orange-500">
+                                        {getChangedCount} customer(s) have unsaved changes
+                                    </span>
+                                </div>
+                            )}
                         </>
                     )}
                 </section>
             </main>
+
+            {/* PIN Modal - Only on Save button click */}
+            {showPinModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+                    <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-lg">
+                        <h2 className="mb-4 text-lg font-semibold text-slate-900">
+                            Confirm Save Changes
+                        </h2>
+
+                        <p className="mb-4 text-sm text-slate-600">
+                            You are about to update {getChangedCount} customer(s) stock holding limits.
+                            Enter your security PIN to confirm.
+                        </p>
+
+                        <p className="mb-2 text-sm font-medium text-slate-700">
+                            Enter Security PIN:
+                        </p>
+
+                        <div className="relative">
+                            <input
+                                type={showPin ? 'text' : 'password'}
+                                placeholder="Enter Security PIN"
+                                value={pin}
+                                onChange={(e) => setPin(e.target.value)}
+                                className="border-gray-300 w-full rounded-lg border px-4 py-2 pr-10 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                                autoFocus
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        handleConfirmSave();
+                                    }
+                                }}
+                            />
+
+                            <button
+                                type="button"
+                                onClick={() => setShowPin((prev) => !prev)}
+                                className="text-gray-500 hover:text-gray-700 absolute right-3 top-1/2 -translate-y-1/2"
+                            >
+                                {showPin ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                        </div>
+
+                        <div className="mt-5 flex justify-end gap-3">
+                            <button
+                                onClick={closeModal}
+                                className="border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg border px-4 py-2 text-sm font-medium transition-colors"
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                onClick={handleConfirmSave}
+                                disabled={isSaving || isPending}
+                                className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 disabled:opacity-50"
+                            >
+                                {isSaving || isPending ? 'Saving...' : 'Confirm Save'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

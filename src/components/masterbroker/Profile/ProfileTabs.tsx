@@ -25,7 +25,7 @@ const ProfileTabs = () => {
         { id: 'commission', label: 'Set Commission' },
         { id: 'set-password', label: 'Reset Password' },
         { id: 'Script', label: 'Script Management' },
-        { id: 'Chamki', label: 'Holding' },
+        { id: 'Chamki', label: 'Order Setting' },
         { id: 'customerholding', label: 'Minimum Stock Holding Time(In Minutes)' },
       ];
     }

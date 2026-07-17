@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {Database, Clock3, ChevronUp, ChevronDown} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Database, Clock3, ChevronUp, ChevronDown } from 'lucide-react';
 import { useGetTradeTime, useSetTradingTime } from '@/lib/api/masterpanelapi/profile';
 
 const ChamkiTrading = () => {
@@ -10,9 +10,9 @@ const ChamkiTrading = () => {
   const [isLimitEnabled, setIsLimitEnabled] = useState(false);
   const [isTargetEnabled, setIsTargetEnabled] = useState(false);
   const [isStopLossTargetEnabled, setIsStopLossTargetEnabled] = useState(false);
-  const {data: tradeData} = useGetTradeTime();
+  const { data: tradeData } = useGetTradeTime();
   console.log('tradeee', tradeData);
-  const {mutateAsync: setTradeTime} = useSetTradingTime();
+  const { mutateAsync: setTradeTime } = useSetTradingTime();
 
   useEffect(() => {
     if (tradeData) {
@@ -96,43 +96,43 @@ const ChamkiTrading = () => {
       <main className="mx-auto max-w-7xl space-y-4 px-4 py-4 sm:space-y-6 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
         <section className="overflow-hidden rounded-xl border border-stroke bg-white p-6 shadow-sm">
           <div className="border-b border-stroke pb-4">
-            <h2 className="text-lg font-semibold">Trading Time</h2>
+            <h2 className="text-lg font-semibold">Order Setting</h2>
           </div>
 
           <div className="py-3">
             <table className="w-full border-collapse">
               <tbody>
                 {/* Trading Time Row */}
-                <tr className="border-b border-stroke">
+                {/* <tr className="border-b border-stroke">
                   <td className="py-4 pr-15">
-                    {/* <div className="space-y-1">
+                    <div className="space-y-1">
                       <label className="text-gray-500 text-xs font-semibold uppercase tracking-wider">
                         Trading Time (Minutes)
                       </label>
                       <p className="text-gray-400 text-xs">
                         Range: 1 to 60 minutes
                       </p>
-                    </div> */}
+                    </div>
                   </td>
                   <td className="py-4">
                     <div className="relative w-64">
-                      {/* <button
+                      <button
                         type="button"
                         className="text-gray-400 absolute left-3 top-1/2 z-10 -translate-y-1/2 hover:text-orange-500"
                       >
                         <Clock3 className="h-4 w-4" />
-                      </button> */}
+                      </button>
 
-                      {/* <input
+                      <input
                         type="number"
                         min={1}
                         max={60}
                         value={stockHoldingLimit}
                         onChange={handleTimeChange}
                         className="w-full rounded-xl border border-stroke bg-white py-2 pl-10 pr-12 text-sm font-medium outline-none transition-all focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
-                      /> */}
+                      />
 
-                      {/* <div className="bg-gray-50 absolute right-2 top-1/2 flex -translate-y-1/2 flex-col overflow-hidden rounded-md">
+                      <div className="bg-gray-50 absolute right-2 top-1/2 flex -translate-y-1/2 flex-col overflow-hidden rounded-md">
                         <button
                           type="button"
                           onClick={increaseTime}
@@ -148,10 +148,10 @@ const ChamkiTrading = () => {
                         >
                           <ChevronDown className="h-3 w-3 text-neutral-900" />
                         </button>
-                      </div> */}
+                      </div>
                     </div>
                   </td>
-                </tr>
+                </tr> */}
 
                 {/* Holding Status Row */}
                 <tr className="border-b border-stroke">
@@ -165,14 +165,12 @@ const ChamkiTrading = () => {
                       <button
                         type="button"
                         onClick={() => setIsEnabled(!isEnabled)}
-                        className={`relative h-7 w-14 rounded-full transition-all duration-300 ${
-                          isEnabled ? 'bg-green-500' : 'bg-neutral-600'
-                        }`}
+                        className={`relative h-7 w-14 rounded-full transition-all duration-300 ${isEnabled ? 'bg-green-500' : 'bg-neutral-600'
+                          }`}
                       >
                         <span
-                          className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${
-                            isEnabled ? 'left-8' : 'left-1'
-                          }`}
+                          className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${isEnabled ? 'left-8' : 'left-1'
+                            }`}
                         />
                       </button>
                       <span className="text-sm font-medium">
@@ -194,14 +192,12 @@ const ChamkiTrading = () => {
                       <button
                         type="button"
                         onClick={() => setIsLimitEnabled(!isLimitEnabled)}
-                        className={`relative h-7 w-14 rounded-full transition-all duration-300 ${
-                          isLimitEnabled ? 'bg-green-500' : 'bg-neutral-600'
-                        }`}
+                        className={`relative h-7 w-14 rounded-full transition-all duration-300 ${isLimitEnabled ? 'bg-green-500' : 'bg-neutral-600'
+                          }`}
                       >
                         <span
-                          className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${
-                            isLimitEnabled ? 'left-8' : 'left-1'
-                          }`}
+                          className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${isLimitEnabled ? 'left-8' : 'left-1'
+                            }`}
                         />
                       </button>
                       <span className="text-sm font-medium">
@@ -223,14 +219,12 @@ const ChamkiTrading = () => {
                       <button
                         type="button"
                         onClick={() => setIsGttEnabled(!isGttEnabled)}
-                        className={`relative h-7 w-14 rounded-full transition-all duration-300 ${
-                          isGttEnabled ? 'bg-green-500' : 'bg-neutral-600'
-                        }`}
+                        className={`relative h-7 w-14 rounded-full transition-all duration-300 ${isGttEnabled ? 'bg-green-500' : 'bg-neutral-600'
+                          }`}
                       >
                         <span
-                          className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${
-                            isGttEnabled ? 'left-8' : 'left-1'
-                          }`}
+                          className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${isGttEnabled ? 'left-8' : 'left-1'
+                            }`}
                         />
                       </button>
                       <span className="text-sm font-medium">
@@ -252,14 +246,12 @@ const ChamkiTrading = () => {
                       <button
                         type="button"
                         onClick={handleStopLossToggle}
-                        className={`relative h-7 w-14 rounded-full transition-all duration-300 ${
-                          isStopLossEnabled ? 'bg-green-500' : 'bg-neutral-600'
-                        }`}
+                        className={`relative h-7 w-14 rounded-full transition-all duration-300 ${isStopLossEnabled ? 'bg-green-500' : 'bg-neutral-600'
+                          }`}
                       >
                         <span
-                          className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${
-                            isStopLossEnabled ? 'left-8' : 'left-1'
-                          }`}
+                          className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${isStopLossEnabled ? 'left-8' : 'left-1'
+                            }`}
                         />
                       </button>
                       <span className="text-sm font-medium">
@@ -281,14 +273,12 @@ const ChamkiTrading = () => {
                       <button
                         type="button"
                         onClick={handleTargetToggle}
-                        className={`relative h-7 w-14 rounded-full transition-all duration-300 ${
-                          isTargetEnabled ? 'bg-green-500' : 'bg-neutral-600'
-                        }`}
+                        className={`relative h-7 w-14 rounded-full transition-all duration-300 ${isTargetEnabled ? 'bg-green-500' : 'bg-neutral-600'
+                          }`}
                       >
                         <span
-                          className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${
-                            isTargetEnabled ? 'left-8' : 'left-1'
-                          }`}
+                          className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${isTargetEnabled ? 'left-8' : 'left-1'
+                            }`}
                         />
                       </button>
                       <span className="text-sm font-medium">
@@ -310,16 +300,14 @@ const ChamkiTrading = () => {
                       <button
                         type="button"
                         onClick={handleStopLossTargetToggle}
-                        className={`relative h-7 w-14 rounded-full transition-all duration-300 ${
-                          isStopLossTargetEnabled
+                        className={`relative h-7 w-14 rounded-full transition-all duration-300 ${isStopLossTargetEnabled
                             ? 'bg-green-500'
                             : 'bg-neutral-600'
-                        }`}
+                          }`}
                       >
                         <span
-                          className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${
-                            isStopLossTargetEnabled ? 'left-8' : 'left-1'
-                          }`}
+                          className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${isStopLossTargetEnabled ? 'left-8' : 'left-1'
+                            }`}
                         />
                       </button>
                       <span className="text-sm font-medium">

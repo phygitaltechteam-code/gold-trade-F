@@ -97,7 +97,7 @@ const ChamkiTrading = () => {
       <main className="mx-auto max-w-7xl space-y-4 px-4 py-4 sm:space-y-6 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
         <section className="overflow-hidden rounded-xl border border-stroke bg-white p-6 shadow-sm">
           <div className="border-b border-stroke pb-4">
-            <h2 className="text-lg font-semibold">Trading Time</h2>
+            <h2 className="text-lg font-semibold">Order Setting</h2>
           </div>
 
           <div className="py-3">

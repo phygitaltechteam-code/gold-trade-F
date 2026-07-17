@@ -5,8 +5,7 @@ import toast from 'react-hot-toast';
 import { z } from 'zod';
 import { useAuthContext } from '@/context/AuthContext';
 import { X, ZoomIn } from 'lucide-react';
-import { useApproveBroker, useUpdateBroker } from '@/lib/api/addbroker';
-import { useParams } from '@tanstack/react-router';
+import { useUpdateBroker } from '@/lib/api/addbroker';
 import { Route } from '@/routes/_app/companybroker/pendingbrokerby.$id';
 import { useGetPendingBrokers } from '@/lib/api/customer';
 import { useGetAllSuperBrocker } from '@/lib/react-query/superbrocker';
@@ -37,7 +36,6 @@ const PendingBrokerByid = () => {
   } = useGetPendingBrokers(id);
   const { data: superBrokersData } = useGetAllSuperBrocker();
   const updateBrokerMutation = useUpdateBroker();
-  const approveBrokerMutation = useApproveBroker();
 
   const [formData, setFormData] = useState({
     fullname: '',
@@ -64,7 +62,6 @@ const PendingBrokerByid = () => {
   const [showImageModal, setShowImageModal] = useState(false);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
 
   // Searchable Dropdown state
   const [searchTerm, setSearchTerm] = useState('');
@@ -74,7 +71,11 @@ const PendingBrokerByid = () => {
   const superBrokersList =
     superBrokersData?.data?.data || superBrokersData?.data || [];
 
-
+  const filteredSuperBrokers = superBrokersList.filter(
+    (sb) =>
+      sb.fullname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sb.BKId?.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
 
   // Populate form with broker data when loaded
   useEffect(() => {
@@ -218,7 +219,7 @@ const PendingBrokerByid = () => {
     }
   };
 
-  // Handle Update (Edit)
+  // Handle Update
   const handleUpdate = async (e) => {
     e.preventDefault();
 
@@ -249,34 +250,14 @@ const PendingBrokerByid = () => {
         data: updateData,
       });
 
-      toast.success('Broker updated successfully!');
-      setIsEditing(false);
+      // toast.success('Broker updated successfully!');
       await refetch();
+      navigate({ to: '/Approval/pendingapprovals' });
     } catch (error) {
       console.error('Update error:', error);
       toast.error(error?.response?.data?.message || 'Failed to update broker');
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  // Handle Approve
-  const handleApprove = async () => {
-    if (!formData.superBrokerId) {
-      toast.error('Please select a Super Broker');
-      return;
-    }
-
-    try {
-      await approveBrokerMutation.mutateAsync({
-        id: id,
-        superBrokerId: formData.superBrokerId,
-      });
-      toast.success('Broker approved successfully!');
-      navigate({ to: '/Approval/pendingapprovals' });
-    } catch (error) {
-      console.error('Approve error:', error);
-      toast.error(error?.response?.data?.message || 'Failed to approve broker');
     }
   };
 
@@ -294,52 +275,46 @@ const PendingBrokerByid = () => {
               className="border-gray-300 h-24 w-24 cursor-pointer rounded-lg border-2 object-cover transition-transform hover:scale-105 sm:h-32 sm:w-32"
               onClick={() => openImageModal(imagePreviews[field])}
             />
-            {isEditing && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => removeImage(field)}
-                  className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white transition-all hover:scale-110 hover:bg-red-600"
-                >
-                  <X className="h-3 w-3 sm:h-4 sm:w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => openImageModal(imagePreviews[field])}
-                  className="absolute bottom-1 right-1 rounded-full bg-black/50 p-1 text-white transition-all hover:scale-110 hover:bg-black/70"
-                >
-                  <ZoomIn className="h-3 w-3 sm:h-4 sm:w-4" />
-                </button>
-              </>
-            )}
+            <button
+              type="button"
+              onClick={() => removeImage(field)}
+              className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white transition-all hover:scale-110 hover:bg-red-600"
+            >
+              <X className="h-3 w-3 sm:h-4 sm:w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => openImageModal(imagePreviews[field])}
+              className="absolute bottom-1 right-1 rounded-full bg-black/50 p-1 text-white transition-all hover:scale-110 hover:bg-black/70"
+            >
+              <ZoomIn className="h-3 w-3 sm:h-4 sm:w-4" />
+            </button>
           </div>
         ) : (
-          isEditing && (
-            <label className="border-gray-300 bg-gray-50 hover:bg-gray-100 flex h-24 w-24 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-all hover:border-orange-400 sm:h-32 sm:w-32">
-              <div className="flex flex-col items-center justify-center pb-6 pt-5">
-                <svg
-                  className="text-gray-400 mb-2 h-6 w-6 sm:h-8 sm:w-8"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-                <span className="text-gray-500 text-xs">Upload</span>
-              </div>
-              <input
-                type="file"
-                className="hidden"
-                accept="image/*"
-                onChange={(e) => handleImageChange(e, field)}
-              />
-            </label>
-          )
+          <label className="border-gray-300 bg-gray-50 hover:bg-gray-100 flex h-24 w-24 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-all hover:border-orange-400 sm:h-32 sm:w-32">
+            <div className="flex flex-col items-center justify-center pb-6 pt-5">
+              <svg
+                className="text-gray-400 mb-2 h-6 w-6 sm:h-8 sm:w-8"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              <span className="text-gray-500 text-xs">Upload</span>
+            </div>
+            <input
+              type="file"
+              className="hidden"
+              accept="image/*"
+              onChange={(e) => handleImageChange(e, field)}
+            />
+          </label>
         )}
       </div>
       {errors[field] && (
@@ -364,30 +339,18 @@ const PendingBrokerByid = () => {
           <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
             <div>
               <h1 className="text-xl font-bold text-white sm:text-2xl">
-                {isEditing ? 'Edit Broker' : 'Broker Details'}
+                Edit Broker
               </h1>
               <p className="mt-1 text-sm text-orange-100">
-                {isEditing
-                  ? 'Edit broker information'
-                  : 'Review broker details'}
+                Edit broker information
               </p>
             </div>
-            <div className="flex gap-2">
-              {!isEditing && (
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-blue-600"
-                >
-                  Edit
-                </button>
-              )}
-              <button
-                onClick={() => navigate({ to: `/companybroker/BrokerProfile/${id}` })}
-                className="hover:bg-gray-100 rounded-lg bg-white px-4 py-2 text-sm font-medium text-orange-500 transition-all"
-              >
-                Back to List
-              </button>
-            </div>
+            <button
+              onClick={() => navigate({ to: `/Approval/pendingapprovals` })}
+              className="hover:bg-gray-100 rounded-lg bg-white px-4 py-2 text-sm font-medium text-orange-500 transition-all"
+            >
+              Back to List
+            </button>
           </div>
         </div>
 
@@ -403,9 +366,8 @@ const PendingBrokerByid = () => {
                 name="fullname"
                 value={formData.fullname}
                 onChange={handleInputChange}
-                disabled={!isEditing}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${!isEditing ? 'bg-gray-100' : 'bg-white'
-                  } ${errors.fullname ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.fullname ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 placeholder="Enter full name"
               />
               {errors.fullname && (
@@ -423,10 +385,9 @@ const PendingBrokerByid = () => {
                 name="phoneNumber"
                 value={formData.phoneNumber}
                 onChange={handleInputChange}
-                disabled={!isEditing}
                 maxLength={10}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${!isEditing ? 'bg-gray-100' : 'bg-white'
-                  } ${errors.phoneNumber ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.phoneNumber ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 placeholder="Enter 10-digit phone number"
               />
               {errors.phoneNumber && (
@@ -436,27 +397,25 @@ const PendingBrokerByid = () => {
               )}
             </div>
 
-            {/* Password - Only show when editing */}
-            {isEditing && (
-              <div className="mb-2 sm:mb-4">
-                <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                  Password (Leave blank to keep current)
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  className="border-gray-300 w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base"
-                  placeholder="Enter new password"
-                />
-                {errors.password && (
-                  <p className="mt-1 text-xs text-red-500">{errors.password}</p>
-                )}
-              </div>
-            )}
+            {/* Password */}
+            <div className="mb-2 sm:mb-4">
+              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
+                Password (Leave blank to keep current)
+              </label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                className="border-gray-300 w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base"
+                placeholder="Enter new password"
+              />
+              {errors.password && (
+                <p className="mt-1 text-xs text-red-500">{errors.password}</p>
+              )}
+            </div>
 
-            {/* Super Broker Dropdown */}
+            {/* Searchable Super Broker Dropdown */}
             <div className="relative mb-2 sm:mb-4">
               <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
                 Super Broker <span className="text-red-500">*</span>
@@ -469,22 +428,71 @@ const PendingBrokerByid = () => {
                   className="w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-100 p-2 font-semibold text-slate-500"
                 />
               ) : (
-                <select
-                  name="superBrokerId"
-                  value={formData.superBrokerId}
-                  onChange={handleInputChange}
-                  disabled={!isEditing}
-                  className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${!isEditing ? 'bg-gray-100' : 'bg-white'
-                    } ${errors.superBrokerId ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                >
-                  <option value="">Select Super Broker</option>
-                  {superBrokersList.map((sb) => (
-                    <option key={sb.id} value={sb.id}>
-                      {sb.fullname} ({sb.BKId})
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search Super Broker by Name or BK ID"
+                    value={
+                      isDropdownOpen
+                        ? searchTerm
+                        : superBrokersList.find(
+                          (sb) => sb.id === formData.superBrokerId,
+                        )
+                          ? `${superBrokersList.find((sb) => sb.id === formData.superBrokerId)?.fullname} (${superBrokersList.find((sb) => sb.id === formData.superBrokerId)?.BKId})`
+                          : ''
+                    }
+                    onChange={(e) => {
+                      setSearchTerm(e.target.value);
+                      setIsDropdownOpen(true);
+                    }}
+                    onFocus={() => {
+                      setIsDropdownOpen(true);
+                      setSearchTerm('');
+                    }}
+                    onBlur={() =>
+                      setTimeout(() => setIsDropdownOpen(false), 200)
+                    }
+                    className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.superBrokerId ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                  />
+                  {isDropdownOpen && (
+                    <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
+                      {filteredSuperBrokers.length > 0 ? (
+                        filteredSuperBrokers.map((sb) => (
+                          <div
+                            key={sb.id}
+                            className="cursor-pointer px-4 py-2 transition-colors hover:bg-orange-50"
+                            onClick={() => {
+                              setFormData((prev) => ({
+                                ...prev,
+                                superBrokerId: sb.id,
+                              }));
+                              setSearchTerm('');
+                              setIsDropdownOpen(false);
+                              if (errors.superBrokerId) {
+                                setErrors((prev) => ({
+                                  ...prev,
+                                  superBrokerId: '',
+                                }));
+                              }
+                            }}
+                          >
+                            <div className="text-gray-900 font-medium">
+                              {sb.fullname}
+                            </div>
+                            <div className="text-gray-500 text-xs">
+                              BK ID: {sb.BKId}
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-gray-500 px-4 py-2 text-sm">
+                          No Super Brokers found
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               )}
               {errors.superBrokerId && !isSuperBroker && (
                 <p className="mt-1 text-xs text-red-500">
@@ -503,12 +511,16 @@ const PendingBrokerByid = () => {
                 name="aadharCardNumber"
                 value={formData.aadharCardNumber}
                 onChange={handleInputChange}
-                disabled={!isEditing}
                 maxLength={12}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${!isEditing ? 'bg-gray-100' : 'bg-white'
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.aadharCardNumber ? 'border-red-500' : 'border-gray-300'
                   }`}
                 placeholder="Enter 12-digit Aadhar number"
               />
+              {errors.aadharCardNumber && (
+                <p className="mt-1 text-xs text-red-500">
+                  {errors.aadharCardNumber}
+                </p>
+              )}
             </div>
 
             {/* PAN Card Number */}
@@ -521,12 +533,15 @@ const PendingBrokerByid = () => {
                 name="panCardNumber"
                 value={formData.panCardNumber}
                 onChange={handleInputChange}
-                disabled={!isEditing}
                 maxLength={10}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${!isEditing ? 'bg-gray-100' : 'bg-white'
-                  }`}
+                className="border-gray-300 w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base"
                 placeholder="Enter PAN card number"
               />
+              {errors.panCardNumber && (
+                <p className="mt-1 text-xs text-red-500">
+                  {errors.panCardNumber}
+                </p>
+              )}
             </div>
 
             {/* Area */}
@@ -539,9 +554,8 @@ const PendingBrokerByid = () => {
                 name="area"
                 value={formData.area}
                 onChange={handleInputChange}
-                disabled={!isEditing}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${!isEditing ? 'bg-gray-100' : 'bg-white'
-                  } ${errors.area ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.area ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 placeholder="Enter Area"
               />
               {errors.area && (
@@ -560,9 +574,8 @@ const PendingBrokerByid = () => {
                 name="commission"
                 value={formData.commission}
                 onChange={handleInputChange}
-                disabled={!isEditing}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${!isEditing ? 'bg-gray-100' : 'bg-white'
-                  } ${errors.commission ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.commission ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 placeholder="Enter Commission %"
               />
               {errors.commission && (
@@ -571,94 +584,67 @@ const PendingBrokerByid = () => {
             </div>
           </div>
 
-          {/* Document Upload Section - Only show when editing */}
-          {isEditing && (
-            <>
-              <div className="border-gray-200 mt-6 border-t pt-6">
-                <h2 className="text-gray-800 mb-4 text-base font-semibold sm:text-lg">
-                  Document Upload
-                </h2>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
-                  <ImageUploadField
-                    label="Aadhar Card"
-                    field="aadharCardF"
-                    required={false}
-                  />
-                  <ImageUploadField
-                    label="PAN Card"
-                    field="panCard"
-                    required={false}
-                  />
-                </div>
-              </div>
+          {/* Document Upload Section */}
+          <div className="border-gray-200 mt-6 border-t pt-6">
+            <h2 className="text-gray-800 mb-4 text-base font-semibold sm:text-lg">
+              Document Upload
+            </h2>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
+              <ImageUploadField
+                label="Aadhar Card"
+                field="aadharCardF"
+                required={false}
+              />
+              <ImageUploadField
+                label="PAN Card"
+                field="panCard"
+                required={false}
+              />
+            </div>
+          </div>
 
-              {/* Review Section */}
-              {(imagePreviews.aadharCardF || imagePreviews.panCard) && (
-                <div className="bg-gray-50 mt-6 rounded-lg p-4">
-                  <h3 className="text-md text-gray-800 mb-3 font-semibold">
-                    Uploaded Images
-                  </h3>
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    {imagePreviews.aadharCardF && (
-                      <div>
-                        <p className="text-gray-600 mb-1 text-sm">
-                          Aadhar Card:
-                        </p>
-                        <img
-                          src={imagePreviews.aadharCardF}
-                          alt="Aadhar Card"
-                          className="h-20 w-20 cursor-pointer rounded-lg object-cover sm:h-24 sm:w-24"
-                          onClick={() =>
-                            openImageModal(imagePreviews.aadharCardF)
-                          }
-                        />
-                      </div>
-                    )}
-                    {imagePreviews.panCard && (
-                      <div>
-                        <p className="text-gray-600 mb-1 text-sm">PAN Card:</p>
-                        <img
-                          src={imagePreviews.panCard}
-                          alt="PAN Card"
-                          className="h-20 w-20 cursor-pointer rounded-lg object-cover sm:h-24 sm:w-24"
-                          onClick={() => openImageModal(imagePreviews.panCard)}
-                        />
-                      </div>
-                    )}
+          {/* Review Section */}
+          {(imagePreviews.aadharCardF || imagePreviews.panCard) && (
+            <div className="bg-gray-50 mt-6 rounded-lg p-4">
+              <h3 className="text-md text-gray-800 mb-3 font-semibold">
+                Uploaded Images
+              </h3>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {imagePreviews.aadharCardF && (
+                  <div>
+                    <p className="text-gray-600 mb-1 text-sm">Aadhar Card:</p>
+                    <img
+                      src={imagePreviews.aadharCardF}
+                      alt="Aadhar Card"
+                      className="h-20 w-20 cursor-pointer rounded-lg object-cover sm:h-24 sm:w-24"
+                      onClick={() => openImageModal(imagePreviews.aadharCardF)}
+                    />
                   </div>
-                </div>
-              )}
-            </>
+                )}
+                {imagePreviews.panCard && (
+                  <div>
+                    <p className="text-gray-600 mb-1 text-sm">PAN Card:</p>
+                    <img
+                      src={imagePreviews.panCard}
+                      alt="PAN Card"
+                      className="h-20 w-20 cursor-pointer rounded-lg object-cover sm:h-24 sm:w-24"
+                      onClick={() => openImageModal(imagePreviews.panCard)}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
           )}
 
-          {/* Buttons */}
-          <div className="mt-8 flex justify-end gap-3">
-            {isEditing ? (
-              <>
-                <button
-                  type="button"
-                  onClick={() => setIsEditing(false)}
-                  className="border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg border px-6 py-2.5 text-sm font-medium transition-all"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="rounded-lg bg-blue-500 px-6 py-2.5 text-sm font-medium text-white transition-all hover:bg-blue-600 disabled:opacity-50"
-                >
-                  {isSubmitting ? 'Saving...' : 'Save Changes'}
-                </button>
-              </>
-            ) : (
-              <button
-                type="button"
-                onClick={handleApprove}
-                className="rounded-lg bg-gradient-to-r from-orange-500 to-red-500 px-8 py-2.5 text-sm font-medium text-white shadow-lg shadow-orange-500/20 transition-all hover:from-orange-600 hover:to-red-600"
-              >
-                Approve Broker
-              </button>
-            )}
+          {/* Update Button */}
+          <div className="mt-8 flex justify-end">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="rounded-lg bg-gradient-to-r from-orange-500 to-red-500 px-8 py-2.5 text-sm font-medium text-white shadow-lg shadow-orange-500/20 transition-all hover:from-orange-600 hover:to-red-600 disabled:opacity-50"
+            >
+              {isSubmitting ? 'Updating...' : 'Update Broker'}
+            </button>
           </div>
         </form>
       </div>
