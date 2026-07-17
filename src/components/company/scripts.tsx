@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import toast from 'react-hot-toast';
 import {useGetScriptsData, useUpdateScriptStatus} from '@/lib/api/addbroker';
 import GenericTable from '@/components/Forms/Table/GenericTable';
-import {Database, Eye, EyeOff} from 'lucide-react';
+import {Database, Eye, EyeOff, Search} from 'lucide-react';
 
 type Script = {
   id: number | string;
@@ -31,6 +31,7 @@ export const DisplayScripts: React.FC = () => {
   const [originalScripts, setOriginalScripts] = useState<Script[]>([]);
   const [togglingId, setTogglingId] = useState<number | string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   
   // Save PIN Modal State
   const [showSavePinModal, setShowSavePinModal] = useState(false);
@@ -66,14 +67,26 @@ export const DisplayScripts: React.FC = () => {
     }
   }, [scrpiData, isLoading, isPending, isSuccess]);
 
-  // Filter based on expiry
-  const finalScript = scripts.filter((script) => {
-    if (!script.expiry) return true;
+  // Filter based on expiry and search
+  const filteredScripts = scripts.filter((script) => {
+    // Expiry filter
+    if (!script.expiry) return false;
     const expiry = new Date(script.expiry);
     const today = new Date();
     expiry.setHours(0, 0, 0, 0);
     today.setHours(0, 0, 0, 0);
-    return expiry >= today;
+    const isExpiryValid = expiry >= today;
+    
+    // Search filter
+    if (!searchTerm) return isExpiryValid;
+    
+    const searchLower = searchTerm.toLowerCase();
+    const matchesSearch = 
+      script.name?.toLowerCase().includes(searchLower) ||
+      script.symbol?.toLowerCase().includes(searchLower) ||
+      script.type?.toLowerCase().includes(searchLower);
+    
+    return isExpiryValid && matchesSearch;
   });
 
   // Get changed scripts
@@ -160,7 +173,7 @@ export const DisplayScripts: React.FC = () => {
       setOriginalScripts(JSON.parse(JSON.stringify(scripts)));
 
       toast.dismiss(loadingToast);
-      toast.success(`Successfully updated ${changedScripts.length} script(s)`);
+      // toast.success(`Successfully updated ${changedScripts.length} script(s)`);
       
       // Refetch data to get latest from server
       await refetch();
@@ -189,13 +202,7 @@ export const DisplayScripts: React.FC = () => {
   };
 
   const columns = [
-    {
-      header: 'Sr. No',
-      accessor: 'id',
-      render: (row: Script, index: number) => (
-        <span>{index + 1}</span>
-      ),
-    },
+    
     {
       header: 'Name',
       accessor: 'name',
@@ -283,32 +290,36 @@ export const DisplayScripts: React.FC = () => {
             <p className="text-gray-500 mt-1 text-sm">
               Manage your trading scripts and their status.
             </p>
-            {hasChanges() && (
-              <p className="mt-2 text-sm text-amber-600 flex items-center gap-1">
-                <span className="inline-block h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
-                {changedScripts.length} script(s) have unsaved changes
-              </p>
-            )}
+           
           </div>
           
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => refetch()}
-              type="button"
-              className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
-            >
-              <span>Refresh</span>
-            </button>
+            {/* Search Bar */}
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search scripts..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-64 rounded-lg border border-gray-300 bg-white px-4 py-2 pl-10 text-sm outline-none focus:border-[#F27D26] focus:ring-2 focus:ring-[#F27D26]/20"
+              />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
             
             <button
               onClick={handleSaveClick}
-              type="button"
-              disabled={isSaving || !hasChanges()}
-              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors ${
-                hasChanges() && !isSaving
-                  ? 'bg-[#F27D26] hover:bg-[#E06D1F]'
-                  : 'bg-gray-400 cursor-not-allowed'
-              }`}
+               type="button"
+              // disabled={isSaving || !hasChanges()}
+              className={`flex items-center gap-2 bg-orange-500 rounded-lg px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors `
+                }
             >
               {isSaving ? (
                 <>
@@ -318,7 +329,7 @@ export const DisplayScripts: React.FC = () => {
               ) : (
                 <>
                   <Database className="h-4 w-4" />
-                  <span>Save {hasChanges() ? `(${changedScripts.length})` : ''}</span>
+                  <span>Save</span>
                 </>
               )}
             </button>
@@ -327,7 +338,7 @@ export const DisplayScripts: React.FC = () => {
 
         <GenericTable
           columns={columns}
-          data={finalScript}
+          data={filteredScripts}
           onRowClick={handleRowClick}
           clickable={true}
           rowsPerPage={10}
@@ -345,19 +356,6 @@ export const DisplayScripts: React.FC = () => {
               You are about to save {changedScripts.length} script change(s).
             </p>
             
-            <div className="mb-4 max-h-32 overflow-y-auto rounded-md bg-gray-50 p-3">
-              <p className="mb-2 text-xs font-medium text-gray-700">Changes to be saved:</p>
-              <ul className="space-y-1 text-xs text-gray-600">
-                {changedScripts.map((script) => (
-                  <li key={script.id} className="flex items-center justify-between">
-                    <span className="truncate">{script.name} ({script.symbol})</span>
-                    <span className={`ml-2 font-medium ${script.isActive ? 'text-emerald-600' : 'text-red-600'}`}>
-                      {script.isActive ? 'Enable' : 'Disable'}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
             
             <p className="mb-2 text-sm font-medium text-slate-700">
               Enter Security PIN to confirm:

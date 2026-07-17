@@ -145,13 +145,14 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             path: '/profile',
             icon: <User size={18} />,
           },
-          {
-            label: 'Logout',
-            onClick: () => handleSignOut(),
-            icon: <LogOut size={18} />,
-          },
+         
         ],
+        
       },
+      //  {
+      //       label: 'Logout',
+      //       onClick: () => handleSignOut(),
+      //       icon: <LogOut size={18} />, },
     ]
     : isSuperAdmin
       ? [
@@ -645,7 +646,17 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               )}
             </ul>
           </nav>
-        </div>
+        </div><div className="mt-auto border-t border-gray-200 px-2 py-2">
+  <button
+    onClick={handleSignOut}
+    className={`flex w-full items-center gap-2.5 rounded px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 hover:text-red-700 ${
+      !isExpanded ? 'justify-center' : ''
+    }`}
+  >
+    <LogOut className={`h-5 w-5 ${!isExpanded ? 'mx-auto' : ''}`} />
+    {isExpanded && <span>Logout</span>}
+  </button>
+</div>
       </aside>
 
       {/* Tooltip for collapsed sidebar */}
