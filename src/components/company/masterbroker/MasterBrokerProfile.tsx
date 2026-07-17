@@ -69,7 +69,6 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
     useUpdateMasterBrokerProfile();
   const { mutate: addCommission, isPending: isCommissionPending } =
     useAddCommission();
-    
 
   const [editData, setEditData] = useState({
     fullname: '',
@@ -656,7 +655,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
             <div className="overflow-x-auto">
               <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                 <h3 className="text-base font-semibold text-black dark:text-white md:text-lg">
-                  Traders List.
+                  Traders List
                 </h3>
                 <span className="text-sm text-gray-500">
                   Total: {customersList.length} customers
