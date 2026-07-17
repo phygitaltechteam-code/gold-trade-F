@@ -55,18 +55,18 @@ export const ClientDetailStats: React.FC<ClientDetailStatsProps> = ({
           Total P&L
         </div>
         <div className={`text-xl font-semibold md:text-2xl ${
-          totalPnL > 0 ? 'text-green-600' : 
-          totalPnL < 0 ? 'text-red-600' : 
+          totalPnL < 0 ? 'text-green-600' : 
+          totalPnL > 0 ? 'text-red-600' : 
           'text-slate-900'
         }`}>
-          {totalPnL > 0 ? '+' : ''}₹{totalPnL.toFixed(2)}
+          {totalPnL < 0 ? '+' : ''}₹{(-totalPnL).toFixed(2)}
         </div>
         <div className="mt-1 flex items-center gap-1 text-xs font-medium">
-          {totalPnL > 0 ? (
+          {totalPnL < 0 ? (
             <span className="flex items-center gap-1 text-green-600">
               <ArrowUpRight className="h-3 w-3" /> Profit
             </span>
-          ) : totalPnL < 0 ? (
+          ) : totalPnL > 0 ? (
             <span className="flex items-center gap-1 text-red-600">
               <ArrowDownLeft className="h-3 w-3" /> Loss
             </span>

@@ -210,7 +210,7 @@ export const ClientProfileInfo: React.FC<ClientProfileInfoProps> = ({
 
           <div>
             <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-              Stock Holding Limit 
+              Minimum Stock Holding time(in minute)
             </label>
             {isEditing ? (
               <input

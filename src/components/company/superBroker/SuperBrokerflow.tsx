@@ -92,32 +92,32 @@ const SuperBrokerflow = () => {
 
   // Calculate total commission
   const totalCommission = brokerData?.reduce((sum, broker) => {
-    const commission = broker.totalCommission || 
-                      broker.totalBrokerCommission || 
-                      broker.commissionTotal || 
-                      broker.totalCommissions ||
-                      broker.commission ||
-                      0;
+    const commission = broker.totalCommission ||
+      broker.totalBrokerCommission ||
+      broker.commissionTotal ||
+      broker.totalCommissions ||
+      broker.commission ||
+      0;
     return sum + (typeof commission === 'number' ? commission : parseFloat(commission) || 0);
   }, 0) || 0;
 
   // Calculate paid commission
   const paidCommission = brokerData?.reduce((sum, broker) => {
-    const commission = broker.paidCommission || 
-                      broker.paidBrokerCommission || 
-                      broker.commissionPaid ||
-                      broker.paidCommissions ||
-                      0;
+    const commission = broker.paidCommission ||
+      broker.paidBrokerCommission ||
+      broker.commissionPaid ||
+      broker.paidCommissions ||
+      0;
     return sum + (typeof commission === 'number' ? commission : parseFloat(commission) || 0);
   }, 0) || 0;
 
   // Calculate pending commission
   const pendingCommission = brokerData?.reduce((sum, broker) => {
-    const commission = broker.pendingCommission || 
-                      broker.pendingBrokerCommission || 
-                      broker.commissionPending ||
-                      broker.pendingCommissions ||
-                      0;
+    const commission = broker.pendingCommission ||
+      broker.pendingBrokerCommission ||
+      broker.commissionPending ||
+      broker.pendingCommissions ||
+      0;
     return sum + (typeof commission === 'number' ? commission : parseFloat(commission) || 0);
   }, 0) || 0;
 
@@ -186,21 +186,33 @@ const SuperBrokerflow = () => {
           />
           <StatCard
             title="Total Commission"
-            value={formatCurrency(totalCommission)}
+            value={formatCurrency(totalCommission.toFixed(2))}
             icon={DollarSign}
             iconColor="text-purple-500"
             bgColor="bg-purple-50"
           />
           <StatCard
             title="Paid Commission"
-            value={formatCurrency(paidCommission)}
+            value={
+              formatCurrency(
+                Number.isInteger(paidCommission)
+                  ? paidCommission
+                  : Number(paidCommission.toFixed(2))
+              )
+            }
             icon={CheckCircle}
             iconColor="text-green-500"
             bgColor="bg-green-50"
           />
           <StatCard
             title="Pending Commission"
-            value={formatCurrency(pendingCommission)}
+            value={
+              formatCurrency(
+                Number.isInteger(pendingCommission)
+                  ? pendingCommission
+                  : Number(pendingCommission.toFixed(2))
+              )
+            }
             icon={Clock}
             iconColor="text-orange-500"
             bgColor="bg-orange-50"

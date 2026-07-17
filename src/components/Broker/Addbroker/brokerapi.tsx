@@ -215,6 +215,22 @@ export const getAllBrockerById = async (id: string) => {
   }
 };
 
+export const getBrokerCardData= async (id:string)=>{
+  try{
+    const response = await api.get(`/super-broker/broker/report/${id}`)
+    return response.data
+  }catch(err){
+    console.error('Error fetching broker card data:', err);
+    throw err;
+  }
+}
+
+export const useGetBrokerCardDataById = (id: string) =>
+  useQuery({
+    queryKey: ['super_brocker_card', id],
+    queryFn: () => getBrokerCardData(id),
+  });
+
 export const useGetBrokersDataApi = () => {
   return useQuery({
     queryKey: ['get-broker'],

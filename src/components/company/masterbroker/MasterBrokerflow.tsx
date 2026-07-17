@@ -2,6 +2,31 @@ import React, {useState} from 'react';
 import {useNavigate} from '@tanstack/react-router';
 import DisplayMasterBroker from './DisplayMasterBoker';
 import {useGetAllMasterBrocker} from '@/lib/react-query/masterbroker';
+import { motion } from 'framer-motion';
+
+// Animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 100,
+      damping: 12,
+    },
+  },
+};
 
 const MasterBrokerflow = () => {
   const navigate = useNavigate();
@@ -12,8 +37,13 @@ const MasterBrokerflow = () => {
   };
 
   return (
-    <div className="h-screen w-full">
-      <div className="mb-4 flex items-center justify-between p-4">
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+      className="h-screen w-full"
+    >
+      <motion.div variants={itemVariants} className="mb-4 flex items-center justify-between p-4">
         <h1 className="text-2xl font-semibold text-slate-900 md:text-3xl">
           Master Broker Management
         </h1>
@@ -36,10 +66,12 @@ const MasterBrokerflow = () => {
           </svg>
           Add Master Broker
         </button>
-      </div>
+      </motion.div>
 
-      <DisplayMasterBroker refreshTrigger={refreshTrigger} />
-    </div>
+      <motion.div variants={itemVariants}>
+        <DisplayMasterBroker refreshTrigger={refreshTrigger} />
+      </motion.div>
+    </motion.div>
   );
 };
 

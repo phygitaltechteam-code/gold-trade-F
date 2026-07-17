@@ -10,7 +10,7 @@ export const useGetClients = () => {
 
     queryFn: async () => {
 
-      const response = await api.get('company/customer');
+      const response = await api.get('/company/customer');
       console.log('GET Client', response.data);
       return response.data;
     },

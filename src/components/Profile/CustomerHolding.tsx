@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Database, Clock3, ChevronUp, ChevronDown, Users, Search, CheckCircle, XCircle } from 'lucide-react';
-import { useGetTradeTime, useSetTradingTime } from '@/lib/api/masterpanelapi/profile';
 import { useGetMasterClients } from '@/lib/api/masterpanelapi/masterapi';
-import { useCustomerHolding, useCustomerHoldingAdmin } from '@/lib/api/masterpanelapi/customerholding';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import toast from 'react-hot-toast';
+import { useGetClients } from '@/lib/react-query/client';
+import { useCustomerHolding } from '@/lib/api/customerholding';
+import { useGetTradeTime } from '@/lib/react-query/commission';
 
 const CustomerHolding = () => {
     const [isEnabled, setIsEnabled] = useState(false);
@@ -21,8 +22,8 @@ const CustomerHolding = () => {
 
     const { data: tradeData } = useGetTradeTime();
     console.log('tradeee', tradeData);
-    const { data: clients = [], refetch, isLoading } = useGetMasterClients();
-    const { mutate: saveCustomerHolding, isPending } = useCustomerHoldingAdmin();
+    const { data: clients = [], refetch, isLoading } = useGetClients();
+    const { mutate: saveCustomerHolding, isPending } = useCustomerHolding();
 
     useEffect(() => {
         if (tradeData) {
@@ -238,7 +239,7 @@ const CustomerHolding = () => {
                 {/* Customer Stock Holding Limit Table */}
                 <section className="overflow-hidden rounded-xl border border-stroke bg-white p-6 shadow-sm">
                     <div className="mb-4 flex flex-col justify-between gap-4 border-b border-stroke pb-4 sm:flex-row sm:items-center">
-                        <h2 className="text-lg font-semibold">Customer Stock Holding Limits</h2>
+                        <h2 className="text-lg font-semibold">Customer Stock Holding Limits </h2>
 
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                             {/* Apply to All Input */}

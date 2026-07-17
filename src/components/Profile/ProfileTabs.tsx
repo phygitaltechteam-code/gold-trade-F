@@ -88,7 +88,7 @@ const ProfileTabs = () => {
         {activeComponent === 'set-password' && <ResetPassword />}
         {activeComponent === 'Script' && <DisplayScripts />}
         {activeComponent === 'Chamki' && <ChamkiTrading />}
-         {activeComponent === 'Chamki' && <CustomerHolding />}
+         {activeComponent === 'customerholding' && <CustomerHolding />}
       </div>
     </div>
   );

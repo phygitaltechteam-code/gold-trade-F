@@ -201,7 +201,7 @@ const DisplaySuperBroker = ({refreshTrigger}) => {
       header: 'Total Business',
       accessor: 'totalBusiness',
       render: (row) => (
-        <span>₹{(row.totalBusiness || 0).toLocaleString()}</span>
+        <span>₹{((row.totalBusiness)|| 0).toLocaleString()}</span>
       ),
     },
     {
@@ -215,7 +215,7 @@ const DisplaySuperBroker = ({refreshTrigger}) => {
       header: 'Pending Commission',
       accessor: 'pendingCommission',
       render: (row) => (
-        <span>₹{(row.pendingCommission || 0).toLocaleString()}</span>
+        <span>₹{(Number(row.totalCommission) - Number(row.paidCommission) || 0).toLocaleString()}</span>
       ),
     },
     {

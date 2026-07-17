@@ -962,12 +962,12 @@ const SuperBrokerProfile = () => {
 
       {/* Statistics Cards */}
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
-        <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
-          <h4 className="text-xl font-bold text-black dark:text-white md:text-2xl">
-            ₹{profileData?.totalBusiness?.toLocaleString() || '0'}
+             <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
+          <h4 className="text-xl font-bold text-blue-500 md:text-2xl">
+            {profileData?.brokers?.length || 0}
           </h4>
           <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
-            Total Business
+            Total Brokers
           </span>
         </div>
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
@@ -980,20 +980,21 @@ const SuperBrokerProfile = () => {
         </div>
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-orange-500 md:text-2xl">
+            ₹{paymentDataFromApi?.summary?.totalPaidCommission?.toLocaleString() || '0'}
+          </h4>
+          <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
+            Total Paid Commission
+          </span>
+        </div>
+        <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
+          <h4 className="text-xl font-bold text-orange-500 md:text-2xl">
             ₹{paymentDataFromApi?.summary?.pendingCommission.toLocaleString() || '0'}
           </h4>
           <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
             Pending Commission
           </span>
         </div>
-        <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
-          <h4 className="text-xl font-bold text-blue-500 md:text-2xl">
-            {profileData?.brokers?.length || 0}
-          </h4>
-          <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
-            Total Brokers
-          </span>
-        </div>
+   
       </div>
 
       {/* Tabs Section */}

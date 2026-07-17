@@ -1,6 +1,33 @@
 import React, {useState} from 'react';
 import {useNavigate} from '@tanstack/react-router';
 import DisplayBroker from './DisplayBoker';
+import { motion } from 'framer-motion';
+import { CheckCircle, Clock, DollarSign, UserCheck, Users } from 'lucide-react';
+import StatCard from '../clientlistreport/StatCard';
+
+// Animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 100,
+      damping: 12,
+    },
+  },
+};
 
 const Brokerflow = () => {
   const navigate = useNavigate();
@@ -11,9 +38,16 @@ const Brokerflow = () => {
   };
 
   return (
-    <div className="h-screen w-full">
-      <div className="mb-4 flex items-center justify-between p-4">
-        <h1 className="text-2xl font-semibold text-slate-900 md:text-3xlTransaction Ledger">Broker Management</h1>
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+      className="h-screen w-full"
+    >
+      <motion.div variants={itemVariants} className="mb-4 flex items-center justify-between p-4">
+        <h1 className="text-2xl font-semibold text-slate-900 md:text-3xl">
+          Broker Management
+        </h1>
         <button
           onClick={() => navigate({to: '/companybroker/addbroker'})}
           className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 px-4 py-2 text-white transition-all hover:from-orange-600 hover:to-red-600"
@@ -33,10 +67,14 @@ const Brokerflow = () => {
           </svg>
           Add Broker
         </button>
-      </div>
+      </motion.div>
 
-      <DisplayBroker refreshTrigger={refreshTrigger} />
-    </div>
+      
+
+      <motion.div variants={itemVariants}>
+        <DisplayBroker refreshTrigger={refreshTrigger} />
+      </motion.div>
+    </motion.div>
   );
 };
 

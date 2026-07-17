@@ -4,6 +4,7 @@ import GenericTable from '@/components/Forms/Table/GenericTable';
 import {Route} from '@/routes/_app/broker/brokerprofile.$id';
 import {
   useGetAllBrockerById,
+  useGetBrokerCardDataById,
   useGetBrokersDataApi,
   useUpdateBrokerProfile,
 } from './brokerapi';
@@ -22,7 +23,9 @@ const BrokerProfile = () => {
   const [ledgerEndDate, setLedgerEndDate] = useState('');
 
   const {data: profileData, refetch} = useGetAllBrockerById(id);
+  const{data:cardData , refetch:cardRefetch} = useGetBrokerCardDataById(id);
   console.log('PROFILE DATA:', profileData);
+  console.log("card",cardData)
   const {data: brokerData} = useGetBrokersDataApi();
   const {mutate: updateBrokerProfile, isPending: isUpdating} =
     useUpdateBrokerProfile();
@@ -525,30 +528,6 @@ const BrokerProfile = () => {
       {/* Statistics Cards */}
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
-          <h4 className="text-xl font-bold text-black dark:text-white md:text-2xl">
-            ₹{profileData?.totalBusiness?.toLocaleString() || '0'}
-          </h4>
-          <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
-            Total Business
-          </span>
-        </div>
-        <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
-          <h4 className="text-xl font-bold text-green-500 md:text-2xl">
-            ₹{profileData?.totalCommission?.toLocaleString() || '0'}
-          </h4>
-          <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
-            Total Commission
-          </span>
-        </div>
-        <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
-          <h4 className="text-xl font-bold text-orange-500 md:text-2xl">
-            ₹{profileData?.pendingCommission?.toLocaleString() || '0'}
-          </h4>
-          <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
-            Pending Commission
-          </span>
-        </div>
-        <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-blue-500 md:text-2xl">
             {profileData?.customers?.length || 0}
           </h4>
@@ -556,6 +535,31 @@ const BrokerProfile = () => {
             Total Customers
           </span>
         </div>
+        <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
+          <h4 className="text-xl font-bold text-green-500 md:text-2xl">
+            ₹{cardData?.summary?.totalCommission?.toLocaleString() || '0'}
+          </h4>
+          <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
+            Total Commission
+          </span>
+        </div>
+        <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
+          <h4 className="text-xl font-bold text-orange-500 md:text-2xl">
+            ₹{cardData?.summary?.paidCommission?.toLocaleString() || '0'}
+          </h4>
+          <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
+            Paid Commission
+          </span>
+        </div>
+        <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
+          <h4 className="text-xl font-bold text-orange-500 md:text-2xl">
+            ₹{cardData?.summary?.pendingCommission?.toLocaleString() || '0'}
+          </h4>
+          <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
+            Pending Commission
+          </span>
+        </div>
+       
       </div>
 
       {/* Tabs Section */}

@@ -22,7 +22,7 @@ const CustomerSchema = z.object({
     required_error: 'Please select a customer type',
     invalid_type_error: 'Type must be either mega or mini',
   }),
-  stockHoldingLimit: z.string().optional(),
+  stockHoldingLimit: z.coerce.number().int('Stock holding limit must be a whole number').optional(),
 
   // documentNumber: z.string().min(1, 'Document number is required'), // ADD THIS
 });
@@ -45,7 +45,7 @@ const CompanyAddCustomer = () => {
     isDemo: false,
     type: '', // ADDED - no default value, user must select
     // documentNumber: '', // ADD THIS
-    stockHoldingLimit: '',
+    stockHoldingLimit: 0,
   });
 
   const [images, setImages] = useState({
@@ -218,7 +218,7 @@ const CompanyAddCustomer = () => {
       isDemo: false,
       type: '', // ADDED - reset to empty
       // documentNumber: '', // ADD THIS
-      stockHoldingLimit: '',
+      stockHoldingLimit: 0,
     });
     setImages({
       aadharCardF: null,
@@ -254,7 +254,7 @@ const CompanyAddCustomer = () => {
     formDataToSend.append('type', formData.type); // ADDED - send type to backend
     // formDataToSend.append('documentNumber', formData.documentNumber); // ADD THIS
    if (formData.stockHoldingLimit) {
-      formDataToSend.append('stockHoldingLimit', formData.stockHoldingLimit);
+      formDataToSend.append('stockHoldingLimit', Number(formData.stockHoldingLimit));
     }
     // OPTIONAL FIELDS
     if (formData.aadharCardNumber) {
@@ -566,16 +566,17 @@ const CompanyAddCustomer = () => {
             </div>
              <div className="mb-2 sm:mb-4">
               <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Stock Holding Limit
+              Minimum Stock Holding time(in minute)
               </label>
               <input
-                type="text"
+                type="number"
                 name="stockHoldingLimit"
                 value={formData.stockHoldingLimit}
                 onChange={handleInputChange}
                 className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.stockHoldingLimit ? 'border-red-500' : 'border-gray-300'
                   }`}
-                placeholder="Enter stock holding limit"
+                placeholder="Minimum Stock Holding time(in minute)
+"
               />
               {errors.stockHoldingLimit && (
                 <p className="mt-1 text-xs text-red-500">{errors.stockHoldingLimit}</p>

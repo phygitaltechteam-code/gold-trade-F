@@ -190,6 +190,7 @@ const Dashboard: React.FC = () => {
       return `₹${(amount / 1000).toFixed(1)}k`;
     }
     return `₹${formatNumber(amount)}`;
+  
   };
 
   // Extract data from API response
@@ -364,7 +365,7 @@ const Dashboard: React.FC = () => {
           />
           <FinancialStatCard
             title="Pending Broker Commission"
-            amount={formatCurrency(dashboardStats.pendingBrokerCommission)}
+            amount={`₹${new Intl.NumberFormat('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}).format(dashboardStats.pendingBrokerCommission || 0)}`}
             icon={Clock}
             iconColor="text-orange-500"
           />
