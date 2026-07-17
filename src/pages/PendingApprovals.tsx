@@ -28,6 +28,8 @@ import {
   useUpdateCustomer,
 } from '@/lib/api/customer';
 import { useNavigate } from '@tanstack/react-router';
+import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
 
 const PendingApprovals: React.FC = () => {
   const navigate = useNavigate();
@@ -50,12 +52,6 @@ const PendingApprovals: React.FC = () => {
   // Modals state
   const [editingBroker, setEditingBroker] = useState<any | null>(null);
   const [editingClient, setEditingClient] = useState<any | null>(null);
-
-  // Approve Broker Modal state
-  const [showApproveModal, setShowApproveModal] = useState(false);
-  const [brokerToApprove, setBrokerToApprove] = useState<any | null>(null);
-  const [selectedSuperBrokerForApprove, setSelectedSuperBrokerForApprove] =
-    useState<string>('');
 
   // Queries
   const {
@@ -125,74 +121,113 @@ const PendingApprovals: React.FC = () => {
     return list;
   }, [customerResponse]);
 
-  // Row click handlers for navigation
+  // Row click handlers - Different route from edit
   const handleBrokerRowClick = (broker: any) => {
-    navigate({ to: `/companybroker/pendingbrokerby/${broker.id}` });
+    navigate({ to: `/companybroker/pedningbrokerprofile/${broker.id}` });
   };
 
   const handleClientRowClick = (client: any) => {
-    navigate({ to: `/companybroker/clientdetail/${client.id}` });
+    navigate({ to: `/companybroker/pendingtradeprofile/${client.id}` });
   };
 
-  // Handlers for Broker
+  // Handlers for Broker - Approve with simple confirmation
   const handleApproveBroker = (broker: any) => {
-    setBrokerToApprove(broker);
-    setSelectedSuperBrokerForApprove('');
-    setShowApproveModal(true);
-  };
-
-  const confirmApproveBroker = async () => {
-    if (!selectedSuperBrokerForApprove) {
-      toast.error('Please select a Super Broker');
-      return;
-    }
-
-    try {
-      await approveBrokerMutation.mutateAsync({
-        id: brokerToApprove.id,
-        superBrokerId: selectedSuperBrokerForApprove,
-      });
-      // toast.success('Broker approved successfully');
-      setShowApproveModal(false);
-      setBrokerToApprove(null);
-      setSelectedSuperBrokerForApprove('');
-      refetchBrokers();
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to approve broker');
-    }
-  };
-
-  const handleDeleteBroker = async (broker: any) => {
-    if (
-      window.confirm(
-        `Are you sure you want to delete broker ${broker.fullname || ''}?`,
-      )
-    ) {
-      try {
-        await deleteBrokerMutation.mutateAsync(broker.id);
-        // toast.success('Broker deleted successfully');
-        refetchBrokers();
-      } catch (error) {
-        console.error(error);
-        toast.error('Failed to delete broker');
-      }
-    }
-  };
-
-  // FIX: Correctly set editingBroker with proper field mapping
-  const handleEditBroker = (broker: any) => {
-    setEditingBroker({
-      id: broker.id,
-      fullname: broker?.user?.fullname || broker.fullname || '',
-      email: broker?.user?.email || broker.email || '',
-      phoneNumber: broker?.user?.phoneNumber || broker.phoneNumber || '',
-      area: broker.area || '',
-      brokeragePercent: broker.brokeragePercent || broker.brokeragePercent || '',
-      aadharCardNumber: broker.aadharCardNumber || '',
-      panCardNumber: broker.panCardNumber || '',
-      address: broker.address || '',
+    confirmAlert({
+      title: 'Confirm Approval',
+      message: `Are you sure you want to approve broker "${broker.fullname || ''}"?`,
+      buttons: [
+        {
+          label: 'Approve',
+          onClick: async () => {
+            try {
+              await approveBrokerMutation.mutateAsync({
+                id: broker.id,
+                superBrokerId: broker.superBrokerId || null,
+              });
+              refetchBrokers();
+            } catch (error) {
+              console.error(error);
+              toast.error('Failed to approve broker');
+            }
+          },
+          className: 'bg-emerald-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-emerald-700 transition',
+        },
+        {
+          label: 'Cancel',
+          onClick: () => {},
+          className: 'bg-gray-300 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-400 transition ml-2',
+        },
+      ],
     });
+  };
+
+  // DELETE CONFIRMATION POPUP FOR BROKER
+  const handleDeleteBroker = (broker: any) => {
+    confirmAlert({
+      title: 'Confirm Delete',
+      message: `Are you sure you want to delete broker "${broker.fullname || ''}"? This action cannot be undone.`,
+      buttons: [
+        {
+          label: 'Delete',
+          onClick: async () => {
+            try {
+              await deleteBrokerMutation.mutateAsync(broker.id);
+              refetchBrokers();
+            } catch (error) {
+              console.error(error);
+              toast.error('Failed to delete broker');
+            }
+          },
+          className: 'bg-red-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-red-700 transition',
+        },
+        {
+          label: 'Cancel',
+          onClick: () => {},
+          className: 'bg-gray-300 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-400 transition ml-2',
+        },
+      ],
+      overlayClassName: 'react-confirm-alert-overlay-custom',
+      customUI: ({ onClose }) => (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="mx-4 w-full max-w-sm rounded-2xl border-l-4 border-red-600 bg-white p-8 shadow-2xl">
+            <h1 className="mb-3 text-xl font-bold text-text-charcoal">
+              Confirm Delete
+            </h1>
+            <p className="mb-6 text-base leading-relaxed text-text-charcoal">
+              Are you sure you want to delete broker "{broker.fullname || ''}"? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => onClose()}
+                className="rounded-lg bg-gray-300 px-6 py-2 font-semibold text-text-charcoal transition hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    await deleteBrokerMutation.mutateAsync(broker.id);
+                    refetchBrokers();
+                    onClose();
+                  } catch (error) {
+                    console.error(error);
+                    toast.error('Failed to delete broker');
+                  }
+                }}
+                className="rounded-lg bg-red-600 px-6 py-2 font-semibold text-white transition hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      ),
+    });
+  };
+
+  // EDIT BROKER - Different route from row click
+  const handleEditBroker = (broker: any) => {
+    navigate({ to: `/companybroker/pendingbrokerby/${broker.id}` });
   };
 
   const handleSaveBrokerEdit = async (e: React.FormEvent) => {
@@ -213,7 +248,6 @@ const PendingApprovals: React.FC = () => {
           address: editingBroker.address,
         },
       });
-      // toast.success('Broker updated successfully');
       setEditingBroker(null);
       refetchBrokers();
     } catch (error) {
@@ -222,45 +256,101 @@ const PendingApprovals: React.FC = () => {
     }
   };
 
-  // Handlers for Client
-  const handleApproveClient = async (client: any) => {
-    try {
-      await acceptCustomerMutation.mutateAsync(client.id);
-      toast.success('Customer verified successfully');
-      refetchCustomers();
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to verify customer');
-    }
-  };
-
-  const handleDeleteClient = async (client: any) => {
-    if (
-      window.confirm(
-        `Are you sure you want to delete client ${client?.user?.fullname || client?.fullname || ''}?`,
-      )
-    ) {
-      try {
-        await deleteCustomerMutation.mutateAsync(client.id);
-        toast.success('Customer deleted successfully');
-        refetchCustomers();
-      } catch (error) {
-        console.error(error);
-        toast.error('Failed to delete customer');
-      }
-    }
-  };
-
-  // FIX: Correctly set editingClient with proper field mapping
-  const handleEditClient = (client: any) => {
-    setEditingClient({
-      id: client.id,
-      fullname: client?.user?.fullname || client.fullname || '',
-      email: client?.user?.email || client.email || '',
-      phoneNumber: client?.user?.phoneNumber || client.phoneNumber || '',
-      brokerId: client.brokerId || '',
-      address: client.address || client.area || '',
+  // Handlers for Client - Verify with simple confirmation
+  const handleApproveClient = (client: any) => {
+    confirmAlert({
+      title: 'Confirm Verify',
+      message: `Are you sure you want to verify customer "${client?.user?.fullname || client?.fullname || ''}"?`,
+      buttons: [
+        {
+          label: 'Verify',
+          onClick: async () => {
+            try {
+              await acceptCustomerMutation.mutateAsync(client.id);
+              refetchCustomers();
+            } catch (error) {
+              console.error(error);
+              toast.error('Failed to verify customer');
+            }
+          },
+          className: 'bg-emerald-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-emerald-700 transition',
+        },
+        {
+          label: 'Cancel',
+          onClick: () => {},
+          className: 'bg-gray-300 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-400 transition ml-2',
+        },
+      ],
     });
+  };
+
+  // DELETE CONFIRMATION POPUP FOR CLIENT
+  const handleDeleteClient = (client: any) => {
+    confirmAlert({
+      title: 'Confirm Delete',
+      message: `Are you sure you want to delete client "${client?.user?.fullname || client?.fullname || ''}"? This action cannot be undone.`,
+      buttons: [
+        {
+          label: 'Delete',
+          onClick: async () => {
+            try {
+              await deleteCustomerMutation.mutateAsync(client.id);
+              refetchCustomers();
+            } catch (error) {
+              console.error(error);
+              toast.error('Failed to delete customer');
+            }
+          },
+          className: 'bg-red-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-red-700 transition',
+        },
+        {
+          label: 'Cancel',
+          onClick: () => {},
+          className: 'bg-gray-300 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-400 transition ml-2',
+        },
+      ],
+      overlayClassName: 'react-confirm-alert-overlay-custom',
+      customUI: ({ onClose }) => (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="mx-4 w-full max-w-sm rounded-2xl border-l-4 border-red-600 bg-white p-8 shadow-2xl">
+            <h1 className="mb-3 text-xl font-bold text-text-charcoal">
+              Confirm Delete
+            </h1>
+            <p className="mb-6 text-base leading-relaxed text-text-charcoal">
+              Are you sure you want to delete client "{client?.user?.fullname || client?.fullname || ''}"? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => onClose()}
+                className="rounded-lg bg-gray-300 px-6 py-2 font-semibold text-text-charcoal transition hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    await deleteCustomerMutation.mutateAsync(client.id);
+                    refetchCustomers();
+                    onClose();
+                  } catch (error) {
+                    console.error(error);
+                    toast.error('Failed to delete customer');
+                  }
+                }}
+                className="rounded-lg bg-red-600 px-6 py-2 font-semibold text-white transition hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      ),
+    });
+  };
+
+  // EDIT CLIENT - Different route from row click
+  const handleEditClient = (client: any) => {
+    navigate({ to: `/companybroker/companytradebyid/${client.id}` });
   };
 
   const handleSaveClientEdit = async (e: React.FormEvent) => {
@@ -278,7 +368,6 @@ const PendingApprovals: React.FC = () => {
           brokerId: editingClient.brokerId,
         },
       });
-      toast.success('Customer updated successfully');
       setEditingClient(null);
       refetchCustomers();
     } catch (error) {
@@ -421,7 +510,6 @@ const PendingApprovals: React.FC = () => {
         <span className="font-mono text-sm">{item.phoneNumber || 'N/A'}</span>
       ),
     },
-
     {
       header: 'Super Broker',
       accessor: 'superBroker',
@@ -526,7 +614,6 @@ const PendingApprovals: React.FC = () => {
         </div>
       ),
     },
-
     {
       header: 'Date',
       accessor: 'createdAt',
@@ -547,7 +634,6 @@ const PendingApprovals: React.FC = () => {
         return <span className="font-mono text-sm whitespace-nowrap">{formattedDate}</span>;
       },
     },
-
     {
       header: 'Phone Number',
       accessor: (item: any) => item?.user?.phoneNumber || 'N/A',
@@ -556,7 +642,8 @@ const PendingApprovals: React.FC = () => {
           {item?.user?.phoneNumber || 'N/A'}
         </span>
       ),
-    }, {
+    },
+    {
       header: 'Super Broker',
       accessor: 'superBroker',
       render: (item: any) => {
@@ -809,6 +896,7 @@ const PendingApprovals: React.FC = () => {
                 <GenericTable
                   data={filteredBrokers}
                   columns={brokerColumns}
+                  onRowClick={handleBrokerRowClick}
                   clickable={true}
                   searchAble={false}
                   itemsPerPage={10}
@@ -888,320 +976,6 @@ const PendingApprovals: React.FC = () => {
                 />
               </div>
             )}
-          </div>
-        )}
-
-        {/* Approve Broker Modal */}
-        {showApproveModal && brokerToApprove && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-            <div className="animate-in fade-in zoom-in-95 w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl duration-200">
-              <div className="flex items-center justify-between border-b border-stroke pb-4">
-                <h3 className="text-gray-900 text-xl font-bold">
-                  Approve Broker
-                </h3>
-                <button
-                  onClick={() => setShowApproveModal(false)}
-                  className="text-gray-400 hover:bg-gray-100 hover:text-gray-600 rounded-lg p-1 transition-all"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-
-              <div className="mt-4 space-y-4">
-                <div>
-                  <p className="text-gray-600 text-sm">
-                    Assign a Super Broker to{' '}
-                    <span className="font-semibold">
-                      {brokerToApprove.fullname}
-                    </span>
-                  </p>
-                </div>
-
-                <div>
-                  <label className="text-gray-700 text-sm font-semibold">
-                    Select Super Broker <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    value={selectedSuperBrokerForApprove}
-                    onChange={(e) =>
-                      setSelectedSuperBrokerForApprove(e.target.value)
-                    }
-                    className="text-gray-900 mt-1 w-full cursor-pointer appearance-none rounded-xl border border-stroke bg-white p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
-                    required
-                  >
-                    <option value="">Select Super Broker</option>
-                    {superBrokerList.map((sb: any) => (
-                      <option key={sb.id} value={sb.id}>
-                        {sb.fullname} ({sb.SBID || sb.id?.substring(0, 6)})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="flex justify-end gap-3 border-t border-stroke pt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowApproveModal(false)}
-                    className="text-gray-600 hover:bg-gray-50 rounded-xl border border-stroke px-5 py-2.5 text-sm font-semibold transition-all"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={confirmApproveBroker}
-                    disabled={approveBrokerMutation.isPending}
-                    className="rounded-xl bg-gradient-to-r from-orange-500 to-red-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-orange-500/20 transition-all hover:from-orange-600 hover:to-red-700 disabled:opacity-50"
-                  >
-                    {approveBrokerMutation.isPending
-                      ? 'Approving...'
-                      : 'Confirm Approval'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Edit Broker Modal */}
-        {editingBroker && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-            <div className="animate-in fade-in zoom-in-95 w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl duration-200">
-              <div className="flex items-center justify-between border-b border-stroke pb-4">
-                <h3 className="text-gray-900 text-xl font-bold">Edit Broker</h3>
-                <button
-                  onClick={() => setEditingBroker(null)}
-                  className="text-gray-400 hover:bg-gray-100 hover:text-gray-600 rounded-lg p-1 transition-all"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-
-              <form onSubmit={handleSaveBrokerEdit} className="mt-4 space-y-4">
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <div>
-                    <label className="text-gray-700 text-sm font-semibold">
-                      Full Name <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={editingBroker.fullname || ''}
-                      onChange={(e) =>
-                        setEditingBroker({
-                          ...editingBroker,
-                          fullname: e.target.value,
-                        })
-                      }
-                      className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-gray-700 text-sm font-semibold">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      value={editingBroker.email || ''}
-                      onChange={(e) =>
-                        setEditingBroker({
-                          ...editingBroker,
-                          email: e.target.value,
-                        })
-                      }
-                      className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-gray-700 text-sm font-semibold">
-                      Phone Number <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={editingBroker.phoneNumber || ''}
-                      onChange={(e) =>
-                        setEditingBroker({
-                          ...editingBroker,
-                          phoneNumber: e.target.value,
-                        })
-                      }
-                      className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-gray-700 text-sm font-semibold">
-                      Area
-                    </label>
-                    <input
-                      type="text"
-                      value={editingBroker.area || ''}
-                      onChange={(e) =>
-                        setEditingBroker({
-                          ...editingBroker,
-                          area: e.target.value,
-                        })
-                      }
-                      className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex justify-end gap-3 border-t border-stroke pt-4">
-                  <button
-                    type="button"
-                    onClick={() => setEditingBroker(null)}
-                    className="text-gray-600 hover:bg-gray-50 rounded-xl border border-stroke px-5 py-2.5 text-sm font-semibold transition-all"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={updateBrokerMutation.isPending}
-                    className="rounded-xl bg-gradient-to-r from-orange-500 to-red-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-orange-500/20 transition-all hover:from-orange-600 hover:to-red-700 disabled:opacity-50"
-                  >
-                    {updateBrokerMutation.isPending
-                      ? 'Saving...'
-                      : 'Save Changes'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* Edit Client Modal */}
-        {editingClient && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-            <div className="animate-in fade-in zoom-in-95 w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl duration-200">
-              <div className="flex items-center justify-between border-b border-stroke pb-4">
-                <h3 className="text-gray-900 text-xl font-bold">Edit Customer</h3>
-                <button
-                  onClick={() => setEditingClient(null)}
-                  className="text-gray-400 hover:bg-gray-100 hover:text-gray-600 rounded-lg p-1 transition-all"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-
-              <form onSubmit={handleSaveClientEdit} className="mt-4 space-y-4">
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <div>
-                    <label className="text-gray-700 text-sm font-semibold">
-                      Full Name <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={editingClient.fullname || ''}
-                      onChange={(e) =>
-                        setEditingClient({
-                          ...editingClient,
-                          fullname: e.target.value,
-                        })
-                      }
-                      className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-gray-700 text-sm font-semibold">
-                      Email <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="email"
-                      value={editingClient.email || ''}
-                      onChange={(e) =>
-                        setEditingClient({
-                          ...editingClient,
-                          email: e.target.value,
-                        })
-                      }
-                      className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-gray-700 text-sm font-semibold">
-                      Phone Number <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={editingClient.phoneNumber || ''}
-                      onChange={(e) =>
-                        setEditingClient({
-                          ...editingClient,
-                          phoneNumber: e.target.value,
-                        })
-                      }
-                      className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-gray-700 text-sm font-semibold">
-                      Address
-                    </label>
-                    <input
-                      type="text"
-                      value={editingClient.address || editingClient.area || ''}
-                      onChange={(e) =>
-                        setEditingClient({
-                          ...editingClient,
-                          address: e.target.value,
-                        })
-                      }
-                      className="text-gray-900 mt-1 w-full rounded-xl border border-stroke p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-gray-700 text-sm font-semibold">
-                      Assign Broker
-                    </label>
-                    <select
-                      value={editingClient.brokerId || ''}
-                      onChange={(e) =>
-                        setEditingClient({
-                          ...editingClient,
-                          brokerId: e.target.value,
-                        })
-                      }
-                      className="text-gray-900 mt-1 w-full cursor-pointer appearance-none rounded-xl border border-stroke bg-white p-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
-                    >
-                      <option value="">Select Broker</option>
-                      {brokerList.map((b: any) => (
-                        <option key={b.id} value={b.id}>
-                          {b.fullname} ({b.BKId || b.id?.substring(0, 6)})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="flex justify-end gap-3 border-t border-stroke pt-4">
-                  <button
-                    type="button"
-                    onClick={() => setEditingClient(null)}
-                    className="text-gray-600 hover:bg-gray-50 rounded-xl border border-stroke px-5 py-2.5 text-sm font-semibold transition-all"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={updateCustomerMutation.isPending}
-                    className="rounded-xl bg-gradient-to-r from-orange-500 to-red-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-orange-500/20 transition-all hover:from-orange-600 hover:to-red-700 disabled:opacity-50"
-                  >
-                    {updateCustomerMutation.isPending
-                      ? 'Saving...'
-                      : 'Save Changes'}
-                  </button>
-                </div>
-              </form>
-            </div>
           </div>
         )}
       </div>

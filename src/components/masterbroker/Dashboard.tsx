@@ -179,17 +179,15 @@ const Dashboard: React.FC = () => {
     return new Intl.NumberFormat('en-IN').format(num);
   };
 
-  // Format currency with proper Indian comma system and hide .00
+
   const formatCurrency = (amount: number) => {
     if (amount === undefined || amount === null) return '₹0';
-
-    // Check if the amount has decimal places
     const formatted = amount.toFixed(2);
-    // If it ends with .00, return without decimal places
+
     if (formatted.endsWith('.00')) {
       return `₹${Math.round(amount).toLocaleString('en-IN')}`;
     }
-    // Otherwise show with 2 decimal places with Indian comma system
+
     const parts = formatted.split('.');
     const integerPart = Number(parts[0]).toLocaleString('en-IN');
     const decimalPart = parts[1];
