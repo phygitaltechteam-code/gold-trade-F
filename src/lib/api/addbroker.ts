@@ -75,15 +75,16 @@ export const useUpdateScriptStatus = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => updateScriptStatus(id),
+    mutationFn: (data:{assets: {assetId: string | number; IsOn: boolean}}) => 
+      updateScriptStatus(data),
     onSuccess: () => {
-      toast.success('Status Updated Successfully!');
+      toast.success('Script status updated successfully!');
       queryClient.invalidateQueries({queryKey: ['scripts']});
     },
     onError: (error: any) => {
-      console.error('Delete error:', error);
+      console.error('Update status error:', error);
       const backendMessage =
-        error?.response?.data?.message || 'Failed to update Status';
+        error?.response?.data?.message || error?.message || 'Failed to update status';
       toast.error(backendMessage);
     },
   });
@@ -134,16 +135,18 @@ const getScriptsData = async () => {
   }
 };
 
-const updateScriptStatus = async (id: string) => {
+// Option 1: If API expects both assetId and IsOn in the body
+const updateScriptStatus = async (data:{assets: {assetId: string | number; IsOn: boolean}}) => {
   try {
-    const response = await api.patch(`/company/profile/assets/${id}`);
+    const response = await api.patch(`/company/profile/assets`,data);
     console.log('API response for scripts:', response);
-    return response;
+    return response.data;
   } catch (error) {
     console.error('Error to status change:', error);
     throw error;
   }
 };
+
 const getSuperBrokerData = async () => {
   try {
     const response = await api.get(`/company/super-broker`);
