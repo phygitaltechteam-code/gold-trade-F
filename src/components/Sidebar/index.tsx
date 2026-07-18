@@ -225,21 +225,17 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             path: '/brokerledger',
             icon: <Receipt size={22} />,
           },
+          // {
+          //   label: 'Profile',
+          //   path: '/broker/brokerprofiles',
+          //   icon: <UserCog size={22} />,
+          // },
           {
-            label: 'Profile',
-            path: '/broker/brokerprofiles',
-            icon: <UserCog size={22} />,
-          },
-          {
-            label: 'Settings',
+            label: 'Setting',
             icon: <Settings size={22} />,
-            subRoutes: [
-              {
-                label: 'Logout',
-                onClick: () => handleSignOut(),
-                icon: <LogOut size={18} />,
-              },
-            ],
+            
+            path: '/broker/brokerprofiles',
+           
           },
         ]
         : isCustomer

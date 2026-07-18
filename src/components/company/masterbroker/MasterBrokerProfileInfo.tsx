@@ -229,7 +229,6 @@ export const MasterBrokerProfileInfo: React.FC<MasterBrokerProfileInfoProps> = (
             <div>
               <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                 Password
-                <span className="text-gray-400 ml-1 text-xs">(Optional)</span>
               </label>
               <div className="relative">
                 <input
@@ -248,9 +247,6 @@ export const MasterBrokerProfileInfo: React.FC<MasterBrokerProfileInfoProps> = (
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
-              <p className="text-gray-400 mt-1 text-xs">
-                Leave blank to keep current password
-              </p>
             </div>
           )}
         </div>
