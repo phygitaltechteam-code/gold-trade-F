@@ -21,6 +21,7 @@ const BrokerProfile = () => {
   const [paymentEndDate, setPaymentEndDate] = useState('');
   const [ledgerStartDate, setLedgerStartDate] = useState('');
   const [ledgerEndDate, setLedgerEndDate] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
 
   const {data: profileData, refetch} = useGetAllBrockerById(id);
   const{data:cardData , refetch:cardRefetch} = useGetBrokerCardDataById(id);
@@ -198,33 +199,20 @@ const BrokerProfile = () => {
     {header: 'Stript', accessor: 'stript'},
     {header: 'Transaction Amount', accessor: 'transactionAmount'},
     {header: 'Super Broker Commission', accessor: 'superBrokerCommission'},
-    {header: 'Status', accessor: 'status'},
-  ];
 
-  // Expanded Ledger Columns
-  const expandedLedgerColumns = [
-    {header: 'Sr', accessor: 'sr'},
-    {header: 'Date/Time', accessor: 'dateTime'},
-    {header: 'Customer Name', accessor: 'customerName'},
     // {header: 'Transaction ID', accessor: 'transactionId'},
-    {header: 'Stript', accessor: 'stript'},
     {header: 'Order Type', accessor: 'orderType'},
     {header: 'Holding Type', accessor: 'holdingType'},
     {header: 'Qty', accessor: 'qty'},
     {header: 'Price', accessor: 'price'},
     {header: 'Status', accessor: 'status'},
-    {header: 'Transaction Amount', accessor: 'transactionAmount'},
     {header: 'Paid Amount', accessor: 'paidAmount'},
     {header: 'Margin Amount', accessor: 'marginAmount'},
     {header: 'Total Commission', accessor: 'totalCommission'},
     {header: 'Broker Commission', accessor: 'brokerCommission'},
-    {header: 'Super Broker Commission', accessor: 'superBrokerCommission'},
     {header: 'Payment Status', accessor: 'paymentStatus'},
   ];
 
-  const ledgerColumns = isLedgerExpanded
-    ? expandedLedgerColumns
-    : baseLedgerColumns;
 
   // Column definitions for the Payment History table
   const paymentColumns = [
@@ -300,14 +288,32 @@ const BrokerProfile = () => {
 
   // Filter ledger data by date range
   const filteredLedgerData = useMemo(() => {
-    if (!ledgerStartDate || !ledgerEndDate) return ledgerDataWithSr;
-    return ledgerDataWithSr.filter((item: any) => {
-      const itemDate = new Date(item.dateTime);
-      const startDate = new Date(ledgerStartDate);
-      const endDate = new Date(ledgerEndDate);
-      return itemDate >= startDate && itemDate <= endDate;
-    });
-  }, [ledgerDataWithSr, ledgerStartDate, ledgerEndDate]);
+    let result = ledgerDataWithSr;
+
+    if (statusFilter) {
+      result = result.filter((item: any) => {
+        const itemStatus = item.status?.toUpperCase() || '';
+        const filterVal = statusFilter.toUpperCase();
+        if (filterVal === 'CLOSE' || filterVal === 'CLOSED') {
+          return itemStatus === 'CLOSE' || itemStatus === 'CLOSED';
+        }
+        return itemStatus === filterVal;
+      });
+    }
+
+    if (ledgerStartDate && ledgerEndDate) {
+      result = result.filter((item: any) => {
+        const itemDate = new Date(item.dateTime);
+        const startDate = new Date(ledgerStartDate);
+        const endDate = new Date(ledgerEndDate);
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setHours(23, 59, 59, 999);
+        return itemDate >= startDate && itemDate <= endDate;
+      });
+    }
+
+    return result;
+  }, [ledgerDataWithSr, ledgerStartDate, ledgerEndDate, statusFilter]);
 
   // Filter payment data by date range
   const filteredPaymentData = useMemo(() => {
@@ -606,6 +612,17 @@ const BrokerProfile = () => {
                 </h3>
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="flex items-center gap-2">
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="rounded border border-stroke bg-transparent px-2 py-1 text-xs outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-3 md:py-1 md:text-sm"
+                    >
+                      <option value="">All Statuses</option>
+                      <option value="OPEN">Open</option>
+                      <option value="CLOSED">Closed</option>
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-2">
                     <label className="text-xs font-medium text-black dark:text-white md:text-sm">
                       From:
                     </label>
@@ -639,17 +656,17 @@ const BrokerProfile = () => {
                       This Week
                     </button>
                   )}
-                  <button
+                  {/* <button
                     onClick={() => setIsLedgerExpanded(!isLedgerExpanded)}
                     className="rounded bg-orange-500 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-orange-600 md:px-4 md:py-2 md:text-sm"
                   >
                     {isLedgerExpanded ? 'View Less' : 'View More'}
-                  </button>
+                  </button> */}
                 </div>
               </div>
               <GenericTable
                 data={filteredLedgerData}
-                columns={ledgerColumns}
+                columns={baseLedgerColumns}
                 paginationOff={true}
               />
             </div>

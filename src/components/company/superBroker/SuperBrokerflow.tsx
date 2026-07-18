@@ -122,12 +122,21 @@ const SuperBrokerflow = () => {
   }, 0) || 0;
 
   // Format currency - Show full amount without shortening
-  const formatCurrency = (amount: number) => {
-    if (amount === undefined || amount === null || isNaN(amount)) return '₹0';
-    // Show full amount with proper Indian number formatting
-    return `₹${amount.toLocaleString('en-IN')}`;
+const formatCurrency = (amount: number) => {
+    if (amount === undefined || amount === null) return '₹0';
+    const formatted = amount.toFixed(2);
+
+    if (formatted.endsWith('.00')) {
+      return `₹${Math.round(amount).toLocaleString('en-IN')}`;
+    }
+
+    const parts = formatted.split('.');
+    const integerPart = Number(parts[0]).toLocaleString('en-IN');
+    const decimalPart = parts[1];
+    return `₹${integerPart}.${decimalPart}`;
   };
 
+  
   return (
     <motion.div
       initial="hidden"
@@ -186,7 +195,7 @@ const SuperBrokerflow = () => {
           />
           <StatCard
             title="Total Commission"
-            value={formatCurrency(totalCommission.toFixed(2))}
+            value={formatCurrency(totalCommission)}
             icon={DollarSign}
             iconColor="text-purple-500"
             bgColor="bg-purple-50"
@@ -197,7 +206,7 @@ const SuperBrokerflow = () => {
               formatCurrency(
                 Number.isInteger(paidCommission)
                   ? paidCommission
-                  : Number(paidCommission.toFixed(2))
+                  : Number(paidCommission)
               )
             }
             icon={CheckCircle}

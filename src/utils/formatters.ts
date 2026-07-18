@@ -1,6 +1,6 @@
 /*eslint-disable*/
-import {ApiTransaction} from '@/features/Dashboard/types';
-import {Transaction, BankCard} from '../types';
+import { ApiTransaction } from '@/features/Dashboard/types';
+import { Transaction, BankCard } from '../types';
 import {
   MdPayment,
   MdShoppingBag,

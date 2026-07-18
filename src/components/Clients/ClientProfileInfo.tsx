@@ -216,13 +216,13 @@ export const ClientProfileInfo: React.FC<ClientProfileInfoProps> = ({
               <input
                 type="number"
                 name="stockHoldingLimit"
-                value={editData.stockHoldingLimit}
+                value={editData?.stockHoldingLimit}
                 onChange={handleInputChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
               />
             ) : (
               <p className="text-sm text-black dark:text-white md:text-base">
-                {stockHoldingLimit !== undefined ? stockHoldingLimit : 'N/A'}
+                {editData?.stockHoldingLimit !== undefined ? editData?.stockHoldingLimit : 'N/A'}
               </p>
             )}                           
           </div>

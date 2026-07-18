@@ -43,7 +43,6 @@ import {
   useUpdateCustomer,
 } from '@/lib/api/masterpanelapi/masterapi';
 import { useGetMasterClientLedger } from '@/lib/api/masterpanelapi/profile';
-// import { useAddMargin, useSendDeposite, useSendWithdraw, useUpdateCustomer } from '../Clients/mutationapi';
 
 const DocCard = ({ name, type, status, icon: Icon, color, url }: any) => (
   <a
@@ -74,6 +73,7 @@ export const ClientDetail: React.FC = () => {
 
   const displayClient = clientData;
   const [activeTab, setActiveTab] = useState('ledger');
+  const [statusFilter, setStatusFilter] = useState('');
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [walletActionType, setWalletActionType] = useState<'add' | 'withdraw'>(
     'add',
@@ -96,7 +96,6 @@ export const ClientDetail: React.FC = () => {
     type: '',
     password: '',
     stockHoldingLimit: '',
-
   });
 
   const intradayLeverage = clientData?.intradayLeverage ?? '';
@@ -108,6 +107,27 @@ export const ClientDetail: React.FC = () => {
   const { mutateAsync: sendWithdraw, isPending: isWithdrawPending } =
     useSendWithdraw();
   const { mutateAsync: addMargin, isPending: isMarginPending } = useAddMargin();
+
+  // ✅ Get wallet balance for calculations/
+  // const walletBalance = parseFloat(displayClient?.wallets?.amount || '0');
+
+  // ✅ Calculate margin values for dynamic messages
+  const intradayValue = parseFloat(intradayMargin) || 0;
+  const holdingValue = parseFloat(holdingMargin) || 0;
+  const walletBalance = 100000;
+  const maxIntradayTrade = walletBalance * intradayValue;
+  const maxHoldingTrade = walletBalance * holdingValue;
+
+  // ✅ Handle input change with X suffix
+  const handleIntradayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace('X', '').trim();
+    setIntradayMargin(value);
+  };
+
+  const handleHoldingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace('X', '').trim();
+    setHoldingMargin(value);
+  };
 
   // Trading Ledger Data from API
   const tradingLedgerData = useMemo(() => {
@@ -132,47 +152,22 @@ export const ClientDetail: React.FC = () => {
     if (!item) return '-';
     const qty = item.qty || item.Qty || 0;
     const lotSize = item.lotSize || item.lotSize || 0;
-    // If lotSize exists and is different from qty, show as "qty/lot"
     if (lotSize && lotSize !== qty) {
       return `${qty}/${lotSize}`;
     }
-    // If only qty exists or they're the same, just show qty
     return qty;
   };
 
-  // Format P&L with proper sign and color
-  // Format P&L with proper sign and color
   const formatPnL = (item) => {
     const pnl = item.pnl || item['p&l'] || 0;
     const sign = pnl > 0 ? '+' : '';
-    // ✅ Fix: Show only 2 decimal places
     return `${sign}${Number(pnl).toFixed(2)}`;
   };
 
-  // const ledgerColumns = [
-  //   {header: 'Date/Time', accessor: 'dateTime'},
-  //   {header: 'Customer Name', accessor: 'customerName'},
-  //   // {header: 'Broker Name', accessor: 'brokerName'},
-  //   {header: 'Transaction ID', accessor: 'transactionId'},
-  //   {header: 'Stript', accessor: 'stript'},
-  //   {header: 'Order Type', accessor: 'orderType'},
-  //   {header: 'Holding Type', accessor: 'holdingType'},
-  //   {header: 'Qty', accessor: 'qty'},
-  //   {header: 'Price', accessor: 'price'},
-  //   {header: 'Status', accessor: 'status'},
-  //   {header: 'Transaction Amount', accessor: 'transactionAmount'},
-  //   {header: 'Total Amount', accessor: 'totalAmount'},
-  //   {header: 'Paid Amount', accessor: 'paidAmount'},
-  //   {header: 'Margin Amount', accessor: 'marginAmount'},
-  //   {header: 'Total Commission', accessor: 'totalCommission'},
-  //   {header: 'Broker Commission', accessor: 'brokerCommission'},
-  //   {header: 'Payment Status', accessor: 'paymentStatus'},
-  // ];
-
   const totalPnL = Array.isArray(ledgerDataaa?.data?.data)
     ? ledgerDataaa.data.data.reduce((sum: number, item: any) => {
-      return sum + Number(item.pnl ?? item['p&l'] ?? 0);
-    }, 0)
+        return sum + Number(item.pnl ?? item['p&l'] ?? 0);
+      }, 0)
     : 0;
 
   console.log('ledgerData  api fetch newwww', ledgerDataaa);
@@ -208,7 +203,17 @@ export const ClientDetail: React.FC = () => {
       masterBrokerCommission: item.masterBrokerCommission,
     })) || [];
 
-  // Filter data by date range
+  // Filter data by status
+  const filteredLedgerRows = statusFilter
+    ? ledgerRows.filter((item: any) => {
+        const itemStatus = item.status?.toUpperCase() || '';
+        const filterVal = statusFilter.toUpperCase();
+        if (filterVal === 'CLOSE' || filterVal === 'CLOSED') {
+          return itemStatus === 'CLOSE' || itemStatus === 'CLOSED';
+        }
+        return itemStatus === filterVal;
+      })
+    : ledgerRows;
 
   const paymentColumns = [
     { header: 'Date/Time', accessor: 'dateTime' },
@@ -216,7 +221,6 @@ export const ClientDetail: React.FC = () => {
     { header: 'Wallet Amount', accessor: 'walletAmount' },
   ];
 
-  // Trading Ledger Columns - No Sr column
   const tradingLedgerColumns = [
     {
       header: 'Date & Time',
@@ -228,10 +232,11 @@ export const ClientDetail: React.FC = () => {
       accessor: 'type',
       render: (item: any) => (
         <span
-          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${item.type === 'CREDIT'
-            ? 'bg-green-100 text-green-700'
-            : 'bg-red-100 text-red-700'
-            }`}
+          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+            item.type === 'CREDIT'
+              ? 'bg-green-100 text-green-700'
+              : 'bg-red-100 text-red-700'
+          }`}
         >
           {item.type === 'CREDIT' ? 'Credit' : 'Debit'}
         </span>
@@ -242,8 +247,9 @@ export const ClientDetail: React.FC = () => {
       accessor: 'amount',
       render: (item: any) => (
         <span
-          className={`font-semibold ${item.type === 'CREDIT' ? 'text-green-600' : 'text-red-600'
-            }`}
+          className={`font-semibold ${
+            item.type === 'CREDIT' ? 'text-green-600' : 'text-red-600'
+          }`}
         >
           {item.amount}
         </span>
@@ -292,12 +298,13 @@ export const ClientDetail: React.FC = () => {
       if (editData.address && editData.address !== displayClient?.address) {
         updateData.address = editData.address;
       }
-
       if (editData.password) {
         updateData.password = editData.password;
       }
-
-      if (editData.stockHoldingLimit && editData.stockHoldingLimit !== stockHoldingLimit) {
+      if (
+        editData.stockHoldingLimit &&
+        editData.stockHoldingLimit !== stockHoldingLimit
+      ) {
         updateData.stockHoldingLimit = editData.stockHoldingLimit;
       }
       if (
@@ -356,8 +363,6 @@ export const ClientDetail: React.FC = () => {
     setIsEditing(false);
   };
 
-  // get ledger data
-
   const handleBack = () => {
     navigate({ to: '/masterbroker/client-dashboard' });
   };
@@ -377,7 +382,6 @@ export const ClientDetail: React.FC = () => {
     setIsEditing(true);
   };
 
-  // Handle Deposit/Withdraw submission
   const handleWalletSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -420,7 +424,8 @@ export const ClientDetail: React.FC = () => {
       }
 
       toast.success(
-        `₹${walletAmount} ${walletActionType === 'add' ? 'deposited' : 'withdrawn'
+        `₹${walletAmount} ${
+          walletActionType === 'add' ? 'deposited' : 'withdrawn'
         } successfully!`,
       );
 
@@ -434,7 +439,7 @@ export const ClientDetail: React.FC = () => {
       console.error('Error processing transaction:', error);
       toast.error(
         error?.response?.data?.message ||
-        'Transaction failed. Please check your PIN and try again.',
+          'Transaction failed. Please check your PIN and try again.',
       );
     }
   };
@@ -446,7 +451,7 @@ export const ClientDetail: React.FC = () => {
     setShowMarginPin(false);
     setIsMarginModalOpen(true);
   };
-  // Handle Margin submission
+
   const handleMarginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -497,7 +502,7 @@ export const ClientDetail: React.FC = () => {
       console.error('Error adding margin:', error);
       toast.error(
         error?.response?.data?.message ||
-        'Failed to add margin. Please check your PIN and try again.',
+          'Failed to add margin. Please check your PIN and try again.',
       );
     }
   };
@@ -577,7 +582,7 @@ export const ClientDetail: React.FC = () => {
       <div className="grid grid-cols-1 gap-6 lg:gap-8">
         {/* Main Content */}
         <div className="space-y-6 lg:col-span-2">
-          {/* Quick Stats - Removed Commission % card */}
+          {/* Quick Stats */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-3">
             <div className="group relative overflow-hidden rounded-2xl border border-black/5 bg-white p-5 shadow-sm md:p-6">
               <div className="absolute right-0 top-0 p-4 opacity-5 transition-opacity group-hover:opacity-10">
@@ -609,47 +614,28 @@ export const ClientDetail: React.FC = () => {
               </div>
             </div>
 
-            {/* <div className="group relative overflow-hidden rounded-2xl border border-black/5 bg-white p-5 shadow-sm md:p-6">
-              <div className="absolute right-0 top-0 p-4 opacity-5 transition-opacity group-hover:opacity-10">
-                <ShieldCheck className="h-16 w-16" />
-              </div>
-              <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                Account Status
-              </div>
-              <div className="text-xl font-semibold text-slate-900 md:text-2xl">
-                {isActive ? 'Active' : 'Inactive'}
-              </div>
-              <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
-                <div
-                  className="h-full rounded-full bg-orange-500"
-                  style={{width: isVerified ? '100%' : '50%'}}
-                />
-              </div>
-            </div> */}
             <div className="group relative overflow-hidden rounded-2xl border border-black/5 bg-white p-5 shadow-sm md:p-6">
               <div className="absolute right-0 top-0 p-4 opacity-5 transition-opacity group-hover:opacity-10">
                 <CreditCard className="h-16 w-16" />
               </div>
               <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                Total P$L
+                Total P&L
               </div>
               <div className="text-xl font-semibold text-slate-900 md:text-2xl">
                 ₹{totalPnL}
               </div>
-              <div className="mt-1 flex items-center gap-1 text-xs font-medium text-orange-600">
+              <div className="mt-1 flex items-center gap-1 text-xs font-medium">
                 {totalPnL > 0 ? (
-                  <div className="mt-1 flex items-center gap-1 text-xs font-medium text-green-600">
+                  <div className="flex items-center gap-1 text-green-600">
                     <div className="h-2 w-2 rounded-full bg-green-500" />
                     P&L
                   </div>
                 ) : (
-                  <div className="mt-1 flex items-center gap-1 text-xs font-medium text-red-600">
+                  <div className="flex items-center gap-1 text-red-600">
                     <div className="h-2 w-2 rounded-full bg-red-500" />
                     P&L
                   </div>
                 )}
-
-
               </div>
             </div>
           </div>
@@ -663,7 +649,7 @@ export const ClientDetail: React.FC = () => {
               {!isEditing ? (
                 <button
                   onClick={handleEditClick}
-                  className="hover:bg-gray-100 flex items-center gap-2 rounded bg-white px-3 py-1.5 text-sm font-medium text-orange-500 transition-colors md:px-4 md:py-2"
+                  className="flex items-center gap-2 rounded bg-white px-3 py-1.5 text-sm font-medium text-orange-500 transition-colors hover:bg-gray-100 md:px-4 md:py-2"
                 >
                   <FiEdit2 className="h-3 w-3 md:h-4 md:w-4" /> Edit Profile
                 </button>
@@ -677,7 +663,7 @@ export const ClientDetail: React.FC = () => {
                   </button>
                   <button
                     onClick={handleSave}
-                    className="hover:bg-gray-100 flex items-center gap-2 rounded bg-white px-3 py-1.5 text-sm font-medium text-orange-500 transition-colors md:px-4 md:py-2"
+                    className="flex items-center gap-2 rounded bg-white px-3 py-1.5 text-sm font-medium text-orange-500 transition-colors hover:bg-gray-100 md:px-4 md:py-2"
                   >
                     <FiSave className="h-3 w-3 md:h-4 md:w-4" /> Save
                   </button>
@@ -764,34 +750,6 @@ export const ClientDetail: React.FC = () => {
                   )}
                 </div>
 
-                {/* <div>
-                            <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-                              CRN
-                            </label>
-                            <p className="text-sm text-black dark:text-white md:text-base">
-                              {displayClient?.CRN || 'N/A'}
-                            </p>
-                          </div> */}
-
-                {/* <div>
-                            <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-                              Commission %
-                            </label>
-                            {isEditing ? (
-                              <input
-                                type="text"
-                                name="brokeragePercent"
-                                value={editData.brokeragePercent}
-                                onChange={handleInputChange}
-                                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
-                              />
-                            ) : (
-                              <p className="text-sm text-black dark:text-white md:text-base">
-                                {displayClient?.brokeragePercent || '0'}%
-                              </p>
-                            )}
-                          </div> */}
-
                 <div>
                   <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                     Area
@@ -810,25 +768,6 @@ export const ClientDetail: React.FC = () => {
                     </p>
                   )}
                 </div>
-
-                {/* <div>
-                            <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-                              City
-                            </label>
-                            <p className="text-sm text-black dark:text-white md:text-base">
-                              {displayClient?.city || 'N/A'}
-                            </p>
-                          </div> */}
-
-                {/* <div>
-                            <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-                              State / Country
-                            </label>
-                            <p className="text-sm text-black dark:text-white md:text-base">
-                              {displayClient?.state || 'N/A'} /{' '}
-                              {displayClient?.country || 'N/A'}
-                            </p>
-                          </div> */}
 
                 <div>
                   <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
@@ -849,6 +788,7 @@ export const ClientDetail: React.FC = () => {
                     </p>
                   )}
                 </div>
+
                 <div>
                   <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                     Trader Type <span className="text-red-500">*</span>
@@ -932,34 +872,26 @@ export const ClientDetail: React.FC = () => {
             </div>
           </div>
 
-          {/* Tabs: Ledger & Payment & Trading Ledger */}
+          {/* Tabs */}
           <div className="rounded-2xl border border-black/5 bg-white p-4 shadow-sm md:p-6">
             <div className="mb-4 flex flex-wrap border-b border-slate-100 md:mb-6">
               <button
                 onClick={() => setActiveTab('ledger')}
-                className={`px-3 py-2 text-xs font-semibold transition-colors md:px-4 md:py-3 md:text-sm ${activeTab === 'ledger'
-                  ? 'border-b-2 border-orange-500 text-orange-500'
-                  : 'text-slate-500 hover:text-slate-700'
-                  }`}
-              >
-                Trader Ledger
-              </button>
-              {/* <button
-                onClick={() => setActiveTab('payment')}
                 className={`px-3 py-2 text-xs font-semibold transition-colors md:px-4 md:py-3 md:text-sm ${
-                  activeTab === 'payment'
+                  activeTab === 'ledger'
                     ? 'border-b-2 border-orange-500 text-orange-500'
                     : 'text-slate-500 hover:text-slate-700'
                 }`}
               >
-                Payment History
-              </button> */}
+                Trader Ledger
+              </button>
               <button
                 onClick={() => setActiveTab('tradingledger')}
-                className={`px-3 py-2 text-xs font-semibold transition-colors md:px-4 md:py-3 md:text-sm ${activeTab === 'tradingledger'
-                  ? 'border-b-2 border-orange-500 text-orange-500'
-                  : 'text-slate-500 hover:text-slate-700'
-                  }`}
+                className={`px-3 py-2 text-xs font-semibold transition-colors md:px-4 md:py-3 md:text-sm ${
+                  activeTab === 'tradingledger'
+                    ? 'border-b-2 border-orange-500 text-orange-500'
+                    : 'text-slate-500 hover:text-slate-700'
+                }`}
               >
                 Trading Ledger ({tradingLedgerData.length})
               </button>
@@ -967,23 +899,24 @@ export const ClientDetail: React.FC = () => {
 
             {activeTab === 'ledger' && (
               <div className="overflow-x-auto">
+                <div className="mb-4 flex flex-wrap items-center gap-3">
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="rounded border border-stroke bg-transparent px-3 py-1 text-sm outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                  >
+                    <option value="">All Statuses</option>
+                    <option value="OPEN">Open</option>
+                    <option value="CLOSED">Closed</option>
+                  </select>
+                </div>
                 <GenericTable
                   columns={baseColumns}
-                  data={ledgerRows}
+                  data={filteredLedgerRows}
                   paginationOff={true}
                 />
               </div>
             )}
-
-            {/* {activeTab === 'payment' && (
-              <div className="overflow-x-auto">
-                <GenericTable
-                  columns={paymentColumns}
-                  data={[]}
-                  paginationOff={true}
-                />
-              </div>
-            )} */}
 
             {activeTab === 'tradingledger' && (
               <div className="overflow-x-auto">
@@ -1008,7 +941,7 @@ export const ClientDetail: React.FC = () => {
         </div>
       </div>
 
-      {/* Wallet Balance Modal (Deposit/Withdraw) */}
+      {/* Wallet Balance Modal */}
       {isWalletModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-2xl border border-slate-100 bg-white p-5 shadow-xl md:p-6">
@@ -1016,7 +949,6 @@ export const ClientDetail: React.FC = () => {
               {walletActionType === 'add' ? 'Deposit Money' : 'Withdraw Money'}
             </h3>
 
-            {/* Show current wallet balance */}
             <div>
               <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
                 Current Wallet Balance
@@ -1030,20 +962,22 @@ export const ClientDetail: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setWalletActionType('add')}
-                className={`rounded-lg py-2 text-sm font-semibold transition-all ${walletActionType === 'add'
-                  ? 'bg-white text-orange-500 shadow-sm'
-                  : 'text-slate-600 hover:text-slate-800'
-                  }`}
+                className={`rounded-lg py-2 text-sm font-semibold transition-all ${
+                  walletActionType === 'add'
+                    ? 'bg-white text-orange-500 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-800'
+                }`}
               >
                 Deposit
               </button>
               <button
                 type="button"
                 onClick={() => setWalletActionType('withdraw')}
-                className={`rounded-lg py-2 text-sm font-semibold transition-all ${walletActionType === 'withdraw'
-                  ? 'bg-white text-orange-500 shadow-sm'
-                  : 'text-slate-600 hover:text-slate-800'
-                  }`}
+                className={`rounded-lg py-2 text-sm font-semibold transition-all ${
+                  walletActionType === 'withdraw'
+                    ? 'bg-white text-orange-500 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-800'
+                }`}
               >
                 Withdraw
               </button>
@@ -1082,7 +1016,7 @@ export const ClientDetail: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setShowWalletPin(!showWalletPin)}
-                    className="text-gray-500 hover:text-gray-700 absolute right-3 top-1/2 -translate-y-1/2"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                   >
                     {showWalletPin ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
@@ -1126,38 +1060,86 @@ export const ClientDetail: React.FC = () => {
             </h3>
 
             <form onSubmit={handleMarginSubmit} className="space-y-4">
-              <div>
-                <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
-                  Intraday Margin
-                </label>
-                <input
-                  type="number"
-                  required
-                  step="0.01"
-                  min="0"
-                  placeholder="Enter Intraday Margin"
-                  value={intradayMargin}
-                  onChange={(e) => setIntradayMargin(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                />
-              </div>
 
-              <div>
-                <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
-                  Holding Margin
-                </label>
-                <input
-                  type="number"
-                  required
-                  step="0.01"
-                  min="0"
-                  placeholder="Enter Holding Margin"
-                  value={holdingMargin}
-                  onChange={(e) => setHoldingMargin(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                />
-              </div>
+  {/* Intraday Margin */}
+  <div>
+    <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
+      Intraday Margin
+    </label>
 
+    <div className="relative">
+      <input
+        type="text"
+        required
+        placeholder="Enter Intraday Margin"
+        value={intradayMargin ? `${intradayMargin}X` : ""}
+        onChange={handleIntradayChange}
+        className="w-full rounded-xl border border-slate-200 px-4 py-2.5 pr-12 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+      />
+
+      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-400">
+        X
+      </span>
+    </div>
+  </div>
+
+  {intradayValue > 0 && (
+    <div className="rounded-xl border border-orange-200 bg-orange-50 px-4 py-3">
+      <p className="text-sm font-medium text-orange-700">
+        💡 You can buy trades upto{" "}
+        <strong>
+          ₹{maxIntradayTrade.toLocaleString("en-IN")}
+        </strong>
+      </p>
+
+      <p className="mt-1 text-xs text-orange-500">
+        Wallet: ₹{walletBalance.toLocaleString("en-IN")} × {intradayValue}X =
+        ₹{maxIntradayTrade.toLocaleString("en-IN")}
+      </p>
+    </div>
+  )}
+
+  {/* Holding Margin */}
+  <div>
+    <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
+      Holding Margin
+    </label>
+
+    <div className="relative">
+      <input
+        type="text"
+        required
+        placeholder="Enter Holding Margin"
+        value={holdingMargin ? `${holdingMargin}X` : ""}
+        onChange={handleHoldingChange}
+        className="w-full rounded-xl border border-slate-200 px-4 py-2.5 pr-12 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+      />
+
+      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-400">
+        X
+      </span>
+    </div>
+  </div>
+
+  {holdingValue > 0 && (
+    <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
+      <p className="text-sm font-medium text-blue-700">
+        💰 You can hold trades upto{" "}
+        <strong>
+          ₹{maxHoldingTrade.toLocaleString("en-IN")}
+        </strong>
+      </p>
+
+      <p className="mt-1 text-xs text-blue-500">
+        Wallet: ₹{walletBalance.toLocaleString("en-IN")} × {holdingValue}X =
+        ₹{maxHoldingTrade.toLocaleString("en-IN")}
+      </p>
+    </div>
+  )}
+
+
+         
+              {/* Security PIN */}
               <div>
                 <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
                   Security PIN
@@ -1174,13 +1156,14 @@ export const ClientDetail: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setShowMarginPin(!showMarginPin)}
-                    className="text-gray-500 hover:text-gray-700 absolute right-3 top-1/2 -translate-y-1/2"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                   >
                     {showMarginPin ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
               </div>
 
+              {/* Buttons */}
               <div className="flex gap-3 pt-4">
                 <button
                   type="button"

@@ -1,8 +1,8 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import {useGetScriptsData, useUpdateScriptStatus} from '@/lib/api/addbroker';
+import { useGetScriptsData, useUpdateScriptStatus } from '@/lib/api/addbroker';
 import GenericTable from '@/components/Forms/Table/GenericTable';
-import {Database, Eye, EyeOff, Search} from 'lucide-react';
+import { Database, Eye, EyeOff, Search } from 'lucide-react';
 
 type Script = {
   id: number | string;
@@ -26,13 +26,13 @@ export const DisplayScripts: React.FC = () => {
     isSuccess,
     refetch,
   } = useGetScriptsData();
-  const {mutateAsync: updateScriptStatus} = useUpdateScriptStatus();
+  const { mutateAsync: updateScriptStatus } = useUpdateScriptStatus();
   const [scripts, setScripts] = useState<Script[]>([]);
   const [originalScripts, setOriginalScripts] = useState<Script[]>([]);
   const [togglingId, setTogglingId] = useState<number | string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  
+
   // Save PIN Modal State
   const [showSavePinModal, setShowSavePinModal] = useState(false);
   const [savePin, setSavePin] = useState('');
@@ -76,16 +76,16 @@ export const DisplayScripts: React.FC = () => {
     expiry.setHours(0, 0, 0, 0);
     today.setHours(0, 0, 0, 0);
     const isExpiryValid = expiry >= today;
-    
+
     // Search filter
     if (!searchTerm) return isExpiryValid;
-    
+
     const searchLower = searchTerm.toLowerCase();
-    const matchesSearch = 
+    const matchesSearch =
       script.name?.toLowerCase().includes(searchLower) ||
       script.symbol?.toLowerCase().includes(searchLower) ||
       script.type?.toLowerCase().includes(searchLower);
-    
+
     return isExpiryValid && matchesSearch;
   });
 
@@ -107,11 +107,11 @@ export const DisplayScripts: React.FC = () => {
   // Direct toggle without PIN modal
   const handleToggle = (script: Script, e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     // Toggle the status directly
     setScripts((prev) =>
       prev.map((s) =>
-        s.id === script.id ? {...s, isActive: !s.isActive} : s,
+        s.id === script.id ? { ...s, isActive: !s.isActive } : s,
       ),
     );
   };
@@ -141,7 +141,7 @@ export const DisplayScripts: React.FC = () => {
     }
 
     const changedScripts = getChangedScripts();
-    
+
     if (changedScripts.length === 0) {
       toast.info('No changes to save');
       setShowSavePinModal(false);
@@ -149,18 +149,20 @@ export const DisplayScripts: React.FC = () => {
     }
 
     setIsSaving(true);
-    
+    let loadingToast;
+
     try {
-      const loadingToast = toast.loading(`Saving ${changedScripts.length} script(s)...`);
-      
+      loadingToast = toast.loading(`Saving ${changedScripts.length} script(s)...`);
+
       // Prepare data for API - send all assets in one call
       const assetsData = changedScripts.map((script) => ({
         assetId: script.id,
-        IsOn: script.isActive
+        IsOn: script.isActive,
+        isOn: script.isActive
       }));
 
       // Single API call with all assets
-      await updateScriptStatus({ assets: assetsData });
+      await updateScriptStatus({ assets: assetsData as any, securityPin: savePin });
 
       // Update localStorage
       const storedStatuses = loadStoredStatuses();
@@ -172,22 +174,22 @@ export const DisplayScripts: React.FC = () => {
       // Update original scripts reference
       setOriginalScripts(JSON.parse(JSON.stringify(scripts)));
 
-      toast.dismiss(loadingToast);
       // toast.success(`Successfully updated ${changedScripts.length} script(s)`);
-      
+
       // Refetch data to get latest from server
       await refetch();
-      
+
       setShowSavePinModal(false);
       setSavePin('');
-      
+
     } catch (error) {
       console.error('Error saving changes:', error);
       toast.error('Failed to save changes. Please try again.');
-      
+
       // Revert to original state on error
       setScripts(JSON.parse(JSON.stringify(originalScripts)));
     } finally {
+      if (loadingToast) toast.dismiss(loadingToast);
       setIsSaving(false);
     }
   };
@@ -202,7 +204,7 @@ export const DisplayScripts: React.FC = () => {
   };
 
   const columns = [
-    
+
     {
       header: 'Name',
       accessor: 'name',
@@ -228,14 +230,12 @@ export const DisplayScripts: React.FC = () => {
       header: 'Status',
       accessor: 'isActive',
       render: (row: Script) => (
-        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${
-          row.isActive 
-            ? 'bg-emerald-50 text-emerald-700' 
+        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${row.isActive
+            ? 'bg-emerald-50 text-emerald-700'
             : 'bg-red-50 text-red-700'
-        }`}>
-          <span className={`h-1.5 w-1.5 rounded-full ${
-            row.isActive ? 'bg-emerald-500' : 'bg-red-500'
-          }`}></span>
+          }`}>
+          <span className={`h-1.5 w-1.5 rounded-full ${row.isActive ? 'bg-emerald-500' : 'bg-red-500'
+            }`}></span>
           {row.isActive ? 'Active' : 'Inactive'}
         </span>
       ),
@@ -290,9 +290,9 @@ export const DisplayScripts: React.FC = () => {
             <p className="text-gray-500 mt-1 text-sm">
               Manage your trading scripts and their status.
             </p>
-           
+
           </div>
-          
+
           <div className="flex items-center gap-2">
             {/* Search Bar */}
             <div className="relative">
@@ -313,13 +313,13 @@ export const DisplayScripts: React.FC = () => {
                 </button>
               )}
             </div>
-            
+
             <button
               onClick={handleSaveClick}
-               type="button"
+              type="button"
               // disabled={isSaving || !hasChanges()}
               className={`flex items-center gap-2 bg-orange-500 rounded-lg px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors `
-                }
+              }
             >
               {isSaving ? (
                 <>
@@ -355,8 +355,8 @@ export const DisplayScripts: React.FC = () => {
             <p className="mb-4 text-sm text-slate-600">
               You are about to save {changedScripts.length} script change(s).
             </p>
-            
-            
+
+
             <p className="mb-2 text-sm font-medium text-slate-700">
               Enter Security PIN to confirm:
             </p>
@@ -397,9 +397,8 @@ export const DisplayScripts: React.FC = () => {
               <button
                 onClick={handleConfirmSave}
                 disabled={isSaving}
-                className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${
-                  isSaving ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#F27D26] hover:bg-[#E06D1F]'
-                }`}
+                className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${isSaving ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#F27D26] hover:bg-[#E06D1F]'
+                  }`}
               >
                 {isSaving ? 'Saving...' : 'Confirm Save'}
               </button>

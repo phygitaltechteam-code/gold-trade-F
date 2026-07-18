@@ -1,25 +1,26 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
-import {useDeleteBroker} from '@/lib/api/addbroker';
-import {useNavigate} from '@tanstack/react-router';
+import { useDeleteBroker } from '@/lib/api/addbroker';
+import { useNavigate } from '@tanstack/react-router';
 import {
   useGetAllSuperBrocker,
   useActivateInActiveSuperBrocker,
 } from '@/lib/react-query/superbrocker';
 import GenericTable from '@/components/Forms/Table/GenericTable';
-import {Eye, EyeOff} from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
+import { formatIndianNumber } from '@/utils/formatIndianNumber';
 
 const STORAGE_KEY = 'super_broker_status';
 
-const DisplaySuperBroker = ({refreshTrigger}) => {
+const DisplaySuperBroker = ({ refreshTrigger }) => {
   const [brokers, setBrokers] = useState([]);
   const [showPinModal, setShowPinModal] = useState(false);
   const [selectedBroker, setSelectedBroker] = useState<any>(null);
   const [pin, setPin] = useState('');
   const [showPin, setShowPin] = useState(false);
   const navigate = useNavigate();
-  const {data: responseData, refetch, isLoading} = useGetAllSuperBrocker();
-  const {mutateAsync: activateInActiveSuperBrocker, isPending} =
+  const { data: responseData, refetch, isLoading } = useGetAllSuperBrocker();
+  const { mutateAsync: activateInActiveSuperBrocker, isPending } =
     useActivateInActiveSuperBrocker();
 
   // Load stored statuses from localStorage on component mount
@@ -77,7 +78,7 @@ const DisplaySuperBroker = ({refreshTrigger}) => {
   }, [refreshTrigger, refetch]);
 
   const handleRowClick = (broker) => {
-    navigate({to: `/companybroker/SuperbrockerProfile/${broker?.id}`});
+    navigate({ to: `/companybroker/SuperbrockerProfile/${broker?.id}` });
   };
 
   const handleStatusToggle = (broker, e) => {
@@ -111,7 +112,7 @@ const DisplaySuperBroker = ({refreshTrigger}) => {
       setBrokers((prevBrokers) =>
         prevBrokers.map((broker) =>
           broker.id === selectedBroker.id
-            ? {...broker, isActive: newStatus}
+            ? { ...broker, isActive: newStatus }
             : broker,
         ),
       );
@@ -145,13 +146,13 @@ const DisplaySuperBroker = ({refreshTrigger}) => {
       setBrokers((prevBrokers) =>
         prevBrokers.map((broker) =>
           broker.id === selectedBroker.id
-            ? {...broker, isActive: oldStatus}
+            ? { ...broker, isActive: oldStatus }
             : broker,
         ),
       );
       toast.error(
         error?.response?.data?.message ||
-          'Failed to update status. Invalid PIN?',
+        'Failed to update status. Invalid PIN?',
       );
     }
   };
@@ -201,21 +202,21 @@ const DisplaySuperBroker = ({refreshTrigger}) => {
       header: 'Total Business',
       accessor: 'totalBusiness',
       render: (row) => (
-        <span>₹{((row.totalBusiness)|| 0).toLocaleString()}</span>
+        <span>₹{formatIndianNumber(row.totalBusiness)}</span>
       ),
     },
     {
       header: 'Total Commission',
       accessor: 'totalCommission',
       render: (row) => (
-        <span>₹{(row.totalCommission || 0).toLocaleString()}</span>
+        <span>₹{formatIndianNumber(row.totalCommission)}</span>
       ),
     },
     {
       header: 'Pending Commission',
       accessor: 'pendingCommission',
       render: (row) => (
-        <span>₹{(Number(row.totalCommission) - Number(row.paidCommission) || 0).toLocaleString()}</span>
+        <span>₹{formatIndianNumber(Number(row.totalCommission || 0) - Number(row.paidCommission || 0))}</span>
       ),
     },
     {
@@ -318,11 +319,10 @@ const DisplaySuperBroker = ({refreshTrigger}) => {
               <button
                 onClick={handleConfirmStatusChange}
                 disabled={isPending}
-                className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${
-                  selectedBrokerDetails?.isActive
+                className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${selectedBrokerDetails?.isActive
                     ? 'bg-red-500 hover:bg-red-600'
                     : 'bg-emerald-500 hover:bg-emerald-600'
-                } disabled:opacity-50`}
+                  } disabled:opacity-50`}
               >
                 {isPending ? 'Processing...' : 'Confirm'}
               </button>

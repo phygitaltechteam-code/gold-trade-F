@@ -52,6 +52,7 @@ const BrokerProfile = () => {
   const [paymentEndDate, setPaymentEndDate] = useState('');
   const [ledgerStartDate, setLedgerStartDate] = useState('');
   const [ledgerEndDate, setLedgerEndDate] = useState('');
+  const [statusFilter, setStatusFilter] = useState('')
 
   // Password visibility state
   const [showPassword, setShowPassword] = useState(false);
@@ -614,21 +615,13 @@ const BrokerProfile = () => {
     { header: 'Sell Price', accessor: 'sellPrice' },
     { header: 'Status', accessor: 'status' },
     { header: 'P&L', accessor: 'pnl' },
-    { header: 'Broker Commission', accessor: 'brokerCommission' },
-  ];
+    // ];
 
-  const expandedLedgerColumns = [
-    { header: 'Date & Time', accessor: 'dateTime' },
-    { header: 'Customer Name', accessor: 'customerName' },
-    { header: 'Script', accessor: 'script' },
-    { header: 'Qty/Lot', accessor: 'qty' },
-    { header: 'Buy Price', accessor: 'buyPrice' },
-    { header: 'Sell Price', accessor: 'sellPrice' },
+    // // Expanded Ledger Columns
+    // const expandedLedgerColumns = [
     { header: 'Buy Time', accessor: 'buyTime' },
     { header: 'Sell Time', accessor: 'sellTime' },
-    { header: 'Status', accessor: 'status' },
-    { header: 'P&L', accessor: 'pnl' },
-    { header: 'Broker Commission', accessor: 'brokerCommission' },
+    { header: 'Broker commission', accessor: 'brokerCommission' },
   ];
 
   // Payment Columns - Cleaned
@@ -668,13 +661,12 @@ const BrokerProfile = () => {
       accessor: 'status',
       render: (item: any) => (
         <span
-          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-            item.status === 'Paid'
+          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${item.status === 'Paid'
               ? 'bg-green-100 text-green-700'
               : item.status === 'Pending'
                 ? 'bg-yellow-100 text-yellow-700'
                 : 'bg-gray-100 text-gray-700'
-          }`}
+            }`}
         >
           {item.status}
         </span>
@@ -691,13 +683,12 @@ const BrokerProfile = () => {
       accessor: 'type',
       render: (item: any) => (
         <span
-          className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
-            item.type === 'TRANSFER'
+          className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${item.type === 'TRANSFER'
               ? 'bg-blue-100 text-blue-800'
               : item.type === 'CREDIT'
                 ? 'bg-green-100 text-green-800'
                 : 'bg-red-100 text-red-800'
-          }`}
+            }`}
         >
           {item.type === 'TRANSFER'
             ? 'Transfer'
@@ -745,16 +736,32 @@ const BrokerProfile = () => {
 
   // Filter ledger data by date range
   const filteredLedgerData = useMemo(() => {
-    if (!ledgerStartDate || !ledgerEndDate) return ledgerDataWithSr;
-    return ledgerDataWithSr.filter((item: any) => {
-      const itemDate = new Date(item.rawDateTime || item.dateTime);
-      const startDate = new Date(ledgerStartDate);
-      const endDate = new Date(ledgerEndDate);
-      startDate.setHours(0, 0, 0, 0);
-      endDate.setHours(23, 59, 59, 999);
-      return itemDate >= startDate && itemDate <= endDate;
-    });
-  }, [ledgerDataWithSr, ledgerStartDate, ledgerEndDate]);
+    let result = ledgerDataWithSr;
+
+    if (statusFilter) {
+      result = result.filter((item: any) => {
+        const itemStatus = item.status?.toUpperCase() || '';
+        const filterVal = statusFilter.toUpperCase();
+        if (filterVal === 'CLOSE' || filterVal === 'CLOSED') {
+          return itemStatus === 'CLOSE' || itemStatus === 'CLOSED';
+        }
+        return itemStatus === filterVal;
+      });
+    }
+
+    if (ledgerStartDate && ledgerEndDate) {
+      result = result.filter((item: any) => {
+        const itemDate = new Date(item.rawDateTime || item.dateTime);
+        const startDate = new Date(ledgerStartDate);
+        const endDate = new Date(ledgerEndDate);
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setHours(23, 59, 59, 999);
+        return itemDate >= startDate && itemDate <= endDate;
+      });
+    }
+
+    return result;
+  }, [ledgerDataWithSr, ledgerStartDate, ledgerEndDate, statusFilter]);
 
   // Filter payment data by date range
   const filteredPaymentData = useMemo(() => {
@@ -1052,31 +1059,28 @@ const BrokerProfile = () => {
           <div className="flex flex-wrap">
             <button
               onClick={() => setActiveTab('ledger')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
-                activeTab === 'ledger'
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'ledger'
                   ? 'border-b-2 border-orange-500 text-orange-500'
                   : 'text-bodydark2'
-              }`}
+                }`}
             >
               Ledger
             </button>
             <button
               onClick={() => setActiveTab('payment')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
-                activeTab === 'payment'
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'payment'
                   ? 'border-b-2 border-orange-500 text-orange-500'
                   : 'text-bodydark2'
-              }`}
+                }`}
             >
               Payment History
             </button>
             <button
               onClick={() => setActiveTab('customer')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
-                activeTab === 'customer'
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'customer'
                   ? 'border-b-2 border-orange-500 text-orange-500'
                   : 'text-bodydark2'
-              }`}
+                }`}
             >
               Trader ({profileData?.customers?.length || 0})
             </button>
@@ -1128,6 +1132,20 @@ const BrokerProfile = () => {
                       onChange={(e) => setLedgerEndDate(e.target.value)}
                       className="rounded border border-stroke bg-transparent px-2 py-1 text-xs outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-3 md:py-1 md:text-sm"
                     />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-sm font-medium text-black dark:text-white">
+                      Status:
+                    </label>
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="rounded border border-stroke bg-transparent px-3 py-1.5 text-sm outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                    >
+                      <option value="">All</option>
+                      <option value="OPEN">Open</option>
+                      <option value="CLOSED">Closed</option>
+                    </select>
                   </div>
                   {(ledgerStartDate || ledgerEndDate) && (
                     <button
@@ -1267,22 +1285,20 @@ const BrokerProfile = () => {
               <button
                 type="button"
                 onClick={() => setCommissionType('credit')}
-                className={`rounded-lg py-2 text-sm font-semibold transition-all ${
-                  commissionType === 'credit'
+                className={`rounded-lg py-2 text-sm font-semibold transition-all ${commissionType === 'credit'
                     ? 'bg-white text-orange-500 shadow-sm'
                     : 'text-slate-600 hover:text-slate-800'
-                }`}
+                  }`}
               >
                 Credit (+)
               </button>
               <button
                 type="button"
                 onClick={() => setCommissionType('debit')}
-                className={`rounded-lg py-2 text-sm font-semibold transition-all ${
-                  commissionType === 'debit'
+                className={`rounded-lg py-2 text-sm font-semibold transition-all ${commissionType === 'debit'
                     ? 'bg-white text-orange-500 shadow-sm'
                     : 'text-slate-600 hover:text-slate-800'
-                }`}
+                  }`}
               >
                 Debit (-)
               </button>
