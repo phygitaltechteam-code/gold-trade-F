@@ -285,7 +285,7 @@ const Dashboard: React.FC = () => {
             iconColor="text-green-500"
           />
           <StatCard
-            title="Total Active Trends"
+            title="Total Active Scripts"
             value={formatNumber(dashboardStats.totalActiveTrends)}
             icon={Activity}
             iconColor="text-orange-500"

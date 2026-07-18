@@ -1,26 +1,26 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
-import {useDeleteBroker} from '@/lib/api/addbroker';
-import {useNavigate} from '@tanstack/react-router';
+import { useDeleteBroker } from '@/lib/api/addbroker';
+import { useNavigate } from '@tanstack/react-router';
 import {
   useGetAllMasterBrocker,
   useActivateInActiveMasterBrocker,
 } from '@/lib/react-query/masterbroker';
 import GenericTable from '@/components/Forms/Table/GenericTable';
-import {Eye, EyeOff} from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 
 const STORAGE_KEY = 'Master_broker_status';
 
-const DisplayMasterBroker = ({refreshTrigger}) => {
+const DisplayMasterBroker = ({ refreshTrigger }) => {
   const [brokers, setBrokers] = useState([]);
   const [showPinModal, setShowPinModal] = useState(false);
   const [selectedBroker, setSelectedBroker] = useState<any>(null);
   const [pin, setPin] = useState('');
   const [showPin, setShowPin] = useState(false);
   const navigate = useNavigate();
-  const {data: responseData, refetch, isLoading} = useGetAllMasterBrocker();
-  console.log("responseData",responseData)
-  const {mutateAsync: activateInActiveMasterBrocker, isPending} =
+  const { data: responseData, refetch, isLoading } = useGetAllMasterBrocker();
+  console.log("responseData", responseData)
+  const { mutateAsync: activateInActiveMasterBrocker, isPending } =
     useActivateInActiveMasterBrocker();
 
   // Load stored statuses from localStorage on component mount
@@ -78,7 +78,7 @@ const DisplayMasterBroker = ({refreshTrigger}) => {
   }, [refreshTrigger, refetch]);
 
   const handleRowClick = (broker) => {
-    navigate({to: `/companybroker/master-brockerProfile/${broker?.id}`});
+    navigate({ to: `/companybroker/master-brockerProfile/${broker?.id}` });
   };
 
   const handleStatusToggle = (broker, e) => {
@@ -112,7 +112,7 @@ const DisplayMasterBroker = ({refreshTrigger}) => {
       setBrokers((prevBrokers) =>
         prevBrokers.map((broker) =>
           broker.id === selectedBroker.id
-            ? {...broker, isActive: newStatus}
+            ? { ...broker, isActive: newStatus }
             : broker,
         ),
       );
@@ -146,13 +146,13 @@ const DisplayMasterBroker = ({refreshTrigger}) => {
       setBrokers((prevBrokers) =>
         prevBrokers.map((broker) =>
           broker.id === selectedBroker.id
-            ? {...broker, isActive: oldStatus}
+            ? { ...broker, isActive: oldStatus }
             : broker,
         ),
       );
       toast.error(
         error?.response?.data?.message ||
-          'Failed to update status. Invalid PIN?',
+        'Failed to update status. Invalid PIN?',
       );
     }
   };
@@ -179,14 +179,14 @@ const DisplayMasterBroker = ({refreshTrigger}) => {
       header: 'Customer Limit',
       accessor: 'customerLimit',
       render: (row) => (
-        <span className="font-mono text-sm">{row.customerLimit }</span>
+        <span className="font-mono text-sm">{row.customerLimit}</span>
       ),
     },
     {
       header: 'Commission',
       accessor: 'brokeragePercent',
       render: (row) => (
-        <span className="rounded border border-orange-100 bg-orange-50 px-2 py-1 text-xs font-bold text-orange-600">
+        <span className="rounded  px-2 py-1 text-xs text-gray-900">
           {row.brokeragePercent ? `${row.brokeragePercent}%` : '0%'}
         </span>
       ),
@@ -319,11 +319,10 @@ const DisplayMasterBroker = ({refreshTrigger}) => {
               <button
                 onClick={handleConfirmStatusChange}
                 disabled={isPending}
-                className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${
-                  selectedBrokerDetails?.isActive
+                className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${selectedBrokerDetails?.isActive
                     ? 'bg-red-500 hover:bg-red-600'
                     : 'bg-emerald-500 hover:bg-emerald-600'
-                } disabled:opacity-50`}
+                  } disabled:opacity-50`}
               >
                 {isPending ? 'Processing...' : 'Confirm'}
               </button>

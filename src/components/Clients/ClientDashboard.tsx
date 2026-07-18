@@ -304,7 +304,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
             ? row.wallets.amount
             : parseFloat(row.wallets?.amount as string) || 0);
         return (
-          <span className="whitespace-nowrap text-sm font-bold text-slate-900">
+          <span className="whitespace-nowrap text-sm  text-slate-900">
             ₹{amount.toLocaleString()}
           </span>
         );
@@ -320,7 +320,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
             ? row.wallets.blockedAmount
             : parseFloat(row.wallets?.blockedAmount as string) || 0);
         return (
-          <span className="whitespace-nowrap text-sm font-bold text-slate-900">
+          <span className="whitespace-nowrap text-sm  text-slate-900">
             ₹{amount.toLocaleString()}
           </span>
         );
@@ -332,7 +332,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       render: (row: Client) => {
         const amount = row.marginAmount !== undefined ? Number(row.marginAmount) : 0;
         return (
-          <span className="whitespace-nowrap text-sm font-bold text-slate-900">
+          <span className="whitespace-nowrap text-sm  text-slate-900">
             ₹{amount.toLocaleString()}
           </span>
         );
@@ -342,7 +342,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       header: 'Total Active Trade',
       accessor: 'totalActiveTrade',
       render: (row: Client) => (
-        <span className="whitespace-nowrap text-sm font-medium text-slate-900">
+        <span className="whitespace-nowrap text-sm text-slate-900">
           {row.totalActiveTrade !== undefined ? row.totalActiveTrade : (row._count?.trades || 0)}
         </span>
       ),
@@ -353,7 +353,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       render: (row: Client) => {
         const amount = row.totalTrade !== undefined ? Number(row.totalTrade) : (parseFloat(row.wallets?.amount as string) || 0);
         return (
-          <span className="whitespace-nowrap text-sm font-bold text-slate-900">
+          <span className="whitespace-nowrap text-sm  text-slate-900">
             ₹{amount.toLocaleString()}
           </span>
         );

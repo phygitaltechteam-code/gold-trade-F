@@ -181,8 +181,8 @@ export const ClientDetail: React.FC = () => {
 
   const totalPnL = Array.isArray(ledgerDataaa?.data?.data)
     ? ledgerDataaa.data.data.reduce((sum: number, item: any) => {
-        return sum + Number(item.pnl ?? item['p&l'] ?? 0);
-      }, 0)
+      return sum + Number(item.pnl ?? item['p&l'] ?? 0);
+    }, 0)
     : 0;
 
   console.log('ledgerData  api fetch newwww', ledgerDataaa);
@@ -221,13 +221,13 @@ export const ClientDetail: React.FC = () => {
   // Filter data by status
   const filteredLedgerRows = statusFilter
     ? ledgerRows.filter((item: any) => {
-        const itemStatus = item.status?.toUpperCase() || '';
-        const filterVal = statusFilter.toUpperCase();
-        if (filterVal === 'CLOSE' || filterVal === 'CLOSED') {
-          return itemStatus === 'CLOSE' || itemStatus === 'CLOSED';
-        }
-        return itemStatus === filterVal;
-      })
+      const itemStatus = item.status?.toUpperCase() || '';
+      const filterVal = statusFilter.toUpperCase();
+      if (filterVal === 'CLOSE' || filterVal === 'CLOSED') {
+        return itemStatus === 'CLOSE' || itemStatus === 'CLOSED';
+      }
+      return itemStatus === filterVal;
+    })
     : ledgerRows;
 
   const paymentColumns = [
@@ -263,9 +263,8 @@ export const ClientDetail: React.FC = () => {
       accessor: 'amount',
       render: (item: any) => (
         <span
-          className={`font-semibold ${
-            item.type === 'CREDIT' ? 'text-green-600' : 'text-red-600'
-          }`}
+          className={`${item.type === 'CREDIT' ? 'text-gray-900' : 'text-gray-900'
+            }`}
         >
           {item.amount}
         </span>
@@ -275,7 +274,7 @@ export const ClientDetail: React.FC = () => {
       header: 'Balance After',
       accessor: 'balanceAfter',
       render: (item: any) => (
-        <span className="font-semibold text-blue-600">{item.balanceAfter}</span>
+        <span className="text-gray-900">{item.balanceAfter}</span>
       ),
     },
     {
@@ -440,8 +439,7 @@ export const ClientDetail: React.FC = () => {
       }
 
       toast.success(
-        `₹${walletAmount} ${
-          walletActionType === 'add' ? 'deposited' : 'withdrawn'
+        `₹${walletAmount} ${walletActionType === 'add' ? 'deposited' : 'withdrawn'
         } successfully!`,
       );
 
@@ -455,7 +453,7 @@ export const ClientDetail: React.FC = () => {
       console.error('Error processing transaction:', error);
       toast.error(
         error?.response?.data?.message ||
-          'Transaction failed. Please check your PIN and try again.',
+        'Transaction failed. Please check your PIN and try again.',
       );
     }
   };
@@ -518,7 +516,7 @@ export const ClientDetail: React.FC = () => {
       console.error('Error adding margin:', error);
       toast.error(
         error?.response?.data?.message ||
-          'Failed to add margin. Please check your PIN and try again.',
+        'Failed to add margin. Please check your PIN and try again.',
       );
     }
   };
@@ -893,21 +891,19 @@ export const ClientDetail: React.FC = () => {
             <div className="mb-4 flex flex-wrap border-b border-slate-100 md:mb-6">
               <button
                 onClick={() => setActiveTab('ledger')}
-                className={`px-3 py-2 text-xs font-semibold transition-colors md:px-4 md:py-3 md:text-sm ${
-                  activeTab === 'ledger'
+                className={`px-3 py-2 text-xs font-semibold transition-colors md:px-4 md:py-3 md:text-sm ${activeTab === 'ledger'
                     ? 'border-b-2 border-orange-500 text-orange-500'
                     : 'text-slate-500 hover:text-slate-700'
-                }`}
+                  }`}
               >
                 Trader Ledger
               </button>
               <button
                 onClick={() => setActiveTab('tradingledger')}
-                className={`px-3 py-2 text-xs font-semibold transition-colors md:px-4 md:py-3 md:text-sm ${
-                  activeTab === 'tradingledger'
+                className={`px-3 py-2 text-xs font-semibold transition-colors md:px-4 md:py-3 md:text-sm ${activeTab === 'tradingledger'
                     ? 'border-b-2 border-orange-500 text-orange-500'
                     : 'text-slate-500 hover:text-slate-700'
-                }`}
+                  }`}
               >
                 Trading Ledger ({tradingLedgerData.length})
               </button>
@@ -978,22 +974,20 @@ export const ClientDetail: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setWalletActionType('add')}
-                className={`rounded-lg py-2 text-sm font-semibold transition-all ${
-                  walletActionType === 'add'
+                className={`rounded-lg py-2 text-sm font-semibold transition-all ${walletActionType === 'add'
                     ? 'bg-white text-orange-500 shadow-sm'
                     : 'text-slate-600 hover:text-slate-800'
-                }`}
+                  }`}
               >
                 Deposit
               </button>
               <button
                 type="button"
                 onClick={() => setWalletActionType('withdraw')}
-                className={`rounded-lg py-2 text-sm font-semibold transition-all ${
-                  walletActionType === 'withdraw'
+                className={`rounded-lg py-2 text-sm font-semibold transition-all ${walletActionType === 'withdraw'
                     ? 'bg-white text-orange-500 shadow-sm'
                     : 'text-slate-600 hover:text-slate-800'
-                }`}
+                  }`}
               >
                 Withdraw
               </button>
@@ -1077,84 +1071,84 @@ export const ClientDetail: React.FC = () => {
 
             <form onSubmit={handleMarginSubmit} className="space-y-4">
 
-  {/* Intraday Margin */}
-  <div>
-    <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
-      Intraday Margin
-    </label>
+              {/* Intraday Margin */}
+              <div>
+                <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
+                  Intraday Margin
+                </label>
 
-    <div className="relative">
-      <input
-        type="text"
-        required
-        placeholder="Enter Intraday Margin"
-        value={intradayMargin ? `${intradayMargin}X` : ""}
-        onChange={handleIntradayChange}
-        className="w-full rounded-xl border border-slate-200 px-4 py-2.5 pr-12 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-      />
+                <div className="relative">
+                  <input
+                    type="text"
+                    required
+                    placeholder="Enter Intraday Margin"
+                    value={intradayMargin ? `${intradayMargin}X` : ""}
+                    onChange={handleIntradayChange}
+                    className="w-full rounded-xl border border-slate-200 px-4 py-2.5 pr-12 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                  />
 
-      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-400">
-        X
-      </span>
-    </div>
-  </div>
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-400">
+                    X
+                  </span>
+                </div>
+              </div>
 
-  {intradayValue > 0 && (
-    <div className="rounded-xl border border-orange-200 bg-orange-50 px-4 py-3">
-      <p className="text-sm font-medium text-orange-700">
-        💡 You can buy trades upto{" "}
-        <strong>
-          ₹{maxIntradayTrade.toLocaleString("en-IN")}
-        </strong>
-      </p>
+              {intradayValue > 0 && (
+                <div className="rounded-xl border border-orange-200 bg-orange-50 px-4 py-3">
+                  <p className="text-sm font-medium text-orange-700">
+                    💡 You can buy trades upto{" "}
+                    <strong>
+                      ₹{maxIntradayTrade.toLocaleString("en-IN")}
+                    </strong>
+                  </p>
 
-      <p className="mt-1 text-xs text-orange-500">
-        Wallet: ₹{walletBalance.toLocaleString("en-IN")} × {intradayValue}X =
-        ₹{maxIntradayTrade.toLocaleString("en-IN")}
-      </p>
-    </div>
-  )}
+                  <p className="mt-1 text-xs text-orange-500">
+                    Wallet: ₹{walletBalance.toLocaleString("en-IN")} × {intradayValue}X =
+                    ₹{maxIntradayTrade.toLocaleString("en-IN")}
+                  </p>
+                </div>
+              )}
 
-  {/* Holding Margin */}
-  <div>
-    <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
-      Holding Margin
-    </label>
+              {/* Holding Margin */}
+              <div>
+                <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
+                  Holding Margin
+                </label>
 
-    <div className="relative">
-      <input
-        type="text"
-        required
-        placeholder="Enter Holding Margin"
-        value={holdingMargin ? `${holdingMargin}X` : ""}
-        onChange={handleHoldingChange}
-        className="w-full rounded-xl border border-slate-200 px-4 py-2.5 pr-12 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-      />
+                <div className="relative">
+                  <input
+                    type="text"
+                    required
+                    placeholder="Enter Holding Margin"
+                    value={holdingMargin ? `${holdingMargin}X` : ""}
+                    onChange={handleHoldingChange}
+                    className="w-full rounded-xl border border-slate-200 px-4 py-2.5 pr-12 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                  />
 
-      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-400">
-        X
-      </span>
-    </div>
-  </div>
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-400">
+                    X
+                  </span>
+                </div>
+              </div>
 
-  {holdingValue > 0 && (
-    <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
-      <p className="text-sm font-medium text-blue-700">
-        💰 You can hold trades upto{" "}
-        <strong>
-          ₹{maxHoldingTrade.toLocaleString("en-IN")}
-        </strong>
-      </p>
+              {holdingValue > 0 && (
+                <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
+                  <p className="text-sm font-medium text-blue-700">
+                    💰 You can hold trades upto{" "}
+                    <strong>
+                      ₹{maxHoldingTrade.toLocaleString("en-IN")}
+                    </strong>
+                  </p>
 
-      <p className="mt-1 text-xs text-blue-500">
-        Wallet: ₹{walletBalance.toLocaleString("en-IN")} × {holdingValue}X =
-        ₹{maxHoldingTrade.toLocaleString("en-IN")}
-      </p>
-    </div>
-  )}
+                  <p className="mt-1 text-xs text-blue-500">
+                    Wallet: ₹{walletBalance.toLocaleString("en-IN")} × {holdingValue}X =
+                    ₹{maxHoldingTrade.toLocaleString("en-IN")}
+                  </p>
+                </div>
+              )}
 
 
-         
+
               {/* Security PIN */}
               <div>
                 <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">

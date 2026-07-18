@@ -186,7 +186,7 @@ const DisplaySuperBroker = ({ refreshTrigger }) => {
       header: 'Commission',
       accessor: 'brokeragePercent',
       render: (row) => (
-        <span className="rounded border border-orange-100 bg-orange-50 px-2 py-1 text-xs font-bold text-orange-600">
+        <span className="rounded  px-2 py-1 text-xs font-bold text-gray900">
           {row.brokeragePercent ? `${row.brokeragePercent}%` : '0%'}
         </span>
       ),
