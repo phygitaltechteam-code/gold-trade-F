@@ -174,7 +174,6 @@ export const getMasterbrokerLedgerbyId = async (id: string) => {
 export const getMasterbrokertraderbyId= async (id: string) => {
   const response = await api.get(`/company/master-broker/customers/${id}`);
   return response.data.data;
-  console.log("response",response.data.data)
 };
 export const useGetMasterbrokerLedgerById = (id: string) =>
   useQuery({
