@@ -65,6 +65,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
   const { data: profileData, refetch } = useGetAllMasterBrockerById(id);
   const { data: ledgerData = [] } = useGetMasterbrokerLedgerById(id);
   const { data: tradersData = [] } = useGetMasterbrokertraderdById(id);
+  // console.log('tradersData', tradersData);
   const { mutate: updateMasterBrokerProfile, isPending: isUpdating } =
     useUpdateMasterBrokerProfile();
   const { mutate: addCommission, isPending: isCommissionPending } =
@@ -584,24 +585,6 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
             >
               Ledger
             </button>
-            {/* <button
-              onClick={() => setActiveTab('payment')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'payment'
-                ? 'border-b-2 border-orange-500 text-orange-500'
-                : 'text-bodydark2'
-                }`}
-            >
-              Payment History */}
-            {/* </button>
-            <button
-              onClick={() => setActiveTab('commission')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'commission'
-                ? 'border-b-2 border-orange-500 text-orange-500'
-                : 'text-bodydark2'
-                }`}
-            >
-              Commission History ({profileData?.commissionHistories?.length || 0})
-            </button> */}
             <button
               onClick={() => setActiveTab('customers')}
               className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'customers'
@@ -609,7 +592,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
                 : 'text-bodydark2'
                 }`}
             >
-              Traders ({profileData?.customers?.length || 0})
+              Traders ({tradersData.length || 0})
             </button>
           </div>
         </div>
@@ -628,29 +611,6 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
             />
           )}
 
-          {activeTab === 'payment' && (
-            <PaymentTab
-              paymentStartDate={paymentStartDate}
-              setPaymentStartDate={setPaymentStartDate}
-              paymentEndDate={paymentEndDate}
-              setPaymentEndDate={setPaymentEndDate}
-              filteredPaymentData={filteredPaymentData}
-              paymentColumns={paymentColumns}
-              getCurrentWeekRange={getCurrentWeekRange}
-            />
-          )}
-
-          {activeTab === 'commission' && (
-            <CommissionTab
-              commissionStartDate={commissionStartDate}
-              setCommissionStartDate={setCommissionStartDate}
-              commissionEndDate={commissionEndDate}
-              setCommissionEndDate={setCommissionEndDate}
-              filteredCommissionHistory={filteredCommissionHistory}
-              commissionColumns={commissionColumns}
-            />
-          )}
-
           {activeTab === 'customers' && (
             <div className="overflow-x-auto">
               <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
@@ -658,13 +618,13 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
                   Traders List
                 </h3>
                 <span className="text-sm text-gray-500">
-                  Total: {customersList.length} customers
+                  Total: {tradersData.length} customers
                 </span>
               </div>
               <GenericTable
-                data={customersList}
+                data={tradersData}
                 columns={customerColumns}
-                searchAble={true}
+                // searchAble={
                 searchFields={['user.fullname', 'CRN', 'user.phoneNumber']}
                 itemsPerPage={10}
               />
