@@ -21,6 +21,7 @@ const BrokerProfile = () => {
   const [paymentEndDate, setPaymentEndDate] = useState('');
   const [ledgerStartDate, setLedgerStartDate] = useState('');
   const [ledgerEndDate, setLedgerEndDate] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
 
   const {data: profileData, refetch} = useGetAllBrockerById(id);
   const{data:cardData , refetch:cardRefetch} = useGetBrokerCardDataById(id);
@@ -287,14 +288,32 @@ const BrokerProfile = () => {
 
   // Filter ledger data by date range
   const filteredLedgerData = useMemo(() => {
-    if (!ledgerStartDate || !ledgerEndDate) return ledgerDataWithSr;
-    return ledgerDataWithSr.filter((item: any) => {
-      const itemDate = new Date(item.dateTime);
-      const startDate = new Date(ledgerStartDate);
-      const endDate = new Date(ledgerEndDate);
-      return itemDate >= startDate && itemDate <= endDate;
-    });
-  }, [ledgerDataWithSr, ledgerStartDate, ledgerEndDate]);
+    let result = ledgerDataWithSr;
+
+    if (statusFilter) {
+      result = result.filter((item: any) => {
+        const itemStatus = item.status?.toUpperCase() || '';
+        const filterVal = statusFilter.toUpperCase();
+        if (filterVal === 'CLOSE' || filterVal === 'CLOSED') {
+          return itemStatus === 'CLOSE' || itemStatus === 'CLOSED';
+        }
+        return itemStatus === filterVal;
+      });
+    }
+
+    if (ledgerStartDate && ledgerEndDate) {
+      result = result.filter((item: any) => {
+        const itemDate = new Date(item.dateTime);
+        const startDate = new Date(ledgerStartDate);
+        const endDate = new Date(ledgerEndDate);
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setHours(23, 59, 59, 999);
+        return itemDate >= startDate && itemDate <= endDate;
+      });
+    }
+
+    return result;
+  }, [ledgerDataWithSr, ledgerStartDate, ledgerEndDate, statusFilter]);
 
   // Filter payment data by date range
   const filteredPaymentData = useMemo(() => {
@@ -592,6 +611,17 @@ const BrokerProfile = () => {
                   Ledger Records
                 </h3>
                 <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="rounded border border-stroke bg-transparent px-2 py-1 text-xs outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-3 md:py-1 md:text-sm"
+                    >
+                      <option value="">All Statuses</option>
+                      <option value="OPEN">Open</option>
+                      <option value="CLOSED">Closed</option>
+                    </select>
+                  </div>
                   <div className="flex items-center gap-2">
                     <label className="text-xs font-medium text-black dark:text-white md:text-sm">
                       From:

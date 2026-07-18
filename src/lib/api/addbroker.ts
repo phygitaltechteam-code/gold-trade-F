@@ -1,7 +1,7 @@
 // lib/api/addbroker.ts
-import {api} from '@/utils/axios';
-import {useQuery, useQueryClient} from '@tanstack/react-query';
-import {useMutation} from '@tanstack/react-query';
+import { api } from '@/utils/axios';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 
 export const useAddBroker = () => {
@@ -11,7 +11,7 @@ export const useAddBroker = () => {
     mutationFn: addBroker,
     onSuccess: () => {
       toast.success('Broker Registered Successfully!');
-      queryClient.invalidateQueries({queryKey: ['get-broker']});
+      queryClient.invalidateQueries({ queryKey: ['get-broker'] });
     },
     onError: (error: any) => {
       console.log('errors', error);
@@ -28,7 +28,7 @@ export const useAddBroker = () => {
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({queryKey: ['broker']});
+      queryClient.invalidateQueries({ queryKey: ['broker'] });
     },
   });
 };
@@ -40,7 +40,7 @@ export const useDeleteBroker = () => {
     mutationFn: deleteBroker,
     onSuccess: () => {
       toast.success('Broker Deleted Successfully!');
-      queryClient.invalidateQueries({queryKey: ['get-broker']});
+      queryClient.invalidateQueries({ queryKey: ['get-broker'] });
     },
     onError: (error: any) => {
       console.error('Delete error:', error);
@@ -55,10 +55,10 @@ export const useGetBrokerData = () =>
   useQuery({
     queryKey: ['alll-brockersss'],
     queryFn: () => getBrokerData(),
-  
+
   });
 
-  
+
 export const useGetScriptsData = () =>
   useQuery({
     queryKey: ['scripts'],
@@ -75,11 +75,11 @@ export const useUpdateScriptStatus = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data:{assets: {assetId: string | number; IsOn: boolean}}) => 
+    mutationFn: (data: { assets: { assetId: string | number; IsOn: boolean } }) =>
       updateScriptStatus(data),
     onSuccess: () => {
       toast.success('Script status updated successfully!');
-      queryClient.invalidateQueries({queryKey: ['scripts']});
+      queryClient.invalidateQueries({ queryKey: ['scripts'] });
     },
     onError: (error: any) => {
       console.error('Update status error:', error);
@@ -136,9 +136,9 @@ const getScriptsData = async () => {
 };
 
 // Option 1: If API expects both assetId and IsOn in the body
-const updateScriptStatus = async (data:{assets: {assetId: string | number; IsOn: boolean}}) => {
+const updateScriptStatus = async (data: { assets: { assetId: string | number; IsOn: boolean } }) => {
   try {
-    const response = await api.patch(`/company/profile/assets`,data);
+    const response = await api.patch(`/company/profile/assets`, data);
     console.log('API response for scripts:', response);
     return response.data;
   } catch (error) {
@@ -176,7 +176,7 @@ export const approveBroker = async ({
   }
 };
 
-export const updateBroker = async ({id, data}: {id: string; data: any}) => {
+export const updateBroker = async ({ id, data }: { id: string; data: any }) => {
   try {
     const response = await api.put(`/company/broker/${id}`, data);
     return response.data;
@@ -193,7 +193,7 @@ export const useApproveBroker = () => {
     mutationFn: approveBroker,
     onSuccess: () => {
       // toast.success('Broker Approved Successfully!');
-      queryClient.invalidateQueries({queryKey: ['get-broker']});
+      queryClient.invalidateQueries({ queryKey: ['get-broker'] });
     },
     onError: (error: any) => {
       const backendMessage =
@@ -209,7 +209,7 @@ export const useUpdateBroker = () => {
     mutationFn: updateBroker,
     onSuccess: () => {
       toast.success('Broker Updated Successfully!');
-      queryClient.invalidateQueries({queryKey: ['get-broker']});
+      queryClient.invalidateQueries({ queryKey: ['get-broker'] });
     },
     onError: (error: any) => {
       const backendMessage =
@@ -224,7 +224,7 @@ export const useGetAllAdminBrockerById = (id: string) =>
     queryKey: ['brocker', id],
     queryFn: () => getAllAdminBrockerById(id),
   });
-  export const useGetAllBrokerTraders = (id: string) =>
+export const useGetAllBrokerTraders = (id: string) =>
   useQuery({
     queryKey: ['Traders', id],
     queryFn: () => getBrokerTraders(id),
@@ -241,7 +241,7 @@ export const getAllAdminBrockerById = async (id: string) => {
 };
 
 export const getBrokerTraders = (id: string) => {
-  try{
+  try {
     const response = api.get(`/company/broker/customers/${id}`);
     return response;
   } catch (error) {
@@ -254,14 +254,14 @@ export const useUpdateAdminBrokerProfile = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({id, data}: {id: string; data: any}) =>
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
       api.put(`/company/broker/${id}`, data),
 
     onSuccess: () => {
       toast.success('Broker profile updated successfully!');
-      queryClient.invalidateQueries({queryKey: ['brocker']});
-      queryClient.invalidateQueries({queryKey: ['get-broker']});
-      queryClient.invalidateQueries({queryKey: ['get-broker-data']});
+      queryClient.invalidateQueries({ queryKey: ['brocker'] });
+      queryClient.invalidateQueries({ queryKey: ['get-broker'] });
+      queryClient.invalidateQueries({ queryKey: ['get-broker-data'] });
     },
     onError: (error: any) => {
       const errorMessage =
@@ -275,14 +275,14 @@ export const useAddAdminBrokerCommission = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({id, data}: {id: string; data: any}) =>
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
       api.put(`/company/broker/${id}/pay`, data),
 
     onSuccess: () => {
       toast.success('Commission added successfully!');
-      queryClient.invalidateQueries({queryKey: ['brocker']});
-      queryClient.invalidateQueries({queryKey: ['get-broker']});
-      queryClient.invalidateQueries({queryKey: ['get-broker-data']});
+      queryClient.invalidateQueries({ queryKey: ['brocker'] });
+      queryClient.invalidateQueries({ queryKey: ['get-broker'] });
+      queryClient.invalidateQueries({ queryKey: ['get-broker-data'] });
     },
     onError: (error: any) => {
       const errorMessage =
@@ -311,7 +311,7 @@ export const useUpdateBrokerStatus = () => {
     },
     onSuccess: () => {
       toast.success('Broker Status Updated Successfully!');
-      queryClient.invalidateQueries({queryKey: ['get-broker']});
+      queryClient.invalidateQueries({ queryKey: ['get-broker'] });
     },
     onError: (error: any) => {
       const backendMessage =

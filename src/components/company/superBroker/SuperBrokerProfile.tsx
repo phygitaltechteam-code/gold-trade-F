@@ -46,6 +46,7 @@ const SuperBrokerProfile = () => {
   const [ledgerEndDate, setLedgerEndDate] = useState('');
   const [commissionStartDate, setCommissionStartDate] = useState('');
   const [commissionEndDate, setCommissionEndDate] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
 
   // Password visibility state
   const [showPassword, setShowPassword] = useState(false);
@@ -304,8 +305,8 @@ const SuperBrokerProfile = () => {
       accessor: 'status',
       render: (item: any) => (
         <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${item.status === 'Paid' ? 'bg-green-100 text-green-700' :
-            item.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
-              'bg-gray-100 text-gray-700'
+          item.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
+            'bg-gray-100 text-gray-700'
           }`}>
           {item.status}
         </span>
@@ -396,7 +397,7 @@ const SuperBrokerProfile = () => {
     {
       header: 'Total Business',
       accessor: 'totalBusiness',
-      render: (item:any) => <span className="text-gray-700">-</span>,
+      render: (item: any) => <span className="text-gray-700">-</span>,
     },
     {
       header: 'Total Commission',
@@ -524,16 +525,34 @@ const SuperBrokerProfile = () => {
   };
 
   const filteredLedgerData = useMemo(() => {
-    if (!ledgerStartDate || !ledgerEndDate) return ledgerDataWithSr;
-    return ledgerDataWithSr.filter((item: any) => {
-      const itemDate = new Date(item.rawDateTime);
-      const startDate = new Date(ledgerStartDate);
-      const endDate = new Date(ledgerEndDate);
-      startDate.setHours(0, 0, 0, 0);
-      endDate.setHours(23, 59, 59, 999);
-      return itemDate >= startDate && itemDate <= endDate;
-    });
-  }, [ledgerDataWithSr, ledgerStartDate, ledgerEndDate]);
+    let result = ledgerDataWithSr;
+
+    if (statusFilter) {
+      result = result.filter((item: any) => {
+        const itemStatus = item.status?.toLowerCase() || '';
+        const filterVal = statusFilter.toLowerCase();
+        if (filterVal === 'close' || filterVal === 'closed') {
+          return itemStatus === 'close' || itemStatus === 'closed';
+        }
+        return itemStatus === filterVal;
+      });
+    }
+
+    if (ledgerStartDate && ledgerEndDate) {
+      result = result.filter((item: any) => {
+        const itemDate = new Date(item.rawDateTime);
+        const startDate = new Date(ledgerStartDate);
+        const endDate = new Date(ledgerEndDate);
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setHours(23, 59, 59, 999);
+        return itemDate >= startDate && itemDate <= endDate;
+      });
+    }
+
+    return result;
+  }, [ledgerDataWithSr, ledgerStartDate, ledgerEndDate, statusFilter]);
+
+  ;
 
   const filteredPaymentData = useMemo(() => {
     if (!paymentStartDate || !paymentEndDate) return paymentDataWithSr;
@@ -959,7 +978,7 @@ const SuperBrokerProfile = () => {
         </div>
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-green-500 md:text-2xl">
-            ₹{formatIndianNumber(profileData?.totalCommission)}  
+            ₹{formatIndianNumber(profileData?.totalCommission)}
           </h4>
           <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
             Total Commission
@@ -975,7 +994,7 @@ const SuperBrokerProfile = () => {
         </div>
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-orange-500 md:text-2xl">
-            ₹{formatIndianNumber(paymentDataFromApi?.summary?.pendingCommission)} 
+            ₹{formatIndianNumber(paymentDataFromApi?.summary?.pendingCommission)}
           </h4>
           <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
             Pending Commission
@@ -1074,6 +1093,21 @@ const SuperBrokerProfile = () => {
                       className="rounded border border-stroke bg-transparent px-2 py-1 text-xs outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-3 md:py-1 md:text-sm"
                     />
                   </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-sm font-medium text-black dark:text-white">
+                      Status:
+                    </label>
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="rounded border border-stroke bg-transparent px-3 py-1.5 text-sm outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                    >
+                      <option value="">All</option>
+                      <option value="open">Open</option>
+                      <option value="closed">Closed</option>
+                    </select>
+                  </div>
+                  
                   {/* <button
                     onClick={() => setIsLedgerExpanded(!isLedgerExpanded)}
                     className="rounded bg-orange-500 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-orange-600 md:px-4 md:py-2 md:text-sm"
@@ -1082,6 +1116,7 @@ const SuperBrokerProfile = () => {
                   </button> */}
                 </div>
               </div>
+
               {isLoadingLedger ? (
                 <div className="flex justify-center py-8">
                   <div className="h-8 w-8 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>

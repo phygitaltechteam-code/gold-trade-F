@@ -162,6 +162,7 @@ import { RefreshCcw } from 'lucide-react';
 const SuperBrokerTransactionLedger = () => {
   const [ledgerStartDate, setLedgerStartDate] = useState('');
   const [ledgerEndDate, setLedgerEndDate] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   const { data: transactionLedgerResponse, isLoading, error, refetch } = useGetSuperBrokerTransactionLedger();
   console.log('Raw API Response:', transactionLedgerResponse);
 
@@ -236,13 +237,27 @@ const SuperBrokerTransactionLedger = () => {
   // Filter data by date range
   const filterDataByDate = (data) => {
     if (!Array.isArray(data)) return [];
-    if (!ledgerStartDate && !ledgerEndDate) return data;
+    if (!ledgerStartDate && !ledgerEndDate && !statusFilter) return data;
 
     return data.filter((item) => {
-      const itemDate = item.dateTime?.split('T')[0];
-      if (!itemDate) return true;
-      if (ledgerStartDate && itemDate < ledgerStartDate) return false;
-      if (ledgerEndDate && itemDate > ledgerEndDate) return false;
+      // Status Filter
+      if (statusFilter) {
+        const itemStatus = item.status?.toUpperCase() || '';
+        const filterVal = statusFilter.toUpperCase();
+        if (filterVal === 'CLOSE' || filterVal === 'CLOSED') {
+          if (itemStatus !== 'CLOSE' && itemStatus !== 'CLOSED') return false;
+        } else if (itemStatus !== filterVal) {
+          return false;
+        }
+      }
+
+      // Date Filter
+      const itemDate = item.dateTime?.split('T')[0] || item.dateTime?.split(' ')[0];
+      if (itemDate) {
+        if (ledgerStartDate && itemDate < ledgerStartDate) return false;
+        if (ledgerEndDate && itemDate > ledgerEndDate) return false;
+      }
+
       return true;
     });
   };
@@ -293,6 +308,17 @@ const SuperBrokerTransactionLedger = () => {
           <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="rounded border border-stroke bg-transparent px-3 py-1 text-sm outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                >
+                  <option value="">All Statuses</option>
+                  <option value="OPEN">Open</option>
+                  <option value="CLOSED">Closed</option>
+                </select>
+              </div>
+              <div className="flex items-center gap-2">
                 <label className="text-sm font-medium text-black dark:text-white">
                   From:
                 </label>
@@ -314,11 +340,12 @@ const SuperBrokerTransactionLedger = () => {
                   className="rounded border border-stroke bg-transparent px-3 py-1 text-sm outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                 />
               </div>
-              {(ledgerStartDate || ledgerEndDate) && (
+              {(ledgerStartDate || ledgerEndDate || statusFilter) && (
                 <button
                   onClick={() => {
                     setLedgerStartDate('');
                     setLedgerEndDate('');
+                    setStatusFilter('');
                   }}
                   className="rounded bg-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-300 dark:bg-meta-4 dark:text-white dark:hover:bg-meta-3"
                 >

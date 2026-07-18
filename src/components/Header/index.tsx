@@ -14,8 +14,8 @@ const Header = (props: {
   // const {data} = useNotification(user?.roleId!);
   // console.log(data)
   return (
-    <header className="sticky top-0 z-999 flex h-16 w-full bg-white drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none md:h-18 lg:h-20">
-      <div className="flex w-full items-center justify-between px-4 py-2 shadow-2 md:px-6 2xl:px-11">
+    <header className="lg:hidden sticky top-0 z-999 flex h-16 w-full bg-white drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none md:h-18">
+      <div className="flex w-full items-center justify-between px-4 py-2 shadow-2 md:px-6">
         <div className="flex items-center gap-2 sm:gap-4 lg:hidden">
           {/* <!-- Hamburger Toggle BTN --> */}
 
