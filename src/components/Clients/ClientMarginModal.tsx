@@ -14,6 +14,7 @@ interface ClientMarginModalProps {
   setShowMarginPin: (val: boolean) => void;
   handleMarginSubmit: (e: React.FormEvent) => void;
   isPending: boolean;
+  walletBalance?: number;
 }
 
 export const ClientMarginModal: React.FC<ClientMarginModalProps> = ({
@@ -29,8 +30,26 @@ export const ClientMarginModal: React.FC<ClientMarginModalProps> = ({
   setShowMarginPin,
   handleMarginSubmit,
   isPending,
+  walletBalance = 100000,
 }) => {
   if (!isOpen) return null;
+
+  // Calculate values
+  const intradayValue = parseFloat(intradayMargin) || 0;
+  const holdingValue = parseFloat(holdingMargin) || 0;
+  const maxIntradayTrade = walletBalance * intradayValue;
+  const maxHoldingTrade = walletBalance * holdingValue;
+
+  // Handle input change with X suffix
+  const handleIntradayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace('X', '').trim();
+    setIntradayMargin(value);
+  };
+
+  const handleHoldingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace('X', '').trim();
+    setHoldingMargin(value);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm">
@@ -40,38 +59,71 @@ export const ClientMarginModal: React.FC<ClientMarginModalProps> = ({
         </h3>
 
         <form onSubmit={handleMarginSubmit} className="space-y-4">
+          {/* Intraday Margin */}
           <div>
             <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
               Intraday Margin
             </label>
-            <input
-              type="number"
-              required
-              step="0.01"
-              min="0"
-              placeholder="Enter Intraday Margin"
-              value={intradayMargin}
-              onChange={(e) => setIntradayMargin(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-            />
+            <div className="relative">
+              <input
+                type="text"
+                required
+                placeholder="Enter Intraday Margin"
+                value={intradayMargin ? `${intradayMargin}X` : ''}
+                onChange={handleIntradayChange}
+                className="w-full rounded-xl border border-slate-200 px-4 py-2.5 pr-12 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+              />
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-400">
+                X
+              </span>
+            </div>
           </div>
 
+          {/* Intraday Dynamic Message */}
+          {intradayValue > 0 && (
+            <div className="mt-2 rounded-xl bg-orange-50 px-4 py-3 border border-orange-200">
+              <p className="text-sm text-orange-700">
+                💡 You can buy trades upto <strong>₹{maxIntradayTrade.toLocaleString('en-IN')}</strong>
+              </p>
+              <p className="text-xs text-orange-500 mt-1">
+                Wallet: ₹{walletBalance.toLocaleString('en-IN')} × {intradayValue}X = ₹{maxIntradayTrade.toLocaleString('en-IN')}
+              </p>
+            </div>
+          )}
+
+          {/* Holding Margin */}
           <div>
             <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
               Holding Margin
             </label>
-            <input
-              type="number"
-              required
-              step="0.01"
-              min="0"
-              placeholder="Enter Holding Margin"
-              value={holdingMargin}
-              onChange={(e) => setHoldingMargin(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-            />
+            <div className="relative">
+              <input
+                type="text"
+                required
+                placeholder="Enter Holding Margin"
+                value={holdingMargin ? `${holdingMargin}X` : ''}
+                onChange={handleHoldingChange}
+                className="w-full rounded-xl border border-slate-200 px-4 py-2.5 pr-12 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+              />
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-400">
+                X
+              </span>
+            </div>
           </div>
 
+          {/* Holding Dynamic Message */}
+          {holdingValue > 0 && (
+            <div className="mt-2 rounded-xl bg-blue-50 px-4 py-3 border border-blue-200">
+              <p className="text-sm text-blue-700">
+                💰 You can hold trades upto <strong>₹{maxHoldingTrade.toLocaleString('en-IN')}</strong>
+              </p>
+              <p className="text-xs text-blue-500 mt-1">
+                Wallet: ₹{walletBalance.toLocaleString('en-IN')} × {holdingValue}X = ₹{maxHoldingTrade.toLocaleString('en-IN')}
+              </p>
+            </div>
+          )}
+
+          {/* Security PIN */}
           <div>
             <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
               Security PIN
@@ -88,13 +140,14 @@ export const ClientMarginModal: React.FC<ClientMarginModalProps> = ({
               <button
                 type="button"
                 onClick={() => setShowMarginPin(!showMarginPin)}
-                className="text-gray-500 hover:text-gray-700 absolute right-3 top-1/2 -translate-y-1/2"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
               >
                 {showMarginPin ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
           </div>
 
+          {/* Buttons */}
           <div className="flex gap-3 pt-4">
             <button
               type="button"
