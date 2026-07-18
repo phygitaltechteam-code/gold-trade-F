@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useMemo} from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   FiEdit2,
   FiSave,
@@ -8,9 +8,9 @@ import {
   FiPrinter,
 } from 'react-icons/fi';
 import GenericTable from '@/components/Forms/Table/GenericTable';
-import {useNavigate} from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import toast from 'react-hot-toast';
-import {Eye, EyeOff} from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import {
   useAddAdminBrokerCommission,
   useGetAllAdminBrockerById,
@@ -19,8 +19,8 @@ import {
   useGetBrokerPaymentHistory,
   useGetAllBrokerTraders,
 } from '@/lib/api/addbroker';
-import {Route} from '@/routes/_app/companybroker/BrokerProfile.$id';
-import {Client} from '../Clients/types';
+import { Route } from '@/routes/_app/companybroker/BrokerProfile.$id';
+import { Client } from '../Clients/types';
 
 // Format date function
 const formatDateTime = (dateString: string) => {
@@ -43,7 +43,7 @@ const formatDateTime = (dateString: string) => {
 };
 
 const BrokerProfile = () => {
-  const {id} = Route.useParams();
+  const { id } = Route.useParams();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('ledger');
@@ -65,17 +65,16 @@ const BrokerProfile = () => {
     'credit',
   );
 
-  const {data: profileData, refetch} = useGetAllAdminBrockerById(id);
-  const {data: traderdata, refetch: traderRefetch} = useGetAllBrokerTraders(id);
-  const {mutate: updateBrokerProfile, isPending: isUpdating} =
+  const { data: profileData, refetch } = useGetAllAdminBrockerById(id);
+  const { data: traderdata, refetch: traderRefetch } = useGetAllBrokerTraders(id);
+  const { mutate: updateBrokerProfile, isPending: isUpdating } =
     useUpdateAdminBrokerProfile();
-  const {mutate: addBrokerCommission, isPending: isCommissionPending} =
+  const { mutate: addBrokerCommission, isPending: isCommissionPending } =
     useAddAdminBrokerCommission();
 
   const [editData, setEditData] = useState({
     fullname: '',
     phoneNumber: '',
-
     aadharCardNumber: '',
     commission: '',
     area: '',
@@ -90,7 +89,6 @@ const BrokerProfile = () => {
       setEditData({
         fullname: profileData?.fullname || '',
         phoneNumber: profileData?.phoneNumber || '',
-        
         aadharCardNumber: profileData?.aadharCardNumber || '',
         commission: profileData?.brokeragePercent?.toString() || '',
         area: profileData?.area || '',
@@ -121,7 +119,7 @@ const BrokerProfile = () => {
 
   // Initialize dates with current week range
   useEffect(() => {
-    const {startDate, endDate} = getCurrentWeekRange();
+    const { startDate, endDate } = getCurrentWeekRange();
     setLedgerStartDate(startDate);
     setLedgerEndDate(endDate);
     setPaymentStartDate(startDate);
@@ -136,9 +134,9 @@ const BrokerProfile = () => {
   } = useGetBrokerLedger(id);
 
   // Get broker payment history from API
-  const {data: paymentDataFromApi, isLoading: isLoadingPayment} =
+  const { data: paymentDataFromApi, isLoading: isLoadingPayment } =
     useGetBrokerPaymentHistory(id);
-  // Transform API data to match your table format
+
   // Transform API data to match your table format
   const ledgerData = useMemo(() => {
     if (!ledgerDataFromApi || !Array.isArray(ledgerDataFromApi)) {
@@ -192,14 +190,12 @@ const BrokerProfile = () => {
   }, [ledgerDataFromApi]);
 
   // Transform API data for payment history
-  // Transform API data for payment history
   const paymentData = useMemo(() => {
     if (!paymentDataFromApi || !Array.isArray(paymentDataFromApi.data)) {
       return [];
     }
 
     return paymentDataFromApi.data.map((item: any) => ({
-      // Store the original date for filtering
       rawDate: item.date || item.createdAt || item.paymentDate || item.paidDate,
       date: formatDateTime(
         item.date || item.createdAt || item.paymentDate || item.paidDate,
@@ -279,12 +275,12 @@ const BrokerProfile = () => {
   }, [paymentData]);
 
   const handleBack = () => {
-    navigate({to: '/companybroker/displaybroker'});
+    navigate({ to: '/companybroker/displaybroker' });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const {name, value} = e.target;
-    setEditData((prev) => ({...prev, [name]: value}));
+    const { name, value } = e.target;
+    setEditData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSave = () => {
@@ -306,7 +302,6 @@ const BrokerProfile = () => {
     if (editData.phoneNumber !== profileData?.phoneNumber) {
       updatePayload.phoneNumber = editData.phoneNumber;
     }
-   
     if (editData.aadharCardNumber !== profileData?.aadharCardNumber) {
       updatePayload.aadharCardNumber = editData.aadharCardNumber;
     }
@@ -333,7 +328,6 @@ const BrokerProfile = () => {
       },
       {
         onSuccess: () => {
-          // toast.success('Profile updated successfully!');
           setIsEditing(false);
           setShowPassword(false);
           refetch();
@@ -353,7 +347,6 @@ const BrokerProfile = () => {
       setEditData({
         fullname: profileData?.fullname || '',
         phoneNumber: profileData?.phoneNumber || '',
-       
         aadharCardNumber: profileData?.aadharCardNumber || '',
         commission: profileData?.brokeragePercent?.toString() || '',
         area: profileData?.area || '',
@@ -367,11 +360,6 @@ const BrokerProfile = () => {
   // Handle Commission Submit
   const handleCommissionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // if (!commissionAmount || parseFloat(commissionAmount) <= 0) {
-    //   toast.error('Please enter a valid commission amount');
-    //   return;
-    // }
 
     if (!commissionPin) {
       toast.error('Please enter security PIN');
@@ -422,7 +410,6 @@ const BrokerProfile = () => {
 
   // ========== PRINT ONLY ACTIVE TAB TABLE ==========
   const handlePrintTables = () => {
-    // Get the active table data based on current tab
     let tableData: any[] = [];
     let tableColumns: any[] = [];
     let tableTitle = '';
@@ -464,19 +451,16 @@ const BrokerProfile = () => {
         return;
     }
 
-    // Check if there's data to print
     if (tableData.length === 0) {
       toast.error(`No ${tableTitle} data available to print`);
       return;
     }
 
-    // Create print container
     const printContainer = document.createElement('div');
     printContainer.id = 'print-tables';
     printContainer.style.cssText =
       'padding: 20px; font-family: Arial, sans-serif; background: white;';
 
-    // Helper to get value from item
     const getValue = (item: any, accessor: string) => {
       if (accessor === 'srNo') return item.srNo || '-';
       if (accessor === 'sr') return item.sr || '-';
@@ -518,7 +502,6 @@ const BrokerProfile = () => {
       return item[accessor] || '-';
     };
 
-    // Generate table HTML
     const generateTable = (
       title: string,
       data: any[],
@@ -538,7 +521,6 @@ const BrokerProfile = () => {
             <tr>
     `;
 
-      // Render headers
       columns.forEach((col: any) => {
         html += `<th style="border: 1px solid #000; padding: 6px 8px; text-align: left; font-weight: bold; background: #f0f0f0; color: #1a4d2e; text-transform: uppercase; font-size: 10px;">${col.header}</th>`;
       });
@@ -561,10 +543,8 @@ const BrokerProfile = () => {
       return html;
     };
 
-    // Build print content - ONLY CURRENT TAB
     let html = '';
 
-    // Add CSS to hide everything except tables
     html += `
     <style>
       @media print {
@@ -583,7 +563,6 @@ const BrokerProfile = () => {
           padding: 20px !important;
           z-index: 99999 !important;
         }
-        /* Hide any stray elements */
         .no-print, button, nav, header, footer {
           display: none !important;
         }
@@ -595,7 +574,6 @@ const BrokerProfile = () => {
     </style>
   `;
 
-    // Add title with broker name if available
     if (profileData?.fullname) {
       html += `
       <div style="text-align: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #ddd;">
@@ -606,23 +584,18 @@ const BrokerProfile = () => {
     `;
     }
 
-    // Generate the table for the active tab only
     html += generateTable(tableTitle, tableData, tableColumns, dateRange);
 
     printContainer.innerHTML = html;
 
-    // Remove any existing print container
     const existingContainer = document.getElementById('print-tables');
     if (existingContainer) {
       existingContainer.remove();
     }
 
     document.body.appendChild(printContainer);
-
-    // Print
     window.print();
 
-    // Remove after printing
     setTimeout(() => {
       const el = document.getElementById('print-tables');
       if (el && el.parentNode) {
@@ -630,43 +603,36 @@ const BrokerProfile = () => {
       }
     }, 1000);
   };
-  // ========== END PRINT FUNCTION ==========
-  // ========== END PRINT FUNCTION ==========
 
-  // Base Ledger Columns
+  // Base Ledger Columns - Cleaned with proper styling
   const baseLedgerColumns = [
-    {header: 'Date & Time', accessor: 'dateTime'},
-    {header: 'Customer Name', accessor: 'customerName'},
-    {header: 'Script', accessor: 'script'},
-    {header: 'Qty/Lot', accessor: 'qty'},
-    {header: 'Buy Price', accessor: 'buyPrice'},
-    {header: 'Sell Price', accessor: 'sellPrice'},
-    {header: 'Status', accessor: 'status'},
-    {header: 'P&L', accessor: 'pnl'},
-    // ];
-
-    // // Expanded Ledger Columns
-    // const expandedLedgerColumns = [
-    {header: 'Date & Time', accessor: 'dateTime'},
-    {header: 'Customer Name', accessor: 'customerName'},
-    {header: 'Script', accessor: 'script'},
-    {header: 'Qty/Lot', accessor: 'qty'},
-    {header: 'Buy Price', accessor: 'buyPrice'},
-    {header: 'Sell Price', accessor: 'sellPrice'},
-    {header: 'Buy Time', accessor: 'buyTime'},
-    {header: 'Sell Time', accessor: 'sellTime'},
-    {header: 'Status', accessor: 'status'},
-    {header: 'P&L', accessor: 'pnl'},
-    {header: 'Broker commission', accessor: 'brokerCommission'},
+    { header: 'Date & Time', accessor: 'dateTime' },
+    { header: 'Customer Name', accessor: 'customerName' },
+    { header: 'Script', accessor: 'script' },
+    { header: 'Qty/Lot', accessor: 'qty' },
+    { header: 'Buy Price', accessor: 'buyPrice' },
+    { header: 'Sell Price', accessor: 'sellPrice' },
+    { header: 'Status', accessor: 'status' },
+    { header: 'P&L', accessor: 'pnl' },
+    { header: 'Broker Commission', accessor: 'brokerCommission' },
   ];
 
-  // const ledgerColumns = isLedgerExpanded
-  //   ? expandedLedgerColumns
-  //   : baseLedgerColumns;
+  const expandedLedgerColumns = [
+    { header: 'Date & Time', accessor: 'dateTime' },
+    { header: 'Customer Name', accessor: 'customerName' },
+    { header: 'Script', accessor: 'script' },
+    { header: 'Qty/Lot', accessor: 'qty' },
+    { header: 'Buy Price', accessor: 'buyPrice' },
+    { header: 'Sell Price', accessor: 'sellPrice' },
+    { header: 'Buy Time', accessor: 'buyTime' },
+    { header: 'Sell Time', accessor: 'sellTime' },
+    { header: 'Status', accessor: 'status' },
+    { header: 'P&L', accessor: 'pnl' },
+    { header: 'Broker Commission', accessor: 'brokerCommission' },
+  ];
 
-  // Column definitions for the Payment History table
+  // Payment Columns - Cleaned
   const paymentColumns = [
-    {header: 'S.No', accessor: 'sr'},
     {
       header: 'Date',
       accessor: 'date',
@@ -716,10 +682,10 @@ const BrokerProfile = () => {
     },
   ];
 
-  // Commission History Columns with clickable amount
+  // Commission History Columns
   const commissionColumns = [
-    {header: 'S.No', accessor: 'sr'},
-    {header: 'Date & Time', accessor: 'createdAt'},
+    { header: 'S.No', accessor: 'sr' },
+    { header: 'Date & Time', accessor: 'createdAt' },
     {
       header: 'Type',
       accessor: 'type',
@@ -727,10 +693,10 @@ const BrokerProfile = () => {
         <span
           className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
             item.type === 'TRANSFER'
-              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
+              ? 'bg-blue-100 text-blue-800'
               : item.type === 'CREDIT'
-                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
-                : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+                ? 'bg-green-100 text-green-800'
+                : 'bg-red-100 text-red-800'
           }`}
         >
           {item.type === 'TRANSFER'
@@ -752,272 +718,30 @@ const BrokerProfile = () => {
     },
   ];
 
-  // Customer Table Columns
-  // const customerColumns = [
-  //   {
-  //     header: 'Customer Name',
-  //     accessor: 'user.fullname',
-  //     render: (item: any) => (
-  //       <div className="font-semibold text-black">
-  //         {item?.user?.fullname || '-'}
-  //       </div>
-  //     ),
-  //   },
-  //   {
-  //     header: 'Phone Number',
-  //     accessor: 'user.phoneNumber',
-  //     render: (item: any) => (
-  //       <span className="text-gray-700">{item?.user?.phoneNumber || '-'}</span>
-  //     ),
-  //   },
-  //   {
-  //     header: 'CRN',
-  //     accessor: 'CRN',
-  //     render: (item: any) => (
-  //       <span className="font-mono text-gray-600 text-sm font-medium">
-  //         {item?.CRN || '-'}
-  //       </span>
-  //     ),
-  //   },
-  //   {
-  //     header: 'Commission',
-  //     accessor: 'brokeragePercent',
-  //     render: (item: any) => (
-  //       <span className="rounded border border-orange-100 bg-orange-50 px-2 py-1 text-xs font-bold text-orange-600">
-  //         {item?.brokeragePercent ? `${item.brokeragePercent}%` : '-'}
-  //       </span>
-  //     ),
-  //   },
-  //   {
-  //     header: 'Address',
-  //     accessor: 'address',
-  //     render: (item: any) => (
-  //       <span className="text-gray-700 text-sm">
-  //         {item?.address || item?.area || '-'}
-  //       </span>
-  //     ),
-  //   },
-  //   {
-  //     header: 'Total Business',
-  //     accessor: 'totalBusiness',
-  //     render: () => <span className="text-gray-700">-</span>,
-  //   },
-  //   {
-  //     header: 'Total Commission',
-  //     accessor: 'totalCommission',
-  //     render: () => <span className="text-gray-700">-</span>,
-  //   },
-  //   {
-  //     header: 'Pending Commission',
-  //     accessor: 'pendingCommission',
-  //     render: () => <span className="text-gray-700">-</span>,
-  //   },
-  // ];
-
-  //   const customerColumns = [
-  //     {
-  //       header: 'Trader Name',
-  //       accessor: 'tradername',
-  //       render: (row: Client) => (
-  //         <div className="flex items-center gap-3">
-  //           <div>
-  //             <div className="whitespace-nowrap text-sm font-medium text-slate-900">
-  //               {row.user?.fullname}
-  //             </div>
-  //           </div>
-  //         </div>
-  //       ),
-  //     },
-  //     // {
-  //     //   header: 'Broker Name',
-  //     //   accessor: 'broker.user.fullname',
-  //     //   render: (row: Client) => (
-  //     //     <span className="whitespace-nowrap text-sm font-medium text-slate-600">
-  //     //       {row?.broker?.user?.fullname || 'N/A'}
-  //     //     </span>
-  //     //   ),
-  //     // },
-  //     // {
-  //     //   header: 'Super Broker Name',
-  //     //   accessor: 'broker.superBroker.user.fullname',
-  //     //   render: (row: Client) => (
-  //     //     <span className="whitespace-nowrap text-sm font-medium text-slate-600">
-  //     //       {row?.broker?.superBroker?.user?.fullname || 'N/A'}
-  //     //     </span>
-  //     //   ),
-  //     // },
-  //     {
-  //       header: 'Wallet Balance',
-  //       accessor: 'walletBalance',
-  //       // isSort:true,
-  //       // render: (row: Client) => {
-  //       //   const amount = row.walletBalance !== undefined
-  //       //     ? Number(row.walletBalance)
-  //       //     : (typeof row.wallets?.amount === 'number'
-  //       //         ? row.wallets.amount
-  //       //         : parseFloat(row.wallets?.amount as string) || 0);
-  //       //   return (
-  //       //     <span className="whitespace-nowrap text-sm font-bold text-slate-900">
-  //       //       ₹{amount.toLocaleString()}
-  //       //     </span>
-  //       //   );
-  //       // },
-  //     },
-  //     {
-  //       header: 'Asset Under Control',
-  //       accessor: 'assetUnderControl',
-  //       // render: (row: Client) => {
-  //       //   const amount = row.assetUnderControl !== undefined
-  //       //     ? Number(row.assetUnderControl)
-  //       //     : (typeof row.wallets?.blockedAmount === 'number'
-  //       //         ? row.wallets.blockedAmount
-  //       //         : parseFloat(row.wallets?.blockedAmount as string) || 0);
-  //       //   return (
-  //       //     <span className="whitespace-nowrap text-sm font-bold text-slate-900">
-  //       //       ₹{row?.assetUnderControl.toLocaleString()}
-  //       //     </span>
-  //       //   );
-  //       // },
-  //     },
-  //     {
-  //       header: 'Margin Amount',
-  //       accessor: 'marginAmount',
-  //       // render: (row: Client) => {
-  //       //   const amount = row.marginAmount !== undefined ? Number(row.marginAmount) : 0;
-  //       //   return (
-  //       //     <span className="whitespace-nowrap text-sm font-bold text-slate-900">
-  //       //       ₹{amount.toLocaleString()}
-  //       //     </span>
-  //       //   );
-  //       // },
-  //     },
-  //     {
-  //       header: 'Total Active Trade',
-  //       accessor: 'totalActiveUsers',
-  //       render: (row: Client) => (
-  //         <span className="whitespace-nowrap text-sm font-medium text-slate-600">
-  //           {row.totalActiveTrade !== undefined ? row.totalActiveTrade : (row._count?.trades || 0)}
-  //         </span>
-  //       ),
-  //     },
-  //     {
-  //       header: 'Total Trade',
-  //       accessor: 'totalTrade',
-  //       render: (row: Client) => {
-  //         const amount = row.totalTrade !== undefined ? Number(row.totalTrade) : (parseFloat(row.wallets?.amount as string) || 0);
-  //         return (
-  //           <span className="whitespace-nowrap text-sm font-bold text-orange-500">
-  //             ₹{amount.toLocaleString()}
-  //           </span>
-  //         );
-  //       },
-  //     },
-
-  //   {
-  //   header: 'Demo Account',
-  //   accessor: 'isDemo',
-  //   render: (row: Client) => (
-  //    <div className="pointer-events-none">
-  //   <input
-  //     type="checkbox"
-  //     checked={!!row.isDemo}
-  //     readOnly
-  //     disabled
-  //     className="h-4 w-4 accent-orange-500"
-  //   />
-  // </div>
-  //   ),
-  // },
-  //     // {
-  //     //   header: 'P&L',
-  //     //   accessor: 'pnl',
-  //     //   render: (row: Client) => {
-  //     //     const pnl = row.pnl !== undefined ? Number(row.pnl) : 0;
-  //     //     const isProfit = pnl >= 0;
-  //     //     return (
-  //     //       <span
-  //     //         className={`whitespace-nowrap text-sm font-bold ${
-  //     //           isProfit ? 'text-green-600' : 'text-red-600'
-  //     //         }`}
-  //     //       >
-  //     //         {isProfit ? '+' : ''}
-  //     //         {pnl >= 0
-  //     //           ? `${pnl.toLocaleString()}`
-  //     //           : `-${Math.abs(pnl).toLocaleString()}`}
-  //     //       </span>
-  //     //     );
-  //     //   },
-  //     // },
-  //     // {
-  //     //   header: 'Status',
-  //     //   accessor: 'user.isActive',
-  //     //   render: (row: Client) => {
-  //     //     const isActive = row.user?.isActive === true;
-  //     //     return (
-  //     //       <div
-  //     //         className="flex items-center gap-2"
-  //     //         onClick={(e) => e.stopPropagation()}
-  //     //       >
-  //     //         <label className="relative inline-flex cursor-pointer items-center">
-  //     //           <input
-  //     //             type="checkbox"
-  //     //             className="peer sr-only"
-  //     //             checked={isActive}
-  //     //             onChange={(e) => handleToggleClick(row, e)}
-  //     //             disabled={isPending}
-  //     //           />
-  //     //           <div className="relative h-5 w-9 rounded-full bg-slate-200 transition-colors after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-4 peer-disabled:opacity-50" />
-  //     //         </label>
-  //     //       </div>
-  //     //     );
-  //     //   },
-  //     // },
-  //   ];
-
+  // Customer Columns - Cleaned
   const customerColumns = [
-    {header: 'Trader Name', accessor: 'tradername'},
-    {header: 'Wallet Balance', accessor: 'walletBalance'},
-    {header: 'Asset Under Control', accessor: 'assetUnderControl'},
-    {header: 'Margin Amount', accessor: 'marginAmount'},
-    {header: 'Total Active Trade', accessor: 'totalActiveUsers'},
-    {header: 'Total Trade', accessor: 'totalTrade'},
-    {header: 'Demo Account', accessor: 'isDemo',
-
-    render: (row: Client) => (
-      <div className="pointer-events-none">
-        <input
-          type="checkbox"
-          checked={!!row.isDemo}
-          readOnly
-          disabled
-          className="h-4 w-4 accent-orange-500"
-        />
-      </div>
-    ),
+    { header: 'Trader Name', accessor: 'tradername' },
+    { header: 'Wallet Balance', accessor: 'walletBalance' },
+    { header: 'Asset Under Control', accessor: 'assetUnderControl' },
+    { header: 'Margin Amount', accessor: 'marginAmount' },
+    { header: 'Total Active Trade', accessor: 'totalActiveUsers' },
+    { header: 'Total Trade', accessor: 'totalTrade' },
+    {
+      header: 'Demo Account',
+      accessor: 'isDemo',
+      render: (row: Client) => (
+        <div className="pointer-events-none">
+          <input
+            type="checkbox"
+            checked={!!row.isDemo}
+            readOnly
+            disabled
+            className="h-4 w-4 accent-orange-500"
+          />
+        </div>
+      ),
     },
   ];
-
-//   assetUnderControl
-// : 
-// 1109000
-// isDemo
-// : 
-// true
-// marginAmount
-// : 
-// 0
-// totalActiveUsers
-// : 
-// 22
-// totalTrade
-// : 
-// 7990.4
-// tradername
-// : 
-// "new customer"
-// walletBalance
-// : 
-// 992008.00192
 
   // Filter ledger data by date range
   const filteredLedgerData = useMemo(() => {
@@ -1033,21 +757,18 @@ const BrokerProfile = () => {
   }, [ledgerDataWithSr, ledgerStartDate, ledgerEndDate]);
 
   // Filter payment data by date range
-  // Filter payment data by date range
   const filteredPaymentData = useMemo(() => {
     if (!paymentStartDate || !paymentEndDate) return paymentDataWithSr;
 
     return paymentDataWithSr.filter((item: any) => {
-      // Try multiple possible date fields
       const dateValue =
         item.rawDate || item.date || item.paidDate || item.createdAt;
 
-      if (!dateValue) return true; // Include items without date
+      if (!dateValue) return true;
 
       const itemDate = new Date(dateValue);
 
-      // Check if date is valid
-      if (isNaN(itemDate.getTime())) return true; // Include invalid dates
+      if (isNaN(itemDate.getTime())) return true;
 
       const startDate = new Date(paymentStartDate);
       const endDate = new Date(paymentEndDate);
@@ -1061,6 +782,16 @@ const BrokerProfile = () => {
   const isDemoCount = profileData?.customers?.filter(
     (item: any) => item.isDemo === false,
   ).length;
+
+  // Custom styles for GenericTable to match project theme
+  const tableStyles = {
+    tableClassName: "min-w-full divide-y divide-gray-200",
+    theadClassName: "bg-orange-50",
+    thClassName: "px-3 py-2.5 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-b border-gray-200",
+    tdClassName: "px-3 py-2.5 text-sm text-gray-800 whitespace-nowrap border-b border-gray-100",
+    trClassName: "hover:bg-orange-50/50 transition-colors duration-150",
+    emptyMessageClassName: "text-center py-8 text-gray-500 text-sm"
+  };
 
   return (
     <div className="max-w-9xl mx-auto p-4 md:p-6">
@@ -1160,7 +891,6 @@ const BrokerProfile = () => {
                 </p>
               )}
             </div>
-           
 
             {/* Aadhar Number - Editable */}
             <div>
@@ -1250,7 +980,7 @@ const BrokerProfile = () => {
               <div>
                 <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                   Password
-                 </label>
+                </label>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -1276,14 +1006,6 @@ const BrokerProfile = () => {
 
       {/* Statistics Cards */}
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
-        {/* <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
-          <h4 className="text-xl font-bold text-black dark:text-white md:text-2xl">
-            ₹{profileData?.totalBusiness?.toLocaleString() || '0'}
-          </h4>
-          <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
-            Total Business
-          </span>
-        </div> */}
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-blue-500 md:text-2xl">
             {isDemoCount || 0}
@@ -1358,15 +1080,6 @@ const BrokerProfile = () => {
             >
               Trader ({profileData?.customers?.length || 0})
             </button>
-            {/* <button
-              onClick={() => setActiveTab('commission')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'commission'
-                ? 'border-b-2 border-orange-500 text-orange-500'
-                : 'text-bodydark2'
-                }`}
-            >
-              Commission History ({commissionHistoryList.length})
-            </button> */}
           </div>
           <div className="flex items-center gap-2 px-4 py-2">
             <button
@@ -1419,7 +1132,7 @@ const BrokerProfile = () => {
                   {(ledgerStartDate || ledgerEndDate) && (
                     <button
                       onClick={() => {
-                        const {startDate, endDate} = getCurrentWeekRange();
+                        const { startDate, endDate } = getCurrentWeekRange();
                         setLedgerStartDate(startDate);
                         setLedgerEndDate(endDate);
                       }}
@@ -1428,12 +1141,6 @@ const BrokerProfile = () => {
                       This Week
                     </button>
                   )}
-                  {/* <button
-                    onClick={() => setIsLedgerExpanded(!isLedgerExpanded)}
-                    className="rounded bg-orange-500 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-orange-600 md:px-4 md:py-2 md:text-sm"
-                  >
-                    {isLedgerExpanded ? 'View Less' : 'View More'}
-                  </button> */}
                 </div>
               </div>
               {isLoadingLedger ? (
@@ -1441,12 +1148,12 @@ const BrokerProfile = () => {
                   <div className="h-8 w-8 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
                 </div>
               ) : (
-                // Always show the table, even with empty data
                 <GenericTable
                   data={filteredLedgerData}
                   columns={baseLedgerColumns}
                   paginationOff={true}
                   emptyMessage="No ledger records found"
+                  {...tableStyles}
                 />
               )}
             </div>
@@ -1482,7 +1189,7 @@ const BrokerProfile = () => {
                   {(paymentStartDate || paymentEndDate) && (
                     <button
                       onClick={() => {
-                        const {startDate, endDate} = getCurrentWeekRange();
+                        const { startDate, endDate } = getCurrentWeekRange();
                         setPaymentStartDate(startDate);
                         setPaymentEndDate(endDate);
                       }}
@@ -1494,7 +1201,6 @@ const BrokerProfile = () => {
                 </div>
               </div>
 
-              {/* ADD THIS LOADING STATE */}
               {isLoadingPayment ? (
                 <div className="flex justify-center py-8">
                   <div className="h-8 w-8 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
@@ -1504,6 +1210,7 @@ const BrokerProfile = () => {
                   data={filteredPaymentData}
                   columns={paymentColumns}
                   paginationOff={true}
+                  {...tableStyles}
                 />
               )}
             </div>
@@ -1520,6 +1227,7 @@ const BrokerProfile = () => {
                   columns={commissionColumns}
                   paginationOff={false}
                   itemsPerPage={10}
+                  {...tableStyles}
                 />
               ) : (
                 <div className="py-8 text-center">
@@ -1540,6 +1248,7 @@ const BrokerProfile = () => {
                 searchAble={true}
                 searchFields={['user.fullname', 'CRN']}
                 itemsPerPage={10}
+                {...tableStyles}
               />
             </div>
           )}
@@ -1553,47 +1262,6 @@ const BrokerProfile = () => {
             <h3 className="mb-4 text-lg font-bold text-slate-900">
               Commission Transaction
             </h3>
-
-            {/* Show current financial summary */}
-            {/* <div className="mb-4 space-y-2 rounded-lg border border-blue-100 bg-blue-50 p-3">
-              <p className="text-sm font-medium text-blue-800">
-                Current Financial Summary
-              </p>
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div>
-                  <span className="text-blue-600">Total Commission:</span>
-                  <br />
-                  <strong className="text-blue-900">
-                    ₹{totalCommissionFromHistory.toLocaleString('en-IN')}
-                  </strong>
-                </div>
-                <div>
-                  <span className="text-blue-600">Pending Amount:</span>
-                  <br />
-                  <strong className="text-orange-600">
-                    ₹
-                    {(profileData?.pendingCommission || 0).toLocaleString(
-                      'en-IN',
-                    )}
-                  </strong>
-                </div>
-              </div>
-            </div> */}
-
-            {/* Show pending commission info for this transaction */}
-            {/* {profileData?.pendingCommission > 0 && (
-              <div className="mb-4 rounded-lg border border-orange-100 bg-orange-50 p-3">
-                <p className="text-sm text-orange-700">
-                  Current Pending Amount:{' '}
-                  <strong>
-                    ₹{profileData.pendingCommission.toLocaleString('en-IN')}
-                  </strong>
-                </p>
-                <p className="mt-1 text-xs text-orange-600">
-                  This transaction will update the pending amount
-                </p>
-              </div>
-            )} */}
 
             <div className="mb-6 grid grid-cols-2 gap-2 rounded-xl bg-slate-100 p-1">
               <button

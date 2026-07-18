@@ -137,17 +137,14 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         icon: <HandCoins size={22} />,
       },
       {
+        label: 'Deposite ',
+        path: '/companybroker/depositeall',
+        icon: <LucideBox size={22} />,
+      },
+      {
         label: 'Settings',
-         path: '/profile',
+        path: '/profile',
         icon: <Settings size={22} />,
-           
-            
-           
-          
-          
-         
-        
-        
       },
       //  {
       //       label: 'Logout',
@@ -200,6 +197,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               path: '/change-password',
               icon: <Key size={18} />,
             },
+
             {
               label: 'Logout',
               onClick: () => handleSignOut(),
@@ -233,9 +231,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           {
             label: 'Setting',
             icon: <Settings size={22} />,
-            
+
             path: '/broker/brokerprofiles',
-           
+
           },
         ]
         : isCustomer
@@ -291,16 +289,16 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               },
               {
                 label: 'Settings',
-                
+
                 path: '/broker/superbrokerprofile',
                 icon: <Settings size={22} />,
-               
-                  // {
-                  //   label: 'Logout',
-                  //   onClick: () => handleSignOut(),
-                  //   icon: <LogOut size={18} />,
-                  // },
-                
+
+                // {
+                //   label: 'Logout',
+                //   onClick: () => handleSignOut(),
+                //   icon: <LogOut size={18} />,
+                // },
+
               },
             ]
             : isMasterBroker
@@ -326,11 +324,16 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   icon: <UserCog size={22} />,
                 },
                 {
+                  label: 'Deposit',
+                  path: '/masterbroker/depositmaster',
+                  icon: <LucideBox size={22} />,
+                },
+                {
                   label: 'Settings',
-                  
+
                   path: '/masterbroker/profile',
                   icon: <Settings size={22} />,
-                 
+
                 },
               ]
               : [];
@@ -440,16 +443,14 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     <div className="relative z-50">
       <aside
         ref={sidebar}
-        className={`fixed inset-y-0 left-0 z-50 flex h-screen flex-col bg-white text-black shadow-lg transition-all duration-300 ease-in-out ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:static lg:translate-x-0 ${sidebarWidth}`}
+        className={`fixed inset-y-0 left-0 z-50 flex h-screen flex-col bg-white text-black shadow-lg transition-all duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          } lg:static lg:translate-x-0 ${sidebarWidth}`}
       >
         <div className={`flex items-center ${isExpanded ? 'px-4 py-3 lg:px-5 lg:py-6' : 'justify-center px-2 py-3 lg:py-6'}`}>
           <button
             ref={trigger}
-            className={`flex items-center gap-3 rounded-lg transition-all duration-200 focus:outline-none ${
-              !isExpanded ? 'justify-center' : ''
-            }`}
+            className={`flex items-center gap-3 rounded-lg transition-all duration-200 focus:outline-none ${!isExpanded ? 'justify-center' : ''
+              }`}
             onClick={() => {
               const nextState = !isExpanded;
               setSidebarOpen(nextState);
@@ -526,11 +527,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                 subRoutes: route.subRoutes || [],
                               });
                             }}
-                            className={`group flex w-full items-center gap-2.5 rounded px-3 py-2 text-sm font-medium text-black hover:bg-primary/10 ${
-                              pathname.includes(route.path || '')
-                                ? 'bg-primary/10'
-                                : ''
-                            } ${!isExpanded ? 'justify-center' : ''}`}
+                            className={`group flex w-full items-center gap-2.5 rounded px-3 py-2 text-sm font-medium text-black hover:bg-primary/10 ${pathname.includes(route.path || '')
+                              ? 'bg-primary/10'
+                              : ''
+                              } ${!isExpanded ? 'justify-center' : ''}`}
                           >
                             <span className={`text-black transition-colors group-hover:text-primary ${!isExpanded ? 'mx-auto' : ''}`}>
                               {route.icon}
@@ -538,9 +538,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                             {isExpanded && route.label}
                             {isExpanded && (
                               <IoIosArrowDown
-                                className={`ml-auto transform duration-200 ${
-                                  open ? 'rotate-180' : ''
-                                }`}
+                                className={`ml-auto transform duration-200 ${open ? 'rotate-180' : ''
+                                  }`}
                               />
                             )}
                           </button>
@@ -611,9 +610,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                           setShowSubRoutes(null);
                           setSidebarOpen(false);
                         }}
-                        className={`group flex w-full items-center gap-2.5 rounded px-3 py-2 text-sm font-medium text-black hover:bg-primary/10 ${
-                          pathname.includes(route.path) ? 'bg-primary/10' : ''
-                        } ${!isExpanded ? 'justify-center' : ''}`}
+                        className={`group flex w-full items-center gap-2.5 rounded px-3 py-2 text-sm font-medium text-black hover:bg-primary/10 ${pathname.includes(route.path) ? 'bg-primary/10' : ''
+                          } ${!isExpanded ? 'justify-center' : ''}`}
                       >
                         <span className={`text-black transition-colors group-hover:text-primary ${!isExpanded ? 'mx-auto' : ''}`}>
                           {route.icon}
@@ -631,16 +629,15 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             </ul>
           </nav>
         </div><div className="mt-auto px-2 py-2">
-  <button
-    onClick={handleSignOut}
-    className={`flex w-full items-center gap-2.5 rounded px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 hover:text-red-700 ${
-      !isExpanded ? 'justify-center' : ''
-    }`}
-  >
-    <LogOut className={`h-5 w-5 ${!isExpanded ? 'mx-auto' : ''}`} />
-    {isExpanded && <span>Logout</span>}
-  </button>
-</div>
+          <button
+            onClick={handleSignOut}
+            className={`flex w-full items-center gap-2.5 rounded px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 hover:text-red-700 ${!isExpanded ? 'justify-center' : ''
+              }`}
+          >
+            <LogOut className={`h-5 w-5 ${!isExpanded ? 'mx-auto' : ''}`} />
+            {isExpanded && <span>Logout</span>}
+          </button>
+        </div>
       </aside>
 
       {/* Tooltip for collapsed sidebar */}

@@ -82,30 +82,30 @@ const Broker = () => {
 
 
   const handleInputChange = (e) => {
-  const { name, value } = e.target;
-  
-  // For phone number - only allow digits and limit to 10
-  if (name === 'phoneNumber') {
-    const numericValue = value.replace(/[^0-9]/g, '').slice(0, 10);
-    setFormData((prev) => ({
-      ...prev,
-      [name]: numericValue,
-    }));
-  } 
-  else {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  }
+    const { name, value } = e.target;
 
-  if (errors[name]) {
-    setErrors((prev) => ({
-      ...prev,
-      [name]: '',
-    }));
-  }
-};
+    // For phone number - only allow digits and limit to 10
+    if (name === 'phoneNumber') {
+      const numericValue = value.replace(/[^0-9]/g, '').slice(0, 10);
+      setFormData((prev) => ({
+        ...prev,
+        [name]: numericValue,
+      }));
+    }
+    else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: '',
+      }));
+    }
+  };
 
 
   const handleImageChange = (e, field) => {
@@ -232,11 +232,7 @@ const Broker = () => {
       return;
     }
 
-    // Add validation for Aadhar card image
-    if (!images.aadharCardF) {
-      toast.error('Aadhar card image is required');
-      return;
-    }
+
 
     // Validate commission is a valid number
     let commissionValue = 0;

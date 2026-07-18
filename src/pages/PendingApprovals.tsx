@@ -77,6 +77,33 @@ const PendingApprovals: React.FC = () => {
   const deleteCustomerMutation = useDeleteCustomer();
   const updateCustomerMutation = useUpdateCustomer();
 
+  // Format date and time - Date above, Time below
+  const formatDateTime = (dateTime: string) => {
+    if (!dateTime) return 'N/A';
+
+    const date = new Date(dateTime);
+    if (isNaN(date.getTime())) return 'N/A';
+
+    const formattedDate = date.toLocaleString('en-IN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+
+    const formattedTime = date.toLocaleString('en-IN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
+
+    return (
+      <div className="flex flex-col">
+        <span className="font-mono text-sm">{formattedDate}</span>
+        <span className="font-mono text-xs text-gray-500">{formattedTime}</span>
+      </div>
+    );
+  };
+
   // Extract Broker Lists Safely
   const brokerList = useMemo(() => {
     let list: any[] = [];
@@ -130,7 +157,7 @@ const PendingApprovals: React.FC = () => {
     navigate({ to: `/companybroker/pendingtradeprofile/${client.id}` });
   };
 
-  // Handlers for Broker - Approve with simple confirmation
+  // Handlers for Broker - Approve with confirmation
   const handleApproveBroker = (broker: any) => {
     confirmAlert({
       title: 'Confirm Approval',
@@ -154,10 +181,49 @@ const PendingApprovals: React.FC = () => {
         },
         {
           label: 'Cancel',
-          onClick: () => {},
+          onClick: () => { },
           className: 'bg-gray-300 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-400 transition ml-2',
         },
       ],
+      overlayClassName: 'react-confirm-alert-overlay-custom',
+      customUI: ({ onClose }) => (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="mx-4 w-full max-w-sm rounded-2xl border-l-4 border-emerald-600 bg-white p-8 shadow-2xl">
+            <h1 className="mb-3 text-xl font-bold text-text-charcoal">
+              Confirm Approval
+            </h1>
+            <p className="mb-6 text-base leading-relaxed text-text-charcoal">
+              Are you sure you want to approve broker "{broker.fullname || ''}"?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => onClose()}
+                className="rounded-lg bg-gray-300 px-6 py-2 font-semibold text-text-charcoal transition hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    await approveBrokerMutation.mutateAsync({
+                      id: broker.id,
+                      superBrokerId: broker.superBrokerId || null,
+                    });
+                    refetchBrokers();
+                    onClose();
+                  } catch (error) {
+                    console.error(error);
+                    toast.error('Failed to approve broker');
+                  }
+                }}
+                className="rounded-lg bg-emerald-600 px-6 py-2 font-semibold text-white transition hover:bg-emerald-700"
+              >
+                Approve
+              </button>
+            </div>
+          </div>
+        </div>
+      ),
     });
   };
 
@@ -182,7 +248,7 @@ const PendingApprovals: React.FC = () => {
         },
         {
           label: 'Cancel',
-          onClick: () => {},
+          onClick: () => { },
           className: 'bg-gray-300 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-400 transition ml-2',
         },
       ],
@@ -256,7 +322,7 @@ const PendingApprovals: React.FC = () => {
     }
   };
 
-  // Handlers for Client - Verify with simple confirmation
+  // Handlers for Client - Verify with confirmation
   const handleApproveClient = (client: any) => {
     confirmAlert({
       title: 'Confirm Verify',
@@ -277,10 +343,46 @@ const PendingApprovals: React.FC = () => {
         },
         {
           label: 'Cancel',
-          onClick: () => {},
+          onClick: () => { },
           className: 'bg-gray-300 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-400 transition ml-2',
         },
       ],
+      overlayClassName: 'react-confirm-alert-overlay-custom',
+      customUI: ({ onClose }) => (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="mx-4 w-full max-w-sm rounded-2xl border-l-4 border-emerald-600 bg-white p-8 shadow-2xl">
+            <h1 className="mb-3 text-xl font-bold text-text-charcoal">
+              Confirm Verify
+            </h1>
+            <p className="mb-6 text-base leading-relaxed text-text-charcoal">
+              Are you sure you want to verify customer "{client?.user?.fullname || client?.fullname || ''}"?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => onClose()}
+                className="rounded-lg bg-gray-300 px-6 py-2 font-semibold text-text-charcoal transition hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    await acceptCustomerMutation.mutateAsync(client.id);
+                    refetchCustomers();
+                    onClose();
+                  } catch (error) {
+                    console.error(error);
+                    toast.error('Failed to verify customer');
+                  }
+                }}
+                className="rounded-lg bg-emerald-600 px-6 py-2 font-semibold text-white transition hover:bg-emerald-700"
+              >
+                Verify
+              </button>
+            </div>
+          </div>
+        </div>
+      ),
     });
   };
 
@@ -305,7 +407,7 @@ const PendingApprovals: React.FC = () => {
         },
         {
           label: 'Cancel',
-          onClick: () => {},
+          onClick: () => { },
           className: 'bg-gray-300 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-400 transition ml-2',
         },
       ],
@@ -351,29 +453,6 @@ const PendingApprovals: React.FC = () => {
   // EDIT CLIENT - Different route from row click
   const handleEditClient = (client: any) => {
     navigate({ to: `/companybroker/companytradebyid/${client.id}` });
-  };
-
-  const handleSaveClientEdit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingClient) return;
-
-    try {
-      await updateCustomerMutation.mutateAsync({
-        id: editingClient.id,
-        data: {
-          fullname: editingClient.fullname,
-          email: editingClient.email,
-          phoneNumber: editingClient.phoneNumber,
-          address: editingClient.address,
-          brokerId: editingClient.brokerId,
-        },
-      });
-      setEditingClient(null);
-      refetchCustomers();
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to update customer');
-    }
   };
 
   // Filtered Brokers
@@ -467,8 +546,16 @@ const PendingApprovals: React.FC = () => {
     clientSelectedBroker,
   ]);
 
+  // Check if actions should be shown - only when PENDING filter is active
+  const showActions = statusFilter === 'PENDING';
+
   // BROKER TABLE COLUMNS
   const brokerColumns: Column<any>[] = [
+    {
+      header: 'Date & Time',
+      accessor: 'createdAt',
+      render: (item: any) => formatDateTime(item.createdAt),
+    },
     {
       header: 'Name',
       accessor: 'fullname',
@@ -482,26 +569,6 @@ const PendingApprovals: React.FC = () => {
           </div>
         </div>
       ),
-    },
-    {
-      header: 'Date',
-      accessor: 'createdAt',
-      render: (item: any) => {
-        if (!item.createdAt) return <span className="font-mono text-sm">N/A</span>;
-
-        const date = new Date(item.createdAt);
-        const formattedDate = date.toLocaleString('en-IN', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: false,
-        });
-
-        return <span className="font-mono text-sm whitespace-nowrap">{formattedDate}</span>;
-      },
     },
     {
       header: 'Phone Number',
@@ -541,17 +608,20 @@ const PendingApprovals: React.FC = () => {
         </span>
       ),
     },
-    {
-      header: 'Actions',
-      accessor: 'id',
-      render: (item: any) => {
-        const isVerified = item?.user?.isVerified;
-        const isRejected = item?.user?.isRejected;
-        const isPending = !isVerified && !isRejected;
+    ...(showActions
+      ? [{
+        header: 'Actions', accessor: 'id', render: (item: any) => {
+          const isVerified = item?.user?.isVerified;
+          const isRejected = item?.user?.isRejected;
+          const isPending = !isVerified && !isRejected;
 
-        return (
-          <div className="flex items-center gap-1.5">
-            {isPending && (
+          // Only show actions if showActions is true AND item is pending
+          if (!showActions || !isPending) {
+            return <span className="text-gray-400 text-sm">-</span>;
+          }
+
+          return (
+            <div className="flex items-center gap-1.5">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -563,45 +633,40 @@ const PendingApprovals: React.FC = () => {
               >
                 <UserCheck className="h-4 w-4" />
               </button>
-            )}
-            {isVerified && (
               <button
-                disabled={true}
-                className="bg-gray-100 text-gray-400 cursor-not-allowed rounded-lg p-2"
-                title="Already Verified"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEditBroker(item);
+                }}
+                className="rounded-lg bg-blue-50 p-2 text-blue-600 transition-all hover:bg-blue-100 hover:text-blue-700 active:scale-95"
+                title="Edit Broker"
               >
-                <UserCheck className="h-4 w-4" />
+                <Edit3 className="h-4 w-4" />
               </button>
-            )}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleEditBroker(item);
-              }}
-              className="rounded-lg bg-blue-50 p-2 text-blue-600 transition-all hover:bg-blue-100 hover:text-blue-700 active:scale-95"
-              title="Edit Broker"
-            >
-              <Edit3 className="h-4 w-4" />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDeleteBroker(item);
-              }}
-              disabled={deleteBrokerMutation.isPending}
-              className="rounded-lg bg-rose-50 p-2 text-rose-600 transition-all hover:bg-rose-100 hover:text-rose-700 active:scale-95 disabled:opacity-50"
-              title="Delete Broker"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
-          </div>
-        );
-      },
-    },
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteBroker(item);
+                }}
+                disabled={deleteBrokerMutation.isPending}
+                className="rounded-lg bg-rose-50 p-2 text-rose-600 transition-all hover:bg-rose-100 hover:text-rose-700 active:scale-95 disabled:opacity-50"
+                title="Delete Broker"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
+          );
+        },
+      }] : []),
   ];
 
   // CLIENT TABLE COLUMNS
   const clientColumns: Column<any>[] = [
+    {
+      header: 'Date & Time',
+      accessor: 'createdAt',
+      render: (item: any) => formatDateTime(item.createdAt),
+    },
     {
       header: 'Name',
       accessor: (item: any) => item?.user?.fullname || 'N/A',
@@ -613,26 +678,6 @@ const PendingApprovals: React.FC = () => {
           <div className="text-gray-500 text-xs">CRN: {item.CRN || 'N/A'}</div>
         </div>
       ),
-    },
-    {
-      header: 'Date',
-      accessor: 'createdAt',
-      render: (item: any) => {
-        if (!item.createdAt) return <span className="font-mono text-sm">N/A</span>;
-
-        const date = new Date(item.createdAt);
-        const formattedDate = date.toLocaleString('en-IN', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: false,
-        });
-
-        return <span className="font-mono text-sm whitespace-nowrap">{formattedDate}</span>;
-      },
     },
     {
       header: 'Phone Number',
@@ -682,7 +727,7 @@ const PendingApprovals: React.FC = () => {
         </span>
       ),
     },
-    {
+    ...(showActions ? [{
       header: 'Actions',
       accessor: 'id',
       render: (item: any) => {
@@ -690,30 +735,24 @@ const PendingApprovals: React.FC = () => {
         const isRejected = item?.user?.isRejected;
         const isPending = !isVerified && !isRejected;
 
+        // Only show actions for pending items
+        if (!isPending) {
+          return <span className="text-gray-400 text-sm">-</span>;
+        }
+
         return (
           <div className="flex items-center gap-1.5">
-            {isPending && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleApproveClient(item);
-                }}
-                disabled={acceptCustomerMutation.isPending}
-                className="rounded-lg bg-emerald-50 p-2 text-emerald-600 transition-all hover:bg-emerald-100 hover:text-emerald-700 active:scale-95 disabled:opacity-50"
-                title="Verify Customer"
-              >
-                <UserCheck className="h-4 w-4" />
-              </button>
-            )}
-            {isVerified && (
-              <button
-                disabled={true}
-                className="bg-gray-100 text-gray-400 cursor-not-allowed rounded-lg p-2"
-                title="Already Verified"
-              >
-                <UserCheck className="h-4 w-4" />
-              </button>
-            )}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleApproveClient(item);
+              }}
+              disabled={acceptCustomerMutation.isPending}
+              className="rounded-lg bg-emerald-50 p-2 text-emerald-600 transition-all hover:bg-emerald-100 hover:text-emerald-700 active:scale-95 disabled:opacity-50"
+              title="Verify Customer"
+            >
+              <UserCheck className="h-4 w-4" />
+            </button>
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -738,7 +777,7 @@ const PendingApprovals: React.FC = () => {
           </div>
         );
       },
-    },
+    }] : []),
   ];
 
   // Get counts for tabs

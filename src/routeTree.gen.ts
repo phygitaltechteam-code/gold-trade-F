@@ -59,6 +59,7 @@ import { Route as AppMasterbrokerProfileImport } from './routes/_app/masterbroke
 import { Route as AppMasterbrokerPendingApprovelImport } from './routes/_app/masterbroker/pending-approvel'
 import { Route as AppMasterbrokerLedgerTransactionImport } from './routes/_app/masterbroker/ledger-transaction'
 import { Route as AppMasterbrokerFinancialReportImport } from './routes/_app/masterbroker/financial-report'
+import { Route as AppMasterbrokerDepositmasterImport } from './routes/_app/masterbroker/depositmaster'
 import { Route as AppMasterbrokerDashboardImport } from './routes/_app/masterbroker/dashboard'
 import { Route as AppMasterbrokerClientDashboardImport } from './routes/_app/masterbroker/client-dashboard'
 import { Route as AppMasterbrokerAddClientImport } from './routes/_app/masterbroker/add-client'
@@ -67,6 +68,7 @@ import { Route as AppEprivateEprivatereportsImport } from './routes/_app/eprivat
 import { Route as AppCompanybrokerMasterbrokerTableImport } from './routes/_app/companybroker/masterbroker-table'
 import { Route as AppCompanybrokerDisplaybrokerImport } from './routes/_app/companybroker/displaybroker'
 import { Route as AppCompanybrokerDisplayMasterBrokerImport } from './routes/_app/companybroker/display-master-broker'
+import { Route as AppCompanybrokerDepositeallImport } from './routes/_app/companybroker/depositeall'
 import { Route as AppCompanybrokerCompanyaddcustomerImport } from './routes/_app/companybroker/companyaddcustomer'
 import { Route as AppCompanybrokerBrokerprofileImport } from './routes/_app/companybroker/brokerprofile'
 import { Route as AppCompanybrokerAddbrokerImport } from './routes/_app/companybroker/addbroker'
@@ -424,6 +426,13 @@ const AppMasterbrokerFinancialReportRoute =
     getParentRoute: () => AppRoute,
   } as any)
 
+const AppMasterbrokerDepositmasterRoute =
+  AppMasterbrokerDepositmasterImport.update({
+    id: '/masterbroker/depositmaster',
+    path: '/masterbroker/depositmaster',
+    getParentRoute: () => AppRoute,
+  } as any)
+
 const AppMasterbrokerDashboardRoute = AppMasterbrokerDashboardImport.update({
   id: '/masterbroker/dashboard',
   path: '/masterbroker/dashboard',
@@ -475,6 +484,13 @@ const AppCompanybrokerDisplayMasterBrokerRoute =
   AppCompanybrokerDisplayMasterBrokerImport.update({
     id: '/companybroker/display-master-broker',
     path: '/companybroker/display-master-broker',
+    getParentRoute: () => AppRoute,
+  } as any)
+
+const AppCompanybrokerDepositeallRoute =
+  AppCompanybrokerDepositeallImport.update({
+    id: '/companybroker/depositeall',
+    path: '/companybroker/depositeall',
     getParentRoute: () => AppRoute,
   } as any)
 
@@ -1374,6 +1390,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCompanybrokerCompanyaddcustomerImport
       parentRoute: typeof AppImport
     }
+    '/_app/companybroker/depositeall': {
+      id: '/_app/companybroker/depositeall'
+      path: '/companybroker/depositeall'
+      fullPath: '/companybroker/depositeall'
+      preLoaderRoute: typeof AppCompanybrokerDepositeallImport
+      parentRoute: typeof AppImport
+    }
     '/_app/companybroker/display-master-broker': {
       id: '/_app/companybroker/display-master-broker'
       path: '/companybroker/display-master-broker'
@@ -1428,6 +1451,13 @@ declare module '@tanstack/react-router' {
       path: '/masterbroker/dashboard'
       fullPath: '/masterbroker/dashboard'
       preLoaderRoute: typeof AppMasterbrokerDashboardImport
+      parentRoute: typeof AppImport
+    }
+    '/_app/masterbroker/depositmaster': {
+      id: '/_app/masterbroker/depositmaster'
+      path: '/masterbroker/depositmaster'
+      fullPath: '/masterbroker/depositmaster'
+      preLoaderRoute: typeof AppMasterbrokerDepositmasterImport
       parentRoute: typeof AppImport
     }
     '/_app/masterbroker/financial-report': {
@@ -1762,6 +1792,7 @@ interface AppRouteChildren {
   AppCompanybrokerAddbrokerRoute: typeof AppCompanybrokerAddbrokerRoute
   AppCompanybrokerBrokerprofileRoute: typeof AppCompanybrokerBrokerprofileRoute
   AppCompanybrokerCompanyaddcustomerRoute: typeof AppCompanybrokerCompanyaddcustomerRoute
+  AppCompanybrokerDepositeallRoute: typeof AppCompanybrokerDepositeallRoute
   AppCompanybrokerDisplayMasterBrokerRoute: typeof AppCompanybrokerDisplayMasterBrokerRoute
   AppCompanybrokerDisplaybrokerRoute: typeof AppCompanybrokerDisplaybrokerRoute
   AppCompanybrokerMasterbrokerTableRoute: typeof AppCompanybrokerMasterbrokerTableRoute
@@ -1770,6 +1801,7 @@ interface AppRouteChildren {
   AppMasterbrokerAddClientRoute: typeof AppMasterbrokerAddClientRoute
   AppMasterbrokerClientDashboardRoute: typeof AppMasterbrokerClientDashboardRoute
   AppMasterbrokerDashboardRoute: typeof AppMasterbrokerDashboardRoute
+  AppMasterbrokerDepositmasterRoute: typeof AppMasterbrokerDepositmasterRoute
   AppMasterbrokerFinancialReportRoute: typeof AppMasterbrokerFinancialReportRoute
   AppMasterbrokerLedgerTransactionRoute: typeof AppMasterbrokerLedgerTransactionRoute
   AppMasterbrokerPendingApprovelRoute: typeof AppMasterbrokerPendingApprovelRoute
@@ -1874,6 +1906,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCompanybrokerBrokerprofileRoute: AppCompanybrokerBrokerprofileRoute,
   AppCompanybrokerCompanyaddcustomerRoute:
     AppCompanybrokerCompanyaddcustomerRoute,
+  AppCompanybrokerDepositeallRoute: AppCompanybrokerDepositeallRoute,
   AppCompanybrokerDisplayMasterBrokerRoute:
     AppCompanybrokerDisplayMasterBrokerRoute,
   AppCompanybrokerDisplaybrokerRoute: AppCompanybrokerDisplaybrokerRoute,
@@ -1884,6 +1917,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppMasterbrokerAddClientRoute: AppMasterbrokerAddClientRoute,
   AppMasterbrokerClientDashboardRoute: AppMasterbrokerClientDashboardRoute,
   AppMasterbrokerDashboardRoute: AppMasterbrokerDashboardRoute,
+  AppMasterbrokerDepositmasterRoute: AppMasterbrokerDepositmasterRoute,
   AppMasterbrokerFinancialReportRoute: AppMasterbrokerFinancialReportRoute,
   AppMasterbrokerLedgerTransactionRoute: AppMasterbrokerLedgerTransactionRoute,
   AppMasterbrokerPendingApprovelRoute: AppMasterbrokerPendingApprovelRoute,
@@ -2032,6 +2066,7 @@ export interface FileRoutesByFullPath {
   '/companybroker/addbroker': typeof AppCompanybrokerAddbrokerRoute
   '/companybroker/brokerprofile': typeof AppCompanybrokerBrokerprofileRoute
   '/companybroker/companyaddcustomer': typeof AppCompanybrokerCompanyaddcustomerRoute
+  '/companybroker/depositeall': typeof AppCompanybrokerDepositeallRoute
   '/companybroker/display-master-broker': typeof AppCompanybrokerDisplayMasterBrokerRoute
   '/companybroker/displaybroker': typeof AppCompanybrokerDisplaybrokerRoute
   '/companybroker/masterbroker-table': typeof AppCompanybrokerMasterbrokerTableRoute
@@ -2040,6 +2075,7 @@ export interface FileRoutesByFullPath {
   '/masterbroker/add-client': typeof AppMasterbrokerAddClientRoute
   '/masterbroker/client-dashboard': typeof AppMasterbrokerClientDashboardRoute
   '/masterbroker/dashboard': typeof AppMasterbrokerDashboardRoute
+  '/masterbroker/depositmaster': typeof AppMasterbrokerDepositmasterRoute
   '/masterbroker/financial-report': typeof AppMasterbrokerFinancialReportRoute
   '/masterbroker/ledger-transaction': typeof AppMasterbrokerLedgerTransactionRoute
   '/masterbroker/pending-approvel': typeof AppMasterbrokerPendingApprovelRoute
@@ -2147,6 +2183,7 @@ export interface FileRoutesByTo {
   '/companybroker/addbroker': typeof AppCompanybrokerAddbrokerRoute
   '/companybroker/brokerprofile': typeof AppCompanybrokerBrokerprofileRoute
   '/companybroker/companyaddcustomer': typeof AppCompanybrokerCompanyaddcustomerRoute
+  '/companybroker/depositeall': typeof AppCompanybrokerDepositeallRoute
   '/companybroker/display-master-broker': typeof AppCompanybrokerDisplayMasterBrokerRoute
   '/companybroker/displaybroker': typeof AppCompanybrokerDisplaybrokerRoute
   '/companybroker/masterbroker-table': typeof AppCompanybrokerMasterbrokerTableRoute
@@ -2155,6 +2192,7 @@ export interface FileRoutesByTo {
   '/masterbroker/add-client': typeof AppMasterbrokerAddClientRoute
   '/masterbroker/client-dashboard': typeof AppMasterbrokerClientDashboardRoute
   '/masterbroker/dashboard': typeof AppMasterbrokerDashboardRoute
+  '/masterbroker/depositmaster': typeof AppMasterbrokerDepositmasterRoute
   '/masterbroker/financial-report': typeof AppMasterbrokerFinancialReportRoute
   '/masterbroker/ledger-transaction': typeof AppMasterbrokerLedgerTransactionRoute
   '/masterbroker/pending-approvel': typeof AppMasterbrokerPendingApprovelRoute
@@ -2267,6 +2305,7 @@ export interface FileRoutesById {
   '/_app/companybroker/addbroker': typeof AppCompanybrokerAddbrokerRoute
   '/_app/companybroker/brokerprofile': typeof AppCompanybrokerBrokerprofileRoute
   '/_app/companybroker/companyaddcustomer': typeof AppCompanybrokerCompanyaddcustomerRoute
+  '/_app/companybroker/depositeall': typeof AppCompanybrokerDepositeallRoute
   '/_app/companybroker/display-master-broker': typeof AppCompanybrokerDisplayMasterBrokerRoute
   '/_app/companybroker/displaybroker': typeof AppCompanybrokerDisplaybrokerRoute
   '/_app/companybroker/masterbroker-table': typeof AppCompanybrokerMasterbrokerTableRoute
@@ -2275,6 +2314,7 @@ export interface FileRoutesById {
   '/_app/masterbroker/add-client': typeof AppMasterbrokerAddClientRoute
   '/_app/masterbroker/client-dashboard': typeof AppMasterbrokerClientDashboardRoute
   '/_app/masterbroker/dashboard': typeof AppMasterbrokerDashboardRoute
+  '/_app/masterbroker/depositmaster': typeof AppMasterbrokerDepositmasterRoute
   '/_app/masterbroker/financial-report': typeof AppMasterbrokerFinancialReportRoute
   '/_app/masterbroker/ledger-transaction': typeof AppMasterbrokerLedgerTransactionRoute
   '/_app/masterbroker/pending-approvel': typeof AppMasterbrokerPendingApprovelRoute
@@ -2384,6 +2424,7 @@ export interface FileRouteTypes {
     | '/companybroker/addbroker'
     | '/companybroker/brokerprofile'
     | '/companybroker/companyaddcustomer'
+    | '/companybroker/depositeall'
     | '/companybroker/display-master-broker'
     | '/companybroker/displaybroker'
     | '/companybroker/masterbroker-table'
@@ -2392,6 +2433,7 @@ export interface FileRouteTypes {
     | '/masterbroker/add-client'
     | '/masterbroker/client-dashboard'
     | '/masterbroker/dashboard'
+    | '/masterbroker/depositmaster'
     | '/masterbroker/financial-report'
     | '/masterbroker/ledger-transaction'
     | '/masterbroker/pending-approvel'
@@ -2498,6 +2540,7 @@ export interface FileRouteTypes {
     | '/companybroker/addbroker'
     | '/companybroker/brokerprofile'
     | '/companybroker/companyaddcustomer'
+    | '/companybroker/depositeall'
     | '/companybroker/display-master-broker'
     | '/companybroker/displaybroker'
     | '/companybroker/masterbroker-table'
@@ -2506,6 +2549,7 @@ export interface FileRouteTypes {
     | '/masterbroker/add-client'
     | '/masterbroker/client-dashboard'
     | '/masterbroker/dashboard'
+    | '/masterbroker/depositmaster'
     | '/masterbroker/financial-report'
     | '/masterbroker/ledger-transaction'
     | '/masterbroker/pending-approvel'
@@ -2616,6 +2660,7 @@ export interface FileRouteTypes {
     | '/_app/companybroker/addbroker'
     | '/_app/companybroker/brokerprofile'
     | '/_app/companybroker/companyaddcustomer'
+    | '/_app/companybroker/depositeall'
     | '/_app/companybroker/display-master-broker'
     | '/_app/companybroker/displaybroker'
     | '/_app/companybroker/masterbroker-table'
@@ -2624,6 +2669,7 @@ export interface FileRouteTypes {
     | '/_app/masterbroker/add-client'
     | '/_app/masterbroker/client-dashboard'
     | '/_app/masterbroker/dashboard'
+    | '/_app/masterbroker/depositmaster'
     | '/_app/masterbroker/financial-report'
     | '/_app/masterbroker/ledger-transaction'
     | '/_app/masterbroker/pending-approvel'
@@ -2760,6 +2806,7 @@ export const routeTree = rootRoute
         "/_app/companybroker/addbroker",
         "/_app/companybroker/brokerprofile",
         "/_app/companybroker/companyaddcustomer",
+        "/_app/companybroker/depositeall",
         "/_app/companybroker/display-master-broker",
         "/_app/companybroker/displaybroker",
         "/_app/companybroker/masterbroker-table",
@@ -2768,6 +2815,7 @@ export const routeTree = rootRoute
         "/_app/masterbroker/add-client",
         "/_app/masterbroker/client-dashboard",
         "/_app/masterbroker/dashboard",
+        "/_app/masterbroker/depositmaster",
         "/_app/masterbroker/financial-report",
         "/_app/masterbroker/ledger-transaction",
         "/_app/masterbroker/pending-approvel",
@@ -3091,6 +3139,10 @@ export const routeTree = rootRoute
       "filePath": "_app/companybroker/companyaddcustomer.tsx",
       "parent": "/_app"
     },
+    "/_app/companybroker/depositeall": {
+      "filePath": "_app/companybroker/depositeall.tsx",
+      "parent": "/_app"
+    },
     "/_app/companybroker/display-master-broker": {
       "filePath": "_app/companybroker/display-master-broker.tsx",
       "parent": "/_app"
@@ -3121,6 +3173,10 @@ export const routeTree = rootRoute
     },
     "/_app/masterbroker/dashboard": {
       "filePath": "_app/masterbroker/dashboard.tsx",
+      "parent": "/_app"
+    },
+    "/_app/masterbroker/depositmaster": {
+      "filePath": "_app/masterbroker/depositmaster.tsx",
       "parent": "/_app"
     },
     "/_app/masterbroker/financial-report": {

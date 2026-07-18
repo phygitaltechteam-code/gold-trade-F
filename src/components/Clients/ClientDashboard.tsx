@@ -459,8 +459,8 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       </div>
 
       {/* Stats Cards Grid - 6 cards */}
-      <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-7 md:gap-4">
-        <StatCard
+      <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 md:gap-4">
+        {/* <StatCard
           title="Total Traders"
           value={totalClients.toLocaleString()}
           // subtext="Registered clients"
@@ -480,7 +480,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
           // subtext="Active trading"
           icon={Activity}
           isLoading={isLoading}
-        />
+        /> */}
         <StatCard
           title="Wallet Balance"
           value={totalWalletBalance.toLocaleString()}

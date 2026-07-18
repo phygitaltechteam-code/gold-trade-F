@@ -15,6 +15,7 @@ import {
   Edit,
   Trash,
   RefreshCcw,
+  Calendar,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GenericTable from '@/components/Forms/Table/GenericTable';
@@ -23,6 +24,9 @@ import {
   useGetWithdrawal,
   useRejectWithdrawal,
 } from '@/lib/react-query/withdrawal';
+
+import { MdTrendingUp, MdWarning, MdAdd } from 'react-icons/md';
+import StatsCard from '../wallettopupreport/StatsCard';
 
 // Types
 interface WithdrawalRequest {
@@ -92,27 +96,75 @@ export default function WithdrawalRequest() {
   const [isExpanded, setIsExpanded] = useState(false);
   const itemsPerPage = 5;
 
+  // Date filter states - Direct from/to
+  const [fromDate, setFromDate] = useState(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today.toISOString().split('T')[0];
+  });
+  const [toDate, setToDate] = useState(() => {
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    return today.toISOString().split('T')[0];
+  });
+
   // Only show actions when on Pending tab
   const showActions = activeTab === 'Pending';
+
+  // Format currency in Indian format
+  const formatIndianCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  // Date filtering logic
+  const filterByDate = (dateString: string) => {
+    if (!dateString) return false;
+
+    const date = new Date(dateString);
+    date.setHours(0, 0, 0, 0);
+
+    const from = new Date(fromDate);
+    from.setHours(0, 0, 0, 0);
+
+    const to = new Date(toDate);
+    to.setHours(23, 59, 59, 999);
+
+    return date >= from && date <= to;
+  };
+
+  // Format date and time - Date above, Time below
+  const formatDateTime = (dateTime: string) => {
+    if (!dateTime) return 'N/A';
+
+    const date = new Date(dateTime);
+    if (isNaN(date.getTime())) return 'N/A';
+
+    const formattedDate = date.toLocaleString('en-IN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+
+    const formattedTime = date.toLocaleString('en-IN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
+
+    return { date: formattedDate, time: formattedTime };
+  };
 
   const MOCK_DATA: WithdrawalRequest[] =
     withdrawal?.map((item: any, index: number) => ({
       id: item.id,
       requestId: `REQ${String(index + 1).padStart(3, '0')}`,
-
-      date: new Date(item.createdAt).toLocaleString('en-GB', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false,
-      }),
-      time: new Date(item.createdAt).toLocaleTimeString('en-IN', {
-        hour: '2-digit',
-        minute: '2-digit',
-      }),
+      date: item.createdAt || new Date().toISOString().split('T')[0],
+      time: item.createdAt || new Date().toISOString(),
 
       client: {
         name: item.customer?.user?.fullname || item.customerName || 'N/A',
@@ -158,7 +210,7 @@ export default function WithdrawalRequest() {
       customer: item.customer,
     })) || [];
 
-  // Filter data based on active tab and search
+  // Filter data based on active tab, search, and date
   const filteredData = useMemo(() => {
     return MOCK_DATA?.filter((req) => {
       const matchesTab = activeTab === req.status;
@@ -169,29 +221,69 @@ export default function WithdrawalRequest() {
         req.amount.toString().includes(searchTerm) ||
         req.bank.toLowerCase().includes(searchTerm.toLowerCase());
 
-      return matchesTab && matchesSearch;
+      const matchesDate = filterByDate(req.date);
+
+      return matchesTab && matchesSearch && matchesDate;
     });
-  }, [MOCK_DATA, activeTab, searchTerm]);
+  }, [MOCK_DATA, activeTab, searchTerm, fromDate, toDate]);
 
-  // Calculate dynamic stats
+  // Calculate period stats (Today, Week, Month)
+  const getPeriodStats = (period: 'today' | 'week' | 'month') => {
+    const now = new Date();
+    const periodData = MOCK_DATA?.filter((req) => {
+      const reqDate = new Date(req.date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const weekStart = new Date(now);
+      weekStart.setDate(now.getDate() - now.getDay());
+      weekStart.setHours(0, 0, 0, 0);
+
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+      switch (period) {
+        case 'today':
+          return reqDate >= today;
+        case 'week':
+          return reqDate >= weekStart;
+        case 'month':
+          return reqDate >= monthStart;
+        default:
+          return true;
+      }
+    });
+
+    const totalAmount = periodData?.reduce((sum, r) => sum + r.amount, 0) || 0;
+    const count = periodData?.length || 0;
+
+    return { totalAmount, count };
+  };
+
+  // Calculate stats
   const stats = useMemo(() => {
-    const pendingAmount = MOCK_DATA?.filter(
-      (r) => r.status === 'Pending',
-    ).reduce((sum, r) => sum + r.amount, 0);
+    // Total withdrawal amount (all time)
+    const totalWithdrawalAmount = MOCK_DATA?.reduce((sum, r) => sum + r.amount, 0) || 0;
+    const totalCount = MOCK_DATA?.length || 0;
 
-    const processedToday = MOCK_DATA?.filter(
-      (r) => r.date === 'Today' && r.status === 'Approved',
-    ).length;
+    // Get period stats
+    const todayStats = getPeriodStats('today');
+    const weekStats = getPeriodStats('week');
+    const monthStats = getPeriodStats('month');
 
-    const totalOutflow = MOCK_DATA?.reduce((sum, r) => sum + r.amount, 0);
+    // Filtered data stats (for current date range)
+    const filteredTotalAmount = filteredData?.reduce((sum, r) => sum + r.amount, 0) || 0;
+    const filteredTotalCount = filteredData?.length || 0;
 
     return {
-      pendingCount: MOCK_DATA?.filter((r) => r.status === 'Pending').length,
-      pendingAmount,
-      processedToday,
-      totalOutflow,
+      totalWithdrawalAmount,
+      totalCount,
+      todayStats,
+      weekStats,
+      monthStats,
+      filteredTotalAmount,
+      filteredTotalCount,
     };
-  }, []);
+  }, [MOCK_DATA, filteredData]);
 
   // Get counts for each status
   const statusCounts = useMemo(() => {
@@ -207,6 +299,18 @@ export default function WithdrawalRequest() {
   // Base columns - without Actions for Approved and Rejected tabs
   const baseColumns = [
     {
+      header: 'Date',
+      accessor: (row: WithdrawalRequest) => {
+        const formatted = formatDateTime(row.date);
+        return (
+          <div>
+            <div className="text-gray-600 text-sm">{formatted?.date || 'N/A'}</div>
+            <div className="text-gray-400 text-xs">{formatted?.time || ''}</div>
+          </div>
+        );
+      },
+    },
+    {
       header: 'Trader Name',
       accessor: (row: WithdrawalRequest) => (
         <div className="flex items-center gap-3">
@@ -219,39 +323,22 @@ export default function WithdrawalRequest() {
       ),
     },
     {
-      header: 'Date',
+      header: 'Amount',
       accessor: (row: WithdrawalRequest) => (
-        <span className="text-gray-600 text-sm">{row.date}</span>
-      ),
-    },
-    {
-      header: 'Broker Number',
-      accessor: (row: WithdrawalRequest) => (
-        <span className="text-gray-600 text-sm">{row.brokerNumber}</span>
-      ),
-    },
-    {
-      header: 'Super Broker Number',
-      accessor: (row: WithdrawalRequest) => (
-        <span className="text-gray-600 text-sm">{row.superBrokerNumber}</span>
+        <div className="text-center text-sm font-bold text-orange-500">
+          {formatIndianCurrency(row.amount)}
+        </div>
       ),
     },
     {
       header: 'Wallet Balance',
       accessor: (row: WithdrawalRequest) => (
         <div className="text-gray-900 text-sm text-center font-bold">
-          ₹{row.walletBalance.toLocaleString('en-IN')}
+          {formatIndianCurrency(row.walletBalance)}
         </div>
       ),
     },
-    {
-      header: 'Withdraw Amount',
-      accessor: (row: WithdrawalRequest) => (
-        <div className="text-center text-sm font-bold text-orange-500">
-          ₹{row.amount.toLocaleString('en-IN')}
-        </div>
-      ),
-    },
+
     {
       header: 'Status',
       accessor: (row: WithdrawalRequest) => <StatusBadge status={row.status} />,
@@ -260,7 +347,7 @@ export default function WithdrawalRequest() {
     ...(showActions ? [{
       header: 'Actions',
       accessor: (row: WithdrawalRequest) => (
-        <div className="flex items-center justify-end gap-2">
+        <div className="flex  justify-left gap-2">
           <button
             onClick={() => handleReject(row.id)}
             className="text-gray-500 hover:bg-gray-100 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
@@ -303,6 +390,42 @@ export default function WithdrawalRequest() {
     setSelectedRequests([]);
   };
 
+  // Stats Card data
+  const periodCardData = [
+    {
+      title: "Total  Amount",
+      value: formatIndianCurrency(stats.totalWithdrawalAmount),
+      change: `${stats.totalCount} total withdrawals`,
+      changeType: "neutral",
+      note: "all time",
+      icon: MdTrendingUp
+    },
+    {
+      title: "Today",
+      value: formatIndianCurrency(stats.todayStats.totalAmount),
+      change: `${stats.todayStats.count} withdrawals today`,
+      changeType: "neutral",
+      note: "today",
+      icon: MdAdd
+    },
+    {
+      title: "This Week",
+      value: formatIndianCurrency(stats.weekStats.totalAmount),
+      change: `${stats.weekStats.count} withdrawals this week`,
+      changeType: "warning",
+      note: "this week",
+      icon: MdWarning
+    },
+    {
+      title: "This Month",
+      value: formatIndianCurrency(stats.monthStats.totalAmount),
+      change: `${stats.monthStats.count} withdrawals this month`,
+      changeType: "neutral",
+      note: "this month",
+      icon: MdTrendingUp
+    }
+  ];
+
   return (
     <div className="font-sans min-h-screen bg-[#F8F9FB] text-[#1A1D21]">
       <main className="mx-auto max-w-[2000px] px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
@@ -339,27 +462,19 @@ export default function WithdrawalRequest() {
           </div>
         </div>
 
-        {/* Summary Cards - Dynamic */}
-        <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 lg:gap-6">
-          <SummaryCard
-            title="Pending Review"
-            value={stats?.pendingCount?.toString()}
-            subValue={`₹${stats?.pendingAmount?.toLocaleString('en-IN')} total value`}
-            icon={<Hourglass className="text-gray-500 h-5 w-5" />}
-          />
-          <SummaryCard
-            title="Processed Today"
-            value={stats?.processedToday?.toString()}
-            subValue="+12% vs yesterday"
-            subValueColor="text-emerald-500"
-            icon={<CheckCircle2 className="text-gray-500 h-5 w-5" />}
-          />
-          <SummaryCard
-            title="Liquidity Outflow"
-            value={`₹${(stats?.totalOutflow / 100000).toFixed(1)}L`}
-            subValue="Daily cap remaining: ₹3.8L"
-            icon={<TrendingDown className="text-gray-500 h-5 w-5" />}
-          />
+        {/* Period Summary Cards */}
+        <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {periodCardData.map((card, index) => (
+            <StatsCard
+              key={index}
+              title={card.title}
+              value={card.value}
+              change={card.change}
+              changeType={card.changeType}
+              note={card.note}
+              icon={card.icon}
+            />
+          ))}
         </div>
 
         {/* Bulk Actions - Show when items selected */}
@@ -398,7 +513,7 @@ export default function WithdrawalRequest() {
 
         {/* Main Content Area */}
         <div className="overflow-hidden rounded-xl border border-stroke bg-white shadow-sm">
-          {/* Tabs & Controls */}
+          {/* Tabs & Controls with Date Filters on Right */}
           <div className="flex flex-col justify-between border-b border-stroke px-4 pt-4 sm:flex-row sm:items-center sm:px-6">
             <div className="flex gap-4 overflow-x-auto pb-4 sm:gap-8 sm:pb-0">
               {(['Pending', 'Approved', 'Rejected'] as const).map((tab) => (
@@ -436,20 +551,81 @@ export default function WithdrawalRequest() {
               ))}
             </div>
 
-            <div className="mb-2 flex items-center gap-2 pb-4 sm:pb-0">
+            {/* Date Filters - On Right Side of Tabs */}
+            <div className="mb-2 flex flex-wrap items-center gap-2 pb-4 sm:pb-0">
+              <div className="flex items-center gap-2 bg-white rounded-lg border border-stroke px-2 py-1.5">
+                <Calendar className="text-gray-400 h-4 w-4" />
+                <input
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => setFromDate(e.target.value)}
+                  className="border-0 px-1 py-0.5 text-sm focus:outline-none focus:ring-0 w-28"
+                />
+                <span className="text-gray-400 text-sm">to</span>
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => setToDate(e.target.value)}
+                  className="border-0 px-1 py-0.5 text-sm focus:outline-none focus:ring-0 w-28"
+                />
+                {(fromDate || toDate) && (
+                  <button
+                    onClick={() => {
+                      const today = new Date();
+                      const todayStr = today.toISOString().split('T')[0];
+                      setFromDate(todayStr);
+                      setToDate(todayStr);
+                    }}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+
+              {/* Quick filter buttons */}
+              <button
+                onClick={() => {
+                  const today = new Date();
+                  const todayStr = today.toISOString().split('T')[0];
+                  setFromDate(todayStr);
+                  setToDate(todayStr);
+                }}
+                className="text-xs font-medium text-orange-500 hover:text-orange-600 hover:underline whitespace-nowrap"
+              >
+                Today
+              </button>
+              <button
+                onClick={() => {
+                  const today = new Date();
+                  const weekAgo = new Date(today);
+                  weekAgo.setDate(today.getDate() - 7);
+                  setFromDate(weekAgo.toISOString().split('T')[0]);
+                  setToDate(today.toISOString().split('T')[0]);
+                }}
+                className="text-xs font-medium text-orange-500 hover:text-orange-600 hover:underline whitespace-nowrap"
+              >
+                7 Days
+              </button>
+              <button
+                onClick={() => {
+                  const today = new Date();
+                  const monthAgo = new Date(today);
+                  monthAgo.setMonth(today.getMonth() - 1);
+                  setFromDate(monthAgo.toISOString().split('T')[0]);
+                  setToDate(today.toISOString().split('T')[0]);
+                }}
+                className="text-xs font-medium text-orange-500 hover:text-orange-600 hover:underline whitespace-nowrap"
+              >
+                30 Days
+              </button>
+
               {/* Mobile Filter Button */}
               <button
                 onClick={() => setShowMobileFilter(!showMobileFilter)}
                 className="hover:bg-gray-50 rounded-lg border border-stroke bg-white p-2 transition-colors sm:hidden"
               >
                 <Filter className="text-gray-600 h-4 w-4" />
-              </button>
-
-              <button
-                onClick={() => refetch()}
-                className="rounded bg-orange-500 flex px-1 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 mr-2"
-              >
-                <RefreshCcw size={20} /> Refresh
               </button>
             </div>
           </div>
@@ -585,39 +761,6 @@ export default function WithdrawalRequest() {
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-function SummaryCard({
-  title,
-  value,
-  subValue,
-  subValueColor = 'text-gray-400',
-  icon,
-}: {
-  title: string;
-  value: string;
-  subValue: string;
-  subValueColor?: string;
-  icon: React.ReactNode;
-}) {
-  return (
-    <div className="group flex items-start justify-between rounded-xl border border-stroke bg-white p-4 shadow-sm transition-colors hover:border-orange-200 sm:p-5 lg:p-6">
-      <div>
-        <p className="text-gray-400 mb-1 text-[10px] font-semibold uppercase tracking-wider sm:mb-2 sm:text-xs">
-          {title}
-        </p>
-        <h3 className="text-gray-900 mb-1 text-xl font-bold sm:text-2xl lg:text-3xl">
-          {value}
-        </h3>
-        <p className={`text-[9px] font-medium sm:text-xs ${subValueColor}`}>
-          {subValue}
-        </p>
-      </div>
-      <div className="bg-gray-50 rounded-lg p-1.5 transition-colors group-hover:bg-orange-50 sm:p-2">
-        {icon}
-      </div>
     </div>
   );
 }

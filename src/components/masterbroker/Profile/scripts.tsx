@@ -143,6 +143,7 @@ export const DisplayScripts: React.FC = () => {
     try {
       await updateScriptStatus({
         assets: scriptsToUpdate,
+        securityPin: pin
       });
       await refetch();
       setChangedScripts(new Set());
@@ -339,7 +340,7 @@ export const DisplayScripts: React.FC = () => {
 
               <button
                 onClick={handleConfirmSave}
-                className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-600"
+                className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors "
               >
                 Confirm Save
               </button>

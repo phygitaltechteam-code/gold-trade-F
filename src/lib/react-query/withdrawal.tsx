@@ -1,6 +1,8 @@
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
 import {
   approveWithdrawal,
+  getdepositcompany,
+  getdepositmasterbroker,
   getWithdrawal,
   rejectWithdrawal,
 } from '../api/withdrawal';
@@ -67,3 +69,17 @@ export const useRejectWithdrawal = () => {
     },
   });
 };
+
+
+export const useGetDepositeCompany = () =>
+  useQuery({
+    queryKey: ['deposi-company'],
+    queryFn: () => getdepositcompany(),
+  });
+
+  export const useGetDepositeMaster = () =>
+  useQuery({
+    queryKey: ['deposit'],
+    queryFn: () => getdepositmasterbroker(),
+  });
+

@@ -53,3 +53,24 @@ export const rejectWithdrawal = async (
     throw error;
   }
 };
+
+
+export const getdepositcompany = async () => {
+  try {
+    const response = await api.get(`/company/customer/deposits`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching withdrawal:', error);
+    throw error;
+  }
+};
+
+export const getdepositmasterbroker = async () => {
+  try {
+    const response = await api.get(`/master-broker/customer/deposits`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching withdrawal:', error);
+    throw error;
+  }
+};
