@@ -213,7 +213,7 @@ export default function Depositemaster() {
         {
             header: 'Customer Name',
             accessor: (row: DepositRequest) => (
-                <div className="text-gray-900 text-sm font-semibold">
+                <div className="text-gray-900 text-sm font-sm">
                     {row?.customerName}
                 </div>
             ),
@@ -221,7 +221,7 @@ export default function Depositemaster() {
         {
             header: 'Amount',
             accessor: (row: DepositRequest) => (
-                <div className="text-left text-sm font-bold text-green-600">
+                <div className="text-left text-sm  text-gray-900">
                     {formatIndianCurrency(row.amount)}
                 </div>
             ),
@@ -229,7 +229,7 @@ export default function Depositemaster() {
         {
             header: 'Balance After',
             accessor: (row: DepositRequest) => (
-                <div className="text-gray-900 text-sm font-bold">
+                <div className="text-gray-900 text-sm ">
                     {formatIndianCurrency(row.balanceAfter)}
                 </div>
             ),
@@ -344,7 +344,7 @@ export default function Depositemaster() {
                                         placeholder="Start date"
                                     />
                                 </div>
-                              
+
                                 <div className="flex items-center gap-1">
                                     <label className="text-xs font-medium text-gray-600">To:</label>
                                     <input

@@ -360,7 +360,7 @@ export default function WithdrawalRequest() {
       accessor: (row: WithdrawalRequest) => (
         <div className="flex items-center gap-3">
           <div>
-            <div className="text-gray-900 text-sm font-semibold">
+            <div className="text-gray-900 text-sm font-sm">
               {row?.client?.name}
             </div>
           </div>
@@ -370,7 +370,7 @@ export default function WithdrawalRequest() {
     {
       header: 'Amount',
       accessor: (row: WithdrawalRequest) => (
-        <div className="text-center text-sm font-bold text-orange-500">
+        <div className="text-center text-sm text-gray-900">
           {formatIndianCurrency(row.amount)}
         </div>
       ),
@@ -378,7 +378,7 @@ export default function WithdrawalRequest() {
     {
       header: 'Wallet Balance',
       accessor: (row: WithdrawalRequest) => (
-        <div className="text-gray-900 text-sm text-center font-bold">
+        <div className="text-gray-900 text-sm text-center ">
           {formatIndianCurrency(row.walletBalance)}
         </div>
       ),
@@ -566,10 +566,10 @@ export default function WithdrawalRequest() {
                   {tab}
                   <span
                     className={`ml-2 rounded-md px-1.5 py-0.5 text-[10px] ${tab === 'Pending'
-                        ? 'bg-orange-50 text-orange-600'
-                        : tab === 'Approved'
-                          ? 'bg-emerald-50 text-emerald-600'
-                          : 'bg-red-50 text-red-600'
+                      ? 'bg-orange-50 text-orange-600'
+                      : tab === 'Approved'
+                        ? 'bg-emerald-50 text-emerald-600'
+                        : 'bg-red-50 text-red-600'
                       }`}
                   >
                     {statusCounts[tab] || 0}
@@ -598,7 +598,7 @@ export default function WithdrawalRequest() {
                     placeholder="Start date"
                   />
                 </div>
-                <span className="text-gray-400 text-sm font-medium">to</span>
+
                 <div className="flex items-center gap-2">
                   <label className="text-xs font-medium text-gray-600">To:</label>
                   <input

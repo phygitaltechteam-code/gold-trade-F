@@ -213,7 +213,7 @@ export default function DepositeCompany() {
         {
             header: 'Customer Name',
             accessor: (row: DepositRequest) => (
-                <div className="text-gray-900 text-sm font-semibold">
+                <div className="text-gray-900 text-sm font-sm">
                     {row?.customerName}
                 </div>
             ),
@@ -221,7 +221,7 @@ export default function DepositeCompany() {
         {
             header: 'Amount',
             accessor: (row: DepositRequest) => (
-                <div className="text-left text-sm font-bold text-green-600">
+                <div className="text-left text-sm  text-gray-900">
                     {formatIndianCurrency(row.amount)}
                 </div>
             ),
@@ -229,7 +229,7 @@ export default function DepositeCompany() {
         {
             header: 'Balance After',
             accessor: (row: DepositRequest) => (
-                <div className="text-gray-900 text-sm font-bold">
+                <div className="text-gray-900 text-sm ">
                     {formatIndianCurrency(row.balanceAfter)}
                 </div>
             ),

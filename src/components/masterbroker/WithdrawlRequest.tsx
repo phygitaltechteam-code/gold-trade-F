@@ -176,6 +176,28 @@ export default function WithdrawalRequest() {
     return new Intl.NumberFormat('en-IN').format(num);
   };
 
+  // Format date and time - Date above, Time below
+  const formatDateTime = (dateTime: string) => {
+    if (!dateTime) return 'N/A';
+
+    const date = new Date(dateTime);
+    if (isNaN(date.getTime())) return 'N/A';
+
+    const formattedDate = date.toLocaleString('en-IN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+
+    const formattedTime = date.toLocaleString('en-IN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
+
+    return { date: formattedDate, time: formattedTime };
+  };
+
   // Date filtering logic - If no dates selected, show all data
   const filterByDate = (dateString: string) => {
     if (!fromDate || !toDate) return true;
@@ -206,10 +228,7 @@ export default function WithdrawalRequest() {
         id: item.id,
         requestId: `REQ${String(index + 1).padStart(3, '0')}`,
         date: item.createdAt || new Date().toISOString().split('T')[0],
-        time: new Date(item.createdAt).toLocaleTimeString('en-IN', {
-          hour: '2-digit',
-          minute: '2-digit',
-        }),
+        time: item.createdAt || new Date().toISOString(),
 
         client: {
           name: item.customer?.user?.fullname || item.customerName || 'N/A',
@@ -342,14 +361,26 @@ export default function WithdrawalRequest() {
 
   const showActions = activeTab !== 'Approved' && activeTab !== 'Rejected';
 
-  // All columns - showing all data with 2 decimal places
+  // All columns - with Date above and Time below
   const allColumns = [
+    {
+      header: 'Date',
+      accessor: (row: WithdrawalRequest) => {
+        const formatted = formatDateTime(row.date);
+        return (
+          <div>
+            <div className="text-gray-900 text-sm">{formatted?.date || 'N/A'}</div>
+            <div className="text-gray-400 text-xs">{formatted?.time || ''}</div>
+          </div>
+        );
+      },
+    },
     {
       header: 'Trader Name',
       accessor: (row: WithdrawalRequest) => (
         <div className="flex items-center gap-3">
           <div>
-            <div className="text-gray-900 text-sm font-semibold">
+            <div className="text-gray-900 text-sm font-sm">
               {row?.client?.name}
             </div>
           </div>
@@ -357,15 +388,9 @@ export default function WithdrawalRequest() {
       ),
     },
     {
-      header: 'Date',
-      accessor: (row: WithdrawalRequest) => (
-        <span className="text-gray-600 text-sm">{row.date}</span>
-      ),
-    },
-    {
       header: 'Wallet Balance',
       accessor: (row: WithdrawalRequest) => (
-        <div className="text-gray-900 text-left text-sm font-bold">
+        <div className="text-gray-900 text-left text-sm ">
           {formatCurrency(row.walletBalance)}
         </div>
       ),
@@ -373,7 +398,7 @@ export default function WithdrawalRequest() {
     {
       header: 'Withdraw Amount',
       accessor: (row: WithdrawalRequest) => (
-        <div className="text-left text-sm font-bold text-orange-500">
+        <div className="text-left text-sm text-orange-500">
           {formatCurrency(row.amount)}
         </div>
       ),
