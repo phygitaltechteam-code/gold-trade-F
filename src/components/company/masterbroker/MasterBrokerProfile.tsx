@@ -61,6 +61,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
   const [commissionPin, setCommissionPin] = useState('');
   const [showCommissionPin, setShowCommissionPin] = useState(false);
   const [commissionType, setCommissionType] = useState<'credit' | 'debit'>('credit');
+  const [statusFilter, setStatusFilter] = useState('')
 
   const { data: profileData, refetch } = useGetAllMasterBrockerById(id);
   const { data: ledgerData = [] } = useGetMasterbrokerLedgerById(id);
@@ -281,19 +282,18 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
   // ];
 
   // const expandedLedgerColumns = [
-    {header: 'Date & Time', accessor: 'dateTime'},
-    {header: 'Customer Name', accessor: 'customerName'},
-    {header: 'Script', accessor: 'script'},
-    {header: 'Qty/Lot', accessor: (item) => formatQtyLot(item)},
-    {header: 'Buy Price', accessor: 'buyPrice'},
-    {header: 'Sell Price', accessor: 'sellPrice'},
+ 
+    
+   
+    
+   
+    
     {header: 'Buy Time', accessor: 'buyTime'},
     {header: 'Sell Time', accessor: 'sellTime'},
-    {header: 'Status', accessor: 'status'},
-    {header: 'P&L', accessor: (item) => formatPnL(item)},
-    {header: 'Admin Commission', accessor: 'companyCommission'},
-    {header: 'Super Broker Commission', accessor: 'superBrokerCommission'},
-    {header: 'Broker Commission', accessor: 'brokerCommission'},
+   
+    {header: 'Master Broker Commission', accessor: 'masterBrokerCommission'},
+    // {header: 'Super Broker Commission', accessor: 'superBrokerCommission'},
+    // {header: 'Broker Commission', accessor: 'brokerCommission'},
   ];
 
   // const ledgerColumns = isLedgerExpanded
@@ -517,6 +517,8 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
 
   const filteredLedgerData = useMemo(() => {
     if (!ledgerStartDate || !ledgerEndDate) return ledgerDataWithSr;
+
+ 
     return ledgerDataWithSr?.filter((item: any) => {
       const itemDate = new Date(item.dateTime);
       const startDate = new Date(ledgerStartDate);

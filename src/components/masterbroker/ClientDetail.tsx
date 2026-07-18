@@ -73,6 +73,7 @@ export const ClientDetail: React.FC = () => {
 
   const displayClient = clientData;
   const [activeTab, setActiveTab] = useState('ledger');
+  const [statusFilter, setStatusFilter] = useState('');
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [walletActionType, setWalletActionType] = useState<'add' | 'withdraw'>(
     'add',
@@ -201,6 +202,18 @@ export const ClientDetail: React.FC = () => {
       pnl: item.pnl ?? item['p&l'] ?? 0,
       masterBrokerCommission: item.masterBrokerCommission,
     })) || [];
+
+  // Filter data by status
+  const filteredLedgerRows = statusFilter
+    ? ledgerRows.filter((item: any) => {
+        const itemStatus = item.status?.toUpperCase() || '';
+        const filterVal = statusFilter.toUpperCase();
+        if (filterVal === 'CLOSE' || filterVal === 'CLOSED') {
+          return itemStatus === 'CLOSE' || itemStatus === 'CLOSED';
+        }
+        return itemStatus === filterVal;
+      })
+    : ledgerRows;
 
   const paymentColumns = [
     { header: 'Date/Time', accessor: 'dateTime' },
@@ -886,9 +899,20 @@ export const ClientDetail: React.FC = () => {
 
             {activeTab === 'ledger' && (
               <div className="overflow-x-auto">
+                <div className="mb-4 flex flex-wrap items-center gap-3">
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="rounded border border-stroke bg-transparent px-3 py-1 text-sm outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                  >
+                    <option value="">All Statuses</option>
+                    <option value="OPEN">Open</option>
+                    <option value="CLOSED">Closed</option>
+                  </select>
+                </div>
                 <GenericTable
                   columns={baseColumns}
-                  data={ledgerRows}
+                  data={filteredLedgerRows}
                   paginationOff={true}
                 />
               </div>

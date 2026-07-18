@@ -28,8 +28,6 @@ import {
   useUpdateCustomer,
 } from '@/lib/api/customer';
 import { useNavigate } from '@tanstack/react-router';
-import { confirmAlert } from 'react-confirm-alert';
-import 'react-confirm-alert/src/react-confirm-alert.css';
 
 const PendingApprovals: React.FC = () => {
   const navigate = useNavigate();

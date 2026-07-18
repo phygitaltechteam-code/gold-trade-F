@@ -12,6 +12,7 @@ import { Route } from '@/routes/_app/companybroker/SuperbrockerProfile.$id';
 import { useNavigate } from '@tanstack/react-router';
 import toast from 'react-hot-toast';
 import { Eye, EyeOff } from 'lucide-react';
+import { formatIndianNumber } from '@/utils/formatIndianNumber';
 
 // Format date function
 const formatDateTime = (dateString: string) => {
@@ -45,6 +46,7 @@ const SuperBrokerProfile = () => {
   const [ledgerEndDate, setLedgerEndDate] = useState('');
   const [commissionStartDate, setCommissionStartDate] = useState('');
   const [commissionEndDate, setCommissionEndDate] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
 
   // Password visibility state
   const [showPassword, setShowPassword] = useState(false);
@@ -74,7 +76,7 @@ const SuperBrokerProfile = () => {
     data: paymentDataFromApi,
     isLoading: isLoadingPayment,
     refetch: refetchPayment,
-    
+
   } = useGetSuperBrokerPaymentHistory(id);
 
 
@@ -221,13 +223,13 @@ const SuperBrokerProfile = () => {
     if (!paymentDataFromApi || !Array.isArray(paymentDataFromApi.data)) {
       return [];
     }
-  
+
     return paymentDataFromApi.data.map((item: any) => ({
       // Store the original date for filtering
       rawDate: item.date || item.createdAt || item.paymentDate || item.paidDate,
       date: formatDateTime(item.date || item.createdAt || item.paymentDate || item.paidDate),
       commissionGenerated: item.commissionGenerated || item.totalCommission || 0,
-      pendingGenerated: item.commissionGenerated - item.paidCommission  || 0,
+      pendingGenerated: item.commissionGenerated - item.paidCommission || 0,
       paidCommission: item.paidCommission || item.paidAmount || 0,
       paidDate: item.paidDate ? formatDateTime(item.paidDate) : '-',
       status: item.status || item.paymentStatus || 'Pending',
@@ -260,18 +262,11 @@ const SuperBrokerProfile = () => {
     { header: 'Sell Price', accessor: 'sellPrice' },
     { header: 'Status', accessor: 'status' },
     { header: 'P&L', accessor: 'pnl' },
-  // ];
+    // ];
 
-  // const expandedLedgerColumns = [
-    { header: 'Customer Name', accessor: 'customerName' },
-    { header: 'Script', accessor: 'script' },
-    { header: 'Qty/Lot', accessor: 'qty' },
-    { header: 'Buy Price', accessor: 'buyPrice' },
-    { header: 'Sell Price', accessor: 'sellPrice' },
+    // const expandedLedgerColumns = [
     { header: 'Buy Time', accessor: 'buyTime' },
     { header: 'Sell Time', accessor: 'sellTime' },
-    { header: 'Status', accessor: 'status' },
-    { header: 'P&L', accessor: 'pnl' },
     { header: 'Super Broker commission', accessor: 'superBrokerCommission' },
   ];
 
@@ -280,45 +275,44 @@ const SuperBrokerProfile = () => {
   //   : baseLedgerColumns;
 
   const paymentColumns = [
-  { header: 'S.No', accessor: 'sr' },
-  { 
-    header: 'Date', 
-    accessor: 'date',
-    render: (item: any) => <span>{item.date}</span>
-  },
-  { 
-    header: 'Commission Generated', 
-    accessor: 'commissionGenerated',
-    render: (item: any) => <span>₹{item.commissionGenerated?.toLocaleString() || '0'}</span>
-  },
-  { 
-    header: 'Pending Commission', 
-    accessor: 'PendingCommission',
-    render: (item: any) => <span>₹{item.PendingCommission?.toLocaleString() || '0'}</span>
-  },
-  { 
-    header: 'Paid Commission', 
-    accessor: 'paidcommission',
-    render: (item: any) => <span>₹{item.paidcommission?.toLocaleString() || '0'}</span>
-  },
-  { 
-    header: 'Paid Date', 
-    accessor: 'paidDate' 
-  },
-  { 
-    header: 'Status', 
-    accessor: 'status',
-    render: (item: any) => (
-      <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-        item.status === 'Paid' ? 'bg-green-100 text-green-700' :
-        item.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
-        'bg-gray-100 text-gray-700'
-      }`}>
-        {item.status}
-      </span>
-    )
-  },
-];
+    { header: 'S.No', accessor: 'sr' },
+    {
+      header: 'Date',
+      accessor: 'date',
+      render: (item: any) => <span>{item.date}</span>
+    },
+    {
+      header: 'Commission Generated',
+      accessor: 'commissionGenerated',
+      render: (item: any) => <span>₹{formatIndianNumber(item.commissionGenerated)} </span>
+    },
+    {
+      header: 'Pending Commission',
+      accessor: 'PendingCommission',
+      render: (item: any) => <span>₹{formatIndianNumber(item.PendingCommission)}</span>
+    },
+    {
+      header: 'Paid Commission',
+      accessor: 'paidcommission',
+      render: (item: any) => <span>₹{formatIndianNumber(item.paidcommission)}</span>
+    },
+    {
+      header: 'Paid Date',
+      accessor: 'paidDate'
+    },
+    {
+      header: 'Status',
+      accessor: 'status',
+      render: (item: any) => (
+        <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${item.status === 'Paid' ? 'bg-green-100 text-green-700' :
+          item.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
+            'bg-gray-100 text-gray-700'
+          }`}>
+          {item.status}
+        </span>
+      )
+    },
+  ];
 
   // Commission History Columns
   const commissionColumns = [
@@ -398,12 +392,12 @@ const SuperBrokerProfile = () => {
     {
       header: 'Total Brokers',
       accessor: 'totalBrokers',
-      render: () => <span className="text-gray-700">-</span>,
+      render: () => <span className="text-gray-700"></span>,
     },
     {
       header: 'Total Business',
       accessor: 'totalBusiness',
-      render: () => <span className="text-gray-700">-</span>,
+      render: (item: any) => <span className="text-gray-700">-</span>,
     },
     {
       header: 'Total Commission',
@@ -531,16 +525,34 @@ const SuperBrokerProfile = () => {
   };
 
   const filteredLedgerData = useMemo(() => {
-    if (!ledgerStartDate || !ledgerEndDate) return ledgerDataWithSr;
-    return ledgerDataWithSr.filter((item: any) => {
-      const itemDate = new Date(item.rawDateTime);
-      const startDate = new Date(ledgerStartDate);
-      const endDate = new Date(ledgerEndDate);
-      startDate.setHours(0, 0, 0, 0);
-      endDate.setHours(23, 59, 59, 999);
-      return itemDate >= startDate && itemDate <= endDate;
-    });
-  }, [ledgerDataWithSr, ledgerStartDate, ledgerEndDate]);
+    let result = ledgerDataWithSr;
+
+    if (statusFilter) {
+      result = result.filter((item: any) => {
+        const itemStatus = item.status?.toLowerCase() || '';
+        const filterVal = statusFilter.toLowerCase();
+        if (filterVal === 'close' || filterVal === 'closed') {
+          return itemStatus === 'close' || itemStatus === 'closed';
+        }
+        return itemStatus === filterVal;
+      });
+    }
+
+    if (ledgerStartDate && ledgerEndDate) {
+      result = result.filter((item: any) => {
+        const itemDate = new Date(item.rawDateTime);
+        const startDate = new Date(ledgerStartDate);
+        const endDate = new Date(ledgerEndDate);
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setHours(23, 59, 59, 999);
+        return itemDate >= startDate && itemDate <= endDate;
+      });
+    }
+
+    return result;
+  }, [ledgerDataWithSr, ledgerStartDate, ledgerEndDate, statusFilter]);
+
+  ;
 
   const filteredPaymentData = useMemo(() => {
     if (!paymentStartDate || !paymentEndDate) return paymentDataWithSr;
@@ -956,7 +968,7 @@ const SuperBrokerProfile = () => {
 
       {/* Statistics Cards */}
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
-             <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-blue-500 md:text-2xl">
             {profileData?.brokers?.length || 0}
           </h4>
@@ -966,7 +978,7 @@ const SuperBrokerProfile = () => {
         </div>
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-green-500 md:text-2xl">
-            ₹{profileData?.totalCommission?.toLocaleString() || '0'}
+            ₹{formatIndianNumber(profileData?.totalCommission)}
           </h4>
           <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
             Total Commission
@@ -974,7 +986,7 @@ const SuperBrokerProfile = () => {
         </div>
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-orange-500 md:text-2xl">
-            ₹{paymentDataFromApi?.summary?.totalPaidCommission?.toLocaleString() || '0'}
+            ₹{formatIndianNumber(paymentDataFromApi?.summary?.totalPaidCommission)}
           </h4>
           <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
             Total Paid Commission
@@ -982,13 +994,13 @@ const SuperBrokerProfile = () => {
         </div>
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-orange-500 md:text-2xl">
-            ₹{paymentDataFromApi?.summary?.pendingCommission.toLocaleString() || '0'}
+            ₹{formatIndianNumber(paymentDataFromApi?.summary?.pendingCommission)}
           </h4>
           <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
             Pending Commission
           </span>
         </div>
-   
+
       </div>
 
       {/* Tabs Section */}
@@ -1081,6 +1093,21 @@ const SuperBrokerProfile = () => {
                       className="rounded border border-stroke bg-transparent px-2 py-1 text-xs outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-3 md:py-1 md:text-sm"
                     />
                   </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-sm font-medium text-black dark:text-white">
+                      Status:
+                    </label>
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="rounded border border-stroke bg-transparent px-3 py-1.5 text-sm outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                    >
+                      <option value="">All</option>
+                      <option value="open">Open</option>
+                      <option value="closed">Closed</option>
+                    </select>
+                  </div>
+                  
                   {/* <button
                     onClick={() => setIsLedgerExpanded(!isLedgerExpanded)}
                     className="rounded bg-orange-500 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-orange-600 md:px-4 md:py-2 md:text-sm"
@@ -1089,6 +1116,7 @@ const SuperBrokerProfile = () => {
                   </button> */}
                 </div>
               </div>
+
               {isLoadingLedger ? (
                 <div className="flex justify-center py-8">
                   <div className="h-8 w-8 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
@@ -1132,7 +1160,7 @@ const SuperBrokerProfile = () => {
                       className="rounded border border-stroke bg-transparent px-2 py-1 text-xs outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-3 md:py-1 md:text-sm"
                     />
                   </div>
-                  
+
                   {(paymentStartDate || paymentEndDate) && (
                     <button
                       onClick={() => {
