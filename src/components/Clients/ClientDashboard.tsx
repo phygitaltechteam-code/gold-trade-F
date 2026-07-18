@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
-import { useAuthContext } from '@/context/AuthContext';
+import React, {useEffect, useState} from 'react';
+import {useNavigate} from '@tanstack/react-router';
+import {useAuthContext} from '@/context/AuthContext';
 import {
   Search,
   Plus,
@@ -15,17 +15,17 @@ import {
   DollarSign,
   RefreshCw,
 } from 'lucide-react';
-import { Client } from './types';
-import { motion } from 'framer-motion';
-import { useActivateCustomer, useGetClients } from '@/lib/react-query/client';
-import { useGetAllSuperBrocker } from '@/lib/react-query/superbrocker';
+import {Client} from './types';
+import {motion} from 'framer-motion';
+import {useActivateCustomer, useGetClients} from '@/lib/react-query/client';
+import {useGetAllSuperBrocker} from '@/lib/react-query/superbrocker';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 
 interface ClientDashboardProps {
   onSelectClient?: (client: Client) => void;
 }
 
-const StatCard = ({ title, value, trend, icon: Icon, isLoading }: any) => (
+const StatCard = ({title, value, trend, icon: Icon, isLoading}: any) => (
   <div className="group relative overflow-hidden rounded-lg border border-stroke bg-white p-4 shadow-sm transition-all hover:shadow-md md:p-5">
     <div className="flex items-start justify-between">
       <div className="flex-1">
@@ -50,10 +50,11 @@ const StatCard = ({ title, value, trend, icon: Icon, isLoading }: any) => (
     {trend && !isLoading && (
       <div className="mt-2 flex items-center gap-2">
         <span
-          className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${trend > 0
-            ? 'bg-emerald-50 text-emerald-600'
-            : 'bg-rose-50 text-rose-600'
-            }`}
+          className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
+            trend > 0
+              ? 'bg-emerald-50 text-emerald-600'
+              : 'bg-rose-50 text-rose-600'
+          }`}
         >
           {trend > 0 ? '↑' : '↓'} {Math.abs(trend)}%
         </span>
@@ -64,7 +65,7 @@ const StatCard = ({ title, value, trend, icon: Icon, isLoading }: any) => (
 
 export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
   const navigate = useNavigate();
-  const { user } = useAuthContext();
+  const {user} = useAuthContext();
   const isBroker = user?.role === 'BROKER';
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [showPinModal, setShowPinModal] = useState(false);
@@ -73,9 +74,9 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [brokerFilter, setBrokerFilter] = useState<string>('all');
   const [superBrokerFilter, setSuperBrokerFilter] = useState<string>('all');
-  const { mutateAsync: statusChange, isPending } = useActivateCustomer();
-  const { data: allSuperBrocker } = useGetAllSuperBrocker();
-  const { data: clients = [], refetch, isLoading, isFetching } = useGetClients();
+  const {mutateAsync: statusChange, isPending} = useActivateCustomer();
+  const {data: allSuperBrocker} = useGetAllSuperBrocker();
+  const {data: clients = [], refetch, isLoading, isFetching} = useGetClients();
   const [customerFilter, setCustomerFilter] = useState("all");
 
   // Extract unique broker names for filter
@@ -102,18 +103,18 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
   ).length;
   const totalAUM = clients.reduce(
     (sum: number, c: Client) => {
-      const balance = c.walletBalance !== undefined
-        ? Number(c.walletBalance)
-        : (typeof c.wallets?.amount === 'number'
-          ? c.wallets.amount
-          : parseFloat(c.wallets?.amount as string) || 0);
+      const balance = c.walletBalance !== undefined 
+        ? Number(c.walletBalance) 
+        : (typeof c.wallets?.amount === 'number' 
+            ? c.wallets.amount 
+            : parseFloat(c.wallets?.amount as string) || 0);
       return sum + balance;
     },
     0,
   );
 
   const totalDemoTraders = clients.filter(
-    (c: Client) => c?.isDemo === true
+    (c: Client) => c?.isDemo===true
   ).length;
 
   const totalWalletBalance = clients.reduce(
@@ -121,20 +122,20 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
     0,
   );
 
-  const assetUnderControll = clients.reduce(
+   const assetUnderControll = clients.reduce(
     (sum: number, c: Client) => sum + (Number(c.assetUnderControll) || 0),
     0,
-  )
+   )
 
-  const totalMarginAmount = clients.reduce(
+   const totalMarginAmount = clients.reduce(
     (sum: number, c: Client) => sum + (Number(c.marginAmount) || 0),
     0,
-  )
+   )
 
-  const totalTrades = clients.reduce(
+   const totalTrades = clients.reduce(
     (sum: number, c: Client) => sum + (Number(c.totalTrade) || 0),
     0,
-  )
+   )
 
   // Total active trades count
   const totalActiveTrades = clients.reduce(
@@ -152,10 +153,10 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
   const lastWalletBalance =
     clients.length > 0
       ? (clients[clients.length - 1]?.walletBalance !== undefined
-        ? Number(clients[clients.length - 1]?.walletBalance)
-        : (typeof clients[clients.length - 1]?.wallets?.amount === 'number'
-          ? (clients[clients.length - 1]?.wallets?.amount as number)
-          : parseFloat(clients[clients.length - 1]?.wallets?.amount as string) || 0))
+          ? Number(clients[clients.length - 1]?.walletBalance)
+          : (typeof clients[clients.length - 1]?.wallets?.amount === 'number'
+              ? (clients[clients.length - 1]?.wallets?.amount as number)
+              : parseFloat(clients[clients.length - 1]?.wallets?.amount as string) || 0))
       : 0;
 
   // const filteredClients = clients.filter((client: Client) => {
@@ -176,38 +177,38 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
 
 
   const filteredClients = clients.filter((client: Client) => {
-    const matchesSearch =
-      client.user?.fullname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      client.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      client.user?.phoneNumber?.includes(searchTerm) ||
-      client.CRN?.toLowerCase().includes(searchTerm.toLowerCase());
+  const matchesSearch =
+    client.user?.fullname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.user?.phoneNumber?.includes(searchTerm) ||
+    client.CRN?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesBroker =
-      brokerFilter === "all" ||
-      client?.broker?.user?.fullname === brokerFilter;
+  const matchesBroker =
+    brokerFilter === "all" ||
+    client?.broker?.user?.fullname === brokerFilter;
 
-    const matchesSuperBroker =
-      superBrokerFilter === "all" ||
-      client?.broker?.superBroker?.user?.fullname === superBrokerFilter;
+  const matchesSuperBroker =
+    superBrokerFilter === "all" ||
+    client?.broker?.superBroker?.user?.fullname === superBrokerFilter;
 
-    const matchesCustomer =
-      customerFilter === "all"
-        ? true
-        : customerFilter === "active"
-          ? client.user?.isActive
-          : customerFilter === "inactive"
-            ? !client.user?.isActive
-            : customerFilter === "demo"
-              ? client.isDemo
-              : true;
+  const matchesCustomer =
+    customerFilter === "all"
+      ? true
+      : customerFilter === "active"
+      ? client.user?.isActive
+      : customerFilter === "inactive"
+      ? !client.user?.isActive
+      : customerFilter === "demo"
+      ? client.isDemo
+      : true;
 
-    return (
-      matchesSearch &&
-      matchesBroker &&
-      matchesSuperBroker &&
-      matchesCustomer
-    );
-  });
+  return (
+    matchesSearch &&
+    matchesBroker &&
+    matchesSuperBroker &&
+    matchesCustomer
+  );
+});
   const handleToggleClick = (client: Client, e: React.MouseEvent) => {
     e.stopPropagation();
     setSelectedClientId(client.id);
@@ -242,8 +243,8 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
     }
   };
 
-  const handleRowClick = (client: Client) => {
-    navigate({ to: '/companybroker/clientdetail/$id', params: { id: client.id } });
+  const  handleRowClick = (client: Client) => {
+    navigate({to: '/companybroker/clientdetail/$id', params: {id: client.id}});
   };
 
   const formatCurrency = (amount: number) => {
@@ -298,11 +299,11 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       accessor: 'wallets.amount',
       // isSort:true,
       render: (row: Client) => {
-        const amount = row.walletBalance !== undefined
-          ? Number(row.walletBalance)
-          : (typeof row.wallets?.amount === 'number'
-            ? row.wallets.amount
-            : parseFloat(row.wallets?.amount as string) || 0);
+        const amount = row.walletBalance !== undefined 
+          ? Number(row.walletBalance) 
+          : (typeof row.wallets?.amount === 'number' 
+              ? row.wallets.amount 
+              : parseFloat(row.wallets?.amount as string) || 0);
         return (
           <span className="whitespace-nowrap text-sm font-bold text-slate-900">
             ₹{amount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
@@ -314,11 +315,11 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       header: 'Asset Under Control',
       accessor: 'wallets.blockedAmount',
       render: (row: Client) => {
-        const amount = row.assetUnderControl !== undefined
-          ? Number(row.assetUnderControl)
-          : (typeof row.wallets?.blockedAmount === 'number'
-            ? row.wallets.blockedAmount
-            : parseFloat(row.wallets?.blockedAmount as string) || 0);
+        const amount = row.assetUnderControl !== undefined 
+          ? Number(row.assetUnderControl) 
+          : (typeof row.wallets?.blockedAmount === 'number' 
+              ? row.wallets.blockedAmount 
+              : parseFloat(row.wallets?.blockedAmount as string) || 0);
         return (
           <span className="whitespace-nowrap text-sm font-bold text-slate-900">
             ₹{amount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
@@ -342,7 +343,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       header: 'Total Active Trade',
       accessor: 'totalActiveTrade',
       render: (row: Client) => (
-        <span className="whitespace-nowrap text-sm font-medium text-slate-900">
+        <span className="whitespace-nowrap text-sm font-medium text-slate-600">
           {row.totalActiveTrade !== undefined ? row.totalActiveTrade : (row._count?.trades || 0)}
         </span>
       ),
@@ -360,21 +361,21 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       },
     },
 
-    {
-      header: 'Demo Account',
-      accessor: 'isDemo',
-      render: (row: Client) => (
-        <div className="pointer-events-none">
-          <input
-            type="checkbox"
-            checked={!!row.isDemo}
-            readOnly
-            disabled
-            className="h-4 w-4 accent-orange-500"
-          />
-        </div>
-      ),
-    },
+  {
+  header: 'Demo Account',
+  accessor: 'isDemo',
+  render: (row: Client) => (
+   <div className="pointer-events-none">
+  <input
+    type="checkbox"
+    checked={!!row.isDemo}
+    readOnly
+    disabled
+    className="h-4 w-4 accent-orange-500"
+  />
+</div>
+  ),
+},
     // {
     //   header: 'P&L',
     //   accessor: 'pnl',
@@ -427,8 +428,8 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{opacity: 0, y: 20}}
+      animate={{opacity: 1, y: 0}}
       className="max-w-9xl mx-auto px-4 py-6 md:px-6 md:py-8"
     >
       {/* Header */}
@@ -436,7 +437,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
         <h1 className="text-2xl font-semibold text-slate-900 md:text-3xl">
           Trader Management
         </h1>
-
+      
         <div className="flex items-center gap-3">
           <button
             onClick={() => refetch()}
@@ -447,7 +448,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
             Refresh
           </button>
           <button
-            onClick={() => navigate({ to: '/companybroker/companyaddcustomer' })}
+            onClick={() => navigate({to: '/companybroker/companyaddcustomer'})}
             className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:scale-[1.02] hover:from-orange-600 hover:to-red-600"
           >
             <Plus className="h-4 w-4" />
@@ -509,14 +510,14 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
           isLoading={isLoading}
         /> */}
 
-        <StatCard
+         <StatCard
           title="Total Margin Amount"
           value={Number(totalMarginAmount).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
           // subtext="Assets under mgmt"
           icon={Wallet}
           isLoading={isLoading}
         />
-        <StatCard
+         <StatCard
           title="Total Trades"
           value={totalTrades.toLocaleString()}
           // subtext="Latest client"
@@ -579,17 +580,17 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
             </select>
           </div>
           <div className="w-full md:w-56">
-            <select
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 md:py-3"
-              value={customerFilter}
-              onChange={(e) => setCustomerFilter(e.target.value)}
-            >
-              <option value="all">All Customers ({totalClients})</option>
-              <option value="active">Active Customers ({activeTraders})</option>
-              <option value="inactive">Inactive Customers ({totalClients - activeTraders})</option>
-              <option value="demo">Demo Customers ({totalDemoTraders})</option>
-            </select>
-          </div>
+  <select
+    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 md:py-3"
+    value={customerFilter}
+    onChange={(e) => setCustomerFilter(e.target.value)}
+  >
+    <option value="all">All Customers</option>
+    <option value="active">Active Customers</option>
+    <option value="inactive">Inactive Customers</option>
+    <option value="demo">Demo Customers</option>
+  </select>
+</div>
         </div>
       </div>
 
@@ -659,10 +660,11 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
               <button
                 onClick={handleConfirm}
                 disabled={isPending}
-                className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${selectedClient?.user?.isActive
-                  ? 'bg-red-500 hover:bg-red-600'
-                  : 'bg-emerald-500 hover:bg-emerald-600'
-                  } disabled:opacity-50`}
+                className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${
+                  selectedClient?.user?.isActive
+                    ? 'bg-red-500 hover:bg-red-600'
+                    : 'bg-emerald-500 hover:bg-emerald-600'
+                } disabled:opacity-50`}
               >
                 {isPending ? 'Processing...' : 'Confirm'}
               </button>

@@ -11,7 +11,6 @@ import {
   IndianRupee,
   ArrowDownRight,
   Activity,
-  CheckCircle,
 } from 'lucide-react';
 import {useAuthContext} from '@/context/AuthContext';
 import {useGetSuperBrokerDashboard} from '@/lib/api/dashboard';
@@ -120,8 +119,6 @@ const SuperBrokerDashboard: React.FC = () => {
   // Extract data from API response
   const dashboardStats = {
     noOfBroker: dashboardData?.data?.cards?.brokers?.total ?? 0,
-    pendingBrokerCommission: dashboardData?.data?.cards?.brokers?.pendingCommission ?? 0,
-    
     activeBrokers: dashboardData?.data?.cards?.brokers?.active ?? 0,
     noOfCustomer: dashboardData?.data?.cards?.customers?.total ?? 0,
     activeCustomers: dashboardData?.data?.cards?.customers?.active ?? 0,
@@ -198,7 +195,7 @@ const SuperBrokerDashboard: React.FC = () => {
         </motion.div>
 
         {/* Row 1: Downline Statistics */}
-        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-4 md:grid-cols-4">
+        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
           <StatCard
             title="My Brokers"
             value={formatNumber(dashboardStats.noOfBroker)}
@@ -206,16 +203,24 @@ const SuperBrokerDashboard: React.FC = () => {
             icon={Briefcase}
             iconColor="text-blue-500"
           />
-         <FinancialStatCard
-    title="Paid Commission"
-    amount={formatCurrency(
-      dashboardStats.superBrokerTotalCommission -
-      dashboardStats.pendingSuperBrokerCommission
-    )}
-    icon={CheckCircle}
-    iconColor="text-blue-500"
-  />
-  <FinancialStatCard
+          <StatCard
+            title="My Customers"
+            value={formatNumber(dashboardStats.noOfCustomer)}
+            // subValue={`${dashboardStats.activeCustomers} Active`}
+            icon={Users}
+            iconColor="text-green-500"
+          />
+          <StatCard
+            title="Active Trends"
+            value={formatNumber(dashboardStats.totalActiveTrends)}
+            icon={Activity}
+            iconColor="text-orange-500"
+          />
+        </div>
+
+        {/* Row 2: Commission & Earnings Cards */}
+        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+          <FinancialStatCard
             title="My Total Commission"
             amount={formatCurrency(dashboardStats.superBrokerTotalCommission)}
             icon={Wallet}
@@ -229,36 +234,18 @@ const SuperBrokerDashboard: React.FC = () => {
             iconColor="text-orange-500"
             // subtext="Awaiting settlement"
           />
-          {/* <StatCard
-            title="My Customers"
-            value={formatNumber(dashboardStats.noOfCustomer)}
-            // subValue={`${dashboardStats.activeCustomers} Active`}
-            icon={Users}
-            iconColor="text-green-500"
-          />
-          <StatCard
-            title="Active Trends"
-            value={formatNumber(dashboardStats.totalActiveTrends)}
-            icon={Activity}
-            iconColor="text-orange-500"
-          /> */}
-        </div>
-
-        {/* Row 2: Commission & Earnings Cards */}
-        {/* <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3"> */}
-          
-          {/* <FinancialStatCard
+          <FinancialStatCard
             title="Total Broker Commission"
             amount={formatCurrency(dashboardStats.totalBrokerCommission)}
             icon={Landmark}
             iconColor="text-indigo-500"
             // subtext="Commission earned by brokers under me"
-          /> */}
-        {/* </div> */}
+          />
+        </div>
 
         {/* Row 3: Financial Overview */}
         <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-          {/* <FinancialStatCard
+          <FinancialStatCard
             title="Customer Wallet Balance"
             amount={formatCurrency(dashboardStats.totalCustomerWalletBalance)}
             icon={IndianRupee}
@@ -277,8 +264,8 @@ const SuperBrokerDashboard: React.FC = () => {
             amount={formatCurrency(dashboardStats.totalWithdrawals)}
             icon={ArrowDownRight}
             iconColor="text-red-500"
-            // subtext="Total customer withdrawals" */}
-          {/* /> */}
+            // subtext="Total customer withdrawals"
+          />
         </div>
       </div>
     </motion.div>

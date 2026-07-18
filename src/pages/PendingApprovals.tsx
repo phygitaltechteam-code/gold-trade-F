@@ -559,7 +559,7 @@ const PendingApprovals: React.FC = () => {
       accessor: 'fullname',
       render: (item: any) => (
         <div>
-          <div className="text-gray-900 font-sm">
+          <div className="text-gray-900 font-semibold">
             {item.fullname || 'N/A'}
           </div>
           <div className="text-gray-500 text-xs">
@@ -670,7 +670,7 @@ const PendingApprovals: React.FC = () => {
       accessor: (item: any) => item?.user?.fullname || 'N/A',
       render: (item: any) => (
         <div>
-          <div className="text-gray-900 font-sm">
+          <div className="text-gray-900 font-semibold">
             {item?.user?.fullname || 'N/A'}
           </div>
           <div className="text-gray-500 text-xs">CRN: {item.CRN || 'N/A'}</div>

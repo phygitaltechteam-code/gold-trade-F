@@ -40,7 +40,7 @@ export const ClientTabs: React.FC<ClientTabsProps> = ({
             onClick={() => setActiveTab('ledger')}
             className={`px-3 py-2 text-xs font-semibold transition-colors md:px-4 md:py-3 md:text-sm ${
               activeTab === 'ledger'
-                ? 'border-b-2'
+                ? 'border-b-2 border-orange-500 text-orange-500'
                 : 'text-slate-500 hover:text-slate-700'
             }`}
           >
@@ -50,7 +50,7 @@ export const ClientTabs: React.FC<ClientTabsProps> = ({
             onClick={() => setActiveTab('payment')}
             className={`px-3 py-2 text-xs font-semibold transition-colors md:px-4 md:py-3 md:text-sm ${
               activeTab === 'payment'
-                ? 'border-b-2 '
+                ? 'border-b-2 border-orange-500 text-orange-500'
                 : 'text-slate-500 hover:text-slate-700'
             }`}
           >

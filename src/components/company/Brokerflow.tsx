@@ -42,7 +42,7 @@ const Brokerflow = () => {
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="min-h-screen w-full bg-[#f8fafc] p-4 md:p-6"
+      className="h-screen w-full"
     >
       <motion.div variants={itemVariants} className="mb-4 flex items-center justify-between p-4">
         <h1 className="text-2xl font-semibold text-slate-900 md:text-3xl">

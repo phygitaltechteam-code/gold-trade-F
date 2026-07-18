@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, {useState, useEffect, useMemo} from 'react';
 import {
   FiEdit2,
   FiSave,
@@ -8,9 +8,9 @@ import {
   FiPrinter,
 } from 'react-icons/fi';
 import GenericTable from '@/components/Forms/Table/GenericTable';
-import { useNavigate } from '@tanstack/react-router';
+import {useNavigate} from '@tanstack/react-router';
 import toast from 'react-hot-toast';
-import { Eye, EyeOff } from 'lucide-react';
+import {Eye, EyeOff} from 'lucide-react';
 import {
   useAddAdminBrokerCommission,
   useGetAllAdminBrockerById,
@@ -19,8 +19,9 @@ import {
   useGetBrokerPaymentHistory,
   useGetAllBrokerTraders,
 } from '@/lib/api/addbroker';
-import { Route } from '@/routes/_app/companybroker/BrokerProfile.$id';
-import { Client } from '../Clients/types';
+import {Route} from '@/routes/_app/companybroker/BrokerProfile.$id';
+import {Client} from '../Clients/types';
+import {formatIndianNumber} from '@/utils/formatIndianNumber';
 
 // Format date function
 const formatDateTime = (dateString: string) => {
@@ -42,31 +43,19 @@ const formatDateTime = (dateString: string) => {
   }
 };
 
-export const renderDateTimeVertical = (value: string) => {
-  if (!value || value === '-' || value === 'N/A') return <span>{value}</span>;
-  const parts = value.split(', ');
-  if (parts.length === 2) {
-    return (
-      <div className="flex flex-col">
-        <span>{parts[0]}</span>
-        <span className="text-gray-500 text-xs">{parts[1]}</span>
-      </div>
-    );
-  }
-  return <span>{value}</span>;
-};
-
 const BrokerProfile = () => {
-  const { id } = Route.useParams();
+  const {id} = Route.useParams();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('ledger');
   const [isLedgerExpanded, setIsLedgerExpanded] = useState(false);
   const [paymentStartDate, setPaymentStartDate] = useState('');
   const [paymentEndDate, setPaymentEndDate] = useState('');
+  const [paidStartDate, setPaidStartDate] = useState('');
+  const [paidEndDate, setPaidEndDate] = useState('');
   const [ledgerStartDate, setLedgerStartDate] = useState('');
   const [ledgerEndDate, setLedgerEndDate] = useState('');
-  const [statusFilter, setStatusFilter] = useState('')
+  const [statusFilter, setStatusFilter] = useState('');
 
   // Password visibility state
   const [showPassword, setShowPassword] = useState(false);
@@ -80,11 +69,11 @@ const BrokerProfile = () => {
     'credit',
   );
 
-  const { data: profileData, refetch } = useGetAllAdminBrockerById(id);
-  const { data: traderdata, refetch: traderRefetch } = useGetAllBrokerTraders(id);
-  const { mutate: updateBrokerProfile, isPending: isUpdating } =
+  const {data: profileData, refetch} = useGetAllAdminBrockerById(id);
+  const {data: traderdata, refetch: traderRefetch} = useGetAllBrokerTraders(id);
+  const {mutate: updateBrokerProfile, isPending: isUpdating} =
     useUpdateAdminBrokerProfile();
-  const { mutate: addBrokerCommission, isPending: isCommissionPending } =
+  const {mutate: addBrokerCommission, isPending: isCommissionPending} =
     useAddAdminBrokerCommission();
 
   const [editData, setEditData] = useState({
@@ -134,7 +123,7 @@ const BrokerProfile = () => {
 
   // Initialize dates with current week range
   useEffect(() => {
-    const { startDate, endDate } = getCurrentWeekRange();
+    const {startDate, endDate} = getCurrentWeekRange();
     setLedgerStartDate(startDate);
     setLedgerEndDate(endDate);
     setPaymentStartDate(startDate);
@@ -149,9 +138,10 @@ const BrokerProfile = () => {
   } = useGetBrokerLedger(id);
 
   // Get broker payment history from API
-  const { data: paymentDataFromApi, isLoading: isLoadingPayment } =
+  const {data: paymentDataFromApi, isLoading: isLoadingPayment} =
     useGetBrokerPaymentHistory(id);
 
+  console.log('reporttttt', paymentDataFromApi);
   // Transform API data to match your table format
   const ledgerData = useMemo(() => {
     if (!ledgerDataFromApi || !Array.isArray(ledgerDataFromApi)) {
@@ -254,21 +244,23 @@ const BrokerProfile = () => {
 
   // Commission History Data
   const commissionHistoryList = useMemo(() => {
-    const histories = profileData?.commissionHistories || [];
+    const histories = paymentDataFromApi?.commissionHistory || [];
     return histories.map((item: any, index: number) => ({
       sr: index + 1,
       id: item.id,
-      amount: item.amount,
-      amountValue: parseFloat(item.amount),
-      type: item.type,
-      createdAt: formatDateTime(item.createdAt),
+      date: formatDateTime(item.date),
+      commissionGenerated: item.commissionGenerated,
+      pendingCommission: parseFloat(item.pendingCommission),
+      paidCommission: parseFloat(item.paidCommission),
+      status: item.status,
+      paidDate: formatDateTime(item.paidDate),
     }));
-  }, [profileData?.commissionHistories]);
+  }, [paymentDataFromApi?.commissionHistory]);
 
   // Calculate total commission from history
   const totalCommissionFromHistory = useMemo(() => {
     return commissionHistoryList.reduce((total, item) => {
-      const amount = parseFloat(item.amount);
+      const amount = parseFloat(item.commissionGenerated);
       return total + amount;
     }, 0);
   }, [commissionHistoryList]);
@@ -290,12 +282,12 @@ const BrokerProfile = () => {
   }, [paymentData]);
 
   const handleBack = () => {
-    navigate({ to: '/companybroker/displaybroker' });
+    navigate({to: '/companybroker/displaybroker'});
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setEditData((prev) => ({ ...prev, [name]: value }));
+    const {name, value} = e.target;
+    setEditData((prev) => ({...prev, [name]: value}));
   };
 
   const handleSave = () => {
@@ -621,7 +613,7 @@ const BrokerProfile = () => {
 
   // Base Ledger Columns - Cleaned with proper styling
   const baseLedgerColumns = [
-    {header: 'Date & Time', accessor: 'dateTime', render: (item: any) => renderDateTimeVertical(item.dateTime)},
+    {header: 'Date & Time', accessor: 'dateTime'},
     {header: 'Customer Name', accessor: 'customerName'},
     {header: 'Script', accessor: 'script'},
     {header: 'Qty/Lot', accessor: 'qty'},
@@ -633,11 +625,37 @@ const BrokerProfile = () => {
 
     // // Expanded Ledger Columns
     // const expandedLedgerColumns = [
-    {header: 'Buy Time', accessor: 'buyTime', render: (item: any) => renderDateTimeVertical(item.buyTime)},
-    {header: 'Sell Time', accessor: 'sellTime', render: (item: any) => renderDateTimeVertical(item.sellTime)},
+    {header: 'Buy Time', accessor: 'buyTime'},
+    {header: 'Sell Time', accessor: 'sellTime'},
     {header: 'Broker commission', accessor: 'brokerCommission'},
   ];
 
+  const paidColumns = [
+    // { header: 'S.No', accessor: 'srNo' },
+    {
+      header: 'Date',
+      accessor: 'date',
+      render: (item: any) => (
+        <span>
+          {item?.date
+            ? new Date(item.date).toLocaleString('en-IN', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true,
+              })
+            : '-'}
+        </span>
+      ),
+    },
+    {
+      header: 'Amount',
+      accessor: 'amount',
+      render: (item: any) => <span>₹{formatIndianNumber(item?.amount)} </span>,
+    },
+  ];
   // Payment Columns - Cleaned
   const paymentColumns = [
     {
@@ -675,12 +693,13 @@ const BrokerProfile = () => {
       accessor: 'status',
       render: (item: any) => (
         <span
-          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${item.status === 'Paid'
+          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+            item.status === 'Paid'
               ? 'bg-green-100 text-green-700'
               : item.status === 'Pending'
                 ? 'bg-yellow-100 text-yellow-700'
                 : 'bg-gray-100 text-gray-700'
-            }`}
+          }`}
         >
           {item.status}
         </span>
@@ -690,34 +709,66 @@ const BrokerProfile = () => {
 
   // Commission History Columns
   const commissionColumns = [
-    { header: 'S.No', accessor: 'sr' },
-    { header: 'Date & Time', accessor: 'createdAt' },
+    {header: 'Date & Time', accessor: 'date'},
+
     {
-      header: 'Type',
-      accessor: 'type',
+      header: 'Generated Commission (₹)',
+      accessor: 'commissionGenerated',
       render: (item: any) => (
-        <span
-          className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${item.type === 'TRANSFER'
-              ? 'bg-blue-100 text-blue-800'
-              : item.type === 'CREDIT'
-                ? 'bg-green-100 text-green-800'
-                : 'bg-red-100 text-red-800'
-            }`}
-        >
-          {item.type === 'TRANSFER'
-            ? 'Transfer'
-            : item.type === 'CREDIT'
-              ? 'Credit'
-              : 'Debit'}
+        <span className="text-gray-900 text-sm font-semibold">
+          ₹{item.commissionGenerated.toLocaleString('en-IN')}
         </span>
       ),
     },
     {
-      header: 'Amount (₹)',
-      accessor: 'amountValue',
+      header: 'Paid Commission (₹)',
+      accessor: 'paidCommission',
       render: (item: any) => (
         <span className="text-gray-900 text-sm font-semibold">
-          ₹{item.amountValue.toLocaleString('en-IN')}
+          ₹{item.paidCommission.toLocaleString('en-IN')}
+        </span>
+      ),
+    },
+    {
+      header: 'Pending Commission (₹)',
+      accessor: 'pendingCommission',
+      render: (item: any) => (
+        <span className="text-gray-900 text-sm font-semibold">
+          ₹{item.pendingCommission.toLocaleString('en-IN')}
+        </span>
+      ),
+    },
+    {
+      header: 'Paid Date',
+      accessor: 'paidDate',
+      render: (item: any) => (
+        <span className="text-sm">
+          {item.paidDate
+            ? new Date(item.paidDate).toLocaleString('en-IN', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              })
+            : '-'}
+        </span>
+      ),
+    },
+    {
+      header: 'Status',
+      accessor: 'status',
+      render: (item: any) => (
+        <span
+          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+            item.status === 'Paid'
+              ? 'bg-green-100 text-green-700'
+              : item.status === 'Pending'
+                ? 'bg-yellow-100 text-yellow-700'
+                : 'bg-gray-100 text-gray-700'
+          }`}
+        >
+          {item.status}
         </span>
       ),
     },
@@ -725,12 +776,12 @@ const BrokerProfile = () => {
 
   // Customer Columns - Cleaned
   const customerColumns = [
-    { header: 'Trader Name', accessor: 'tradername' },
-    { header: 'Wallet Balance', accessor: 'walletBalance' },
-    { header: 'Asset Under Control', accessor: 'assetUnderControl' },
-    { header: 'Margin Amount', accessor: 'marginAmount' },
-    { header: 'Total Active Trade', accessor: 'totalActiveUsers' },
-    { header: 'Total Trade', accessor: 'totalTrade' },
+    {header: 'Trader Name', accessor: 'tradername'},
+    {header: 'Wallet Balance', accessor: 'walletBalance'},
+    {header: 'Asset Under Control', accessor: 'assetUnderControl'},
+    {header: 'Margin Amount', accessor: 'marginAmount'},
+    {header: 'Total Active Trade', accessor: 'totalActiveUsers'},
+    {header: 'Total Trade', accessor: 'totalTrade'},
     {
       header: 'Demo Account',
       accessor: 'isDemo',
@@ -747,6 +798,26 @@ const BrokerProfile = () => {
       ),
     },
   ];
+
+  const paidHistoryList = useMemo(() => {
+    const paids = paymentDataFromApi?.paidHistory || [];
+    return paids.map((item: any, index: number) => ({
+      ...item,
+      srNo: index + 1,
+      amount: parseFloat(item.amount),
+    }));
+  }, [paymentDataFromApi?.paidHistory]);
+
+  const filteredPaidHistory = useMemo(() => {
+    if (!paidStartDate || !paidEndDate) return paidHistoryList;
+    return paidHistoryList.filter((item: any) => {
+      const itemDate = new Date(item.date);
+      const startDate = new Date(paidStartDate);
+      const endDate = new Date(paidEndDate);
+      endDate.setHours(23, 59, 59, 999);
+      return itemDate >= startDate && itemDate <= endDate;
+    });
+  }, [paidHistoryList, paidStartDate, paidEndDate]);
 
   // Filter ledger data by date range
   const filteredLedgerData = useMemo(() => {
@@ -806,12 +877,14 @@ const BrokerProfile = () => {
 
   // Custom styles for GenericTable to match project theme
   const tableStyles = {
-    tableClassName: "min-w-full divide-y divide-gray-200",
-    theadClassName: "bg-orange-50",
-    thClassName: "px-3 py-2.5 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-b border-gray-200",
-    tdClassName: "px-3 py-2.5 text-sm text-gray-800 whitespace-nowrap border-b border-gray-100",
-    trClassName: "hover:bg-orange-50/50 transition-colors duration-150",
-    emptyMessageClassName: "text-center py-8 text-gray-500 text-sm"
+    tableClassName: 'min-w-full divide-y divide-gray-200',
+    theadClassName: 'bg-orange-50',
+    thClassName:
+      'px-3 py-2.5 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-b border-gray-200',
+    tdClassName:
+      'px-3 py-2.5 text-sm text-gray-800 whitespace-nowrap border-b border-gray-100',
+    trClassName: 'hover:bg-orange-50/50 transition-colors duration-150',
+    emptyMessageClassName: 'text-center py-8 text-gray-500 text-sm',
   };
 
   return (
@@ -1073,28 +1146,53 @@ const BrokerProfile = () => {
           <div className="flex flex-wrap">
             <button
               onClick={() => setActiveTab('ledger')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'ledger'
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
+                activeTab === 'ledger'
                   ? 'border-b-2 border-orange-500 text-orange-500'
                   : 'text-bodydark2'
-                }`}
+              }`}
             >
               Ledger
             </button>
             <button
               onClick={() => setActiveTab('payment')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'payment'
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
+                activeTab === 'payment'
                   ? 'border-b-2 border-orange-500 text-orange-500'
                   : 'text-bodydark2'
-                }`}
+              }`}
             >
               Payment History
             </button>
+
             <button
-              onClick={() => setActiveTab('customer')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'customer'
+              onClick={() => setActiveTab('paid')}
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
+                activeTab === 'paid'
                   ? 'border-b-2 border-orange-500 text-orange-500'
                   : 'text-bodydark2'
-                }`}
+              }`}
+            >
+              Paid History
+            </button>
+            <button
+              onClick={() => setActiveTab('commission')}
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
+                activeTab === 'commission'
+                  ? 'border-b-2 border-orange-500 text-orange-500'
+                  : 'text-bodydark2'
+              }`}
+            >
+              Commission History
+            </button>
+
+            <button
+              onClick={() => setActiveTab('customer')}
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
+                activeTab === 'customer'
+                  ? 'border-b-2 border-orange-500 text-orange-500'
+                  : 'text-bodydark2'
+              }`}
             >
               Trader ({profileData?.customers?.length || 0})
             </button>
@@ -1161,10 +1259,10 @@ const BrokerProfile = () => {
                       <option value="CLOSED">Closed</option>
                     </select>
                   </div>
-                  {/* {(ledgerStartDate || ledgerEndDate) && (
+                  {(ledgerStartDate || ledgerEndDate) && (
                     <button
                       onClick={() => {
-                        const { startDate, endDate } = getCurrentWeekRange();
+                        const {startDate, endDate} = getCurrentWeekRange();
                         setLedgerStartDate(startDate);
                         setLedgerEndDate(endDate);
                       }}
@@ -1172,7 +1270,7 @@ const BrokerProfile = () => {
                     >
                       This Week
                     </button>
-                  )} */}
+                  )}
                 </div>
               </div>
               {isLoadingLedger ? (
@@ -1221,7 +1319,7 @@ const BrokerProfile = () => {
                   {(paymentStartDate || paymentEndDate) && (
                     <button
                       onClick={() => {
-                        const { startDate, endDate } = getCurrentWeekRange();
+                        const {startDate, endDate} = getCurrentWeekRange();
                         setPaymentStartDate(startDate);
                         setPaymentEndDate(endDate);
                       }}
@@ -1241,6 +1339,63 @@ const BrokerProfile = () => {
                 <GenericTable
                   data={filteredPaymentData}
                   columns={paymentColumns}
+                  paginationOff={true}
+                  {...tableStyles}
+                />
+              )}
+            </div>
+          ) : activeTab === 'paid' ? (
+            <div className="overflow-x-auto">
+              <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                <h3 className="text-base font-semibold text-black dark:text-white md:text-lg">
+                  Paid History
+                </h3>
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-medium text-black dark:text-white md:text-sm">
+                      From:
+                    </label>
+                    <input
+                      type="date"
+                      value={paidStartDate}
+                      onChange={(e) => setPaidStartDate(e.target.value)}
+                      className="rounded border border-stroke bg-transparent px-2 py-1 text-xs outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-3 md:py-1 md:text-sm"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-medium text-black dark:text-white md:text-sm">
+                      To:
+                    </label>
+                    <input
+                      type="date"
+                      value={paidEndDate}
+                      onChange={(e) => setPaidEndDate(e.target.value)}
+                      className="rounded border border-stroke bg-transparent px-2 py-1 text-xs outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-3 md:py-1 md:text-sm"
+                    />
+                  </div>
+                  {(paidStartDate || paidEndDate) && (
+                    <button
+                      onClick={() => {
+                        const {startDate, endDate} = getCurrentWeekRange();
+                        setPaidStartDate(startDate);
+                        setPaidEndDate(endDate);
+                      }}
+                      className="bg-gray-200 text-gray-700 hover:bg-gray-300 rounded px-2 py-1 text-xs font-medium transition-colors dark:bg-meta-4 dark:text-white dark:hover:bg-meta-3 md:px-3 md:py-1.5 md:text-sm"
+                    >
+                      This Week
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {isLoadingPayment ? (
+                <div className="flex justify-center py-8">
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
+                </div>
+              ) : (
+                <GenericTable
+                  data={filteredPaidHistory}
+                  columns={paidColumns}
                   paginationOff={true}
                   {...tableStyles}
                 />
@@ -1299,20 +1454,22 @@ const BrokerProfile = () => {
               <button
                 type="button"
                 onClick={() => setCommissionType('credit')}
-                className={`rounded-lg py-2 text-sm font-semibold transition-all ${commissionType === 'credit'
+                className={`rounded-lg py-2 text-sm font-semibold transition-all ${
+                  commissionType === 'credit'
                     ? 'bg-white text-orange-500 shadow-sm'
                     : 'text-slate-600 hover:text-slate-800'
-                  }`}
+                }`}
               >
                 Credit (+)
               </button>
               <button
                 type="button"
                 onClick={() => setCommissionType('debit')}
-                className={`rounded-lg py-2 text-sm font-semibold transition-all ${commissionType === 'debit'
+                className={`rounded-lg py-2 text-sm font-semibold transition-all ${
+                  commissionType === 'debit'
                     ? 'bg-white text-orange-500 shadow-sm'
                     : 'text-slate-600 hover:text-slate-800'
-                  }`}
+                }`}
               >
                 Debit (-)
               </button>

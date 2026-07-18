@@ -75,29 +75,17 @@ const GenericTable = <T extends { id?: string }>({
     const hasTime =
       value.includes('T') || value.includes(':') || value.match(/\d{2}:\d{2}/);
 
-    const datePart = date.toLocaleDateString('en-IN', {
+    return date.toLocaleString('en-IN', {
       timeZone: 'Asia/Kolkata',
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
-    });
-
-    if (hasTime) {
-      const timePart = date.toLocaleTimeString('en-IN', {
-        timeZone: 'Asia/Kolkata',
+      ...(hasTime && {
         hour: '2-digit',
         minute: '2-digit',
         hour12: true,
-      });
-      return (
-        <div className="flex flex-col">
-          <span>{datePart}</span>
-          <span className="text-gray-500 text-xs">{timePart}</span>
-        </div>
-      );
-    }
-
-    return datePart;
+      }),
+    });
   };
 
   const handlePrevPage = () => setCurrentPage((p) => Math.max(p - 1, 1));

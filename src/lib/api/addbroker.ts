@@ -304,13 +304,12 @@ export const useUpdateBrokerStatus = () => {
       pin: string;
       isActive: boolean;
     }) => {
-      return api.put(`company/broker/active/${id}`, {
+      return api.put(`/company/broker/active/${id}`, {
         securityPin: pin,
-
       });
     },
     onSuccess: () => {
-      // toast.success('Broker Status Updated Successfully!');
+      toast.success('Broker Status Updated Successfully!');
       queryClient.invalidateQueries({ queryKey: ['get-broker'] });
     },
     onError: (error: any) => {

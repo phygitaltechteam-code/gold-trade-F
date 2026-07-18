@@ -243,7 +243,7 @@ export const ClientDetail: React.FC = () => {
   ];
 
   const paymentColumns = [
-    {header: 'Date/Time', accessor: 'dateTime', render: (item: any) => renderDateTimeVertical(item.dateTime)},
+    {header: 'Date/Time', accessor: 'dateTime'},
     {header: 'Amount', accessor: 'amount'},
     {header: 'Wallet Amount', accessor: 'walletAmount'},
   ];
@@ -254,7 +254,6 @@ export const ClientDetail: React.FC = () => {
       header: 'Date & Time',
       accessor: 'dateTime',
       className: 'min-w-[160px]',
-      render: (item: any) => renderDateTimeVertical(item.dateTime)
     },
     {
       header: 'Type',

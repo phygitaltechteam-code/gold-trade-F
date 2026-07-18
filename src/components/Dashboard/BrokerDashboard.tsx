@@ -15,7 +15,6 @@ import {
   Target,
   DollarSign,
   PieChart,
-  CheckCircle,
 } from 'lucide-react';
 import {useAuthContext} from '@/context/AuthContext';
 import toast from 'react-hot-toast';
@@ -276,37 +275,47 @@ const BrokerDashboard: React.FC = () => {
             icon={Users}
             iconColor="text-green-500"
           />
-            <FinancialStatCard
+          <StatCard
+            title="Active Trends"
+            value={formatNumber(dashboardStats.totalActiveTrends)}
+            icon={Activity}
+            iconColor="text-orange-500"
+          />
+          <StatCard
+            title="Total Trades"
+            value={formatNumber(dashboardStats.totalTrades)}
+            icon={TrendingUp}
+            iconColor="text-blue-500"
+          />
+        </div>
+
+        {/* Row 2: Commission & Earnings Cards */}
+        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+          <FinancialStatCard
             title="My Total Commission"
             amount={formatCurrency(dashboardStats.brokerTotalCommission)}
             icon={Wallet}
             iconColor="text-emerald-500"
             // subtext="Total commission earned"
           />
-           <FinancialStatCard
+          <FinancialStatCard
             title="Pending Commission"
             amount={formatCurrency(dashboardStats.pendingBrokerCommission)}
             icon={Clock}
             iconColor="text-orange-500"
             // subtext="Awaiting settlement"
           />
-          {/* <StatCard
-            title="Active Trends"
-            value={formatNumber(dashboardStats.totalActiveTrends)}
-            icon={Activity}
-            iconColor="text-orange-500"
-          /> */}
-          {/* <StatCard
-            title="Total Trades"
-            value={formatNumber(dashboardStats.totalTrades)}
-            icon={TrendingUp}
-            iconColor="text-blue-500"
-          /> */}
+          <FinancialStatCard
+            title="Win Rate"
+            amount={`${dashboardStats.winRate || 0}%`}
+            icon={Target}
+            iconColor="text-purple-500"
+            // subtext="Success rate"
+          />
         </div>
 
-        {/* Row 2: Commission & Earnings Cards */}
+        {/* Row 3: Customer Financial Overview */}
         <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-        
           <FinancialStatCard
             title="Customer Wallet Balance"
             amount={formatCurrency(dashboardStats.totalCustomerWalletBalance)}
@@ -314,27 +323,6 @@ const BrokerDashboard: React.FC = () => {
             iconColor="text-blue-500"
             // subtext="Total client funds"
           />
-              <FinancialStatCard
-    title="Paid Commission"
-    amount={formatCurrency(
-      dashboardStats.brokerTotalCommission -
-      dashboardStats.pendingBrokerCommission
-    )}
-    icon={CheckCircle}
-    iconColor="text-blue-500"
-  />
-          {/* <FinancialStatCard
-            title="Win Rate"
-            amount={`${dashboardStats.winRate || 0}%`}
-            icon={Target}
-            iconColor="text-purple-500"
-            // subtext="Success rate"
-          /> */}
-        </div>
-
-        {/* Row 3: Customer Financial Overview */}
-        {/* <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-         
           <FinancialStatCard
             title="Total Deposits"
             amount={formatCurrency(dashboardStats.totalDeposits)}
@@ -349,7 +337,7 @@ const BrokerDashboard: React.FC = () => {
             iconColor="text-red-500"
             // subtext="By my customers"
           />
-        </div> */}
+        </div>
       </div>
     </motion.div>
   );
