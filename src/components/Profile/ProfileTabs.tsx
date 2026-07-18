@@ -25,7 +25,7 @@ const ProfileTabs = () => {
         { id: 'commission', label: 'Set Commission' },
         { id: 'set-password', label: 'Reset Password' },
         { id: 'Script', label: 'Script Management' },
-        { id: 'Chamki', label: 'Order Setting' },
+        { id: 'Chamki', label: 'Holding' },
         { id: 'customerholding', label: 'Customer Holding' },
       ];
     }
@@ -70,8 +70,8 @@ const ProfileTabs = () => {
               key={tab.id}
               data-tab-id={tab.id}
               className={`flex-shrink-0 whitespace-nowrap border-b-2 px-3 py-3 text-center text-xs font-medium transition-all sm:px-4 sm:text-sm md:px-5 md:text-base ${activeComponent === tab.id
-                ? 'border-[#0284C7] text-[#0284C7] dark:border-[#0284C7] dark:text-[#0284C7]'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                  ? 'border-[#0284C7] text-[#0284C7] dark:border-[#0284C7] dark:text-[#0284C7]'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
                 }`}
               onClick={() => handleTabClick(tab.id)}
             >
@@ -88,7 +88,7 @@ const ProfileTabs = () => {
         {activeComponent === 'set-password' && <ResetPassword />}
         {activeComponent === 'Script' && <DisplayScripts />}
         {activeComponent === 'Chamki' && <ChamkiTrading />}
-        {activeComponent === 'customerholding' && <CustomerHolding />}
+         {activeComponent === 'customerholding' && <CustomerHolding />}
       </div>
     </div>
   );
