@@ -8,6 +8,7 @@ const TransactionLedger = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [ledgerStartDate, setLedgerStartDate] = useState('');
   const [ledgerEndDate, setLedgerEndDate] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   const {data: transactionLedgerData , refetch} = useGetTransactionLedger();
 
   // Format quantity/lot as "qty/lotSize"
@@ -46,16 +47,8 @@ const formatPnL = (item) => {
 
   // // Full detailed view columns
   // const expandedColumns = [
-    {header: 'Date & Time', accessor: 'dateTime'},
-    {header: 'Customer Name', accessor: 'customerName'},
-    {header: 'Script', accessor: 'script'},
-    {header: 'Qty/Lot', accessor: (item) => formatQtyLot(item)},
-    {header: 'Buy Price', accessor: 'buyPrice'},
-    {header: 'Sell Price', accessor: 'sellPrice'},
     {header: 'Buy Time', accessor: 'buyTime'},
     {header: 'Sell Time', accessor: 'sellTime'},
-    {header: 'Status', accessor: 'status'},
-    {header: 'P&L', accessor: (item) => formatPnL(item)},
     {header: 'Admin Commission', accessor: 'companyCommission'},
     {header: 'Super Broker Commission', accessor: 'superBrokerCommission'},
     {header: 'Broker Commission', accessor: 'brokerCommission'},
@@ -80,29 +73,44 @@ const formatPnL = (item) => {
     return [];
   };
 
-  // Filter data by date range
-  const filterDataByDate = (data) => {
+  // Filter data by date range and status
+  const filterData = (data) => {
     if (!Array.isArray(data)) return [];
-    if (!ledgerStartDate && !ledgerEndDate) return data;
-
+    
     return data.filter((item) => {
-      const itemDate = item.dateTime?.split('T')[0];
-      if (!itemDate) return true;
-      if (ledgerStartDate && itemDate < ledgerStartDate) return false;
-      if (ledgerEndDate && itemDate > ledgerEndDate) return false;
+      // 1. Filter by Status
+      if (statusFilter) {
+        const itemStatus = item.status?.toLowerCase() || '';
+        const filterVal = statusFilter.toLowerCase();
+        if (filterVal === 'close' || filterVal === 'closed') {
+          if (itemStatus !== 'close' && itemStatus !== 'closed') return false;
+        } else if (itemStatus !== filterVal) {
+          return false;
+        }
+      }
+      
+      // 2. Filter by Date
+      if (ledgerStartDate || ledgerEndDate) {
+        const itemDate = item.dateTime?.split('T')[0];
+        if (itemDate) {
+          if (ledgerStartDate && itemDate < ledgerStartDate) return false;
+          if (ledgerEndDate && itemDate > ledgerEndDate) return false;
+        }
+      }
+      
       return true;
     });
   };
 
   const transactionData = getTransactionData();
-  const filteredData = filterDataByDate(transactionData);
+  const filteredData = filterData(transactionData);
   // const columns = isExpanded ? expandedColumns : baseColumns;
 
   return (
     <div className="mx-auto w-full p-4 md:p-6">
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-2xl font-semibold text-slate-900 md:text-3xl">
-          Transaction Ledger...
+          Transaction Ledger
         </h2>
       </div>
 
@@ -135,11 +143,26 @@ const formatPnL = (item) => {
                   className="rounded border border-stroke bg-transparent px-3 py-1 text-sm outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                 />
               </div>
-              {(ledgerStartDate || ledgerEndDate) && (
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-black dark:text-white">
+                  Status:
+                </label>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="rounded border border-stroke bg-transparent px-3 py-1.5 text-sm outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                >
+                  <option value="">All</option>
+                  <option value="open">Open</option>
+                  <option value="closed">Closed</option>
+                </select>
+              </div>
+              {(ledgerStartDate || ledgerEndDate || statusFilter) && (
                 <button
                   onClick={() => {
                     setLedgerStartDate('');
                     setLedgerEndDate('');
+                    setStatusFilter('');
                   }}
                   className="bg-gray-200 text-gray-700 hover:bg-gray-300 rounded px-3 py-1.5 text-sm font-medium transition-colors dark:bg-meta-4 dark:text-white dark:hover:bg-meta-3"
                 >

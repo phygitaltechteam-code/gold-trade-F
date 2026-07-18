@@ -29,9 +29,38 @@ const BrokerLedger = () => {
     return `${sign}${pnl}`;
   };
 
+  // Format Date & Time onto two lines
+  const renderDateTimeCell = (dt: any) => {
+    if (!dt) return '-';
+    try {
+      const dateObj = new Date(dt);
+      if (isNaN(dateObj.getTime())) return <span>{dt}</span>;
+
+      const datePart = dateObj.toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+      const timePart = dateObj.toLocaleTimeString('en-IN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+
+      return (
+        <div className="flex flex-col ">
+          <span>{datePart}</span>
+          <span className=" text-gray-500">{timePart.toLowerCase()}</span>
+        </div>
+      );
+    } catch (e) {
+      return <span>{dt}</span>;
+    }
+  };
+
   // Base columns - shows main information
   const baseColumns = [
-    {header: 'Date & Time', accessor: 'dateTime'},
+    // {header: 'Date & Time', accessor: 'dateTime', render: renderDateTimeCell},
     {header: 'Customer Name', accessor: 'customerName'},
     {header: 'Script', accessor: 'script'},
     {header: 'Qty/Lot', accessor: (item) => formatQtyLot(item)},
@@ -43,14 +72,14 @@ const BrokerLedger = () => {
 
   // Full detailed view columns
   const expandedColumns = [
-    {header: 'Date & Time', accessor: 'dateTime'},
+    // {header: 'Date & Time', accessor: 'dateTime', render: renderDateTimeCell},
     {header: 'Customer Name', accessor: 'customerName'},
     {header: 'Script', accessor: 'script'},
     {header: 'Qty/Lot', accessor: (item) => formatQtyLot(item)},
     {header: 'Buy Price', accessor: 'buyPrice'},
     {header: 'Sell Price', accessor: 'sellPrice'},
-    {header: 'Buy Time', accessor: 'buyTime'},
-    {header: 'Sell Time', accessor: 'sellTime'},
+    {header: 'Buy Time', accessor: 'buyTime', render: (item: any) => renderDateTimeCell(item.buyTime)},
+    {header: 'Sell Time', accessor: 'sellTime', render: (item: any) => renderDateTimeCell(item.sellTime)},
     {header: 'Status', accessor: 'status'},
     {header: 'P&L', accessor: (item) => formatPnL(item)},
     {header: 'Broker Commission', accessor: 'brokerCommission'},

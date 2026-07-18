@@ -178,11 +178,10 @@ const SuperBrokerTransactionLedger = () => {
     return qty;
   };
 
-  // All columns - displaying all data (removed View More toggle)
-  const allColumns = [
+  // Simplified view columns
+  const baseColumns = [
     { header: 'Date & Time', accessor: 'dateTime' },
     { header: 'Customer Name', accessor: 'customerName' },
-    { header: 'Broker Name', accessor: 'brokerName' },
     { header: 'Script', accessor: 'script' },
     {
       header: 'Qty/Lot',
@@ -190,8 +189,32 @@ const SuperBrokerTransactionLedger = () => {
     },
     { header: 'Buy Price', accessor: 'buyPrice' },
     { header: 'Sell Price', accessor: 'sellPrice' },
+
     { header: 'Buy Time', accessor: 'buyTime' },
     { header: 'Sell Time', accessor: 'sellTime' },
+  // ];
+
+  // // Full detailed view columns
+  // const expandedColumns = [
+    
+  
+    { header: 'Broker Name', accessor: 'brokerName' },
+   
+    {
+      header: 'Qty/Lot',
+      accessor: (item) => formatQtyLot(item),
+    },
+  
+    
+    
+
+    // { header: 'Order Type', accessor: 'orderType' },
+    // { header: 'Holding Type', accessor: 'holdingType' },
+    // { header: 'Price', accessor: 'price' },
+    // { header: 'Transaction Amount', accessor: 'transactionAmount' },
+    // { header: 'Paid Amount', accessor: 'paidAmount' },
+    // { header: 'Margin Amount', accessor: 'marginAmount' },
+    // { header: 'Payment Status', accessor: 'paymentStatus' },
     { header: 'Status', accessor: 'status' },
     { header: 'P&L', accessor: 'pnl' },
     { header: 'Super Broker Commission', accessor: 'superBrokerCommission' },
@@ -314,7 +337,7 @@ const SuperBrokerTransactionLedger = () => {
           <div className="overflow-x-auto">
             <GenericTable
               data={filteredData}
-              columns={allColumns}
+              columns={baseColumns}
               paginationOff={false}
             />
           </div>

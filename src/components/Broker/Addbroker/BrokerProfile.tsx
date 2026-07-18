@@ -198,33 +198,20 @@ const BrokerProfile = () => {
     {header: 'Stript', accessor: 'stript'},
     {header: 'Transaction Amount', accessor: 'transactionAmount'},
     {header: 'Super Broker Commission', accessor: 'superBrokerCommission'},
-    {header: 'Status', accessor: 'status'},
-  ];
 
-  // Expanded Ledger Columns
-  const expandedLedgerColumns = [
-    {header: 'Sr', accessor: 'sr'},
-    {header: 'Date/Time', accessor: 'dateTime'},
-    {header: 'Customer Name', accessor: 'customerName'},
     // {header: 'Transaction ID', accessor: 'transactionId'},
-    {header: 'Stript', accessor: 'stript'},
     {header: 'Order Type', accessor: 'orderType'},
     {header: 'Holding Type', accessor: 'holdingType'},
     {header: 'Qty', accessor: 'qty'},
     {header: 'Price', accessor: 'price'},
     {header: 'Status', accessor: 'status'},
-    {header: 'Transaction Amount', accessor: 'transactionAmount'},
     {header: 'Paid Amount', accessor: 'paidAmount'},
     {header: 'Margin Amount', accessor: 'marginAmount'},
     {header: 'Total Commission', accessor: 'totalCommission'},
     {header: 'Broker Commission', accessor: 'brokerCommission'},
-    {header: 'Super Broker Commission', accessor: 'superBrokerCommission'},
     {header: 'Payment Status', accessor: 'paymentStatus'},
   ];
 
-  const ledgerColumns = isLedgerExpanded
-    ? expandedLedgerColumns
-    : baseLedgerColumns;
 
   // Column definitions for the Payment History table
   const paymentColumns = [
@@ -639,17 +626,17 @@ const BrokerProfile = () => {
                       This Week
                     </button>
                   )}
-                  <button
+                  {/* <button
                     onClick={() => setIsLedgerExpanded(!isLedgerExpanded)}
                     className="rounded bg-orange-500 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-orange-600 md:px-4 md:py-2 md:text-sm"
                   >
                     {isLedgerExpanded ? 'View Less' : 'View More'}
-                  </button>
+                  </button> */}
                 </div>
               </div>
               <GenericTable
                 data={filteredLedgerData}
-                columns={ledgerColumns}
+                columns={baseLedgerColumns}
                 paginationOff={true}
               />
             </div>

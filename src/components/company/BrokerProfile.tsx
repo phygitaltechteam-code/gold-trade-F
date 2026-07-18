@@ -649,16 +649,8 @@ const BrokerProfile = () => {
 
     // // Expanded Ledger Columns
     // const expandedLedgerColumns = [
-    {header: 'Date & Time', accessor: 'dateTime'},
-    {header: 'Customer Name', accessor: 'customerName'},
-    {header: 'Script', accessor: 'script'},
-    {header: 'Qty/Lot', accessor: 'qty'},
-    {header: 'Buy Price', accessor: 'buyPrice'},
-    {header: 'Sell Price', accessor: 'sellPrice'},
     {header: 'Buy Time', accessor: 'buyTime'},
     {header: 'Sell Time', accessor: 'sellTime'},
-    {header: 'Status', accessor: 'status'},
-    {header: 'P&L', accessor: 'pnl'},
     {header: 'Broker commission', accessor: 'brokerCommission'},
   ];
 
