@@ -61,6 +61,12 @@ const renderDateTimeVertical = (value: string) => {
   return <span>{value}</span>;
 };
 
+const formatCommission = (val: any) => {
+  const num = Number(val);
+  if (isNaN(num) || num <= 0) return '0';
+  return num.toFixed(2);
+};
+
 export const ClientDetail: React.FC = () => {
   const {id} = Route.useParams();
   const navigate = useNavigate();
@@ -231,9 +237,9 @@ export const ClientDetail: React.FC = () => {
     {header: 'Sell Time', accessor: 'sellTime'},
     {header: 'Status', accessor: 'status'},
     {header: 'P&L', accessor: (item) => formatPnL(item)},
-    {header: 'Admin Commission', accessor: 'companyCommission'},
-    {header: 'Super Broker Commission', accessor: 'superBrokerCommission'},
-    {header: 'Broker Commission', accessor: 'brokerCommission'},
+    {header: 'Admin Commission', accessor: (item) => formatCommission(item.companyCommission)},
+    {header: 'Super Broker Commission', accessor: (item) => formatCommission(item.superBrokerCommission)},
+    {header: 'Broker Commission', accessor: (item) => formatCommission(item.brokerCommission)},
   ];
 
   const paymentColumns = [

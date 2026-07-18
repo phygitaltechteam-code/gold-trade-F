@@ -45,6 +45,10 @@ export const ClientProfileInfo: React.FC<ClientProfileInfoProps> = ({
   panCardNumber,
   type,
 }) => {
+
+
+  console.log("editData",editData?.stockHoldingLimit, "stockHoldingLimit")
+  console.log("edit data ", editData)
   return (
     <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
       <div className="flex flex-wrap items-center justify-between rounded-t-lg border-b border-stroke bg-gradient-to-r from-orange-500 to-red-500 px-4 py-3 md:px-6 md:py-4">
@@ -216,13 +220,13 @@ export const ClientProfileInfo: React.FC<ClientProfileInfoProps> = ({
               <input
                 type="number"
                 name="stockHoldingLimit"
-                value={editData?.stockHoldingLimit}
+                value={editData?.stockHoldingLimit ?? ''}
                 onChange={handleInputChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
               />
             ) : (
               <p className="text-sm text-black dark:text-white md:text-base">
-                {editData?.stockHoldingLimit !== undefined ? editData?.stockHoldingLimit : 'N/A'}
+                {stockHoldingLimit !== undefined ? stockHoldingLimit : 'N/A'}
               </p>
             )}                           
           </div>

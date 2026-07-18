@@ -305,7 +305,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
             : parseFloat(row.wallets?.amount as string) || 0);
         return (
           <span className="whitespace-nowrap text-sm font-bold text-slate-900">
-            ₹{amount.toLocaleString()}
+            ₹{amount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
           </span>
         );
       },
@@ -321,7 +321,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
             : parseFloat(row.wallets?.blockedAmount as string) || 0);
         return (
           <span className="whitespace-nowrap text-sm font-bold text-slate-900">
-            ₹{amount.toLocaleString()}
+            ₹{amount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
           </span>
         );
       },
@@ -333,7 +333,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
         const amount = row.marginAmount !== undefined ? Number(row.marginAmount) : 0;
         return (
           <span className="whitespace-nowrap text-sm font-bold text-slate-900">
-            ₹{amount.toLocaleString()}
+            ₹{amount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
           </span>
         );
       },
@@ -354,7 +354,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
         const amount = row.totalTrade !== undefined ? Number(row.totalTrade) : (parseFloat(row.wallets?.amount as string) || 0);
         return (
           <span className="whitespace-nowrap text-sm font-bold text-slate-900">
-            ₹{amount.toLocaleString()}
+            ₹{amount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
           </span>
         );
       },
@@ -482,14 +482,14 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
         /> */}
         <StatCard
           title="Wallet Balance"
-          value={totalWalletBalance.toLocaleString()}
+          value={Number(totalWalletBalance).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
           // subtext="Total volume"
           icon={Briefcase}
           isLoading={isLoading}
         />
         <StatCard
           title="Assets Under Contoll"
-          value={assetUnderControll.toLocaleString()}
+          value={Number(assetUnderControll).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
           // subtext="Total volume"
           icon={Briefcase}
           isLoading={isLoading}
@@ -511,7 +511,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
 
         <StatCard
           title="Total Margin Amount"
-          value={totalMarginAmount.toLocaleString()}
+          value={Number(totalMarginAmount).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
           // subtext="Assets under mgmt"
           icon={Wallet}
           isLoading={isLoading}
