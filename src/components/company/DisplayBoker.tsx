@@ -1,17 +1,55 @@
+// Stat Card Component
+const StatCard = ({
+  title,
+  value,
+  icon: Icon,
+  iconColor = 'text-orange-500',
+  bgColor = 'bg-orange-50',
+  valueColor = 'text-slate-900',
+}) => (
+  <div className="group relative overflow-hidden rounded-lg border border-stroke bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-strokedark dark:bg-boxdark md:p-5">
+    <div className="flex items-start justify-between">
+      <div className="flex-1">
+        <p className="text-gray-500 text-xs font-medium uppercase tracking-wider">
+          {title}
+        </p>
+        <h4 className={`mt-2 text-xl font-bold md:text-2xl ${valueColor}`}>
+          {value}
+        </h4>
+      </div>
+      <div className={`rounded-lg p-2 ${bgColor}`}>
+        {Icon && <Icon className={`h-5 w-5 ${iconColor} md:h-6 md:w-6`} />}
+      </div>
+    </div>
+  </div>
+);
+
+
+
 import React, {useState, useEffect, useRef} from 'react';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import toast from 'react-hot-toast';
+import {motion} from 'framer-motion';
 import {
   useGetBrokerData,
   useDeleteBroker,
   useUpdateBrokerStatus,
 } from '@/lib/api/addbroker';
 import {useNavigate} from '@tanstack/react-router';
-import {Eye, EyeOff} from 'lucide-react';
+import {CheckCircle, Clock, DollarSign, Eye, EyeOff, UserCheck, Users} from 'lucide-react';
 
-const STORAGE_KEY = 'broker_statuses';
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.4
+    }
+  }
+};
 
-const DisplayBroker = ({refreshTrigger}) => {
+const DisplayBroker = ({refreshTrigger}: {refreshTrigger?: boolean}) => {
   const [brokers, setBrokers] = useState([]);
   const [showPinModal, setShowPinModal] = useState(false);
   const [selectedBroker, setSelectedBroker] = useState<any>(null);
@@ -22,27 +60,8 @@ const DisplayBroker = ({refreshTrigger}) => {
 
   console.log("responseeeee",responseData)
   const deleteBrokerMutation = useDeleteBroker();
-  const {mutateAsync: updateBrokerStatus, isPending: isUpdating} =
-    useUpdateBrokerStatus();
+  const {mutateAsync: updateBrokerStatus, isPending: isUpdating} = useUpdateBrokerStatus();
   const navigate = useNavigate();
-
-  // Load stored statuses from localStorage
-  const loadStoredStatuses = () => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        return JSON.parse(stored);
-      } catch {
-        return {};
-      }
-    }
-    return {};
-  };
-
-  // Store statuses to localStorage
-  const storeStatuses = (statuses: Record<string, boolean>) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(statuses));
-  };
 
   // Process data when it changes
   useEffect(() => {
@@ -58,16 +77,11 @@ const DisplayBroker = ({refreshTrigger}) => {
           brokerList = responseData;
         }
 
-        const storedStatuses = loadStoredStatuses();
-
         const normalizedData = (
           Array.isArray(brokerList) ? brokerList : []
         ).map((broker) => ({
           ...broker,
-          isActive:
-            storedStatuses[broker.id] !== undefined
-              ? storedStatuses[broker.id]
-              : broker.isActive === true || broker.user?.isActive === true,
+          isActive: broker.isActive === true || broker.user?.isActive === true,
         }));
 
         setBrokers(normalizedData);
@@ -77,6 +91,12 @@ const DisplayBroker = ({refreshTrigger}) => {
       }
     }
   }, [responseData]);
+
+   const totalBrokers = brokers?.length;
+  const activeBrokers = brokers?.filter((broker) => broker?.isActive===true).length;
+  const totalCommission = brokers?.reduce((acc, broker) => acc + (Number(broker?.totalCommission) || 0), 0);
+  const paidCommission = brokers?.reduce((acc, broker) => acc + (Number(broker?.totalPaidCommission) || 0), 0);
+  const pendingCommission = brokers?.reduce((acc, broker) => acc + (Number(broker?.totalCommission) - Number(broker?.totalPaidCommission) || 0), 0);
 
   // Refetch when refreshTrigger changes
   useEffect(() => {
@@ -130,11 +150,6 @@ const DisplayBroker = ({refreshTrigger}) => {
     const newStatus = !selectedBroker?.isActive;
 
     try {
-      // Update localStorage immediately
-      const storedStatuses = loadStoredStatuses();
-      storedStatuses[selectedBroker.id] = newStatus;
-      storeStatuses(storedStatuses);
-
       // Update local state
       setBrokers((prevBrokers) =>
         prevBrokers.map((broker) =>
@@ -166,10 +181,6 @@ const DisplayBroker = ({refreshTrigger}) => {
       }, 3000);
     } catch (error: any) {
       // Revert on error
-      const storedStatuses = loadStoredStatuses();
-      storedStatuses[selectedBroker.id] = !newStatus;
-      storeStatuses(storedStatuses);
-
       setBrokers((prevBrokers) =>
         prevBrokers.map((broker) =>
           broker.id === selectedBroker.id
@@ -224,14 +235,15 @@ const DisplayBroker = ({refreshTrigger}) => {
       ),
     },
     {
-      header: 'Area',
+      header: 'Total Commission',
       accessor: 'area',
-      render: (row) => <span>{row.area || '-'}</span>,
+      render: (row) => <span>{row?.totalCommission>0 ?Number(row.totalCommission).toFixed(2) : '0'}</span>,
     },
+ 
     {
-      header: 'Aadhar Number',
-      accessor: 'aadharCardNumber',
-      render: (row) => <span>{row.aadharCardNumber || '-'}</span>,
+      header: 'Pending Commission',
+      accessor: 'totalPendingCommission',
+      render: (row) => <span>{Number(row.totalCommission)-Number(row.totalPaidCommission)>0 ?(Number(row.totalCommission)-Number(row.totalPaidCommission)).toFixed(2) : '0'}</span>,
     },
 
     {
@@ -294,9 +306,71 @@ const DisplayBroker = ({refreshTrigger}) => {
   const selectedBrokerDetails = brokers.find(
     (b) => b.id === selectedBroker?.id,
   );
-
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+  }).format(amount);
+};
   return (
     <>
+
+      {!isLoading && (
+        <motion.div
+          variants={itemVariants}
+          className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5"
+        >
+          <StatCard
+            title="Total Brokers"
+            value={totalBrokers}
+            icon={Users}
+            iconColor="text-blue-500"
+            bgColor="bg-blue-50"
+          />
+          <StatCard
+            title="Active Brokers"
+            value={activeBrokers}
+            icon={UserCheck}
+            iconColor="text-emerald-500"
+            bgColor="bg-emerald-50"
+          />
+          <StatCard
+            title="Total Commission"
+            value={formatCurrency(totalCommission)}
+            icon={DollarSign}
+            iconColor="text-purple-500"
+            bgColor="bg-purple-50"
+          />
+          <StatCard
+            title="Paid Commission"
+            value={
+              formatCurrency(
+                Number.isInteger(paidCommission)
+                  ? paidCommission
+                  : Number(paidCommission)
+              )
+            }
+            icon={CheckCircle}
+            iconColor="text-green-500"
+            bgColor="bg-green-50"
+          />
+          <StatCard
+            title="Pending Commission"
+            value={
+              formatCurrency(
+                Number.isInteger(pendingCommission)
+                  ? pendingCommission
+                  : Number(pendingCommission.toFixed(2))
+              )
+            }
+            icon={Clock}
+            iconColor="text-orange-500"
+            bgColor="bg-orange-50"
+          />
+        </motion.div>
+      )}
+      
       <div className="p-4">
         <GenericTable
           columns={columns}

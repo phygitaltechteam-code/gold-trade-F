@@ -42,6 +42,20 @@ const formatDateTime = (dateString: string) => {
     }
 };
 
+const renderDateTimeVertical = (value: string) => {
+    if (!value || value === '-' || value === 'N/A') return <span>{value}</span>;
+    const parts = value.split(', ');
+    if (parts.length === 2) {
+        return (
+            <div className="flex flex-col">
+                <span>{parts[0]}</span>
+                <span className="text-gray-500 text-xs">{parts[1]}</span>
+            </div>
+        );
+    }
+    return <span>{value}</span>;
+};
+
 const PendingBrokerProfile = () => {
     const { id } = Route.useParams();
     const navigate = useNavigate();
@@ -635,7 +649,7 @@ const PendingBrokerProfile = () => {
 
     // Base Ledger Columns
     const baseLedgerColumns = [
-        { header: 'Date & Time', accessor: 'dateTime' },
+        { header: 'Date & Time', accessor: 'dateTime', render: (item: any) => renderDateTimeVertical(item.dateTime) },
         { header: 'Customer Name', accessor: 'customerName' },
         { header: 'Script', accessor: 'script' },
         { header: 'Qty/Lot', accessor: 'qty' },
@@ -647,14 +661,14 @@ const PendingBrokerProfile = () => {
 
         // // Expanded Ledger Columns
         // const expandedLedgerColumns = [
-        { header: 'Date & Time', accessor: 'dateTime' },
+        { header: 'Date & Time', accessor: 'dateTime', render: (item: any) => renderDateTimeVertical(item.dateTime) },
         { header: 'Customer Name', accessor: 'customerName' },
         { header: 'Script', accessor: 'script' },
         { header: 'Qty/Lot', accessor: 'qty' },
         { header: 'Buy Price', accessor: 'buyPrice' },
         { header: 'Sell Price', accessor: 'sellPrice' },
-        { header: 'Buy Time', accessor: 'buyTime' },
-        { header: 'Sell Time', accessor: 'sellTime' },
+        { header: 'Buy Time', accessor: 'buyTime', render: (item: any) => renderDateTimeVertical(item.buyTime) },
+        { header: 'Sell Time', accessor: 'sellTime', render: (item: any) => renderDateTimeVertical(item.sellTime) },
         { header: 'Status', accessor: 'status' },
         { header: 'P&L', accessor: 'pnl' },
         { header: 'Broker commission', accessor: 'brokerCommission' },

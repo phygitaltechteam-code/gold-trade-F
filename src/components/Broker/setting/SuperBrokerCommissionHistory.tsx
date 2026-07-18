@@ -1,6 +1,7 @@
 import React, {useState, useMemo} from 'react';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import {useGetSuperBrokerHistory} from './SBHistoryApi';
+import { renderDateTimeVertical } from '@/components/company/BrokerProfile';
 
 // Format date function
 const formatDateTime = (dateString: string) => {
@@ -75,7 +76,7 @@ export default function SuperBrokerCommissionHistory() {
 
   // Commission History Columns
   const commissionColumns = [
-    {header: 'Date & Time', accessor: 'createdAt'},
+    {header: 'Date & Time', accessor: 'createdAt',render: (item: any) => renderDateTimeVertical(item.createdAt)},
     {
       header: 'Type',
       accessor: 'type',
@@ -121,7 +122,7 @@ export default function SuperBrokerCommissionHistory() {
 
   // Paid History Columns
   const paidColumns = [
-    {header: 'Date & Time', accessor: 'createdAt'},
+    {header: 'Date & Time', accessor: 'createdAt',render: (item: any) => renderDateTimeVertical(item.createdAt)},
     {
       header: 'Type',
       accessor: 'type',

@@ -43,6 +43,21 @@ import {
   useUpdateCustomer,
 } from '@/lib/api/masterpanelapi/masterapi';
 import { useGetMasterClientLedger } from '@/lib/api/masterpanelapi/profile';
+import { renderDateTimeVertical } from '../company/BrokerProfile';
+
+// const renderDateTimeVertical = (value: string) => {
+//   if (!value || value === '-' || value === 'N/A') return <span>{value}</span>;
+//   const parts = value.split(', ');
+//   if (parts.length === 2) {
+//     return (
+//       <div className="flex flex-col">
+//         <span>{parts[0]}</span>
+//         <span className="text-gray-500 text-xs">{parts[1]}</span>
+//       </div>
+//     );
+//   }
+//   return <span>{value}</span>;
+// };
 
 const DocCard = ({ name, type, status, icon: Icon, color, url }: any) => (
   <a
@@ -216,7 +231,7 @@ export const ClientDetail: React.FC = () => {
     : ledgerRows;
 
   const paymentColumns = [
-    { header: 'Date/Time', accessor: 'dateTime' },
+    { header: 'Date/Time', accessor: 'dateTime', render: (item: any) => renderDateTimeVertical(item.dateTime) },
     { header: 'Amount', accessor: 'amount' },
     { header: 'Wallet Amount', accessor: 'walletAmount' },
   ];
@@ -226,6 +241,7 @@ export const ClientDetail: React.FC = () => {
       header: 'Date & Time',
       accessor: 'dateTime',
       className: 'min-w-[160px]',
+      render: (item: any) => renderDateTimeVertical(item.dateTime)
     },
     {
       header: 'Type',

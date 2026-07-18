@@ -42,6 +42,20 @@ const formatDateTime = (dateString: string) => {
   }
 };
 
+export const renderDateTimeVertical = (value: string) => {
+  if (!value || value === '-' || value === 'N/A') return <span>{value}</span>;
+  const parts = value.split(', ');
+  if (parts.length === 2) {
+    return (
+      <div className="flex flex-col">
+        <span>{parts[0]}</span>
+        <span className="text-gray-500 text-xs">{parts[1]}</span>
+      </div>
+    );
+  }
+  return <span>{value}</span>;
+};
+
 const BrokerProfile = () => {
   const { id } = Route.useParams();
   const navigate = useNavigate();
@@ -607,21 +621,21 @@ const BrokerProfile = () => {
 
   // Base Ledger Columns - Cleaned with proper styling
   const baseLedgerColumns = [
-    { header: 'Date & Time', accessor: 'dateTime' },
-    { header: 'Customer Name', accessor: 'customerName' },
-    { header: 'Script', accessor: 'script' },
-    { header: 'Qty/Lot', accessor: 'qty' },
-    { header: 'Buy Price', accessor: 'buyPrice' },
-    { header: 'Sell Price', accessor: 'sellPrice' },
-    { header: 'Status', accessor: 'status' },
-    { header: 'P&L', accessor: 'pnl' },
+    {header: 'Date & Time', accessor: 'dateTime', render: (item: any) => renderDateTimeVertical(item.dateTime)},
+    {header: 'Customer Name', accessor: 'customerName'},
+    {header: 'Script', accessor: 'script'},
+    {header: 'Qty/Lot', accessor: 'qty'},
+    {header: 'Buy Price', accessor: 'buyPrice'},
+    {header: 'Sell Price', accessor: 'sellPrice'},
+    {header: 'Status', accessor: 'status'},
+    {header: 'P&L', accessor: 'pnl'},
     // ];
 
     // // Expanded Ledger Columns
     // const expandedLedgerColumns = [
-    { header: 'Buy Time', accessor: 'buyTime' },
-    { header: 'Sell Time', accessor: 'sellTime' },
-    { header: 'Broker commission', accessor: 'brokerCommission' },
+    {header: 'Buy Time', accessor: 'buyTime', render: (item: any) => renderDateTimeVertical(item.buyTime)},
+    {header: 'Sell Time', accessor: 'sellTime', render: (item: any) => renderDateTimeVertical(item.sellTime)},
+    {header: 'Broker commission', accessor: 'brokerCommission'},
   ];
 
   // Payment Columns - Cleaned
@@ -1147,7 +1161,7 @@ const BrokerProfile = () => {
                       <option value="CLOSED">Closed</option>
                     </select>
                   </div>
-                  {(ledgerStartDate || ledgerEndDate) && (
+                  {/* {(ledgerStartDate || ledgerEndDate) && (
                     <button
                       onClick={() => {
                         const { startDate, endDate } = getCurrentWeekRange();
@@ -1158,7 +1172,7 @@ const BrokerProfile = () => {
                     >
                       This Week
                     </button>
-                  )}
+                  )} */}
                 </div>
               </div>
               {isLoadingLedger ? (

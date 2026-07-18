@@ -2,6 +2,7 @@ import React, {useState, useMemo} from 'react';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import {useGetSuperBrokerHistory} from './SBHistoryApi';
 import {useGetBrokerHistory} from './setting/SBHistoryApi';
+import { renderDateTimeVertical } from '../company/BrokerProfile';
 
 // Format date function
 const formatDateTime = (dateString: string) => {
@@ -76,7 +77,7 @@ export default function BrokerCommissionHistory() {
 
   // Commission History Columns
   const commissionColumns = [
-    {header: 'Date & Time', accessor: 'createdAt'},
+    {header: 'Date & Time', accessor: 'createdAt',render: (item: any) => renderDateTimeVertical(item.createdAt)},
     {
       header: 'Type',
       accessor: 'type',
@@ -122,7 +123,7 @@ export default function BrokerCommissionHistory() {
 
   // Paid History Columns
   const paidColumns = [
-    {header: 'Date & Time', accessor: 'createdAt'},
+    {header: 'Date & Time', accessor: 'createdAt',render: (item: any) => renderDateTimeVertical(item.createdAt)},
     {
       header: 'Type',
       accessor: 'type',
@@ -186,7 +187,7 @@ export default function BrokerCommissionHistory() {
       <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">
-            Broker Commission History
+            Broker Commission
           </h1>
           <p className="text-sm text-slate-500">
             Track and manage generated commission records

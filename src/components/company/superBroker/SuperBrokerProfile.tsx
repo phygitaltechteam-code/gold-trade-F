@@ -34,6 +34,20 @@ const formatDateTime = (dateString: string) => {
   }
 };
 
+const renderDateTimeVertical = (value: string) => {
+  if (!value || value === '-' || value === 'N/A') return <span>{value}</span>;
+  const parts = value.split(', ');
+  if (parts.length === 2) {
+    return (
+      <div className="flex flex-col">
+        <span>{parts[0]}</span>
+        <span className="text-gray-500 text-sm">{parts[1]}</span>
+      </div>
+    );
+  }
+  return <span>{value}</span>;
+};
+
 const SuperBrokerProfile = () => {
   const { id } = Route.useParams();
   const navigate = useNavigate();
@@ -254,7 +268,7 @@ const SuperBrokerProfile = () => {
   }, [paymentData]);
 
   const baseLedgerColumns = [
-    { header: 'Date & Time', accessor: 'dateTime' },
+    { header: 'Date & Time', accessor: 'dateTime', render: (item: any) => renderDateTimeVertical(item.dateTime) },
     { header: 'Customer Name', accessor: 'customerName' },
     { header: 'Script', accessor: 'script' },
     { header: 'Qty/Lot', accessor: 'qty' },
@@ -265,8 +279,8 @@ const SuperBrokerProfile = () => {
     // ];
 
     // const expandedLedgerColumns = [
-    { header: 'Buy Time', accessor: 'buyTime' },
-    { header: 'Sell Time', accessor: 'sellTime' },
+    { header: 'Buy Time', accessor: 'buyTime', render: (item: any) => renderDateTimeVertical(item.buyTime) },
+    { header: 'Sell Time', accessor: 'sellTime', render: (item: any) => renderDateTimeVertical(item.sellTime) },
     { header: 'Super Broker commission', accessor: 'superBrokerCommission' },
   ];
 
