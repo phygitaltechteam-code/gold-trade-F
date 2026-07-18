@@ -171,11 +171,19 @@ export const getMasterbrokerLedgerbyId = async (id: string) => {
   const response = await api.get(`/company/master-broker/ledger/${id}`);
   return response.data.data;
 };
+export const getMasterbrokertraderbyId= async (id: string) => {
+  const response = await api.get(`/company/master-broker/customers/${id}`);
+  return response.data;
+};
 export const useGetMasterbrokerLedgerById = (id: string) =>
   useQuery({
     queryKey: ['Master_broker_ledger', id],
     queryFn: () => getMasterbrokerLedgerbyId(id),
   });
-
+export const useGetMasterbrokertraderdById = (id: string) =>
+  useQuery({
+    queryKey: ['Master_broker_traders', id],
+    queryFn: () => getMasterbrokertraderbyId(id),
+  });
 
 

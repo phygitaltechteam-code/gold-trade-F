@@ -67,23 +67,26 @@ const BrokerLedger = () => {
     {header: 'Buy Price', accessor: 'buyPrice'},
     {header: 'Sell Price', accessor: 'sellPrice'},
     {header: 'Status', accessor: 'status'},
+    {header: 'Buy Time', accessor: 'buyTime'},
+    {header: 'Sell Time', accessor: 'sellTime'},
+    {header: 'Status', accessor: 'status'},
     {header: 'P&L', accessor: (item) => formatPnL(item)},
+    
+    {header: 'Broker Commission', accessor: 'brokerCommission'},
   ];
 
   // Full detailed view columns
-  const expandedColumns = [
-    // {header: 'Date & Time', accessor: 'dateTime', render: renderDateTimeCell},
-    {header: 'Customer Name', accessor: 'customerName'},
-    {header: 'Script', accessor: 'script'},
-    {header: 'Qty/Lot', accessor: (item) => formatQtyLot(item)},
-    {header: 'Buy Price', accessor: 'buyPrice'},
-    {header: 'Sell Price', accessor: 'sellPrice'},
-    {header: 'Buy Time', accessor: 'buyTime', render: (item: any) => renderDateTimeCell(item.buyTime)},
-    {header: 'Sell Time', accessor: 'sellTime', render: (item: any) => renderDateTimeCell(item.sellTime)},
-    {header: 'Status', accessor: 'status'},
-    {header: 'P&L', accessor: (item) => formatPnL(item)},
-    {header: 'Broker Commission', accessor: 'brokerCommission'},
-  ];
+  // const expandedColumns = [
+  //   {header: 'Date & Time', accessor: 'dateTime'},
+  //   {header: 'Customer Name', accessor: 'customerName'},
+  //   {header: 'Script', accessor: 'script'},
+  //   {header: 'Qty/Lot', accessor: (item) => formatQtyLot(item)},
+  //   {header: 'Buy Price', accessor: 'buyPrice'},
+  //   {header: 'Sell Price', accessor: 'sellPrice'},
+  //   
+  //   {header: 'P&L', accessor: (item) => formatPnL(item)},
+  //   {header: 'Broker Commission', accessor: 'brokerCommission'},
+  // ];
 
   // Extract data array safely
   const getTransactionData = () => {
@@ -126,7 +129,7 @@ const BrokerLedger = () => {
     <div className="mx-auto w-full p-4 md:p-6">
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-xl font-semibold text-black dark:text-white">
-          Transaction Ledger..
+          Transaction Ledger
         </h2>
       </div>
 
@@ -167,12 +170,12 @@ const BrokerLedger = () => {
                   Clear
                 </button>
               )}
-              <button
+              {/* <button
                 onClick={() => setIsExpanded(!isExpanded)}
                 className="rounded bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
               >
                 {isExpanded ? 'View Less' : 'View More'}
-              </button>
+              </button> */}
               <button
                 onClick={() =>refetch() }
                 className="rounded bg-orange-500 flex px-1 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 mr-2"

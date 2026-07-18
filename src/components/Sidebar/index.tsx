@@ -138,15 +138,15 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       },
       {
         label: 'Settings',
+         path: '/profile',
         icon: <Settings size={22} />,
-        subRoutes: [
-          {
-            label: 'Profile',
-            path: '/profile',
-            icon: <User size={18} />,
-          },
+           
+            
+           
+          
+          
          
-        ],
+        
         
       },
       //  {
@@ -225,21 +225,17 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             path: '/brokerledger',
             icon: <Receipt size={22} />,
           },
+          // {
+          //   label: 'Profile',
+          //   path: '/broker/brokerprofiles',
+          //   icon: <UserCog size={22} />,
+          // },
           {
-            label: 'Profile',
-            path: '/broker/brokerprofiles',
-            icon: <UserCog size={22} />,
-          },
-          {
-            label: 'Settings',
+            label: 'Setting',
             icon: <Settings size={22} />,
-            subRoutes: [
-              {
-                label: 'Logout',
-                onClick: () => handleSignOut(),
-                icon: <LogOut size={18} />,
-              },
-            ],
+            
+            path: '/broker/brokerprofiles',
+           
           },
         ]
         : isCustomer
@@ -295,19 +291,16 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               },
               {
                 label: 'Settings',
+                
+                path: '/broker/superbrokerprofile',
                 icon: <Settings size={22} />,
-                subRoutes: [
-                  {
-                    label: 'Profile',
-                    path: '/broker/superbrokerprofile',
-                    icon: <User size={18} />,
-                  },
-                  {
-                    label: 'Logout',
-                    onClick: () => handleSignOut(),
-                    icon: <LogOut size={18} />,
-                  },
-                ],
+               
+                  // {
+                  //   label: 'Logout',
+                  //   onClick: () => handleSignOut(),
+                  //   icon: <LogOut size={18} />,
+                  // },
+                
               },
             ]
             : isMasterBroker
@@ -334,19 +327,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 },
                 {
                   label: 'Settings',
+                  
+                  path: '/masterbroker/profile',
                   icon: <Settings size={22} />,
-                  subRoutes: [
-                    {
-                      label: 'Profile',
-                      path: '/masterbroker/profile',
-                      icon: <User size={18} />,
-                    },
-                    {
-                      label: 'Logout',
-                      onClick: () => handleSignOut(),
-                      icon: <LogOut size={18} />,
-                    },
-                  ],
+                 
                 },
               ]
               : [];
@@ -646,7 +630,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               )}
             </ul>
           </nav>
-        </div><div className="mt-auto border-t border-gray-200 px-2 py-2">
+        </div><div className="mt-auto px-2 py-2">
   <button
     onClick={handleSignOut}
     className={`flex w-full items-center gap-2.5 rounded px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 hover:text-red-700 ${

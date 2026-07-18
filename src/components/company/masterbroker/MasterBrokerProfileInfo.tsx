@@ -123,14 +123,14 @@ export const MasterBrokerProfileInfo: React.FC<MasterBrokerProfileInfoProps> = (
           </div>
 
           {/* Email */}
-          <div>
+          {/* <div>
             <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
               Email
             </label>
             <p className="text-sm text-black dark:text-white md:text-base">
               {profileData?.email || 'N/A'}
             </p>
-          </div>
+          </div> */}
 
           {/* Aadhar Number */}
           <div>
@@ -189,7 +189,7 @@ export const MasterBrokerProfileInfo: React.FC<MasterBrokerProfileInfoProps> = (
               />
             ) : (
               <p className="text-sm text-black dark:text-white md:text-base">
-                {profileData?.customerLimit || profileData?.customer_limit || 'Unlimited'}
+                {profileData?.customerLimit || profileData?.customer_limit || 0}
               </p>
             )}
           </div>
@@ -229,7 +229,6 @@ export const MasterBrokerProfileInfo: React.FC<MasterBrokerProfileInfoProps> = (
             <div>
               <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                 Password
-                <span className="text-gray-400 ml-1 text-xs">(Optional)</span>
               </label>
               <div className="relative">
                 <input
@@ -248,9 +247,6 @@ export const MasterBrokerProfileInfo: React.FC<MasterBrokerProfileInfoProps> = (
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
-              <p className="text-gray-400 mt-1 text-xs">
-                Leave blank to keep current password
-              </p>
             </div>
           )}
         </div>

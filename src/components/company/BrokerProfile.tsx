@@ -75,7 +75,7 @@ const BrokerProfile = () => {
   const [editData, setEditData] = useState({
     fullname: '',
     phoneNumber: '',
-    email: '',
+
     aadharCardNumber: '',
     commission: '',
     area: '',
@@ -90,7 +90,7 @@ const BrokerProfile = () => {
       setEditData({
         fullname: profileData?.fullname || '',
         phoneNumber: profileData?.phoneNumber || '',
-        email: profileData?.email || '',
+        
         aadharCardNumber: profileData?.aadharCardNumber || '',
         commission: profileData?.brokeragePercent?.toString() || '',
         area: profileData?.area || '',
@@ -306,9 +306,7 @@ const BrokerProfile = () => {
     if (editData.phoneNumber !== profileData?.phoneNumber) {
       updatePayload.phoneNumber = editData.phoneNumber;
     }
-    if (editData.email !== profileData?.email) {
-      updatePayload.email = editData.email;
-    }
+   
     if (editData.aadharCardNumber !== profileData?.aadharCardNumber) {
       updatePayload.aadharCardNumber = editData.aadharCardNumber;
     }
@@ -355,7 +353,7 @@ const BrokerProfile = () => {
       setEditData({
         fullname: profileData?.fullname || '',
         phoneNumber: profileData?.phoneNumber || '',
-        email: profileData?.email || '',
+       
         aadharCardNumber: profileData?.aadharCardNumber || '',
         commission: profileData?.brokeragePercent?.toString() || '',
         area: profileData?.area || '',
@@ -370,10 +368,10 @@ const BrokerProfile = () => {
   const handleCommissionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!commissionAmount || parseFloat(commissionAmount) <= 0) {
-      toast.error('Please enter a valid commission amount');
-      return;
-    }
+    // if (!commissionAmount || parseFloat(commissionAmount) <= 0) {
+    //   toast.error('Please enter a valid commission amount');
+    //   return;
+    // }
 
     if (!commissionPin) {
       toast.error('Please enter security PIN');
@@ -1154,26 +1152,7 @@ const BrokerProfile = () => {
                 </p>
               )}
             </div>
-
-            {/* Email - Editable */}
-            <div>
-              <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-                Email
-              </label>
-              {isEditing ? (
-                <input
-                  type="email"
-                  name="email"
-                  value={editData.email}
-                  onChange={handleInputChange}
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
-                />
-              ) : (
-                <p className="text-sm text-black dark:text-white md:text-base">
-                  {profileData?.email || 'N/A'}
-                </p>
-              )}
-            </div>
+           
 
             {/* Aadhar Number - Editable */}
             <div>
@@ -1263,8 +1242,7 @@ const BrokerProfile = () => {
               <div>
                 <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                   Password
-                  <span className="text-gray-400 ml-1 text-xs">(Optional)</span>
-                </label>
+                 </label>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -1282,9 +1260,6 @@ const BrokerProfile = () => {
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
-                <p className="text-gray-400 mt-1 text-xs">
-                  Leave blank to keep current password
-                </p>
               </div>
             )}
           </div>
@@ -1572,7 +1547,7 @@ const BrokerProfile = () => {
             </h3>
 
             {/* Show current financial summary */}
-            <div className="mb-4 space-y-2 rounded-lg border border-blue-100 bg-blue-50 p-3">
+            {/* <div className="mb-4 space-y-2 rounded-lg border border-blue-100 bg-blue-50 p-3">
               <p className="text-sm font-medium text-blue-800">
                 Current Financial Summary
               </p>
@@ -1595,10 +1570,10 @@ const BrokerProfile = () => {
                   </strong>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* Show pending commission info for this transaction */}
-            {profileData?.pendingCommission > 0 && (
+            {/* {profileData?.pendingCommission > 0 && (
               <div className="mb-4 rounded-lg border border-orange-100 bg-orange-50 p-3">
                 <p className="text-sm text-orange-700">
                   Current Pending Amount:{' '}
@@ -1610,7 +1585,7 @@ const BrokerProfile = () => {
                   This transaction will update the pending amount
                 </p>
               </div>
-            )}
+            )} */}
 
             <div className="mb-6 grid grid-cols-2 gap-2 rounded-xl bg-slate-100 p-1">
               <button

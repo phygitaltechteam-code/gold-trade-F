@@ -480,10 +480,10 @@ const SuperBrokerProfile = () => {
   const handleCommissionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!commissionAmount || parseFloat(commissionAmount) <= 0) {
-      toast.error('Please enter a valid commission amount');
-      return;
-    }
+    // if (!commissionAmount || parseFloat(commissionAmount) <= 0) {
+    //   toast.error('Please enter a valid commission amount');
+    //   return;
+    // }
 
     if (!commissionPin) {
       toast.error('Please enter security PIN');
@@ -510,9 +510,7 @@ const SuperBrokerProfile = () => {
           setCommissionAmount('');
           setCommissionPin('');
           setShowCommissionPin(false);
-          toast.success(
-            `Commission ${commissionType === 'credit' ? 'added' : 'deducted'} successfully`,
-          );
+         
           refetch();
           refetchPayment();
         },
@@ -844,15 +842,15 @@ const SuperBrokerProfile = () => {
                 </p>
               )}
             </div>
-
+{/* 
             <div>
               <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-                Email
+                
               </label>
               <p className="text-sm text-black dark:text-white md:text-base">
                 {profileData?.email || 'N/A'}
               </p>
-            </div>
+            </div> */}
 
             <div>
               <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
@@ -925,7 +923,6 @@ const SuperBrokerProfile = () => {
               <div>
                 <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                   Password
-                  <span className="text-gray-400 ml-1 text-xs">(Optional)</span>
                 </label>
                 <div className="relative">
                   <input
@@ -944,9 +941,6 @@ const SuperBrokerProfile = () => {
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
-                <p className="text-gray-400 mt-1 text-xs">
-                  Leave blank to keep current password
-                </p>
               </div>
             )}
           </div>
@@ -1222,7 +1216,7 @@ const SuperBrokerProfile = () => {
               Commission Transaction
             </h3>
 
-            <div className="mb-4 space-y-2 rounded-lg border border-blue-100 bg-blue-50 p-3">
+            {/* <div className="mb-4 space-y-2 rounded-lg border border-blue-100 bg-blue-50 p-3">
               <p className="text-sm font-medium text-blue-800">
                 Current Financial Summary
               </p>
@@ -1235,7 +1229,7 @@ const SuperBrokerProfile = () => {
                   </strong>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {pendingCommission > 0 && (
               <div className="mb-4 rounded-lg border border-orange-100 bg-orange-50 p-3">
