@@ -23,7 +23,7 @@ export const ClientDetailStats: React.FC<ClientDetailStatsProps> = ({
           Wallet Balance
         </div>
         <div className="text-xl font-semibold text-slate-900 md:text-2xl">
-          ₹{(walletAmountValue).toFixed(2).toLocaleString()}
+          ₹{Number((walletAmountValue).toFixed(2)).toLocaleString()}
         </div>
         <div className="mt-1 flex items-center gap-1 text-xs font-medium text-emerald-600">
           <ArrowUpRight className="h-3 w-3" /> Available Balance
@@ -39,7 +39,7 @@ export const ClientDetailStats: React.FC<ClientDetailStatsProps> = ({
           Blocked Amount
         </div>
         <div className="text-xl font-semibold text-slate-900 md:text-2xl">
-          ₹{(blockedAmount).toFixed(2).toLocaleString()}
+          ₹{Number((blockedAmount).toFixed(2)).toLocaleString()}
         </div>
         <div className="mt-1 flex items-center gap-1 text-xs font-medium text-orange-600">
           <div className="h-2 w-2 rounded-full bg-orange-500" /> Blocked
@@ -59,7 +59,7 @@ export const ClientDetailStats: React.FC<ClientDetailStatsProps> = ({
           totalPnL > 0 ? 'text-red-600' : 
           'text-slate-900'
         }`}>
-          {totalPnL < 0 ? '+' : ''}₹{(-totalPnL).toFixed(2)}
+          {totalPnL < 0 ? '+' : ''}₹{(Number((-totalPnL).toFixed(2))).toLocaleString()}
         </div>
         <div className="mt-1 flex items-center gap-1 text-xs font-medium">
           {totalPnL < 0 ? (
