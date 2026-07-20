@@ -169,7 +169,12 @@ export const updateMasterBrokerProfile = async (
 
 export const getMasterbrokerLedgerbyId = async (id: string) => {
   const response = await api.get(`/company/master-broker/ledger/${id}`);
-  return response.data.data;
+  console.log("Raw API Response from /ledger/:id", response);
+  console.log("response.data", response?.data);
+  const data = response?.data?.data;
+  const finalData = Array.isArray(data) ? data : (data?.data || []);
+  console.log("Final Extracted Ledger Data:", finalData);
+  return finalData;
 };
 export const getMasterbrokertraderbyId= async (id: string) => {
   const response = await api.get(`/company/master-broker/customers/${id}`);

@@ -226,20 +226,34 @@ export const ClientDetail: React.FC = () => {
     console.log('formattedLedgers', formattedLedgers);
     setPaymentData(formattedLedgers);
   }, [clientData]);
+  const renderDateTime = (dateString: string) => {
+    if (!dateString || dateString === '-') return '-';
+    const parts = dateString.split(', ');
+    if (parts.length === 2) {
+      return (
+        <div className="flex flex-col">
+          <span>{parts[0]}</span>
+          <span className="text-xs text-gray-500">{parts[1]}</span>
+        </div>
+      );
+    }
+    return dateString;
+  };
+
   const ledgerColumns = [
-    {header: 'Date & Time', accessor: 'dateTime'},
+    {header: 'Date & Time', accessor: 'dateTime', render: (item: any) => renderDateTime(item.dateTime)},
     {header: 'Trader Name', accessor: 'customerName'},
     {header: 'Script', accessor: 'script'},
-    {header: 'Qty/Lot', accessor: (item) => formatQtyLot(item)},
+    {header: 'Qty/Lot', accessor: (item: any) => formatQtyLot(item)},
     {header: 'Buy Price', accessor: 'buyPrice'},
     {header: 'Sell Price', accessor: 'sellPrice'},
-    {header: 'Buy Time', accessor: 'buyTime'},
-    {header: 'Sell Time', accessor: 'sellTime'},
+    {header: 'Buy Time', accessor: 'buyTime', render: (item: any) => renderDateTime(item.buyTime)},
+    {header: 'Sell Time', accessor: 'sellTime', render: (item: any) => renderDateTime(item.sellTime)},
     {header: 'Status', accessor: 'status'},
-    {header: 'P&L', accessor: (item) => formatPnL(item)},
-    {header: 'Admin Commission', accessor: (item) => formatCommission(item.companyCommission)},
-    {header: 'Super Broker Commission', accessor: (item) => formatCommission(item.superBrokerCommission)},
-    {header: 'Broker Commission', accessor: (item) => formatCommission(item.brokerCommission)},
+    {header: 'P&L', accessor: (item: any) => formatPnL(item)},
+    {header: 'Admin Commission', accessor: (item: any) => formatCommission(item.companyCommission)},
+    {header: 'Super Broker Commission', accessor: (item: any) => formatCommission(item.superBrokerCommission)},
+    {header: 'Broker Commission', accessor: (item: any) => formatCommission(item.brokerCommission)},
   ];
 
   const paymentColumns = [

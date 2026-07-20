@@ -181,7 +181,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
   const paymentData = useMemo(() => [], []);
 
   const ledgerDataWithSr = useMemo(() => {
-    return ledgerData.map((item: any, index: number) => ({
+    return ledgerData?.map((item: any, index: number) => ({
       ...item,
       sr: index + 1,
     }));
@@ -270,28 +270,28 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
   ];
 
   const baseLedgerColumns = [
-    {header: 'Date & Time', accessor: 'dateTime'},
-    {header: 'Customer Name', accessor: 'customerName'},
-    {header: 'Script', accessor: 'script'},
-    {header: 'Qty/Lot', accessor: (item) => formatQtyLot(item)},
-    {header: 'Buy Price', accessor: 'buyPrice'},
-    {header: 'Sell Price', accessor: 'sellPrice'},
-    {header: 'Status', accessor: 'status'},
-    {header: 'P&L', accessor: (item) => formatPnL(item)},
-    
-  // ];
+    { header: 'Date & Time', accessor: 'dateTime' },
+    { header: 'Customer Name', accessor: 'customerName' },
+    { header: 'Script', accessor: 'script' },
+    { header: 'Qty/Lot', accessor: (item) => formatQtyLot(item) },
+    { header: 'Buy Price', accessor: 'buyPrice' },
+    { header: 'Sell Price', accessor: 'sellPrice' },
+    { header: 'Status', accessor: 'status' },
+    { header: 'P&L', accessor: (item) => formatPnL(item) },
 
-  // const expandedLedgerColumns = [
- 
-    
-   
-    
-   
-    
-    {header: 'Buy Time', accessor: 'buyTime'},
-    {header: 'Sell Time', accessor: 'sellTime'},
-   
-    {header: 'Master Broker Commission', accessor: 'masterBrokerCommission'},
+    // ];
+
+    // const expandedLedgerColumns = [
+
+
+
+
+
+
+    { header: 'Buy Time', accessor: 'buyTime' },
+    { header: 'Sell Time', accessor: 'sellTime' },
+
+    { header: 'Master Broker Commission', accessor: 'masterBrokerCommission' },
     // {header: 'Super Broker Commission', accessor: 'superBrokerCommission'},
     // {header: 'Broker Commission', accessor: 'brokerCommission'},
   ];
@@ -518,21 +518,30 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
   const filteredLedgerData = useMemo(() => {
     if (!ledgerStartDate || !ledgerEndDate) return ledgerDataWithSr;
 
- 
+
     return ledgerDataWithSr?.filter((item: any) => {
-      const itemDate = new Date(item.dateTime);
+      const itemDate = new Date(item.dateTime || item.createdAt);
+      if (isNaN(itemDate.getTime())) return true;
       const startDate = new Date(ledgerStartDate);
       const endDate = new Date(ledgerEndDate);
+      startDate.setHours(0, 0, 0, 0);
+      endDate.setHours(23, 59, 59, 999);
       return itemDate >= startDate && itemDate <= endDate;
     });
   }, [ledgerDataWithSr, ledgerStartDate, ledgerEndDate]);
 
+  console.log("All fetched ledger data (unfiltered):", ledgerDataWithSr);
+  console.log(`Filtered ledger data (from ${ledgerStartDate} to ${ledgerEndDate}):`, filteredLedgerData);
+
   const filteredPaymentData = useMemo(() => {
     if (!paymentStartDate || !paymentEndDate) return paymentDataWithSr;
     return paymentDataWithSr.filter((item: any) => {
-      const itemDate = new Date(item.date);
+      const itemDate = new Date(item.date || item.createdAt || item.paidDate);
+      if (isNaN(itemDate.getTime())) return true;
       const startDate = new Date(paymentStartDate);
       const endDate = new Date(paymentEndDate);
+      startDate.setHours(0, 0, 0, 0);
+      endDate.setHours(23, 59, 59, 999);
       return itemDate >= startDate && itemDate <= endDate;
     });
   }, [paymentDataWithSr, paymentStartDate, paymentEndDate]);
