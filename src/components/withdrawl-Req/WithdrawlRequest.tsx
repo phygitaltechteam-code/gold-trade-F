@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import React, {useState, useMemo, useEffect} from 'react';
+import {useQueryClient} from '@tanstack/react-query';
 import {
   Search,
   Bell,
@@ -20,7 +20,7 @@ import {
   Users,
   Activity,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import {motion, AnimatePresence} from 'framer-motion';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import {
   useApproveWithdrawal,
@@ -58,7 +58,7 @@ const StatCard = ({
   };
 
   return (
-    <div className="group relative overflow-hidden rounded-lg border border-stroke bg-white p-4 shadow-sm transition-all hover:shadow-md hover:border-orange-200 dark:border-strokedark dark:bg-boxdark md:p-5">
+    <div className="group relative overflow-hidden rounded-lg border border-stroke bg-white p-4 shadow-sm transition-all hover:border-orange-200 hover:shadow-md dark:border-strokedark dark:bg-boxdark md:p-5">
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <p className="text-gray-500 text-xs font-medium uppercase tracking-wider">
@@ -68,7 +68,9 @@ const StatCard = ({
             {value}
           </h4>
         </div>
-        <div className={`rounded-lg p-2 transition-colors group-hover:bg-orange-50 ${getBgColor()}`}>
+        <div
+          className={`rounded-lg p-2 transition-colors group-hover:bg-orange-50 ${getBgColor()}`}
+        >
           {Icon && <Icon className={`h-5 w-5 ${iconColor} md:h-6 md:w-6`} />}
         </div>
       </div>
@@ -106,7 +108,7 @@ interface WithdrawalRequest {
 }
 
 // Status Badge Component
-const StatusBadge = ({ status }: { status: WithdrawalRequest['status'] }) => {
+const StatusBadge = ({status}: {status: WithdrawalRequest['status']}) => {
   const styles = {
     Pending: 'bg-orange-50 text-orange-600 border-orange-100',
     Review: 'bg-yellow-50 text-yellow-600 border-yellow-100',
@@ -127,9 +129,9 @@ const StatusBadge = ({ status }: { status: WithdrawalRequest['status'] }) => {
 export default function WithdrawalRequest() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('Pending');
-  const { data: withdrawal, refetch } = useGetWithdrawal();
-  const { mutateAsync: approve } = useApproveWithdrawal();
-  const { mutateAsync: reject } = useRejectWithdrawal();
+  const {data: withdrawal, refetch} = useGetWithdrawal();
+  const {mutateAsync: approve} = useApproveWithdrawal();
+  const {mutateAsync: reject} = useRejectWithdrawal();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRequests, setSelectedRequests] = useState<string[]>([]);
   const [showApproveModal, setShowApproveModal] = useState(false);
@@ -195,7 +197,7 @@ export default function WithdrawalRequest() {
       hour12: true,
     });
 
-    return { date: formattedDate, time: formattedTime };
+    return {date: formattedDate, time: formattedTime};
   };
 
   // Date filtering logic - If no dates selected, show all data
@@ -215,65 +217,69 @@ export default function WithdrawalRequest() {
   };
 
   const MOCK_DATA = useMemo(() => {
-    return withdrawal?.map((item: any, index: number) => {
-      const walletBalance = typeof item.walletBalance === 'string'
-        ? parseFloat(item.walletBalance)
-        : item.walletBalance || 0;
+    return (
+      withdrawal?.map((item: any, index: number) => {
+        const walletBalance =
+          typeof item.walletBalance === 'string'
+            ? parseFloat(item.walletBalance)
+            : item.walletBalance || 0;
 
-      const amount = typeof item.amount === 'string'
-        ? parseFloat(item.amount)
-        : item.amount || 0;
+        const amount =
+          typeof item.amount === 'string'
+            ? parseFloat(item.amount)
+            : item.amount || 0;
 
-      return {
-        id: item.id,
-        requestId: `REQ${String(index + 1).padStart(3, '0')}`,
-        date: item.createdAt || new Date().toISOString().split('T')[0],
-        time: item.createdAt || new Date().toISOString(),
+        return {
+          id: item.id,
+          requestId: `REQ${String(index + 1).padStart(3, '0')}`,
+          date: item.createdAt || new Date().toISOString().split('T')[0],
+          time: item.createdAt || new Date().toISOString(),
 
-        client: {
-          name: item.customer?.user?.fullname || item.customerName || 'N/A',
-          avatar: item.customer?.photo || '',
-          initials:
-            item.customer?.user?.fullname
-              ?.split(' ')
-              .map((n: string) => n[0])
-              .join('')
-              .toUpperCase() || 'NA',
-        },
+          client: {
+            name: item.customer?.user?.fullname || item.customerName || 'N/A',
+            avatar: item.customer?.photo || '',
+            initials:
+              item.customer?.user?.fullname
+                ?.split(' ')
+                .map((n: string) => n[0])
+                .join('')
+                .toUpperCase() || 'NA',
+          },
 
-        brokerName: item.brokerName || '-',
-        brokerNumber: item.brokerId || '-',
+          brokerName: item.brokerName || '-',
+          brokerNumber: item.brokerId || '-',
 
-        superBrokerName: item.superBrokerName || '-',
-        superBrokerNumber: item.superBrokerId || '-',
+          superBrokerName: item.superBrokerName || '-',
+          superBrokerNumber: item.superBrokerId || '-',
 
-        walletBalance: walletBalance,
-        amount: amount,
+          walletBalance: walletBalance,
+          amount: amount,
 
-        withdrawType: 'Bank Transfer',
+          withdrawType: 'Bank Transfer',
 
-        detailAmount: amount,
-        paidAmount: 0,
-        paidDateTime: '-',
+          detailAmount: amount,
+          paidAmount: 0,
+          paidDateTime: '-',
 
-        fee: 0,
+          fee: 0,
 
-        bank: item.customer?.bank_Name || '-',
-        accountLast4: '----',
+          bank: item.customer?.bank_Name || '-',
+          accountLast4: '----',
 
-        status:
-          item.status === 'PENDING'
-            ? 'Pending'
-            : item.status === 'APPROVED'
-              ? 'Approved'
-              : item.status === 'REJECTED'
-                ? 'Rejected'
-                : 'Review',
+          status:
+            item.status === 'PENDING'
+              ? 'Pending'
+              : item.status === 'APPROVED'
+                ? 'Approved'
+                : item.status === 'REJECTED'
+                  ? 'Rejected'
+                  : 'Review',
 
-        isHighValue: amount > 100000,
-        customer: item.customer,
-      };
-    }) || [];
+          isHighValue: amount > 100000,
+          customer: item.customer,
+        };
+      }) || []
+    );
   }, [withdrawal]);
 
   // Get date-filtered data for cards and tab counts
@@ -327,12 +333,13 @@ export default function WithdrawalRequest() {
     const totalAmount = periodData?.reduce((sum, r) => sum + r.amount, 0) || 0;
     const count = periodData?.length || 0;
 
-    return { totalAmount, count };
+    return {totalAmount, count};
   };
 
   // Calculate stats - based on date filtered data
   const stats = useMemo(() => {
-    const totalWithdrawalAmount = dateFilteredData?.reduce((sum, r) => sum + r.amount, 0) || 0;
+    const totalWithdrawalAmount =
+      dateFilteredData?.reduce((sum, r) => sum + r.amount, 0) || 0;
     const totalCount = dateFilteredData?.length || 0;
 
     const todayStats = getPeriodStats('today');
@@ -351,11 +358,16 @@ export default function WithdrawalRequest() {
   // Get counts for each status - based on date filtered data
   const statusCounts = useMemo(() => {
     return {
-      Pending: dateFilteredData?.filter((r) => r.status === 'Pending').length || 0,
-      Review: dateFilteredData?.filter((r) => r.status === 'Review').length || 0,
-      'On Hold': dateFilteredData?.filter((r) => r.status === 'On Hold').length || 0,
-      Approved: dateFilteredData?.filter((r) => r.status === 'Approved').length || 0,
-      Rejected: dateFilteredData?.filter((r) => r.status === 'Rejected').length || 0,
+      Pending:
+        dateFilteredData?.filter((r) => r.status === 'Pending').length || 0,
+      Review:
+        dateFilteredData?.filter((r) => r.status === 'Review').length || 0,
+      'On Hold':
+        dateFilteredData?.filter((r) => r.status === 'On Hold').length || 0,
+      Approved:
+        dateFilteredData?.filter((r) => r.status === 'Approved').length || 0,
+      Rejected:
+        dateFilteredData?.filter((r) => r.status === 'Rejected').length || 0,
     };
   }, [dateFilteredData]);
 
@@ -369,7 +381,9 @@ export default function WithdrawalRequest() {
         const formatted = formatDateTime(row.date);
         return (
           <div>
-            <div className="text-gray-900 text-sm">{formatted?.date || 'N/A'}</div>
+            <div className="text-gray-900 text-sm">
+              {formatted?.date || 'N/A'}
+            </div>
             <div className="text-gray-400 text-xs">{formatted?.time || ''}</div>
           </div>
         );
@@ -388,9 +402,33 @@ export default function WithdrawalRequest() {
       ),
     },
     {
+      header: 'Super Broker',
+      accessor: (row: WithdrawalRequest) => (
+        <div className="flex items-center gap-3">
+          <div>
+            <div className="text-gray-900 text-sm font-semibold">
+              {row?.client?.name}
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: 'Broker',
+      accessor: (row: WithdrawalRequest) => (
+        <div className="flex items-center gap-3">
+          <div>
+            <div className="text-gray-900 text-sm font-semibold">
+              {row?.client?.name}
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
       header: 'Wallet Balance',
       accessor: (row: WithdrawalRequest) => (
-        <div className="text-gray-900 text-left text-sm ">
+        <div className="text-gray-900 text-left text-sm">
           {formatCurrency(row.walletBalance)}
         </div>
       ),
@@ -398,7 +436,7 @@ export default function WithdrawalRequest() {
     {
       header: 'Withdraw Amount',
       accessor: (row: WithdrawalRequest) => (
-        <div className="text-left text-sm text-gray-900">
+        <div className="text-gray-900 text-left text-sm">
           {formatCurrency(row.amount)}
         </div>
       ),
@@ -409,26 +447,26 @@ export default function WithdrawalRequest() {
     // },
     ...(showActions
       ? [
-        {
-          header: 'Actions',
-          accessor: (row: WithdrawalRequest) => (
-            <div className="flex justify-left gap-2">
-              <button
-                onClick={() => handleReject(row.id)}
-                className="text-gray-500 hover:bg-gray-100 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
-              >
-                Reject
-              </button>
-              <button
-                onClick={() => handleApprove(row.id)}
-                className="rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm shadow-orange-200 transition-all hover:bg-orange-600"
-              >
-                Approve
-              </button>
-            </div>
-          ),
-        },
-      ]
+          {
+            header: 'Actions',
+            accessor: (row: WithdrawalRequest) => (
+              <div className="justify-left flex gap-2">
+                <button
+                  onClick={() => handleReject(row.id)}
+                  className="text-gray-500 hover:bg-gray-100 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
+                >
+                  Reject
+                </button>
+                <button
+                  onClick={() => handleApprove(row.id)}
+                  className="rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm shadow-orange-200 transition-all hover:bg-orange-600"
+                >
+                  Approve
+                </button>
+              </div>
+            ),
+          },
+        ]
       : []),
   ];
 
@@ -460,28 +498,28 @@ export default function WithdrawalRequest() {
   // Stats Card data - Simple with only title, value, icon
   const statCards = [
     {
-      title: "Total Withdrawal Amount",
+      title: 'Total Withdrawal Amount',
       value: formatIndianCurrency(stats.totalWithdrawalAmount),
       icon: TrendingUp,
-      iconColor: "text-orange-500",
+      iconColor: 'text-orange-500',
     },
     {
-      title: "Total Withdrawals",
+      title: 'Total Withdrawals',
       value: formatNumber(stats.totalCount),
       icon: DollarSign,
-      iconColor: "text-green-500",
+      iconColor: 'text-green-500',
     },
     {
       title: "Today's Withdrawals",
       value: `${formatNumber(stats.todayStats.count)} withdrawals`,
       icon: Activity,
-      iconColor: "text-blue-500",
+      iconColor: 'text-blue-500',
     },
     {
-      title: "This Month",
+      title: 'This Month',
       value: formatIndianCurrency(stats.monthStats.totalAmount),
       icon: Users,
-      iconColor: "text-purple-500",
+      iconColor: 'text-purple-500',
     },
   ];
 
@@ -538,9 +576,9 @@ export default function WithdrawalRequest() {
         <AnimatePresence>
           {selectedRequests.length > 0 && (
             <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
+              initial={{opacity: 0, y: -20}}
+              animate={{opacity: 1, y: 0}}
+              exit={{opacity: 0, y: -20}}
               className="mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-orange-200 bg-orange-50 p-3"
             >
               <span className="text-sm font-medium text-orange-700">
@@ -569,10 +607,10 @@ export default function WithdrawalRequest() {
         </AnimatePresence>
 
         {/* Main Content Area */}
-        <div className="overflow-hidden rounded-xl border border-stroke bg-white shadow-sm">
+        <div className="overflow-hidden rounded-xl border border-stroke bg-white shadow-sm sm:rounded-2xl ">
           {/* Tabs & Controls with Date Filters on Right */}
           <div className="flex flex-col justify-between border-b border-stroke px-4 pt-4 sm:flex-row sm:items-center sm:px-6">
-            <div className="flex gap-4 overflow-x-auto pb-4 sm:gap-8 sm:pb-0">
+            <div className="flex gap-4 overflow-x-auto mt-6 pb-4 sm:gap-8 sm:pb-0">
               {(['Pending', 'Approved', 'Rejected'] as const).map((tab) => (
                 <button
                   key={tab}
@@ -580,19 +618,21 @@ export default function WithdrawalRequest() {
                     setActiveTab(tab);
                     setCurrentPage(1);
                   }}
-                  className={`relative whitespace-nowrap pb-2 text-xs font-medium transition-all sm:text-sm ${activeTab === tab
-                    ? 'text-orange-500'
-                    : 'text-gray-500 hover:text-gray-700'
-                    }`}
+                  className={`relative whitespace-nowrap pb-2 text-xs font-medium transition-all sm:text-sm ${
+                    activeTab === tab
+                      ? 'text-orange-500'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
                 >
                   {tab}
                   <span
-                    className={`ml-2 rounded-md px-1.5 py-0.5 text-[10px] ${tab === 'Pending'
-                      ? 'bg-orange-50 text-orange-600'
-                      : tab === 'Approved'
-                        ? 'bg-emerald-50 text-emerald-600'
-                        : 'bg-red-50 text-red-600'
-                      }`}
+                    className={`ml-2 rounded-md px-1.5 py-0.5 text-[10px] ${
+                      tab === 'Pending'
+                        ? 'bg-orange-50 text-orange-600'
+                        : tab === 'Approved'
+                          ? 'bg-emerald-50 text-emerald-600'
+                          : 'bg-red-50 text-red-600'
+                    }`}
                   >
                     {statusCounts[tab] || 0}
                   </span>
@@ -605,50 +645,35 @@ export default function WithdrawalRequest() {
                 </button>
               ))}
             </div>
-
-            {/* Date Filters - Clean From/To only */}
-            <div className="mb-2 flex flex-wrap items-center gap-2 pb-4 sm:pb-0">
-              <div className="flex items-center gap-2 bg-white rounded-lg border border-stroke px-3 py-2">
-                <Calendar className="text-orange-500 h-4 w-4" />
-                <div className="flex items-center gap-2">
-                  <label className="text-xs font-medium text-gray-600">From:</label>
-                  <input
-                    type="date"
-                    value={fromDate}
-                    onChange={(e) => setFromDate(e.target.value)}
-                    className="border-0 px-1 py-0.5 text-sm focus:outline-none focus:ring-0 w-32"
-                    placeholder="Start date"
-                  />
-                </div>
-               
-                <div className="flex items-center gap-2">
-                  <label className="text-xs font-medium text-gray-600">To:</label>
-                  <input
-                    type="date"
-                    value={toDate}
-                    onChange={(e) => setToDate(e.target.value)}
-                    className="border-0 px-1 py-0.5 text-sm focus:outline-none focus:ring-0 w-32"
-                    placeholder="End date"
-                  />
-                </div>
-                {(fromDate || toDate) && (
-                  <button
-                    onClick={() => {
-                      setFromDate('');
-                      setToDate('');
-                    }}
-                    className="text-gray-400 hover:text-gray-600 ml-1"
-                    title="Clear date filter"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                )}
+            {/* Date Filters */}
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-black dark:text-white">
+                  From:
+                </label>
+                <input
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => setFromDate(e.target.value)}
+                  className="rounded border border-stroke bg-transparent px-3 py-1 text-sm outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-black dark:text-white">
+                  To:
+                </label>
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => setToDate(e.target.value)}
+                  className="rounded border border-stroke bg-transparent px-3 py-1 text-sm outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                />
               </div>
 
               {/* Mobile Filter Button */}
               <button
                 onClick={() => setShowMobileFilter(!showMobileFilter)}
-                className="hover:bg-gray-50 rounded-lg border border-stroke bg-white p-2 transition-colors sm:hidden"
+                className="hover:bg-gray-50 py rounded-lg border border-stroke bg-white p-2 transition-colors sm:hidden"
               >
                 <Filter className="text-gray-600 h-4 w-4" />
               </button>
@@ -659,9 +684,9 @@ export default function WithdrawalRequest() {
           <AnimatePresence>
             {showMobileFilter && (
               <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
+                initial={{opacity: 0, height: 0}}
+                animate={{opacity: 1, height: 'auto'}}
+                exit={{opacity: 0, height: 0}}
                 className="bg-gray-50/50 border-b border-stroke p-4 sm:hidden"
               >
                 <h3 className="text-gray-400 mb-2 text-xs font-bold">
