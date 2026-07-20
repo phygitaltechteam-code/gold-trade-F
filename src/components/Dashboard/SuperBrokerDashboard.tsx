@@ -11,6 +11,7 @@ import {
   IndianRupee,
   ArrowDownRight,
   Activity,
+  CheckCircle,
 } from 'lucide-react';
 import {useAuthContext} from '@/context/AuthContext';
 import {useGetSuperBrokerDashboard} from '@/lib/api/dashboard';
@@ -195,7 +196,7 @@ const SuperBrokerDashboard: React.FC = () => {
         </motion.div>
 
         {/* Row 1: Downline Statistics */}
-        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
           <StatCard
             title="My Brokers"
             value={formatNumber(dashboardStats.noOfBroker)}
@@ -203,23 +204,6 @@ const SuperBrokerDashboard: React.FC = () => {
             icon={Briefcase}
             iconColor="text-blue-500"
           />
-          <StatCard
-            title="My Customers"
-            value={formatNumber(dashboardStats.noOfCustomer)}
-            // subValue={`${dashboardStats.activeCustomers} Active`}
-            icon={Users}
-            iconColor="text-green-500"
-          />
-          <StatCard
-            title="Active Trends"
-            value={formatNumber(dashboardStats.totalActiveTrends)}
-            icon={Activity}
-            iconColor="text-orange-500"
-          />
-        </div>
-
-        {/* Row 2: Commission & Earnings Cards */}
-        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
           <FinancialStatCard
             title="My Total Commission"
             amount={formatCurrency(dashboardStats.superBrokerTotalCommission)}
@@ -227,23 +211,56 @@ const SuperBrokerDashboard: React.FC = () => {
             iconColor="text-emerald-500"
             // subtext="Total commission earned"
           />
-          <FinancialStatCard
+           
+<FinancialStatCard
+  title="Paid Commission"
+  amount={formatCurrency(
+    dashboardStats.superBrokerTotalCommission - 
+    dashboardStats.pendingSuperBrokerCommission
+  )}
+  icon={CheckCircle}
+  iconColor="text-green-500"
+/>
+           <FinancialStatCard
             title="Pending Commission"
             amount={formatCurrency(dashboardStats.pendingSuperBrokerCommission)}
             icon={Clock}
             iconColor="text-orange-500"
             // subtext="Awaiting settlement"
           />
-          <FinancialStatCard
+
+          {/* <StatCard
+            title="My Customers"
+            value={formatNumber(dashboardStats.noOfCustomer)}
+            // subValue={`${dashboardStats.activeCustomers} Active`}
+            icon={Users}
+            iconColor="text-green-500"
+          /> */}
+          {/* <StatCard
+            title="Active Trends"
+            value={formatNumber(dashboardStats.totalActiveTrends)}
+            icon={Activity}
+            iconColor="text-orange-500"
+          /> */}
+        </div>
+
+        {/* Row 2: Commission & Earnings Cards */}
+        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+{/*         */}
+           
+          
+
+
+          {/* <FinancialStatCard
             title="Total Broker Commission"
             amount={formatCurrency(dashboardStats.totalBrokerCommission)}
             icon={Landmark}
             iconColor="text-indigo-500"
             // subtext="Commission earned by brokers under me"
-          />
+          /> */}
         </div>
 
-        {/* Row 3: Financial Overview */}
+        {/* Row 3: Financial Overview
         <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
           <FinancialStatCard
             title="Customer Wallet Balance"
@@ -266,7 +283,7 @@ const SuperBrokerDashboard: React.FC = () => {
             iconColor="text-red-500"
             // subtext="Total customer withdrawals"
           />
-        </div>
+        </div> */}
       </div>
     </motion.div>
   );
