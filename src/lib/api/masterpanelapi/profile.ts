@@ -69,6 +69,7 @@ export const useSetTradingTime = () => {
       limitStatus,
       targetStatus,
       stoplossAndTargetStatus,
+      securityPin,
     }: {
       holdingStatus: boolean;
       gttStatus?: boolean;
@@ -76,6 +77,8 @@ export const useSetTradingTime = () => {
       limitStatus?: boolean;
       targetStatus?: boolean;
       stoplossAndTargetStatus?: boolean;
+      securityPin?: string;
+
     }) =>
       setTradingTime({
         holdingStatus,
@@ -84,9 +87,10 @@ export const useSetTradingTime = () => {
         limitStatus,
         targetStatus,
         stoplossAndTargetStatus,
+        securityPin,
       }),
     onSuccess: () => {
-      toast.success('set successfully!');
+      toast.success('Updated successfully!');
       queryClient.invalidateQueries({ queryKey: ['trading_time'] });
     },
     onError: (error: Error) => {
@@ -107,7 +111,7 @@ export const useSetComission = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (commission: number) => setCommission(commission),
+    mutationFn: (data: { commission: number; securityPin: string }) => setCommission(data),
     onSuccess: () => {
       toast.success('Commission set successfully!');
       queryClient.invalidateQueries({ queryKey: ['commission_single'] });

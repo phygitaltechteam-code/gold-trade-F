@@ -155,9 +155,9 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       customerFilter === 'all'
         ? true
         : customerFilter === 'active'
-          ? client.user?.isActive
+          ? client.user?.isActive && !client.isDemo  // Exclude demo traders
           : customerFilter === 'inactive'
-            ? !client.user?.isActive
+            ? !client.user?.isActive && !client.isDemo  // Exclude demo traders
             : customerFilter === 'demo'
               ? client.isDemo
               : true;
@@ -390,8 +390,8 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       </div>
 
       {/* Stats Cards Grid */}
-      <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-7 md:gap-4">
-        <StatCard
+      <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 md:gap-4">
+        {/* <StatCard
           title="Total Traders"
           value={totalClients.toLocaleString()}
           icon={Users}
@@ -408,7 +408,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
           value={totalDemoTraders.toLocaleString()}
           icon={Activity}
           isLoading={isLoading}
-        />
+        /> */}
         <StatCard
           title="Wallet Balance"
           value={formatCurrency(totalAUM)}

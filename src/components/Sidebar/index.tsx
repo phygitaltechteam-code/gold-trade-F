@@ -224,6 +224,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             path: '/brokerledger',
             icon: <Receipt size={22} />,
           },
+          {
+            label: 'Trader',
+            path: '/broker/trader/brokertrader',
+            icon: <UserCog size={22} />,
+          },
           // {
           //   label: 'Profile',
           //   path: '/broker/brokerprofiles',

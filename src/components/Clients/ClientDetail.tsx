@@ -47,7 +47,7 @@ const formatPnL = (item) => {
   return `${sign}${Number(pnl).toFixed(2)}`;
 };
 
-const renderDateTimeVertical = (value: string) => {
+const renderDateTimeVertical = ( value: string) => {
   if (!value || value === '-' || value === 'N/A') return <span>{value}</span>;
   const parts = value.split(', ');
   if (parts.length === 2) {
