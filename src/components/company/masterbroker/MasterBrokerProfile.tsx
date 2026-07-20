@@ -64,7 +64,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
   const [statusFilter, setStatusFilter] = useState('')
 
   const { data: profileData, refetch } = useGetAllMasterBrockerById(id);
-  const { data: ledgerData =[] } = useGetMasterbrokerLedgerById(id);
+  const { data: ledgerData = [] } = useGetMasterbrokerLedgerById(id);
   const { data: tradersData = [] } = useGetMasterbrokertraderdById(id);
   // console.log('tradersData', tradersData);
   const { mutate: updateMasterBrokerProfile, isPending: isUpdating } =
@@ -270,28 +270,28 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
   ];
 
   const baseLedgerColumns = [
-    {header: 'Date & Time', accessor: 'dateTime'},
-    {header: 'Customer Name', accessor: 'customerName'},
-    {header: 'Script', accessor: 'script'},
-    {header: 'Qty/Lot', accessor: (item) => formatQtyLot(item)},
-    {header: 'Buy Price', accessor: 'buyPrice'},
-    {header: 'Sell Price', accessor: 'sellPrice'},
-    {header: 'Status', accessor: 'status'},
-    {header: 'P&L', accessor: (item) => formatPnL(item)},
-    
-  // ];
+    { header: 'Date & Time', accessor: 'dateTime' },
+    { header: 'Customer Name', accessor: 'customerName' },
+    { header: 'Script', accessor: 'script' },
+    { header: 'Qty/Lot', accessor: (item) => formatQtyLot(item) },
+    { header: 'Buy Price', accessor: 'buyPrice' },
+    { header: 'Sell Price', accessor: 'sellPrice' },
+    { header: 'Status', accessor: 'status' },
+    { header: 'P&L', accessor: (item) => formatPnL(item) },
 
-  // const expandedLedgerColumns = [
- 
-    
-   
-    
-   
-    
-    {header: 'Buy Time', accessor: 'buyTime'},
-    {header: 'Sell Time', accessor: 'sellTime'},
-   
-    {header: 'Master Broker Commission', accessor: 'masterBrokerCommission'},
+    // ];
+
+    // const expandedLedgerColumns = [
+
+
+
+
+
+
+    { header: 'Buy Time', accessor: 'buyTime' },
+    { header: 'Sell Time', accessor: 'sellTime' },
+
+    { header: 'Master Broker Commission', accessor: 'masterBrokerCommission' },
     // {header: 'Super Broker Commission', accessor: 'superBrokerCommission'},
     // {header: 'Broker Commission', accessor: 'brokerCommission'},
   ];
@@ -518,7 +518,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
   const filteredLedgerData = useMemo(() => {
     if (!ledgerStartDate || !ledgerEndDate) return ledgerDataWithSr;
 
- 
+
     return ledgerDataWithSr?.filter((item: any) => {
       const itemDate = new Date(item.dateTime || item.createdAt);
       if (isNaN(itemDate.getTime())) return true;
