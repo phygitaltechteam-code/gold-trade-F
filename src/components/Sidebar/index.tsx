@@ -235,7 +235,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           //   icon: <UserCog size={22} />,
           // },
           {
-            label: 'Setting',
+            label: 'Profile',
             icon: <Settings size={22} />,
 
             path: '/broker/brokerprofiles',
@@ -294,7 +294,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 icon: <Receipt size={22} />,
               },
               {
-                label: 'Settings',
+                label: 'Profile',
 
                 path: '/broker/superbrokerprofile',
                 icon: <Settings size={22} />,

@@ -616,7 +616,7 @@ const BrokerProfile = () => {
   // Base Ledger Columns
   const baseLedgerColumns = [
     { header: 'Date & Time', accessor: 'dateTime' },
-    { header: 'Customer Name', accessor: 'customerName' },
+    { header: 'Trader Name', accessor: 'customerName' },
     { header: 'Script', accessor: 'script' },
     { header: 'Qty/Lot', accessor: 'qty' },
     {

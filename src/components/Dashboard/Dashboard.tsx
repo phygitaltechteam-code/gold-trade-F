@@ -309,7 +309,7 @@ const Dashboard: React.FC = () => {
             iconColor="text-purple-500"
           />
           <StatCard
-            title="No. of Customers"
+            title="No. of Traders"
             value={formatNumber(dashboardStats.noOfCustomer)}
             // subValue={`${dashboardStats.activeCustomers} Active`}
             icon={Users}
@@ -352,7 +352,7 @@ const Dashboard: React.FC = () => {
           />
 
           <FinancialStatCard
-            title="Total Customer Wallet Balance"
+            title="Total Trader Wallet Balance"
             amount={formatCurrency(dashboardStats.totalCustomerWalletBalance)}
             icon={Wallet}
             iconColor="text-green-500"

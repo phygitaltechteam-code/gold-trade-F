@@ -273,7 +273,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
   // Base Ledger Columns with proper formatting
   const baseLedgerColumns = [
     { header: 'Date & Time', accessor: 'dateTime' },
-    { header: 'Customer Name', accessor: 'customerName' },
+    { header: 'Trader Name', accessor: 'customerName' },
     { header: 'Script', accessor: 'script' },
     {
       header: 'Qty/Lot',
@@ -575,7 +575,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
         </div>
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-green-500 md:text-2xl">
-            ₹{formatIndianNumber(profileData?.totalCommission)}
+            {formatIndianCurrency(profileData?.totalCommission)}
           </h4>
           <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
             Total Commission
@@ -584,8 +584,8 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
 
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-orange-500 md:text-2xl">
-            ₹
-            {/* {formatIndianNumber(paymentDataFromApi?.summary?.pendingCommission)} */}
+            
+            {formatIndianCurrency(profileData?.summary?.totalPnL)}
           </h4>
           <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
             Total P&L

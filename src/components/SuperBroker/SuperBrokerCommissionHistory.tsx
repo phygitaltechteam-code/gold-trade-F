@@ -1,5 +1,6 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import GenericTable from '@/components/Forms/Table/GenericTable';
+import { formatIndianCurrency, formatIndianNumber } from '@/utils/formatIndianNumber';
 
 const mockLedgerData = [
   {
@@ -115,35 +116,35 @@ export default function SuperBrokerCommissionHistory() {
   const [endDate, setEndDate] = useState('');
 
   const baseLedgerColumns = [
-    {header: 'Sr', accessor: 'sr'},
-    {header: 'Date/Time', accessor: 'dateTime'},
-    {header: 'Transaction ID', accessor: 'transactionId'},
-    {header: 'Stript', accessor: 'stript'},
-    {header: 'Transaction Amount', accessor: 'transactionAmount'},
-    {header: 'Super Broker Commission', accessor: 'superBrokerCommission'},
-    {header: 'Status', accessor: 'status'},
+    { header: 'Sr', accessor: 'sr' },
+    { header: 'Date/Time', accessor: 'dateTime' },
+    { header: 'Transaction ID', accessor: 'transactionId' },
+    { header: 'Stript', accessor: 'stript' },
+    { header: 'Transaction Amount', accessor: 'transactionAmount' },
+    { header: 'Super Broker Commission', accessor: 'superBrokerCommission' },
+    { header: 'Status', accessor: 'status' },
   ];
 
   const expandedLedgerColumns = [
-    {header: 'Sr', accessor: 'sr'},
-    {header: 'Date/Time', accessor: 'dateTime'},
-    {header: 'Customer Name', accessor: 'customerName'},
-    {header: 'Broker Name', accessor: 'brokerName'},
-    {header: 'Transaction ID', accessor: 'transactionId'},
-    {header: 'Stript', accessor: 'stript'},
-    {header: 'Order Type', accessor: 'orderType'},
-    {header: 'Holding Type', accessor: 'holdingType'},
-    {header: 'Qty', accessor: 'qty'},
-    {header: 'Price', accessor: 'price'},
-    {header: 'Status', accessor: 'status'},
-    {header: 'Transaction Amount', accessor: 'transactionAmount'},
-    {header: 'Total Amount', accessor: 'totalAmount'},
-    {header: 'Paid Amount', accessor: 'paidAmount'},
-    {header: 'Margin Amount', accessor: 'marginAmount'},
-    {header: 'Total Commission', accessor: 'totalCommission'},
-    {header: 'Broker Commission', accessor: 'brokerCommission'},
-    {header: 'Super Broker Commission', accessor: 'superBrokerCommission'},
-    {header: 'Payment Status', accessor: 'paymentStatus'},
+    { header: 'Sr', accessor: 'sr' },
+    { header: 'Date/Time', accessor: 'dateTime' },
+    { header: 'Customer Name', accessor: 'customerName' },
+    { header: 'Broker Name', accessor: 'brokerName' },
+    { header: 'Transaction ID', accessor: 'transactionId' },
+    { header: 'Stript', accessor: 'stript' },
+    { header: 'Order Type', accessor: 'orderType' },
+    { header: 'Holding Type', accessor: 'holdingType' },
+    { header: 'Qty', accessor: 'qty' },
+    { header: 'Price', accessor: 'price' },
+    { header: 'Status', accessor: 'status' },
+    { header: 'Transaction Amount', accessor: 'transactionAmount' },
+    { header: 'Total Amount', accessor: 'totalAmount' },
+    { header: 'Paid Amount', accessor: 'paidAmount' },
+    { header: 'Margin Amount', accessor: 'marginAmount' },
+    { header: 'Total Commission', accessor: 'totalCommission' },
+    { header: 'Broker Commission', accessor: 'brokerCommission' },
+    { header: 'Super Broker Commission', accessor: 'superBrokerCommission' },
+    { header: 'Payment Status', accessor: 'paymentStatus' },
   ];
 
   const ledgerColumns = isLedgerExpanded
