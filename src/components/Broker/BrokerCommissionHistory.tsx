@@ -101,9 +101,9 @@ export default function BrokerCommissionHistory() {
       accessor: 'amount',
       render: (item: any) => (
         <span
-          className={`font-semibold ${
+          className={` ${
             item.type === 'CREDIT' || item.type === 'TRANSFER'
-              ? 'text-green-600'
+              ? 'text-black'
               : item.type === 'DEBIT'
                 ? 'text-red-600'
                 : 'text-blue-600'
@@ -136,7 +136,7 @@ export default function BrokerCommissionHistory() {
       header: 'Amount',
       accessor: 'amount',
       render: (item: any) => (
-        <span className="font-semibold text-green-600">
+        <span className=" text-black">
           ₹{parseFloat(item.amount).toLocaleString('en-IN')}
         </span>
       ),
@@ -200,7 +200,7 @@ export default function BrokerCommissionHistory() {
           <span className="text-gray-500 text-sm font-semibold">
             Total Commission
           </span>
-          <h4 className="mt-2 text-2xl font-bold text-green-500">
+          <h4 className="mt-2 text-2xl font-bold  text-black">
             ₹{totalCommission.toLocaleString()}
           </h4>
         </div>
@@ -208,7 +208,7 @@ export default function BrokerCommissionHistory() {
           <span className="text-gray-500 text-sm font-semibold">
             Total Paid
           </span>
-          <h4 className="mt-2 text-2xl font-bold text-blue-500">
+          <h4 className="mt-2 text-2xl font-bold text-black">
             ₹{totalPaid.toLocaleString()}
           </h4>
         </div>
@@ -216,7 +216,7 @@ export default function BrokerCommissionHistory() {
           <span className="text-gray-500 text-sm font-semibold">
             Pending Commission
           </span>
-          <h4 className="mt-2 text-2xl font-bold text-orange-500">
+          <h4 className="mt-2 text-2xl font-bold  text-black">
             ₹{pendingCommission.toLocaleString()}
           </h4>
         </div>
