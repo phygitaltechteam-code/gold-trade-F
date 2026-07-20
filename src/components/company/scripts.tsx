@@ -204,10 +204,13 @@ export const DisplayScripts: React.FC = () => {
   };
 
   const columns = [
-
     {
       header: 'Name',
       accessor: 'name',
+      render: (row: Script) => {
+        const cleanName = row.name?.replace(/\d+[A-Z]{3}FUT$/, '') || row.name;
+        return <span>{cleanName}</span>;
+      }
     },
     {
       header: 'Symbol',
@@ -231,8 +234,8 @@ export const DisplayScripts: React.FC = () => {
       accessor: 'isActive',
       render: (row: Script) => (
         <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${row.isActive
-            ? 'bg-emerald-50 text-emerald-700'
-            : 'bg-red-50 text-red-700'
+          ? 'bg-emerald-50 text-emerald-700'
+          : 'bg-red-50 text-red-700'
           }`}>
           <span className={`h-1.5 w-1.5 rounded-full ${row.isActive ? 'bg-emerald-500' : 'bg-red-500'
             }`}></span>
