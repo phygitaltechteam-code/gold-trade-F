@@ -96,6 +96,7 @@ export type TradingTimePayload = {
   limitStatus?: boolean;
   targetStatus?: boolean;
   stoplossAndTargetStatus?: boolean;
+  securityPin?:string;
 };
 
 export const setTradingTime = async (data: TradingTimePayload) => {
@@ -119,17 +120,19 @@ export const getTradingTime = async () => {
   }
 };
 
-export const setCommission = async (commission: number) => {
+export const setCommission = async (data: { commission: number; securityPin: string }) => {
   try {
     const response = await api.post(`master-broker/commission`, {
-      commission: commission,
+      commission: data.commission,
+      securityPin: data.securityPin
     });
     return response.data;
   } catch (error) {
-    console.error('Error fetching commission:', error);
+    console.error('Error setting commission:', error);
     throw error;
   }
 };
+
 
 export const getCommisssion = async () => {
   try {

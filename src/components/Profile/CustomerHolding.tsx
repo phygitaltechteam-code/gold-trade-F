@@ -187,7 +187,7 @@ import { useCustomerHolding } from '@/lib/api/customerholding';
 //                         <div className="text-sm font-medium text-slate-900">
 //                             {row.user?.fullname || 'N/A'}
 //                         </div>
-                       
+
 //                     </div>
 //                 </div>
 //             ),
@@ -337,13 +337,13 @@ const CustomerHolding = () => {
     const [originalStockLimits, setOriginalStockLimits] = useState<Record<string, string>>({});
     const [isSaving, setIsSaving] = useState(false);
     const [applyToAllLimit, setApplyToAllLimit] = useState<string>('');
-    
+
     // PIN Modal State
     const [showPinModal, setShowPinModal] = useState(false);
     const [pin, setPin] = useState('');
     const [showPin, setShowPin] = useState(false);
-    
-      const { data: clients = [], refetch, isLoading } = useGetClients();
+
+    const { data: clients = [], refetch, isLoading } = useGetClients();
     const { mutate: saveCustomerHolding, isPending } = useCustomerHolding();
 
     // Initialize stock limits from client data
@@ -546,21 +546,29 @@ const CustomerHolding = () => {
             ),
         },
         {
-            header: 'Stock Holding Limit',
+            header: 'Stock Holding Time(In Minutes)',
             accessor: 'stockHoldingLimit',
             render: (row: any) => {
                 const currentLimit = stockLimits[row.id] || '';
 
                 return (
-                    <input
-                        type="text"
-                        value={currentLimit}
-                        onChange={(e) => handleStockLimitChange(row.id, e.target.value)}
-                        className="w-40 rounded-lg border border-stroke px-3 py-1.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                        placeholder="Enter limit"
-                        pattern="[0-9]*"
-                        inputMode="numeric"
-                    />
+                    <div className="relative w-40">
+                        <input
+                            type="text"
+                            value={currentLimit}
+                            onChange={(e) => {
+                                // Only allow numbers
+                                const value = e.target.value.replace(/[^0-9]/g, '');
+                                handleStockLimitChange(row.id, value);
+                            }}
+                            className="w-full rounded-lg border border-stroke px-3 py-1.5 pr-12 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                            placeholder="Enter Time(In minutes)"
+                            inputMode="numeric"
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-400 pointer-events-none">
+                            min
+                        </span>
+                    </div>
                 );
             },
         },
@@ -617,11 +625,10 @@ const CustomerHolding = () => {
                                 <button
                                     onClick={handleSaveAllStockLimits}
                                     disabled={isSaving || isPending}
-                                    className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${
-                                        isSaving || isPending
+                                    className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${isSaving || isPending
                                             ? 'bg-gray-400 cursor-not-allowed'
                                             : 'bg-orange-500 hover:bg-orange-600'
-                                    }`}
+                                        }`}
                                 >
                                     <Database className="h-4 w-4" />
                                     <span>{isSaving || isPending ? 'Saving...' : 'Save Changes'}</span>

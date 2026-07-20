@@ -1,5 +1,5 @@
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
-import {api} from '@/utils/axios';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { api } from '@/utils/axios';
 import toast from 'react-hot-toast';
 import {
   getCommisssion,
@@ -35,7 +35,7 @@ export const useAddComission = () => {
     mutationFn: addCommission,
     onSuccess: () => {
       toast.success('Commission added successfully!');
-      queryClient.invalidateQueries({queryKey: ['commission']});
+      queryClient.invalidateQueries({ queryKey: ['commission'] });
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to add commission!');
@@ -69,10 +69,11 @@ export const useSetComission = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (commission: number) => setCommission(commission),
+    mutationFn: ({ commission, securityPin }: { commission: number; securityPin: string }) =>
+      setCommission(commission, securityPin),
     onSuccess: () => {
       toast.success('Commission set successfully!');
-      queryClient.invalidateQueries({queryKey: ['commission_single']});
+      queryClient.invalidateQueries({ queryKey: ['commission'] });
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to set commission!');
@@ -84,38 +85,22 @@ export const useSetTradingTime = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      stockHoldingLimit,
-      holdingStatus,
-      gttStatus,
-      stoplossStatus,
-      limitStatus,
-      targetStatus,
-      stoplossAndTargetStatus,
-    }: {
-      time: number;
+    mutationFn: (data: {
       holdingStatus: boolean;
-      gttStatus?: boolean;
-      stoplossStatus?: boolean;
-      limitStatus?: boolean;
-      targetStatus?: boolean;
-      stoplossAndTargetStatus?: boolean;
-    }) =>
-      setTradingTime(
-        stockHoldingLimit,
-        holdingStatus,
-        gttStatus,
-        stoplossStatus,
-        limitStatus,
-        targetStatus,
-        stoplossAndTargetStatus,
-      ),
+      stockHoldingLimit: number;
+      gttStatus: boolean;
+      stoplossStatus: boolean;
+      limitStatus: boolean;
+      targetStatus: boolean;
+      stoplossAndTargetStatus: boolean;
+      securityPin: string;
+    }) => setTradingTime(data),
     onSuccess: () => {
-      toast.success('set successfully!');
-      queryClient.invalidateQueries({queryKey: ['trading_time']});
+      toast.success('Trading settings updated successfully!');
+      queryClient.invalidateQueries({ queryKey: ['tradeTime'] });
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Failed to set!');
+      toast.error(error.message || 'Failed to update trading settings!');
     },
   });
 };

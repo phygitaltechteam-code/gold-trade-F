@@ -150,13 +150,13 @@ const CustomerHolding = () => {
             securityPin: pin,
         }, {
             onSuccess: () => {
-                toast.success(`${customers.length} customer(s) stock holding limits updated successfully!`);
+                toast.success(`${customers.length} customer(s) stock holding time updated successfully!`);
                 setOriginalStockLimits({ ...stockLimits });
                 refetch();
                 closeModal();
             },
             onError: (error: any) => {
-                toast.error(error?.response?.data?.message || 'Failed to update stock holding limits');
+                toast.error(error?.response?.data?.message || 'Failed to update stock holding time');
             },
             onSettled: () => {
                 setIsSaving(false);
@@ -221,25 +221,33 @@ const CustomerHolding = () => {
                 <span className="text-sm text-gray-700">{row.user?.phoneNumber || 'N/A'}</span>
             ),
         },
-        {
-            header: 'Stock Holding Limit',
-            accessor: 'stockHoldingLimit',
-            render: (row: any) => {
-                const currentLimit = stockLimits[row.id] || '';
+       {
+    header: 'Stock Holding Time(In Minutes)',
+    accessor: 'stockHoldingLimit',
+    render: (row: any) => {
+        const currentLimit = stockLimits[row.id] || '';
 
-                return (
-                    <input
-                        type="text"
-                        value={currentLimit}
-                        onChange={(e) => handleStockLimitChange(row.id, e.target.value)}
-                        className="w-40 rounded-lg border border-stroke px-3 py-1.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                        placeholder="Enter limit"
-                        pattern="[0-9]*"
-                        inputMode="numeric"
-                    />
-                );
-            },
-        },
+        return (
+            <div className="relative w-40">
+                <input
+                    type="text"
+                    value={currentLimit}
+                    onChange={(e) => {
+                        // Only allow numbers
+                        const value = e.target.value.replace(/[^0-9]/g, '');
+                        handleStockLimitChange(row.id, value);
+                    }}
+                    className="w-full rounded-lg border border-stroke px-3 py-1.5 pr-12 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                    placeholder="Enter Time"
+                    inputMode="numeric"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-400 pointer-events-none">
+                    min
+                </span>
+            </div>
+        );
+    },
+},
     ];
 
     return (
@@ -277,7 +285,7 @@ const CustomerHolding = () => {
                                             }
                                         }}
                                         className="w-40 rounded-lg border border-stroke px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                                        placeholder="Enter limit"
+                                        placeholder="Enter Time (In Minutes)"
                                         pattern="[0-9]*"
                                         inputMode="numeric"
                                     />
@@ -344,7 +352,7 @@ const CustomerHolding = () => {
                         </h2>
 
                         <p className="mb-4 text-sm text-slate-600">
-                            You are about to update {getChangedCount} customer(s) stock holding limits.
+                            You are about to update {getChangedCount} customer(s) stock holding time.
                             Enter your security PIN to confirm.
                         </p>
 

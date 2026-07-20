@@ -285,20 +285,20 @@ const Dashboard: React.FC = () => {
             iconColor="text-green-500"
           />
           <StatCard
-            title="Total Active Trends"
+            title="Total Active Scripts"
             value={formatNumber(dashboardStats.totalActiveTrends)}
             icon={Activity}
             iconColor="text-orange-500"
           />
           <FinancialStatCard
-            title="Admin Commission"
+            title="Total Commission"
             amount={formatCurrency(dashboardStats.adminCommission)}
             icon={IndianRupee}
             iconColor="text-emerald-500"
           />
           <FinancialStatCard
-            title="Assets Under Control"
-            amount={formatCurrency(dashboardStats.totalCustomerWalletBalance)}
+            title="Total Active"
+            amount={formatNumber(dashboardStats.totalCustomerWalletBalance)}
             icon={Wallet}
             iconColor="text-blue-500"
           />

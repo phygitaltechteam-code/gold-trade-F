@@ -126,10 +126,12 @@ import { Route as AppClientTransactionhistoryIdImport } from './routes/_app/clie
 import { Route as AppClientBeneficiaryverificationIdImport } from './routes/_app/client/beneficiaryverification.$id'
 import { Route as AppBrokerUpdatebrokerIdImport } from './routes/_app/broker/updatebroker.$id'
 import { Route as AppBrokerTrasactionTransactionledgerImport } from './routes/_app/broker/trasaction/transactionledger'
+import { Route as AppBrokerTraderBrokertraderImport } from './routes/_app/broker/trader/brokertrader'
 import { Route as AppBrokerCustomerCustomerdisplayImport } from './routes/_app/broker/customer/customerdisplay'
 import { Route as AppBrokerBrokerprofileIdImport } from './routes/_app/broker/brokerprofile.$id'
 import { Route as AppKYCApprovalKycdetailesIdImport } from './routes/_app/KYCApproval/kycdetailes.$id'
 import { Route as AppApprovalRegistrationDetailsIdImport } from './routes/_app/Approval/registrationDetails.$id'
+import { Route as AppBrokerTraderBrokertraderByidIdImport } from './routes/_app/broker/trader/brokertraderByid.$id'
 
 // Create Virtual Routes
 
@@ -869,6 +871,13 @@ const AppBrokerTrasactionTransactionledgerRoute =
     getParentRoute: () => AppRoute,
   } as any)
 
+const AppBrokerTraderBrokertraderRoute =
+  AppBrokerTraderBrokertraderImport.update({
+    id: '/broker/trader/brokertrader',
+    path: '/broker/trader/brokertrader',
+    getParentRoute: () => AppRoute,
+  } as any)
+
 const AppBrokerCustomerCustomerdisplayRoute =
   AppBrokerCustomerCustomerdisplayImport.update({
     id: '/broker/customer/customerdisplay',
@@ -893,6 +902,13 @@ const AppApprovalRegistrationDetailsIdRoute =
   AppApprovalRegistrationDetailsIdImport.update({
     id: '/Approval/registrationDetails/$id',
     path: '/Approval/registrationDetails/$id',
+    getParentRoute: () => AppRoute,
+  } as any)
+
+const AppBrokerTraderBrokertraderByidIdRoute =
+  AppBrokerTraderBrokertraderByidIdImport.update({
+    id: '/broker/trader/brokertraderByid/$id',
+    path: '/broker/trader/brokertraderByid/$id',
     getParentRoute: () => AppRoute,
   } as any)
 
@@ -1607,6 +1623,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBrokerCustomerCustomerdisplayImport
       parentRoute: typeof AppImport
     }
+    '/_app/broker/trader/brokertrader': {
+      id: '/_app/broker/trader/brokertrader'
+      path: '/broker/trader/brokertrader'
+      fullPath: '/broker/trader/brokertrader'
+      preLoaderRoute: typeof AppBrokerTraderBrokertraderImport
+      parentRoute: typeof AppImport
+    }
     '/_app/broker/trasaction/transactionledger': {
       id: '/_app/broker/trasaction/transactionledger'
       path: '/broker/trasaction/transactionledger'
@@ -1726,6 +1749,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NativeTokenUserPassImport
       parentRoute: typeof NativeImport
     }
+    '/_app/broker/trader/brokertraderByid/$id': {
+      id: '/_app/broker/trader/brokertraderByid/$id'
+      path: '/broker/trader/brokertraderByid/$id'
+      fullPath: '/broker/trader/brokertraderByid/$id'
+      preLoaderRoute: typeof AppBrokerTraderBrokertraderByidIdImport
+      parentRoute: typeof AppImport
+    }
   }
 }
 
@@ -1823,6 +1853,7 @@ interface AppRouteChildren {
   AppKYCApprovalKycdetailesIdRoute: typeof AppKYCApprovalKycdetailesIdRoute
   AppBrokerBrokerprofileIdRoute: typeof AppBrokerBrokerprofileIdRoute
   AppBrokerCustomerCustomerdisplayRoute: typeof AppBrokerCustomerCustomerdisplayRoute
+  AppBrokerTraderBrokertraderRoute: typeof AppBrokerTraderBrokertraderRoute
   AppBrokerTrasactionTransactionledgerRoute: typeof AppBrokerTrasactionTransactionledgerRoute
   AppBrokerUpdatebrokerIdRoute: typeof AppBrokerUpdatebrokerIdRoute
   AppClientBeneficiaryverificationIdRoute: typeof AppClientBeneficiaryverificationIdRoute
@@ -1839,6 +1870,7 @@ interface AppRouteChildren {
   AppCompanybrokerPendingtradeprofileIdRoute: typeof AppCompanybrokerPendingtradeprofileIdRoute
   AppMasterbrokerClientDetailsIdRoute: typeof AppMasterbrokerClientDetailsIdRoute
   AppMasterbrokerUpdateClientIdRoute: typeof AppMasterbrokerUpdateClientIdRoute
+  AppBrokerTraderBrokertraderByidIdRoute: typeof AppBrokerTraderBrokertraderByidIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -1940,6 +1972,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppKYCApprovalKycdetailesIdRoute: AppKYCApprovalKycdetailesIdRoute,
   AppBrokerBrokerprofileIdRoute: AppBrokerBrokerprofileIdRoute,
   AppBrokerCustomerCustomerdisplayRoute: AppBrokerCustomerCustomerdisplayRoute,
+  AppBrokerTraderBrokertraderRoute: AppBrokerTraderBrokertraderRoute,
   AppBrokerTrasactionTransactionledgerRoute:
     AppBrokerTrasactionTransactionledgerRoute,
   AppBrokerUpdatebrokerIdRoute: AppBrokerUpdatebrokerIdRoute,
@@ -1964,6 +1997,8 @@ const AppRouteChildren: AppRouteChildren = {
     AppCompanybrokerPendingtradeprofileIdRoute,
   AppMasterbrokerClientDetailsIdRoute: AppMasterbrokerClientDetailsIdRoute,
   AppMasterbrokerUpdateClientIdRoute: AppMasterbrokerUpdateClientIdRoute,
+  AppBrokerTraderBrokertraderByidIdRoute:
+    AppBrokerTraderBrokertraderByidIdRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
@@ -2097,6 +2132,7 @@ export interface FileRoutesByFullPath {
   '/KYCApproval/kycdetailes/$id': typeof AppKYCApprovalKycdetailesIdRoute
   '/broker/brokerprofile/$id': typeof AppBrokerBrokerprofileIdRoute
   '/broker/customer/customerdisplay': typeof AppBrokerCustomerCustomerdisplayRoute
+  '/broker/trader/brokertrader': typeof AppBrokerTraderBrokertraderRoute
   '/broker/trasaction/transactionledger': typeof AppBrokerTrasactionTransactionledgerRoute
   '/broker/updatebroker/$id': typeof AppBrokerUpdatebrokerIdRoute
   '/client/beneficiaryverification/$id': typeof AppClientBeneficiaryverificationIdRoute
@@ -2114,6 +2150,7 @@ export interface FileRoutesByFullPath {
   '/masterbroker/client-details/$id': typeof AppMasterbrokerClientDetailsIdRoute
   '/masterbroker/update-client/$id': typeof AppMasterbrokerUpdateClientIdRoute
   '/token/$user/$pass': typeof NativeTokenUserPassRoute
+  '/broker/trader/brokertraderByid/$id': typeof AppBrokerTraderBrokertraderByidIdRoute
 }
 
 export interface FileRoutesByTo {
@@ -2214,6 +2251,7 @@ export interface FileRoutesByTo {
   '/KYCApproval/kycdetailes/$id': typeof AppKYCApprovalKycdetailesIdRoute
   '/broker/brokerprofile/$id': typeof AppBrokerBrokerprofileIdRoute
   '/broker/customer/customerdisplay': typeof AppBrokerCustomerCustomerdisplayRoute
+  '/broker/trader/brokertrader': typeof AppBrokerTraderBrokertraderRoute
   '/broker/trasaction/transactionledger': typeof AppBrokerTrasactionTransactionledgerRoute
   '/broker/updatebroker/$id': typeof AppBrokerUpdatebrokerIdRoute
   '/client/beneficiaryverification/$id': typeof AppClientBeneficiaryverificationIdRoute
@@ -2231,6 +2269,7 @@ export interface FileRoutesByTo {
   '/masterbroker/client-details/$id': typeof AppMasterbrokerClientDetailsIdRoute
   '/masterbroker/update-client/$id': typeof AppMasterbrokerUpdateClientIdRoute
   '/token/$user/$pass': typeof NativeTokenUserPassRoute
+  '/broker/trader/brokertraderByid/$id': typeof AppBrokerTraderBrokertraderByidIdRoute
 }
 
 export interface FileRoutesById {
@@ -2336,6 +2375,7 @@ export interface FileRoutesById {
   '/_app/KYCApproval/kycdetailes/$id': typeof AppKYCApprovalKycdetailesIdRoute
   '/_app/broker/brokerprofile/$id': typeof AppBrokerBrokerprofileIdRoute
   '/_app/broker/customer/customerdisplay': typeof AppBrokerCustomerCustomerdisplayRoute
+  '/_app/broker/trader/brokertrader': typeof AppBrokerTraderBrokertraderRoute
   '/_app/broker/trasaction/transactionledger': typeof AppBrokerTrasactionTransactionledgerRoute
   '/_app/broker/updatebroker/$id': typeof AppBrokerUpdatebrokerIdRoute
   '/_app/client/beneficiaryverification/$id': typeof AppClientBeneficiaryverificationIdRoute
@@ -2353,6 +2393,7 @@ export interface FileRoutesById {
   '/_app/masterbroker/client-details/$id': typeof AppMasterbrokerClientDetailsIdRoute
   '/_app/masterbroker/update-client/$id': typeof AppMasterbrokerUpdateClientIdRoute
   '/_native/token/$user/$pass': typeof NativeTokenUserPassRoute
+  '/_app/broker/trader/brokertraderByid/$id': typeof AppBrokerTraderBrokertraderByidIdRoute
 }
 
 export interface FileRouteTypes {
@@ -2455,6 +2496,7 @@ export interface FileRouteTypes {
     | '/KYCApproval/kycdetailes/$id'
     | '/broker/brokerprofile/$id'
     | '/broker/customer/customerdisplay'
+    | '/broker/trader/brokertrader'
     | '/broker/trasaction/transactionledger'
     | '/broker/updatebroker/$id'
     | '/client/beneficiaryverification/$id'
@@ -2472,6 +2514,7 @@ export interface FileRouteTypes {
     | '/masterbroker/client-details/$id'
     | '/masterbroker/update-client/$id'
     | '/token/$user/$pass'
+    | '/broker/trader/brokertraderByid/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | ''
@@ -2571,6 +2614,7 @@ export interface FileRouteTypes {
     | '/KYCApproval/kycdetailes/$id'
     | '/broker/brokerprofile/$id'
     | '/broker/customer/customerdisplay'
+    | '/broker/trader/brokertrader'
     | '/broker/trasaction/transactionledger'
     | '/broker/updatebroker/$id'
     | '/client/beneficiaryverification/$id'
@@ -2588,6 +2632,7 @@ export interface FileRouteTypes {
     | '/masterbroker/client-details/$id'
     | '/masterbroker/update-client/$id'
     | '/token/$user/$pass'
+    | '/broker/trader/brokertraderByid/$id'
   id:
     | '__root__'
     | '/_app'
@@ -2691,6 +2736,7 @@ export interface FileRouteTypes {
     | '/_app/KYCApproval/kycdetailes/$id'
     | '/_app/broker/brokerprofile/$id'
     | '/_app/broker/customer/customerdisplay'
+    | '/_app/broker/trader/brokertrader'
     | '/_app/broker/trasaction/transactionledger'
     | '/_app/broker/updatebroker/$id'
     | '/_app/client/beneficiaryverification/$id'
@@ -2708,6 +2754,7 @@ export interface FileRouteTypes {
     | '/_app/masterbroker/client-details/$id'
     | '/_app/masterbroker/update-client/$id'
     | '/_native/token/$user/$pass'
+    | '/_app/broker/trader/brokertraderByid/$id'
   fileRoutesById: FileRoutesById
 }
 
@@ -2837,6 +2884,7 @@ export const routeTree = rootRoute
         "/_app/KYCApproval/kycdetailes/$id",
         "/_app/broker/brokerprofile/$id",
         "/_app/broker/customer/customerdisplay",
+        "/_app/broker/trader/brokertrader",
         "/_app/broker/trasaction/transactionledger",
         "/_app/broker/updatebroker/$id",
         "/_app/client/beneficiaryverification/$id",
@@ -2852,7 +2900,8 @@ export const routeTree = rootRoute
         "/_app/companybroker/pendingbrokerby/$id",
         "/_app/companybroker/pendingtradeprofile/$id",
         "/_app/masterbroker/client-details/$id",
-        "/_app/masterbroker/update-client/$id"
+        "/_app/masterbroker/update-client/$id",
+        "/_app/broker/trader/brokertraderByid/$id"
       ]
     },
     "/_auth": {
@@ -3263,6 +3312,10 @@ export const routeTree = rootRoute
       "filePath": "_app/broker/customer/customerdisplay.tsx",
       "parent": "/_app"
     },
+    "/_app/broker/trader/brokertrader": {
+      "filePath": "_app/broker/trader/brokertrader.tsx",
+      "parent": "/_app"
+    },
     "/_app/broker/trasaction/transactionledger": {
       "filePath": "_app/broker/trasaction/transactionledger.tsx",
       "parent": "/_app"
@@ -3330,6 +3383,10 @@ export const routeTree = rootRoute
     "/_native/token/$user/$pass": {
       "filePath": "_native/token.$user.$pass.tsx",
       "parent": "/_native"
+    },
+    "/_app/broker/trader/brokertraderByid/$id": {
+      "filePath": "_app/broker/trader/brokertraderByid.$id.tsx",
+      "parent": "/_app"
     }
   }
 }
