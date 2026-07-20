@@ -483,14 +483,14 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
         /> */}
         <StatCard
           title="Wallet Balance"
-          value={Number(totalWalletBalance).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+          value={Number(totalWalletBalance>0? totalWalletBalance : 0).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
           // subtext="Total volume"
           icon={Briefcase}
           isLoading={isLoading}
         />
         <StatCard
           title="Assets Under Contoll"
-          value={Number(assetUnderControll).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+          value={Number(assetUnderControll>0? assetUnderControll : 0).toLocaleString('en-IN', {minimumFractionDigits: assetUnderControll>0? 2 : 0, maximumFractionDigits: assetUnderControll>0? 2 : 0})}
           // subtext="Total volume"
           icon={Briefcase}
           isLoading={isLoading}
@@ -512,14 +512,14 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
 
          <StatCard
           title="Total Margin Amount"
-          value={Number(totalMarginAmount).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+          value={Number(totalMarginAmount>0? totalMarginAmount : 0).toLocaleString('en-IN', {minimumFractionDigits: totalMarginAmount>0? 2 : 0, maximumFractionDigits: totalMarginAmount>0? 2 : 0})}
           // subtext="Assets under mgmt"
           icon={Wallet}
           isLoading={isLoading}
         />
          <StatCard
           title="Total Trades"
-          value={totalTrades.toLocaleString()}
+          value={Number(totalTrades>0? totalTrades : 0).toLocaleString('en-IN', {minimumFractionDigits: totalTrades>0? 2 : 0, maximumFractionDigits: totalTrades>0? 2 : 0})}
           // subtext="Latest client"
           icon={DollarSign}
           isLoading={isLoading}

@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useMemo} from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   FiEdit2,
   FiSave,
@@ -8,9 +8,9 @@ import {
   FiPrinter,
 } from 'react-icons/fi';
 import GenericTable from '@/components/Forms/Table/GenericTable';
-import {useNavigate} from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import toast from 'react-hot-toast';
-import {Eye, EyeOff} from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import {
   useAddAdminBrokerCommission,
   useGetAllAdminBrockerById,
@@ -19,9 +19,9 @@ import {
   useGetBrokerPaymentHistory,
   useGetAllBrokerTraders,
 } from '@/lib/api/addbroker';
-import {Route} from '@/routes/_app/companybroker/BrokerProfile.$id';
-import {Client} from '../Clients/types';
-import {formatIndianNumber} from '@/utils/formatIndianNumber';
+import { Route } from '@/routes/_app/companybroker/BrokerProfile.$id';
+import { Client } from '../Clients/types';
+import { formatIndianNumber } from '@/utils/formatIndianNumber';
 
 // Format date function
 const formatDateTime = (dateString: string) => {
@@ -44,7 +44,7 @@ const formatDateTime = (dateString: string) => {
 };
 
 const BrokerProfile = () => {
-  const {id} = Route.useParams();
+  const { id } = Route.useParams();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('ledger');
@@ -69,11 +69,11 @@ const BrokerProfile = () => {
     'credit',
   );
 
-  const {data: profileData, refetch} = useGetAllAdminBrockerById(id);
-  const {data: traderdata, refetch: traderRefetch} = useGetAllBrokerTraders(id);
-  const {mutate: updateBrokerProfile, isPending: isUpdating} =
+  const { data: profileData, refetch } = useGetAllAdminBrockerById(id);
+  const { data: traderdata, refetch: traderRefetch } = useGetAllBrokerTraders(id);
+  const { mutate: updateBrokerProfile, isPending: isUpdating } =
     useUpdateAdminBrokerProfile();
-  const {mutate: addBrokerCommission, isPending: isCommissionPending} =
+  const { mutate: addBrokerCommission, isPending: isCommissionPending } =
     useAddAdminBrokerCommission();
 
   const [editData, setEditData] = useState({
@@ -123,7 +123,7 @@ const BrokerProfile = () => {
 
   // Initialize dates with current week range
   useEffect(() => {
-    const {startDate, endDate} = getCurrentWeekRange();
+    const { startDate, endDate } = getCurrentWeekRange();
     setLedgerStartDate(startDate);
     setLedgerEndDate(endDate);
     setPaymentStartDate(startDate);
@@ -138,7 +138,7 @@ const BrokerProfile = () => {
   } = useGetBrokerLedger(id);
 
   // Get broker payment history from API
-  const {data: paymentDataFromApi, isLoading: isLoadingPayment} =
+  const { data: paymentDataFromApi, isLoading: isLoadingPayment } =
     useGetBrokerPaymentHistory(id);
 
   console.log('reporttttt', paymentDataFromApi);
@@ -282,12 +282,12 @@ const BrokerProfile = () => {
   }, [paymentData]);
 
   const handleBack = () => {
-    navigate({to: '/companybroker/displaybroker'});
+    navigate({ to: '/companybroker/displaybroker' });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const {name, value} = e.target;
-    setEditData((prev) => ({...prev, [name]: value}));
+    const { name, value } = e.target;
+    setEditData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSave = () => {
@@ -613,21 +613,21 @@ const BrokerProfile = () => {
 
   // Base Ledger Columns - Cleaned with proper styling
   const baseLedgerColumns = [
-    {header: 'Date & Time', accessor: 'dateTime'},
-    {header: 'Customer Name', accessor: 'customerName'},
-    {header: 'Script', accessor: 'script'},
-    {header: 'Qty/Lot', accessor: 'qty'},
-    {header: 'Buy Price', accessor: 'buyPrice'},
-    {header: 'Sell Price', accessor: 'sellPrice'},
-    {header: 'Status', accessor: 'status'},
-    {header: 'P&L', accessor: 'pnl'},
+    { header: 'Date & Time', accessor: 'dateTime' },
+    { header: 'Customer Name', accessor: 'customerName' },
+    { header: 'Script', accessor: 'script' },
+    { header: 'Qty/Lot', accessor: 'qty' },
+    { header: 'Buy Price', accessor: 'buyPrice' },
+    { header: 'Sell Price', accessor: 'sellPrice' },
+    { header: 'Status', accessor: 'status' },
+    { header: 'P&L', accessor: 'pnl' },
     // ];
 
     // // Expanded Ledger Columns
     // const expandedLedgerColumns = [
-    {header: 'Buy Time', accessor: 'buyTime'},
-    {header: 'Sell Time', accessor: 'sellTime'},
-    {header: 'Broker commission', accessor: 'brokerCommission'},
+    { header: 'Buy Time', accessor: 'buyTime' },
+    { header: 'Sell Time', accessor: 'sellTime' },
+    { header: 'Broker commission', accessor: 'brokerCommission' },
   ];
 
   const paidColumns = [
@@ -639,13 +639,13 @@ const BrokerProfile = () => {
         <span>
           {item?.date
             ? new Date(item.date).toLocaleString('en-IN', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit',
-                hour12: true,
-              })
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: 'numeric',
+              minute: '2-digit',
+              hour12: true,
+            })
             : '-'}
         </span>
       ),
@@ -693,13 +693,12 @@ const BrokerProfile = () => {
       accessor: 'status',
       render: (item: any) => (
         <span
-          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-            item.status === 'Paid'
+          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${item.status === 'Paid'
               ? 'bg-green-100 text-green-700'
               : item.status === 'Pending'
                 ? 'bg-yellow-100 text-yellow-700'
                 : 'bg-gray-100 text-gray-700'
-          }`}
+            }`}
         >
           {item.status}
         </span>
@@ -709,7 +708,7 @@ const BrokerProfile = () => {
 
   // Commission History Columns
   const commissionColumns = [
-    {header: 'Date & Time', accessor: 'date'},
+    { header: 'Date & Time', accessor: 'date' },
 
     {
       header: 'Generated Commission (₹)',
@@ -745,12 +744,12 @@ const BrokerProfile = () => {
         <span className="text-sm">
           {item.paidDate
             ? new Date(item.paidDate).toLocaleString('en-IN', {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              })
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })
             : '-'}
         </span>
       ),
@@ -760,13 +759,12 @@ const BrokerProfile = () => {
       accessor: 'status',
       render: (item: any) => (
         <span
-          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-            item.status === 'Paid'
+          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${item.status === 'Paid'
               ? 'bg-green-100 text-green-700'
               : item.status === 'Pending'
                 ? 'bg-yellow-100 text-yellow-700'
                 : 'bg-gray-100 text-gray-700'
-          }`}
+            }`}
         >
           {item.status}
         </span>
@@ -776,12 +774,12 @@ const BrokerProfile = () => {
 
   // Customer Columns - Cleaned
   const customerColumns = [
-    {header: 'Trader Name', accessor: 'tradername'},
-    {header: 'Wallet Balance', accessor: 'walletBalance'},
-    {header: 'Asset Under Control', accessor: 'assetUnderControl'},
-    {header: 'Margin Amount', accessor: 'marginAmount'},
-    {header: 'Total Active Trade', accessor: 'totalActiveUsers'},
-    {header: 'Total Trade', accessor: 'totalTrade'},
+    { header: 'Trader Name', accessor: 'tradername' },
+    { header: 'Wallet Balance', accessor: 'walletBalance' },
+    { header: 'Asset Under Control', accessor: 'assetUnderControl' },
+    { header: 'Margin Amount', accessor: 'marginAmount' },
+    { header: 'Total Active Trade', accessor: 'totalActiveUsers' },
+    { header: 'Total Trade', accessor: 'totalTrade' },
     {
       header: 'Demo Account',
       accessor: 'isDemo',
@@ -1110,7 +1108,7 @@ const BrokerProfile = () => {
         </div>
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-green-500 md:text-2xl">
-            ₹{totalCommissionFromHistory.toLocaleString() || '0'}
+            ₹{(Number((totalCommissionFromHistory).toFixed(2))).toLocaleString() || '0'}
           </h4>
           <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
             Total Commission (History)
@@ -1120,7 +1118,7 @@ const BrokerProfile = () => {
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-orange-500 md:text-2xl">
             ₹
-            {paymentDataFromApi?.summary?.paidCommission.toLocaleString() ||
+            {(Number((paymentDataFromApi?.summary?.paidCommission || 0).toFixed(2))).toLocaleString() ||
               '0'}
           </h4>
           <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
@@ -1131,7 +1129,7 @@ const BrokerProfile = () => {
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-orange-500 md:text-2xl">
             ₹
-            {paymentDataFromApi?.summary?.pendingCommission.toLocaleString() ||
+            {(Number((paymentDataFromApi?.summary?.pendingCommission || 0).toFixed(2))).toLocaleString() ||
               '0'}
           </h4>
           <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
@@ -1146,53 +1144,48 @@ const BrokerProfile = () => {
           <div className="flex flex-wrap">
             <button
               onClick={() => setActiveTab('ledger')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
-                activeTab === 'ledger'
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'ledger'
                   ? 'border-b-2 border-orange-500 text-orange-500'
                   : 'text-bodydark2'
-              }`}
+                }`}
             >
               Ledger
             </button>
             <button
               onClick={() => setActiveTab('payment')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
-                activeTab === 'payment'
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'payment'
                   ? 'border-b-2 border-orange-500 text-orange-500'
                   : 'text-bodydark2'
-              }`}
+                }`}
             >
               Payment History
             </button>
 
             <button
               onClick={() => setActiveTab('paid')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
-                activeTab === 'paid'
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'paid'
                   ? 'border-b-2 border-orange-500 text-orange-500'
                   : 'text-bodydark2'
-              }`}
+                }`}
             >
               Paid History
             </button>
             <button
               onClick={() => setActiveTab('commission')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
-                activeTab === 'commission'
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'commission'
                   ? 'border-b-2 border-orange-500 text-orange-500'
                   : 'text-bodydark2'
-              }`}
+                }`}
             >
               Commission History
             </button>
 
             <button
               onClick={() => setActiveTab('customer')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
-                activeTab === 'customer'
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'customer'
                   ? 'border-b-2 border-orange-500 text-orange-500'
                   : 'text-bodydark2'
-              }`}
+                }`}
             >
               Trader ({profileData?.customers?.length || 0})
             </button>
@@ -1262,7 +1255,7 @@ const BrokerProfile = () => {
                   {(ledgerStartDate || ledgerEndDate) && (
                     <button
                       onClick={() => {
-                        const {startDate, endDate} = getCurrentWeekRange();
+                        const { startDate, endDate } = getCurrentWeekRange();
                         setLedgerStartDate(startDate);
                         setLedgerEndDate(endDate);
                       }}
@@ -1319,7 +1312,7 @@ const BrokerProfile = () => {
                   {(paymentStartDate || paymentEndDate) && (
                     <button
                       onClick={() => {
-                        const {startDate, endDate} = getCurrentWeekRange();
+                        const { startDate, endDate } = getCurrentWeekRange();
                         setPaymentStartDate(startDate);
                         setPaymentEndDate(endDate);
                       }}
@@ -1376,7 +1369,7 @@ const BrokerProfile = () => {
                   {(paidStartDate || paidEndDate) && (
                     <button
                       onClick={() => {
-                        const {startDate, endDate} = getCurrentWeekRange();
+                        const { startDate, endDate } = getCurrentWeekRange();
                         setPaidStartDate(startDate);
                         setPaidEndDate(endDate);
                       }}
@@ -1454,22 +1447,20 @@ const BrokerProfile = () => {
               <button
                 type="button"
                 onClick={() => setCommissionType('credit')}
-                className={`rounded-lg py-2 text-sm font-semibold transition-all ${
-                  commissionType === 'credit'
+                className={`rounded-lg py-2 text-sm font-semibold transition-all ${commissionType === 'credit'
                     ? 'bg-white text-orange-500 shadow-sm'
                     : 'text-slate-600 hover:text-slate-800'
-                }`}
+                  }`}
               >
                 Credit (+)
               </button>
               <button
                 type="button"
                 onClick={() => setCommissionType('debit')}
-                className={`rounded-lg py-2 text-sm font-semibold transition-all ${
-                  commissionType === 'debit'
+                className={`rounded-lg py-2 text-sm font-semibold transition-all ${commissionType === 'debit'
                     ? 'bg-white text-orange-500 shadow-sm'
                     : 'text-slate-600 hover:text-slate-800'
-                }`}
+                  }`}
               >
                 Debit (-)
               </button>
