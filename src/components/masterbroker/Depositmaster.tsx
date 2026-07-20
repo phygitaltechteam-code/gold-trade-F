@@ -6,13 +6,62 @@ import {
     X,
     RefreshCcw,
     Calendar,
+    DollarSign,
+    TrendingUp,
+    Users,
+    Activity,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GenericTable from '@/components/Forms/Table/GenericTable';
-
-import { MdTrendingUp, MdWarning, MdAdd } from 'react-icons/md';
-import StatsCard from '../wallettopupreport/StatsCard';
 import { useGetDepositeMaster } from '@/lib/react-query/withdrawal';
+
+// Simple Stat Card Component - Only title, value, and icon
+const StatCard = ({
+    title,
+    value,
+    icon: Icon,
+    iconColor = 'text-orange-500',
+}: {
+    title: string;
+    value: string | number;
+    icon: React.ElementType;
+    iconColor?: string;
+}) => {
+    // Map icon color to background color
+    const getBgColor = () => {
+        const colorMap: Record<string, string> = {
+            'text-orange-500': 'bg-orange-50',
+            'text-blue-500': 'bg-blue-50',
+            'text-green-500': 'bg-green-50',
+            'text-purple-500': 'bg-purple-50',
+            'text-red-500': 'bg-red-50',
+            'text-yellow-500': 'bg-yellow-50',
+            'text-pink-500': 'bg-pink-50',
+            'text-indigo-500': 'bg-indigo-50',
+            'text-teal-500': 'bg-teal-50',
+            'text-gray-500': 'bg-gray-50',
+        };
+        return colorMap[iconColor] || 'bg-gray-50';
+    };
+
+    return (
+        <div className="group relative overflow-hidden rounded-lg border border-stroke bg-white p-4 shadow-sm transition-all hover:shadow-md hover:border-orange-200 dark:border-strokedark dark:bg-boxdark md:p-5">
+            <div className="flex items-start justify-between">
+                <div className="flex-1">
+                    <p className="text-gray-500 text-xs font-medium uppercase tracking-wider">
+                        {title}
+                    </p>
+                    <h4 className="mt-2 text-xl font-bold text-black dark:text-white md:text-2xl">
+                        {value}
+                    </h4>
+                </div>
+                <div className={`rounded-lg p-2 transition-colors group-hover:bg-orange-50 ${getBgColor()}`}>
+                    {Icon && <Icon className={`h-5 w-5 ${iconColor} md:h-6 md:w-6`} />}
+                </div>
+            </div>
+        </div>
+    );
+};
 
 // Types
 interface DepositRequest {
@@ -36,17 +85,9 @@ export default function Depositemaster() {
     const [showMobileFilter, setShowMobileFilter] = useState(false);
     const itemsPerPage = 5;
 
-    // Date filter states
-    const [fromDate, setFromDate] = useState(() => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        return today.toISOString().split('T')[0];
-    });
-    const [toDate, setToDate] = useState(() => {
-        const today = new Date();
-        today.setHours(23, 59, 59, 999);
-        return today.toISOString().split('T')[0];
-    });
+    // Date filter states - Default to show all data (empty dates)
+    const [fromDate, setFromDate] = useState('');
+    const [toDate, setToDate] = useState('');
 
     // Format currency in Indian format
     const formatIndianCurrency = (amount: number) => {
@@ -56,6 +97,11 @@ export default function Depositemaster() {
             minimumFractionDigits: 0,
             maximumFractionDigits: 0,
         }).format(amount);
+    };
+
+    // Format number
+    const formatNumber = (num: number) => {
+        return new Intl.NumberFormat('en-IN').format(num);
     };
 
     // Format date and time
@@ -80,9 +126,9 @@ export default function Depositemaster() {
         return { date: formattedDate, time: formattedTime };
     };
 
-    // Date filtering logic
+    // Date filtering logic - If no dates selected, show all data
     const filterByDate = (dateString: string) => {
-        if (!dateString) return false;
+        if (!fromDate || !toDate) return true;
 
         const date = new Date(dateString);
         date.setHours(0, 0, 0, 0);
@@ -113,75 +159,42 @@ export default function Depositemaster() {
         })) || [];
     }, [deposits]);
 
+    // Get date-filtered data for cards
+    const dateFilteredData = useMemo(() => {
+        return MOCK_DATA?.filter((req) => {
+            return filterByDate(req.date);
+        });
+    }, [MOCK_DATA, fromDate, toDate]);
+
     // Filter data based on search and date
     const filteredData = useMemo(() => {
-        return MOCK_DATA?.filter((req) => {
+        return dateFilteredData?.filter((req) => {
             const matchesSearch =
                 searchTerm === '' ||
                 req.requestId.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 req.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 req.amount.toString().includes(searchTerm);
 
-            const matchesDate = filterByDate(req.date);
-
-            return matchesSearch && matchesDate;
+            return matchesSearch;
         });
-    }, [MOCK_DATA, searchTerm, fromDate, toDate]);
-
-    // Calculate period stats (Today, Week, Month)
-    const getPeriodStats = (period: 'today' | 'week' | 'month') => {
-        const now = new Date();
-        const periodData = MOCK_DATA?.filter((req) => {
-            const reqDate = new Date(req.date);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-
-            const weekStart = new Date(now);
-            weekStart.setDate(now.getDate() - now.getDay());
-            weekStart.setHours(0, 0, 0, 0);
-
-            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-
-            switch (period) {
-                case 'today':
-                    return reqDate >= today;
-                case 'week':
-                    return reqDate >= weekStart;
-                case 'month':
-                    return reqDate >= monthStart;
-                default:
-                    return true;
-            }
-        });
-
-        const totalAmount = periodData?.reduce((sum, r) => sum + r.amount, 0) || 0;
-        const count = periodData?.length || 0;
-
-        return { totalAmount, count };
-    };
+    }, [dateFilteredData, searchTerm]);
 
     // Calculate stats
     const stats = useMemo(() => {
-        const totalDepositAmount = MOCK_DATA?.reduce((sum, r) => sum + r.amount, 0) || 0;
-        const totalCount = MOCK_DATA?.length || 0;
+        const totalDepositAmount = dateFilteredData?.reduce((sum, r) => sum + r.amount, 0) || 0;
+        const totalCount = dateFilteredData?.length || 0;
+        const uniqueCustomers = new Set(dateFilteredData?.map(r => r.customerName)).size;
 
-        const todayStats = getPeriodStats('today');
-        const weekStats = getPeriodStats('week');
-        const monthStats = getPeriodStats('month');
-
-        const filteredTotalAmount = filteredData?.reduce((sum, r) => sum + r.amount, 0) || 0;
-        const filteredTotalCount = filteredData?.length || 0;
+        // Calculate average deposit
+        const avgDeposit = totalCount > 0 ? totalDepositAmount / totalCount : 0;
 
         return {
             totalDepositAmount,
             totalCount,
-            todayStats,
-            weekStats,
-            monthStats,
-            filteredTotalAmount,
-            filteredTotalCount,
+            uniqueCustomers,
+            avgDeposit,
         };
-    }, [MOCK_DATA, filteredData]);
+    }, [dateFilteredData]);
 
     // Table columns
     const columns = [
@@ -200,7 +213,7 @@ export default function Depositemaster() {
         {
             header: 'Customer Name',
             accessor: (row: DepositRequest) => (
-                <div className="text-gray-900 text-sm font-semibold">
+                <div className="text-gray-900 text-sm">
                     {row?.customerName}
                 </div>
             ),
@@ -208,71 +221,47 @@ export default function Depositemaster() {
         {
             header: 'Amount',
             accessor: (row: DepositRequest) => (
-                <div className="text-left text-sm font-bold text-green-600">
+                <div className="text-left text-sm  text-gray-900">
                     {formatIndianCurrency(row.amount)}
                 </div>
             ),
         },
-        // {
-        //     header: 'Type',
-        //     accessor: (row: DepositRequest) => (
-        //         <span className="inline-block whitespace-nowrap rounded-md bg-blue-50 text-blue-600 border border-blue-100 px-2 py-1 text-[10px] font-bold uppercase">
-        //             {row.type || 'CREDIT'}
-        //         </span>
-        //     ),
-        // },
         {
             header: 'Balance After',
             accessor: (row: DepositRequest) => (
-                <div className="text-gray-900 text-sm font-bold">
+                <div className="text-gray-900 text-sm ">
                     {formatIndianCurrency(row.balanceAfter)}
                 </div>
             ),
         },
-        // {
-        //     header: 'Notes',
-        //     accessor: (row: DepositRequest) => (
-        //         <div className="text-gray-600 text-sm">
-        //             {row.notes || '-'}
-        //         </div>
-        //     ),
-        // },
     ];
 
-    // Stats Card data
-    const periodCardData = [
+    // Stats Card data - Only title, value, icon
+    const statCards = [
         {
-            title: "Total Deposit Amount",
+            title: "Total Deposits",
+            value: formatNumber(stats.totalCount),
+            icon: DollarSign,
+            iconColor: "text-green-500",
+        },
+        {
+            title: "Total Amount",
             value: formatIndianCurrency(stats.totalDepositAmount),
-            change: `${stats.totalCount} total deposits`,
-            changeType: "neutral",
-            note: "all time",
-            icon: MdTrendingUp
+            icon: TrendingUp,
+            iconColor: "text-orange-500",
         },
         {
-            title: "Today",
-            value: formatIndianCurrency(stats.todayStats.totalAmount),
-            change: `${stats.todayStats.count} deposits today`,
-            changeType: "neutral",
-            note: "today",
-            icon: MdAdd
+            title: "Unique Customers",
+            value: formatNumber(stats.uniqueCustomers),
+            icon: Users,
+            iconColor: "text-blue-500",
         },
         {
-            title: "This Week",
-            value: formatIndianCurrency(stats.weekStats.totalAmount),
-            change: `${stats.weekStats.count} deposits this week`,
-            changeType: "warning",
-            note: "this week",
-            icon: MdWarning
+            title: "Average Deposit",
+            value: formatIndianCurrency(stats.avgDeposit),
+            icon: Activity,
+            iconColor: "text-purple-500",
         },
-        {
-            title: "This Month",
-            value: formatIndianCurrency(stats.monthStats.totalAmount),
-            change: `${stats.monthStats.count} deposits this month`,
-            changeType: "neutral",
-            note: "this month",
-            icon: MdTrendingUp
-        }
     ];
 
     return (
@@ -282,7 +271,7 @@ export default function Depositemaster() {
                 <div className="mb-6 flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
                     <div className="flex items-center gap-3">
                         <h1 className="text-2xl font-semibold text-slate-900 md:text-3xl">
-                            Deposit Reports
+                            Deposit Reports (Master)
                         </h1>
                     </div>
 
@@ -317,127 +306,104 @@ export default function Depositemaster() {
                     </div>
                 </div>
 
-                {/* Period Summary Cards */}
-                <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                    {periodCardData.map((card, index) => (
-                        <StatsCard
+                {/* Stats Cards - Simple design */}
+                <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    {statCards.map((card, index) => (
+                        <StatCard
                             key={index}
                             title={card.title}
                             value={card.value}
-                            change={card.change}
-                            changeType={card.changeType}
-                            note={card.note}
                             icon={card.icon}
+                            iconColor={card.iconColor}
                         />
                     ))}
                 </div>
 
-                {/* Date Filter Row */}
-                <div className="mb-4 flex flex-wrap items-center gap-4 bg-white rounded-lg border border-stroke p-3">
-                    <div className="flex items-center gap-2">
-                        <Calendar className="text-gray-500 h-5 w-5" />
-                        <span className="text-sm font-medium text-gray-700">Date Range:</span>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-2">
-                        <input
-                            type="date"
-                            value={fromDate}
-                            onChange={(e) => setFromDate(e.target.value)}
-                            className="rounded-lg border border-stroke px-3 py-1.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                        />
-                        <span className="text-gray-400 text-sm font-medium">to</span>
-                        <input
-                            type="date"
-                            value={toDate}
-                            onChange={(e) => setToDate(e.target.value)}
-                            className="rounded-lg border border-stroke px-3 py-1.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                        />
-                    </div>
-
-                    <button
-                        onClick={() => {
-                            const today = new Date();
-                            const todayStr = today.toISOString().split('T')[0];
-                            setFromDate(todayStr);
-                            setToDate(todayStr);
-                        }}
-                        className="text-xs font-medium text-orange-500 hover:text-orange-600 hover:underline"
-                    >
-                        Today
-                    </button>
-
-                    <button
-                        onClick={() => {
-                            const today = new Date();
-                            const weekAgo = new Date(today);
-                            weekAgo.setDate(today.getDate() - 7);
-                            setFromDate(weekAgo.toISOString().split('T')[0]);
-                            setToDate(today.toISOString().split('T')[0]);
-                        }}
-                        className="text-xs font-medium text-orange-500 hover:text-orange-600 hover:underline"
-                    >
-                        Last 7 Days
-                    </button>
-
-                    <button
-                        onClick={() => {
-                            const today = new Date();
-                            const monthAgo = new Date(today);
-                            monthAgo.setMonth(today.getMonth() - 1);
-                            setFromDate(monthAgo.toISOString().split('T')[0]);
-                            setToDate(today.toISOString().split('T')[0]);
-                        }}
-                        className="text-xs font-medium text-orange-500 hover:text-orange-600 hover:underline"
-                    >
-                        Last 30 Days
-                    </button>
-
-                    {/* Mobile Filter Button */}
-                    <button
-                        onClick={() => setShowMobileFilter(!showMobileFilter)}
-                        className="hover:bg-gray-50 rounded-lg border border-stroke bg-white p-2 transition-colors sm:hidden ml-auto"
-                    >
-                        <Filter className="text-gray-600 h-4 w-4" />
-                    </button>
-                </div>
-
-                {/* Mobile Filter Panel */}
-                <AnimatePresence>
-                    {showMobileFilter && (
-                        <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="bg-gray-50/50 border-b border-stroke p-4 mb-4 rounded-lg sm:hidden"
-                        >
-                            <h3 className="text-gray-400 mb-2 text-xs font-bold">
-                                Quick Filters
-                            </h3>
-                            <div className="flex flex-wrap gap-2">
-                                {['High Value', 'Today', 'Yesterday'].map((filter) => (
-                                    <button
-                                        key={filter}
-                                        className="hover:bg-gray-50 rounded-full border border-stroke bg-white px-3 py-1 text-xs font-medium"
-                                    >
-                                        {filter}
-                                    </button>
-                                ))}
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-
                 {/* Main Content Area */}
                 <div className="overflow-hidden rounded-xl border border-stroke bg-white shadow-sm">
-                    <div className="px-4 py-3 border-b border-stroke">
+                    {/* Table Header with Title and Date Filter on Right */}
+                    <div className="flex flex-col justify-between border-b border-stroke px-4 py-3 sm:flex-row sm:items-center sm:px-6">
                         <h2 className="text-sm font-semibold text-gray-700">
                             Deposit History
-                            {/* <span className="ml-2 text-gray-400 text-xs font-normal">
+                            <span className="ml-2 text-gray-400 text-xs font-normal">
                                 ({filteredData?.length || 0} records)
-                            </span> */}
+                            </span>
                         </h2>
+
+                        {/* Date Filters - On Right Side */}
+                        <div className="flex flex-wrap items-center gap-2 mt-2 sm:mt-0">
+                            <div className="flex items-center gap-2 bg-white rounded-lg border border-stroke px-2 py-1.5">
+                                <Calendar className="text-orange-500 h-4 w-4" />
+                                <div className="flex items-center gap-1">
+                                    <label className="text-xs font-medium text-gray-600">From:</label>
+                                    <input
+                                        type="date"
+                                        value={fromDate}
+                                        onChange={(e) => setFromDate(e.target.value)}
+                                        className="border-0 px-1 py-0.5 text-sm focus:outline-none focus:ring-0 w-28"
+                                        placeholder="Start date"
+                                    />
+                                </div>
+                               
+                                <div className="flex items-center gap-1">
+                                    <label className="text-xs font-medium text-gray-600">To:</label>
+                                    <input
+                                        type="date"
+                                        value={toDate}
+                                        onChange={(e) => setToDate(e.target.value)}
+                                        className="border-0 px-1 py-0.5 text-sm focus:outline-none focus:ring-0 w-28"
+                                        placeholder="End date"
+                                    />
+                                </div>
+                                {(fromDate || toDate) && (
+                                    <button
+                                        onClick={() => {
+                                            setFromDate('');
+                                            setToDate('');
+                                        }}
+                                        className="text-gray-400 hover:text-gray-600 ml-1"
+                                        title="Clear date filter"
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Mobile Filter Button */}
+                            <button
+                                onClick={() => setShowMobileFilter(!showMobileFilter)}
+                                className="hover:bg-gray-50 rounded-lg border border-stroke bg-white p-2 transition-colors sm:hidden"
+                            >
+                                <Filter className="text-gray-600 h-4 w-4" />
+                            </button>
+                        </div>
                     </div>
+
+                    {/* Mobile Filter Panel */}
+                    <AnimatePresence>
+                        {showMobileFilter && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="bg-gray-50/50 border-b border-stroke p-4 sm:hidden"
+                            >
+                                <h3 className="text-gray-400 mb-2 text-xs font-bold">
+                                    Quick Filters
+                                </h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {['High Value', 'Today', 'Yesterday'].map((filter) => (
+                                        <button
+                                            key={filter}
+                                            className="hover:bg-gray-50 rounded-full border border-stroke bg-white px-3 py-1 text-xs font-medium"
+                                        >
+                                            {filter}
+                                        </button>
+                                    ))}
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
                     {/* Generic Table */}
                     <GenericTable
