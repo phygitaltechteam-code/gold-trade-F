@@ -16,26 +16,79 @@
  * formatIndianNumber(125000)    // "1,25,000"
  * formatIndianNumber(null)      // "-"
  */
-export function formatIndianNumber(value: number | string | null | undefined): string {
-  // Handle null, undefined, and empty string
-  if (value === null || value === undefined || value === "") {
-    return "0";
+// utils/formatIndianNumber.ts
+export const formatIndianNumber = (amount: number | string | undefined | null): string => {
+  // Handle null, undefined, or empty values
+  if (amount === null || amount === undefined || amount === '') {
+    return '0';
   }
 
-  // Handle strings that are just whitespace
-  if (typeof value === "string" && value.trim() === "") {
-    return "0";
-  }
+  // If amount is a string, remove ₹ symbol, commas, and any extra characters
+  let cleanAmount = typeof amount === 'string'
+    ? amount.replace(/[₹,]/g, '').trim()
+    : amount;
 
-  const num = Number(value);
+  // Convert to number
+  const num = typeof cleanAmount === 'string' ? parseFloat(cleanAmount) : cleanAmount;
 
-  // Handle invalid numbers (NaN)
+  // Check if it's a valid number
   if (isNaN(num)) {
-    return "0";
+    return '0';
   }
 
-  // Use Intl.NumberFormat for Indian numbering and up to 2 decimal places
-  return new Intl.NumberFormat("en-IN", {
-    maximumFractionDigits: 2,
-  }).format(num);
-}
+  // Check if the number has decimal places
+  const hasDecimal = num % 1 !== 0;
+
+  let formatted: string;
+  if (!hasDecimal) {
+    // If no decimal places, show without .00
+    formatted = new Intl.NumberFormat('en-IN', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(num);
+  } else {
+    // If has decimal places, show with 2 decimal places
+    formatted = new Intl.NumberFormat('en-IN', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(num);
+  }
+
+  return formatted;
+};
+
+// For displaying with ₹ symbol
+export const formatIndianCurrency = (amount: number | string | undefined | null): string => {
+  if (amount === null || amount === undefined || amount === '') {
+    return '₹0';
+  }
+
+  // If amount is a string, remove ₹ symbol, commas, and any extra characters
+  let cleanAmount = typeof amount === 'string'
+    ? amount.replace(/[₹,]/g, '').trim()
+    : amount;
+
+  const num = typeof cleanAmount === 'string' ? parseFloat(cleanAmount) : cleanAmount;
+
+  if (isNaN(num)) {
+    return '₹0';
+  }
+
+  // Check if the number has decimal places
+  const hasDecimal = num % 1 !== 0;
+
+  let formatted: string;
+  if (!hasDecimal) {
+    formatted = new Intl.NumberFormat('en-IN', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(num);
+  } else {
+    formatted = new Intl.NumberFormat('en-IN', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(num);
+  }
+
+  return `₹${formatted}`;
+};
