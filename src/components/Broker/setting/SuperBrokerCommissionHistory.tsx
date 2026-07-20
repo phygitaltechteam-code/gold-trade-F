@@ -83,9 +83,9 @@ export default function SuperBrokerCommissionHistory() {
         <span
           className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
             item.type === 'TRANSFER'
-              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
+              ? ' text-black-800  dark:text-black-300'
               : item.type === 'CREDIT'
-                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                ? ' text-black -800 dark:text-black-300'
                 : item.type === 'DEBIT'
                   ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
                   : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300'
@@ -100,9 +100,9 @@ export default function SuperBrokerCommissionHistory() {
       accessor: 'amount',
       render: (item: any) => (
         <span
-          className={`font-semibold ${
+          className={`${
             item.type === 'CREDIT' || item.type === 'TRANSFER'
-              ? 'text-green-600'
+              ? 'text-black'
               : item.type === 'DEBIT'
                 ? 'text-red-600'
                 : 'text-blue-600'
@@ -126,7 +126,7 @@ export default function SuperBrokerCommissionHistory() {
       header: 'Type',
       accessor: 'type',
       render: () => (
-        <span className="inline-flex rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-800 dark:bg-green-900 dark:text-green-300">
+        <span className="inline-flex rounded-full px-2 py-1 text-xs font-semibold text-black dark:bg-green-900 dark:text-green-300">
           PAID
         </span>
       ),
@@ -135,7 +135,7 @@ export default function SuperBrokerCommissionHistory() {
       header: 'Amount',
       accessor: 'amount',
       render: (item: any) => (
-        <span className="font-semibold text-green-600">
+        <span className="font-semibold text-black">
           ₹{parseFloat(item.amount).toLocaleString('en-IN')}
         </span>
       ),
@@ -185,7 +185,7 @@ export default function SuperBrokerCommissionHistory() {
       <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">
-            Super Broker Commission History
+            Super Broker Commission History.
           </h1>
           <p className="text-sm text-slate-500">
             Track and manage generated commission records
@@ -199,7 +199,7 @@ export default function SuperBrokerCommissionHistory() {
           <span className="text-gray-500 text-sm font-semibold">
             Total Commission
           </span>
-          <h4 className="mt-2 text-2xl font-bold text-green-500">
+          <h4 className="mt-2 text-2xl font-bold text-black">
             ₹{totalCommission.toLocaleString()}
           </h4>
         </div>
@@ -207,7 +207,7 @@ export default function SuperBrokerCommissionHistory() {
           <span className="text-gray-500 text-sm font-semibold">
             Total Paid
           </span>
-          <h4 className="mt-2 text-2xl font-bold text-blue-500">
+          <h4 className="mt-2 text-2xl font-bold text-black">
             ₹{totalPaid.toLocaleString()}
           </h4>
         </div>
@@ -215,7 +215,7 @@ export default function SuperBrokerCommissionHistory() {
           <span className="text-gray-500 text-sm font-semibold">
             Pending Commission
           </span>
-          <h4 className="mt-2 text-2xl font-bold text-orange-500">
+          <h4 className="mt-2 text-2xl font-bold text-black">
             ₹{pendingCommission.toLocaleString()}
           </h4>
         </div>
