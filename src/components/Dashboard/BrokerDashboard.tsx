@@ -15,6 +15,7 @@ import {
   Target,
   DollarSign,
   PieChart,
+  CheckCircle,
 } from 'lucide-react';
 import {useAuthContext} from '@/context/AuthContext';
 import toast from 'react-hot-toast';
@@ -275,22 +276,6 @@ const BrokerDashboard: React.FC = () => {
             icon={Users}
             iconColor="text-green-500"
           />
-          <StatCard
-            title="Active Trends"
-            value={formatNumber(dashboardStats.totalActiveTrends)}
-            icon={Activity}
-            iconColor="text-orange-500"
-          />
-          <StatCard
-            title="Total Trades"
-            value={formatNumber(dashboardStats.totalTrades)}
-            icon={TrendingUp}
-            iconColor="text-blue-500"
-          />
-        </div>
-
-        {/* Row 2: Commission & Earnings Cards */}
-        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
           <FinancialStatCard
             title="My Total Commission"
             amount={formatCurrency(dashboardStats.brokerTotalCommission)}
@@ -305,38 +290,66 @@ const BrokerDashboard: React.FC = () => {
             iconColor="text-orange-500"
             // subtext="Awaiting settlement"
           />
-          <FinancialStatCard
-            title="Win Rate"
-            amount={`${dashboardStats.winRate || 0}%`}
-            icon={Target}
-            iconColor="text-purple-500"
-            // subtext="Success rate"
-          />
+          {/* <StatCard
+            title="Active Trends"
+            value={formatNumber(dashboardStats.totalActiveTrends)}
+            icon={Activity}
+            iconColor="text-orange-500"
+          /> */}
+          {/* <StatCard
+            title="Total Trades"
+            value={formatNumber(dashboardStats.totalTrades)}
+            icon={TrendingUp}
+            iconColor="text-blue-500"
+          /> */}
         </div>
 
-        {/* Row 3: Customer Financial Overview */}
+        {/* Row 2: Commission & Earnings Cards */}
         <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-          <FinancialStatCard
+          
+          
+         <FinancialStatCard
+  title="Paid Commission"
+  amount={formatCurrency(
+    dashboardStats.brokerTotalCommission - dashboardStats.pendingBrokerCommission
+  )}
+  icon={CheckCircle}
+  iconColor="text-green-500"
+  // subtext="Already paid"
+/>
+ <FinancialStatCard
             title="Customer Wallet Balance"
             amount={formatCurrency(dashboardStats.totalCustomerWalletBalance)}
             icon={Wallet}
             iconColor="text-blue-500"
             // subtext="Total client funds"
           />
-          <FinancialStatCard
+          {/* <FinancialStatCard
+            title="Win Rate"
+            amount={`${dashboardStats.winRate || 0}%`}
+            icon={Target}
+            iconColor="text-purple-500"
+            // subtext="Success rate"
+          /> */}
+        </div>
+
+        {/* Row 3: Customer Financial Overview */}
+        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+         
+          {/* <FinancialStatCard
             title="Total Deposits"
             amount={formatCurrency(dashboardStats.totalDeposits)}
             icon={TrendingUp}
             iconColor="text-green-500"
             // subtext="From my customers"
-          />
-          <FinancialStatCard
+          /> */}
+          {/* <FinancialStatCard
             title="Total Withdrawals"
             amount={formatCurrency(dashboardStats.totalWithdrawals)}
             icon={ArrowDownRight}
             iconColor="text-red-500"
             // subtext="By my customers"
-          />
+          /> */}
         </div>
       </div>
     </motion.div>
