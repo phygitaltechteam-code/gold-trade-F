@@ -296,21 +296,43 @@ const SuperBrokerProfile = () => {
     {
       header: 'Buy Price',
       accessor: 'buyPrice',
-     
+      render: (item: any) => <span className="font-medium">{formatIndianNumber(item.buyPrice || '-')}</span>
     },
-
     {
-      header: 'Sell Price', accessor: 'sellPrice'
+      header: 'Sell Price',
+      accessor: 'sellPrice',
+      render: (item: any) => <span className="font-medium">{formatIndianNumber(item.sellPrice || '-')}</span>
     },
-
     { header: 'Status', accessor: 'status' },
-    { header: 'P&L', accessor: 'pnl' },
-    // ];
-
-    // const expandedLedgerColumns = [
-    { header: 'Buy Time', accessor: 'buyTime' },
-    { header: 'Sell Time', accessor: 'sellTime' },
-    { header: 'Super Broker commission', accessor: 'superBrokerCommission' },
+    {
+      header: 'P&L',
+      accessor: 'pnl',
+      render: (item: any) => {
+        const pnl = item.pnl || '-';
+        const isPositive = typeof pnl === 'string' && pnl.startsWith('+');
+        const isNegative = typeof pnl === 'string' && pnl.startsWith('-');
+        return (
+          <span className={` ${isPositive ? 'text-green-600' : isNegative ? 'text-red-600' : 'text-gray-600'}`}>
+            {formatIndianNumber(pnl)}
+          </span>
+        );
+      }
+    },
+    {
+      header: 'Buy Time',
+      accessor: 'buyTime',
+      render: (item: any) => <span>{(item.buyTime || '-')}</span>
+    },
+    {
+      header: 'Sell Time',
+      accessor: 'sellTime',
+      render: (item: any) => <span>{(item.sellTime || '-')}</span>
+    },
+    {
+      header: 'Super Broker Commission',
+      accessor: 'superBrokerCommission',
+      render: (item: any) => <span className="">{formatIndianNumber(item.superBrokerCommission || '-')}</span>
+    },
   ];
 
   const paymentColumns = [
@@ -324,7 +346,7 @@ const SuperBrokerProfile = () => {
       header: 'Commission Generated',
       accessor: 'commissionGenerated',
       render: (item: any) => (
-        <span>₹{formatIndianNumber(item.commissionGenerated)} </span>
+        <span>₹{formatIndianNumber(item.commissionGenerated)}</span>
       ),
     },
     {
