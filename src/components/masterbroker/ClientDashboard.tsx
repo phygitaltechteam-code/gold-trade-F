@@ -211,23 +211,23 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
     return new Intl.NumberFormat('en-IN').format(num);
   };
 
- // Format currency with Indian comma system and hide .00
-const formatCurrency = (amount: number) => {
-  if (amount === undefined || amount === null) return '₹0';
+  // Format currency with Indian comma system and hide .00
+  const formatCurrency = (amount: number) => {
+    if (amount === undefined || amount === null) return '₹0';
 
-  // Check if the amount has decimal places
-  const formatted = amount.toFixed(2);
-  // If it ends with .00, return without decimal places
-  if (formatted.endsWith('.00')) {
-    return `₹${Math.round(amount).toLocaleString('en-IN')}`;
-  }
-  // Otherwise show with 2 decimal places with Indian comma system
-  // Split into integer and decimal parts
-  const parts = formatted.split('.');
-  const integerPart = Number(parts[0]).toLocaleString('en-IN');
-  const decimalPart = parts[1];
-  return `₹${integerPart}.${decimalPart}`;
-};
+    // Check if the amount has decimal places
+    const formatted = amount.toFixed(2);
+    // If it ends with .00, return without decimal places
+    if (formatted.endsWith('.00')) {
+      return `₹${Math.round(amount).toLocaleString('en-IN')}`;
+    }
+    // Otherwise show with 2 decimal places with Indian comma system
+    // Split into integer and decimal parts
+    const parts = formatted.split('.');
+    const integerPart = Number(parts[0]).toLocaleString('en-IN');
+    const decimalPart = parts[1];
+    return `₹${integerPart}.${decimalPart}`;
+  };
   // Format currency for table (with 2 decimal places, hide .00)
   const formatTableCurrency = (amount: number) => {
     if (amount === undefined || amount === null) return '₹0';
@@ -249,7 +249,7 @@ const formatCurrency = (amount: number) => {
       render: (row: Client) => (
         <div className="flex items-center gap-3">
           <div>
-            <div className="whitespace-nowrap text-sm font-medium text-slate-900">
+            <div className="whitespace-nowrap text-sm text-gray-900">
               {row.user?.fullname}
             </div>
           </div>
@@ -262,7 +262,7 @@ const formatCurrency = (amount: number) => {
       render: (row: Client) => {
         const amount = parseFloat(row.wallets?.amount) || 0;
         return (
-          <span className="whitespace-nowrap text-sm font-bold text-slate-900">
+          <span className="whitespace-nowrap text-sm  text-gray-900">
             {formatTableCurrency(amount)}
           </span>
         );
@@ -272,7 +272,7 @@ const formatCurrency = (amount: number) => {
       header: 'Asset Under Control',
       accessor: 'assetUnderControl',
       render: (row: Client) => (
-        <span className="whitespace-nowrap text-sm font-bold text-slate-900">
+        <span className="whitespace-nowrap text-sm   text-gray-900">
           {formatTableCurrency(row.assetUnderControl || 0)}
         </span>
       ),
@@ -281,7 +281,7 @@ const formatCurrency = (amount: number) => {
       header: 'Margin Amount',
       accessor: 'marginAmount',
       render: (row: Client) => (
-        <span className="whitespace-nowrap text-sm font-bold text-slate-900">
+        <span className="whitespace-nowrap text-sm text-gray-900">
           {formatTableCurrency(row.marginAmount || 0)}
         </span>
       ),
@@ -290,7 +290,7 @@ const formatCurrency = (amount: number) => {
       header: 'Total Active Trade',
       accessor: 'totalActiveTrade',
       render: (row: Client) => (
-        <span className="whitespace-nowrap text-sm font-medium text-slate-600">
+        <span className="whitespace-nowrap text-sm text-gray-900">
           {row._count?.trades || 0}
         </span>
       ),
@@ -299,7 +299,7 @@ const formatCurrency = (amount: number) => {
       header: 'Total Trade',
       accessor: 'totalTrade',
       render: (row: Client) => (
-        <span className="whitespace-nowrap text-sm font-bold text-orange-500">
+        <span className="whitespace-nowrap text-sm text-gray-900">
           {formatTableCurrency(row.totalTrade || 0)}
         </span>
       ),
@@ -312,7 +312,7 @@ const formatCurrency = (amount: number) => {
         const isProfit = pnl >= 0;
         return (
           <span
-            className={`whitespace-nowrap text-sm font-bold ${isProfit ? 'text-green-600' : 'text-red-600'
+            className={`whitespace-nowrap text-sm ${isProfit ? 'text-gray-9000' : 'text-gray-900'
               }`}
           >
             {isProfit ? '+' : ''}

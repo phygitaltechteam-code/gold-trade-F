@@ -305,7 +305,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
               ? row.wallets.amount 
               : parseFloat(row.wallets?.amount as string) || 0);
         return (
-          <span className="whitespace-nowrap text-sm font-bold text-slate-900">
+          <span className="whitespace-nowrap text-sm text-gray-900">
             ₹{amount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
           </span>
         );
@@ -321,7 +321,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
               ? row.wallets.blockedAmount 
               : parseFloat(row.wallets?.blockedAmount as string) || 0);
         return (
-          <span className="whitespace-nowrap text-sm font-bold text-slate-900">
+          <span className="whitespace-nowrap text-sm text-gray-900">
             ₹{amount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
           </span>
         );
@@ -333,7 +333,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       render: (row: Client) => {
         const amount = row.marginAmount !== undefined ? Number(row.marginAmount) : 0;
         return (
-          <span className="whitespace-nowrap text-sm font-bold text-slate-900">
+          <span className="whitespace-nowrap text-sm text-gray-900">
             ₹{amount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
           </span>
         );
@@ -354,7 +354,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       render: (row: Client) => {
         const amount = row.totalTrade !== undefined ? Number(row.totalTrade) : (parseFloat(row.wallets?.amount as string) || 0);
         return (
-          <span className="whitespace-nowrap text-sm font-bold text-slate-900">
+          <span className="whitespace-nowrap text-sm text-gray-900">
             ₹{amount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
           </span>
         );
@@ -585,10 +585,10 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
     value={customerFilter}
     onChange={(e) => setCustomerFilter(e.target.value)}
   >
-    <option value="all">All Customers</option>
-    <option value="active">Active Customers</option>
-    <option value="inactive">Inactive Customers</option>
-    <option value="demo">Demo Customers</option>
+    <option value="all">All Customers({totalClients})</option>
+    <option value="active">Active Customers({activeTraders})</option>
+    <option value="inactive">Inactive Customers({pendingKyc})</option>
+    <option value="demo">Demo Customers({totalDemoTraders})</option>
   </select>
 </div>
         </div>
