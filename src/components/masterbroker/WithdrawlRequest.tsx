@@ -571,8 +571,8 @@ export default function WithdrawalRequest() {
         {/* Main Content Area */}
         <div className="overflow-hidden rounded-xl border border-stroke bg-white shadow-sm">
           {/* Tabs & Controls with Date Filters on Right */}
-          <div className="flex flex-col justify-between border-b border-stroke px-4 pt-4 sm:flex-row sm:items-center sm:px-6">
-            <div className="flex gap-4 overflow-x-auto pb-4 sm:gap-8 sm:pb-0">
+          <div className="flex flex-col justify-between border-b border-stroke px-3 pt-4 sm:flex-row sm:items-center sm:px-6">
+            <div className="flex gap-4 overflow-x-auto  mt-6 pb-4 sm:gap-8 sm:pb-0">
               {(['Pending', 'Approved', 'Rejected'] as const).map((tab) => (
                 <button
                   key={tab}
@@ -606,44 +606,32 @@ export default function WithdrawalRequest() {
               ))}
             </div>
 
-            {/* Date Filters - Clean From/To only */}
-            <div className="mb-2 flex flex-wrap items-center gap-2 pb-4 sm:pb-0">
-              <div className="flex items-center gap-2 bg-white rounded-lg border border-stroke px-3 py-2">
-                <Calendar className="text-orange-500 h-4 w-4" />
-                <div className="flex items-center gap-2">
-                  <label className="text-xs font-medium text-gray-600">From:</label>
-                  <input
+
+{/* date filter */}
+              <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-black dark:text-white">
+                  From:
+                </label>
+                <input
                     type="date"
                     value={fromDate}
                     onChange={(e) => setFromDate(e.target.value)}
-                    className="border-0 px-1 py-0.5 text-sm focus:outline-none focus:ring-0 w-32"
-                    placeholder="Start date"
-                  />
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <label className="text-xs font-medium text-gray-600">To:</label>
-                  <input
-                    type="date"
+                  className="rounded border border-stroke bg-transparent px-3 py-1 text-sm outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-black dark:text-white">
+                  To:
+                </label>
+                <input
+                  type="date"
                     value={toDate}
                     onChange={(e) => setToDate(e.target.value)}
-                    className="border-0 px-1 py-0.5 text-sm focus:outline-none focus:ring-0 w-32"
-                    placeholder="End date"
-                  />
-                </div>
-                {(fromDate || toDate) && (
-                  <button
-                    onClick={() => {
-                      setFromDate('');
-                      setToDate('');
-                    }}
-                    className="text-gray-400 hover:text-gray-600 ml-1"
-                    title="Clear date filter"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                )}
+                    className="rounded border border-stroke bg-transparent px-3 py-1 text-sm outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                />
               </div>
+
 
               {/* Mobile Filter Button */}
               <button
