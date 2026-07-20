@@ -19,6 +19,7 @@ import { CommissionTab } from './CommissionTab';
 import { BrokersTab } from './BrokersTab';
 import { CommissionModal } from './CommissionModal';
 import GenericTable from '@/components/Forms/Table/GenericTable';
+import { formatIndianNumber } from '@/utils/formatIndianNumber';
 
 interface MasterBrokerProfileProps {
   id: string;
@@ -67,6 +68,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
   const { data: ledgerData = [] } = useGetMasterbrokerLedgerById(id);
   const { data: tradersData = [] } = useGetMasterbrokertraderdById(id);
   // console.log('tradersData', tradersData);
+  console.log("profileData", profileData)
   const { mutate: updateMasterBrokerProfile, isPending: isUpdating } =
     useUpdateMasterBrokerProfile();
   const { mutate: addCommission, isPending: isCommissionPending } =
@@ -581,7 +583,36 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
       />
 
       {/* Statistics Cards Component */}
+        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
+          <h4 className="text-xl font-bold text-blue-500 md:text-2xl">
+            {tradersData?.length || 0}
+          </h4>
+          <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
+            Total Traders
+          </span>
+        </div>
+        <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
+          <h4 className="text-xl font-bold text-green-500 md:text-2xl">
+            ₹{formatIndianNumber(profileData?.totalCommission)}
+          </h4>
+          <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
+            Total Commission
+          </span>
+        </div>
+      
+        <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
+          <h4 className="text-xl font-bold text-orange-500 md:text-2xl">
+            ₹
+            {/* {formatIndianNumber(paymentDataFromApi?.summary?.pendingCommission)} */}
+          </h4>
+          <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
+            Total P&L
+          </span>
+        </div>
+      </div>
       {/* <MasterBrokerStats profileData={profileData} /> */}
+      
 
       {/* Tabs and Tables Section */}
       <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">

@@ -1,4 +1,4 @@
-import React, {useState, useMemo, useEffect} from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   FiEdit2,
   FiSave,
@@ -15,11 +15,11 @@ import {
   useGetSuperBrokerLedger,
   useGetSuperBrokerPaymentHistory,
 } from '@/lib/react-query/superbrocker';
-import {Route} from '@/routes/_app/companybroker/SuperbrockerProfile.$id';
-import {useNavigate} from '@tanstack/react-router';
+import { Route } from '@/routes/_app/companybroker/SuperbrockerProfile.$id';
+import { useNavigate } from '@tanstack/react-router';
 import toast from 'react-hot-toast';
-import {Eye, EyeOff} from 'lucide-react';
-import {formatIndianNumber} from '@/utils/formatIndianNumber';
+import { Eye, EyeOff } from 'lucide-react';
+import { formatIndianNumber } from '@/utils/formatIndianNumber';
 
 // Format date function
 const formatDateTime = (dateString: string) => {
@@ -42,7 +42,7 @@ const formatDateTime = (dateString: string) => {
 };
 
 const SuperBrokerProfile = () => {
-  const {id} = Route.useParams();
+  const { id } = Route.useParams();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('ledger');
@@ -70,13 +70,13 @@ const SuperBrokerProfile = () => {
     'credit',
   );
 
-  const {data: profileData, refetch} = useGetAllSuperBrockerById(id);
-  const {mutate: updateSuperBrokerProfile, isPending: isUpdating} =
+  const { data: profileData, refetch } = useGetAllSuperBrockerById(id);
+  const { mutate: updateSuperBrokerProfile, isPending: isUpdating } =
     useUpdateSuperBrokerProfile();
-  const {mutate: addCommission, isPending: isCommissionPending} =
+  const { mutate: addCommission, isPending: isCommissionPending } =
     useAddCommission();
 
-  const {data: ledgerDataFromApi, isLoading: isLoadingLedger} =
+  const { data: ledgerDataFromApi, isLoading: isLoadingLedger } =
     useGetSuperBrokerLedger(id);
 
   // Add this after the ledger hook
@@ -132,7 +132,7 @@ const SuperBrokerProfile = () => {
 
   // Initialize dates with current week range
   useEffect(() => {
-    const {startDate, endDate} = getCurrentWeekRange();
+    const { startDate, endDate } = getCurrentWeekRange();
     setLedgerStartDate(startDate);
     setLedgerEndDate(endDate);
     setPaymentStartDate(startDate);
@@ -289,24 +289,32 @@ const SuperBrokerProfile = () => {
   }, [paymentData]);
 
   const baseLedgerColumns = [
-    {header: 'Date & Time', accessor: 'dateTime'},
-    {header: 'Customer Name', accessor: 'customerName'},
-    {header: 'Script', accessor: 'script'},
-    {header: 'Qty/Lot', accessor: 'qty'},
-    {header: 'Buy Price', accessor: 'buyPrice'},
-    {header: 'Sell Price', accessor: 'sellPrice'},
-    {header: 'Status', accessor: 'status'},
-    {header: 'P&L', accessor: 'pnl'},
+    { header: 'Date & Time', accessor: 'dateTime' },
+    { header: 'Customer Name', accessor: 'customerName' },
+    { header: 'Script', accessor: 'script' },
+    { header: 'Qty/Lot', accessor: 'qty' },
+    {
+      header: 'Buy Price',
+      accessor: 'buyPrice',
+     
+    },
+
+    {
+      header: 'Sell Price', accessor: 'sellPrice'
+    },
+
+    { header: 'Status', accessor: 'status' },
+    { header: 'P&L', accessor: 'pnl' },
     // ];
 
     // const expandedLedgerColumns = [
-    {header: 'Buy Time', accessor: 'buyTime'},
-    {header: 'Sell Time', accessor: 'sellTime'},
-    {header: 'Super Broker commission', accessor: 'superBrokerCommission'},
+    { header: 'Buy Time', accessor: 'buyTime' },
+    { header: 'Sell Time', accessor: 'sellTime' },
+    { header: 'Super Broker commission', accessor: 'superBrokerCommission' },
   ];
 
   const paymentColumns = [
-    {header: 'S.No', accessor: 'sr'},
+    { header: 'S.No', accessor: 'sr' },
     {
       header: 'Date',
       accessor: 'date',
@@ -342,13 +350,12 @@ const SuperBrokerProfile = () => {
       accessor: 'status',
       render: (item: any) => (
         <span
-          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-            item.status === 'Paid'
-              ? 'bg-green-100 text-green-700'
-              : item.status === 'Pending'
-                ? 'bg-yellow-100 text-yellow-700'
-                : 'bg-gray-100 text-gray-700'
-          }`}
+          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${item.status === 'Paid'
+            ? 'bg-green-100 text-green-700'
+            : item.status === 'Pending'
+              ? 'bg-yellow-100 text-yellow-700'
+              : 'bg-gray-100 text-gray-700'
+            }`}
         >
           {item.status}
         </span>
@@ -365,13 +372,13 @@ const SuperBrokerProfile = () => {
         <span>
           {item?.date
             ? new Date(item.date).toLocaleString('en-IN', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit',
-                hour12: true,
-              })
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: 'numeric',
+              minute: '2-digit',
+              hour12: true,
+            })
             : '-'}
         </span>
       ),
@@ -392,12 +399,12 @@ const SuperBrokerProfile = () => {
         <span className="text-sm">
           {item.date
             ? new Date(item.date).toLocaleString('en-IN', {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              })
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })
             : '-'}
         </span>
       ),
@@ -436,12 +443,12 @@ const SuperBrokerProfile = () => {
         <span className="text-sm">
           {item.paidDate
             ? new Date(item.paidDate).toLocaleString('en-IN', {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              })
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })
             : '-'}
         </span>
       ),
@@ -451,13 +458,12 @@ const SuperBrokerProfile = () => {
       accessor: 'status',
       render: (item: any) => (
         <span
-          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-            item.status === 'Paid'
-              ? 'bg-green-100 text-green-700'
-              : item.status === 'Pending'
-                ? 'bg-yellow-100 text-yellow-700'
-                : 'bg-gray-100 text-gray-700'
-          }`}
+          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${item.status === 'Paid'
+            ? 'bg-green-100 text-green-700'
+            : item.status === 'Pending'
+              ? 'bg-yellow-100 text-yellow-700'
+              : 'bg-gray-100 text-gray-700'
+            }`}
         >
           {item.status}
         </span>
@@ -500,16 +506,16 @@ const SuperBrokerProfile = () => {
         </span>
       ),
     },
-    {
-      header: 'Total Brokers',
-      accessor: 'totalBrokers',
-      render: () => <span className="text-gray-700"></span>,
-    },
-    {
-      header: 'Total Business',
-      accessor: 'totalBusiness',
-      render: (item: any) => <span className="text-gray-700">-</span>,
-    },
+    // {
+    //   header: 'Total Brokers',
+    //   accessor: 'totalBrokers',
+    //   render: () => <span className="text-gray-700"></span>,
+    // },
+    // {
+    //   header: 'Total Business',
+    //   accessor: 'totalBusiness',
+    //   render: (item: any) => <span className="text-gray-700">-</span>,
+    // },
     {
       header: 'Total Commission',
       accessor: 'totalCommission',
@@ -523,8 +529,8 @@ const SuperBrokerProfile = () => {
   ];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const {name, value} = e.target;
-    setEditData((prev) => ({...prev, [name]: value}));
+    const { name, value } = e.target;
+    setEditData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSave = () => {
@@ -586,7 +592,7 @@ const SuperBrokerProfile = () => {
   };
 
   const handleBack = () => {
-    navigate({to: '/companybroker/DisplaySuperBroker'});
+    navigate({ to: '/companybroker/DisplaySuperBroker' });
   };
 
   const handleCommissionSubmit = async (e: React.FormEvent) => {
@@ -757,12 +763,12 @@ const SuperBrokerProfile = () => {
       if (accessor === 'createdAt') {
         return item.createdAt
           ? new Date(item.createdAt).toLocaleString('en-IN', {
-              day: '2-digit',
-              month: 'short',
-              year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-            })
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          })
           : '-';
       }
       if (accessor === 'amountValue') {
@@ -1149,15 +1155,14 @@ const SuperBrokerProfile = () => {
           <div className="flex">
             <button
               onClick={() => setActiveTab('ledger')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
-                activeTab === 'ledger'
-                  ? 'border-b-2 border-orange-500 text-orange-500'
-                  : 'text-bodydark2'
-              }`}
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'ledger'
+                ? 'border-b-2 border-orange-500 text-orange-500'
+                : 'text-bodydark2'
+                }`}
             >
               Ledger
             </button>
-            <button
+            {/* <button
               onClick={() => setActiveTab('payment')}
               className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
                 activeTab === 'payment'
@@ -1166,36 +1171,33 @@ const SuperBrokerProfile = () => {
               }`}
             >
               Payment History
-            </button>
+            </button> */}
 
             <button
               onClick={() => setActiveTab('paidHistory')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
-                activeTab === 'paidHistory'
-                  ? 'border-b-2 border-orange-500 text-orange-500'
-                  : 'text-bodydark2'
-              }`}
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'paidHistory'
+                ? 'border-b-2 border-orange-500 text-orange-500'
+                : 'text-bodydark2'
+                }`}
             >
               Paid History
             </button>
 
             <button
               onClick={() => setActiveTab('commission')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
-                activeTab === 'commission'
-                  ? 'border-b-2 border-orange-500 text-orange-500'
-                  : 'text-bodydark2'
-              }`}
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'commission'
+                ? 'border-b-2 border-orange-500 text-orange-500'
+                : 'text-bodydark2'
+                }`}
             >
               Commission History
             </button>
             <button
               onClick={() => setActiveTab('broker')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
-                activeTab === 'broker'
-                  ? 'border-b-2 border-orange-500 text-orange-500'
-                  : 'text-bodydark2'
-              }`}
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'broker'
+                ? 'border-b-2 border-orange-500 text-orange-500'
+                : 'text-bodydark2'
+                }`}
             >
               Brokers ({profileData?.brokers?.length || 0})
             </button>
@@ -1312,7 +1314,7 @@ const SuperBrokerProfile = () => {
                   {(paymentStartDate || paymentEndDate) && (
                     <button
                       onClick={() => {
-                        const {startDate, endDate} = getCurrentWeekRange();
+                        const { startDate, endDate } = getCurrentWeekRange();
                         setPaymentStartDate(startDate);
                         setPaymentEndDate(endDate);
                       }}
@@ -1364,7 +1366,7 @@ const SuperBrokerProfile = () => {
                   {(paidStartDate || paidEndDate) && (
                     <button
                       onClick={() => {
-                        const {startDate, endDate} = getCurrentWeekRange();
+                        const { startDate, endDate } = getCurrentWeekRange();
                         setPaidStartDate(startDate);
                         setPaidEndDate(endDate);
                       }}
@@ -1482,22 +1484,20 @@ const SuperBrokerProfile = () => {
               <button
                 type="button"
                 onClick={() => setCommissionType('credit')}
-                className={`rounded-lg py-2 text-sm font-semibold transition-all ${
-                  commissionType === 'credit'
-                    ? 'bg-white text-orange-500 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-800'
-                }`}
+                className={`rounded-lg py-2 text-sm font-semibold transition-all ${commissionType === 'credit'
+                  ? 'bg-white text-orange-500 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-800'
+                  }`}
               >
                 Credit (+)
               </button>
               <button
                 type="button"
                 onClick={() => setCommissionType('debit')}
-                className={`rounded-lg py-2 text-sm font-semibold transition-all ${
-                  commissionType === 'debit'
-                    ? 'bg-white text-orange-500 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-800'
-                }`}
+                className={`rounded-lg py-2 text-sm font-semibold transition-all ${commissionType === 'debit'
+                  ? 'bg-white text-orange-500 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-800'
+                  }`}
               >
                 Debit (-)
               </button>
