@@ -15,6 +15,10 @@ import {
   Edit,
   Trash,
   Calendar,
+  DollarSign,
+  TrendingUp,
+  Users,
+  Activity,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GenericTable from '@/components/Forms/Table/GenericTable';
@@ -24,8 +28,53 @@ import {
   useRejectWithdrawal,
 } from '@/lib/api/masterpanelapi/masterapi';
 
-import { MdTrendingUp, MdWarning, MdAdd } from 'react-icons/md';
-import StatsCard from '../wallettopupreport/StatsCard';
+// Simple Stat Card Component - Only title, value, and icon
+const StatCard = ({
+  title,
+  value,
+  icon: Icon,
+  iconColor = 'text-orange-500',
+}: {
+  title: string;
+  value: string | number;
+  icon: React.ElementType;
+  iconColor?: string;
+}) => {
+  // Map icon color to background color
+  const getBgColor = () => {
+    const colorMap: Record<string, string> = {
+      'text-orange-500': 'bg-orange-50',
+      'text-blue-500': 'bg-blue-50',
+      'text-green-500': 'bg-green-50',
+      'text-purple-500': 'bg-purple-50',
+      'text-red-500': 'bg-red-50',
+      'text-yellow-500': 'bg-yellow-50',
+      'text-pink-500': 'bg-pink-50',
+      'text-indigo-500': 'bg-indigo-50',
+      'text-teal-500': 'bg-teal-50',
+      'text-gray-500': 'bg-gray-50',
+    };
+    return colorMap[iconColor] || 'bg-gray-50';
+  };
+
+  return (
+    <div className="group relative overflow-hidden rounded-lg border border-stroke bg-white p-4 shadow-sm transition-all hover:shadow-md hover:border-orange-200 dark:border-strokedark dark:bg-boxdark md:p-5">
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <p className="text-gray-500 text-xs font-medium uppercase tracking-wider">
+            {title}
+          </p>
+          <h4 className="mt-2 text-xl font-bold text-black dark:text-white md:text-2xl">
+            {value}
+          </h4>
+        </div>
+        <div className={`rounded-lg p-2 transition-colors group-hover:bg-orange-50 ${getBgColor()}`}>
+          {Icon && <Icon className={`h-5 w-5 ${iconColor} md:h-6 md:w-6`} />}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // Types
 interface WithdrawalRequest {
@@ -95,17 +144,9 @@ export default function WithdrawalRequest() {
   const [showMobileFilter, setShowMobileFilter] = useState(false);
   const itemsPerPage = 5;
 
-  // Date filter states
-  const [fromDate, setFromDate] = useState(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return today.toISOString().split('T')[0];
-  });
-  const [toDate, setToDate] = useState(() => {
-    const today = new Date();
-    today.setHours(23, 59, 59, 999);
-    return today.toISOString().split('T')[0];
-  });
+  // Date filter states - Default to show all data (empty dates)
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
 
   // Format currency - Hide .00 if present
   const formatCurrency = (amount: any) => {
@@ -130,16 +171,43 @@ export default function WithdrawalRequest() {
     }).format(amount);
   };
 
-  // Date filtering logic
+  // Format number
+  const formatNumber = (num: number) => {
+    return new Intl.NumberFormat('en-IN').format(num);
+  };
+
+  // Format date and time - Date above, Time below
+  const formatDateTime = (dateTime: string) => {
+    if (!dateTime) return 'N/A';
+
+    const date = new Date(dateTime);
+    if (isNaN(date.getTime())) return 'N/A';
+
+    const formattedDate = date.toLocaleString('en-IN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+
+    const formattedTime = date.toLocaleString('en-IN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
+
+    return { date: formattedDate, time: formattedTime };
+  };
+
+  // Date filtering logic - If no dates selected, show all data
   const filterByDate = (dateString: string) => {
-    if (!dateString) return false;
+    if (!fromDate || !toDate) return true;
 
     const date = new Date(dateString);
     date.setHours(0, 0, 0, 0);
 
     const from = new Date(fromDate);
     from.setHours(0, 0, 0, 0);
-    
+
     const to = new Date(toDate);
     to.setHours(23, 59, 59, 999);
 
@@ -160,10 +228,7 @@ export default function WithdrawalRequest() {
         id: item.id,
         requestId: `REQ${String(index + 1).padStart(3, '0')}`,
         date: item.createdAt || new Date().toISOString().split('T')[0],
-        time: new Date(item.createdAt).toLocaleTimeString('en-IN', {
-          hour: '2-digit',
-          minute: '2-digit',
-        }),
+        time: item.createdAt || new Date().toISOString(),
 
         client: {
           name: item.customer?.user?.fullname || item.customerName || 'N/A',
@@ -211,9 +276,16 @@ export default function WithdrawalRequest() {
     }) || [];
   }, [withdrawal]);
 
+  // Get date-filtered data for cards and tab counts
+  const dateFilteredData = useMemo(() => {
+    return MOCK_DATA?.filter((req) => {
+      return filterByDate(req.date);
+    });
+  }, [MOCK_DATA, fromDate, toDate]);
+
   // Filter data based on active tab, search, and date
   const filteredData = useMemo(() => {
-    return MOCK_DATA?.filter((req) => {
+    return dateFilteredData?.filter((req) => {
       const matchesTab = activeTab === req.status;
       const matchesSearch =
         searchTerm === '' ||
@@ -222,16 +294,14 @@ export default function WithdrawalRequest() {
         req.amount.toString().includes(searchTerm) ||
         req.bank.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesDate = filterByDate(req.date);
-
-      return matchesTab && matchesSearch && matchesDate;
+      return matchesTab && matchesSearch;
     });
-  }, [MOCK_DATA, activeTab, searchTerm, fromDate, toDate]);
+  }, [dateFilteredData, activeTab, searchTerm]);
 
-  // Calculate period stats (Today, Week, Month)
+  // Calculate period stats (Today, Week, Month) - based on date filtered data
   const getPeriodStats = (period: 'today' | 'week' | 'month') => {
     const now = new Date();
-    const periodData = MOCK_DATA?.filter((req) => {
+    const periodData = dateFilteredData?.filter((req) => {
       const reqDate = new Date(req.date);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -260,20 +330,14 @@ export default function WithdrawalRequest() {
     return { totalAmount, count };
   };
 
-  // Calculate dynamic stats
+  // Calculate stats - based on date filtered data
   const stats = useMemo(() => {
-    // Total withdrawal amount (all time)
-    const totalWithdrawalAmount = MOCK_DATA?.reduce((sum, r) => sum + r.amount, 0) || 0;
-    const totalCount = MOCK_DATA?.length || 0;
+    const totalWithdrawalAmount = dateFilteredData?.reduce((sum, r) => sum + r.amount, 0) || 0;
+    const totalCount = dateFilteredData?.length || 0;
 
-    // Get period stats
     const todayStats = getPeriodStats('today');
     const weekStats = getPeriodStats('week');
     const monthStats = getPeriodStats('month');
-
-    // Filtered data stats (for current date range)
-    const filteredTotalAmount = filteredData?.reduce((sum, r) => sum + r.amount, 0) || 0;
-    const filteredTotalCount = filteredData?.length || 0;
 
     return {
       totalWithdrawalAmount,
@@ -281,32 +345,42 @@ export default function WithdrawalRequest() {
       todayStats,
       weekStats,
       monthStats,
-      filteredTotalAmount,
-      filteredTotalCount,
     };
-  }, [MOCK_DATA, filteredData]);
+  }, [dateFilteredData]);
 
-  // Get counts for each status
+  // Get counts for each status - based on date filtered data
   const statusCounts = useMemo(() => {
     return {
-      Pending: MOCK_DATA?.filter((r) => r.status === 'Pending').length,
-      Review: MOCK_DATA?.filter((r) => r.status === 'Review').length,
-      'On Hold': MOCK_DATA?.filter((r) => r.status === 'On Hold').length,
-      Approved: MOCK_DATA?.filter((r) => r.status === 'Approved').length,
-      Rejected: MOCK_DATA?.filter((r) => r.status === 'Rejected').length,
+      Pending: dateFilteredData?.filter((r) => r.status === 'Pending').length || 0,
+      Review: dateFilteredData?.filter((r) => r.status === 'Review').length || 0,
+      'On Hold': dateFilteredData?.filter((r) => r.status === 'On Hold').length || 0,
+      Approved: dateFilteredData?.filter((r) => r.status === 'Approved').length || 0,
+      Rejected: dateFilteredData?.filter((r) => r.status === 'Rejected').length || 0,
     };
-  }, [MOCK_DATA]);
+  }, [dateFilteredData]);
 
   const showActions = activeTab !== 'Approved' && activeTab !== 'Rejected';
 
-  // All columns - showing all data with 2 decimal places
+  // All columns - with Date above and Time below
   const allColumns = [
+    {
+      header: 'Date',
+      accessor: (row: WithdrawalRequest) => {
+        const formatted = formatDateTime(row.date);
+        return (
+          <div>
+            <div className="text-gray-900 text-sm">{formatted?.date || 'N/A'}</div>
+            <div className="text-gray-400 text-xs">{formatted?.time || ''}</div>
+          </div>
+        );
+      },
+    },
     {
       header: 'Trader Name',
       accessor: (row: WithdrawalRequest) => (
         <div className="flex items-center gap-3">
           <div>
-            <div className="text-gray-900 text-sm font-semibold">
+            <div className="text-gray-900 text-sm ">
               {row?.client?.name}
             </div>
           </div>
@@ -314,15 +388,9 @@ export default function WithdrawalRequest() {
       ),
     },
     {
-      header: 'Date',
-      accessor: (row: WithdrawalRequest) => (
-        <span className="text-gray-600 text-sm">{row.date}</span>
-      ),
-    },
-    {
       header: 'Wallet Balance',
       accessor: (row: WithdrawalRequest) => (
-        <div className="text-gray-900 text-left text-sm font-bold">
+        <div className="text-gray-900 text-left text-sm ">
           {formatCurrency(row.walletBalance)}
         </div>
       ),
@@ -330,15 +398,15 @@ export default function WithdrawalRequest() {
     {
       header: 'Withdraw Amount',
       accessor: (row: WithdrawalRequest) => (
-        <div className="text-left text-sm font-bold text-orange-500">
+        <div className="text-left text-sm  text-gray-900">
           {formatCurrency(row.amount)}
         </div>
       ),
     },
-    {
-      header: 'Status',
-      accessor: (row: WithdrawalRequest) => <StatusBadge status={row.status} />,
-    },
+    // {
+    //   header: 'Status',
+    //   accessor: (row: WithdrawalRequest) => <StatusBadge status={row.status} />,
+    // },
     ...(showActions
       ? [
         {
@@ -389,40 +457,32 @@ export default function WithdrawalRequest() {
     setSelectedRequests([]);
   };
 
-  // Stats Card data
-  const periodCardData = [
+  // Stats Card data - Simple with only title, value, icon
+  const statCards = [
     {
-      title: "Total Amount",
+      title: "Total Withdrawal Amount",
       value: formatIndianCurrency(stats.totalWithdrawalAmount),
-      change: `${stats.totalCount} total withdrawals`,
-      changeType: "neutral",
-      note: "all time",
-      icon: MdTrendingUp
+      icon: TrendingUp,
+      iconColor: "text-orange-500",
     },
     {
-      title: "Today",
-      value: formatIndianCurrency(stats.todayStats.totalAmount),
-      change: `${stats.todayStats.count} withdrawals today`,
-      changeType: "neutral",
-      note: "today",
-      icon: MdAdd
+      title: "Total Withdrawals",
+      value: formatNumber(stats.totalCount),
+      icon: DollarSign,
+      iconColor: "text-green-500",
     },
     {
-      title: "This Week",
-      value: formatIndianCurrency(stats.weekStats.totalAmount),
-      change: `${stats.weekStats.count} withdrawals this week`,
-      changeType: "warning",
-      note: "this week",
-      icon: MdWarning
+      title: "Today's Withdrawals",
+      value: `${formatNumber(stats.todayStats.count)} withdrawals`,
+      icon: Activity,
+      iconColor: "text-blue-500",
     },
     {
       title: "This Month",
       value: formatIndianCurrency(stats.monthStats.totalAmount),
-      change: `${stats.monthStats.count} withdrawals this month`,
-      changeType: "neutral",
-      note: "this month",
-      icon: MdTrendingUp
-    }
+      icon: Users,
+      iconColor: "text-purple-500",
+    },
   ];
 
   return (
@@ -461,17 +521,15 @@ export default function WithdrawalRequest() {
           </div>
         </div>
 
-        {/* Period Summary Cards */}
+        {/* Period Summary Cards - Simple design */}
         <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {periodCardData.map((card, index) => (
-            <StatsCard
+          {statCards.map((card, index) => (
+            <StatCard
               key={index}
               title={card.title}
               value={card.value}
-              change={card.change}
-              changeType={card.changeType}
-              note={card.note}
               icon={card.icon}
+              iconColor={card.iconColor}
             />
           ))}
         </div>
@@ -528,18 +586,16 @@ export default function WithdrawalRequest() {
                     }`}
                 >
                   {tab}
-                  {statusCounts[tab] > 0 && (
-                    <span
-                      className={`ml-2 rounded-md px-1.5 py-0.5 text-[10px] ${tab === 'Pending'
-                        ? 'bg-orange-50 text-orange-600'
-                        : tab === 'Approved'
-                          ? 'bg-emerald-50 text-emerald-600'
-                          : 'bg-red-50 text-red-600'
-                        }`}
-                    >
-                      {statusCounts[tab]}
-                    </span>
-                  )}
+                  <span
+                    className={`ml-2 rounded-md px-1.5 py-0.5 text-[10px] ${tab === 'Pending'
+                      ? 'bg-orange-50 text-orange-600'
+                      : tab === 'Approved'
+                        ? 'bg-emerald-50 text-emerald-600'
+                        : 'bg-red-50 text-red-600'
+                      }`}
+                  >
+                    {statusCounts[tab] || 0}
+                  </span>
                   {activeTab === tab && (
                     <motion.div
                       layoutId="activeTab"
@@ -550,74 +606,44 @@ export default function WithdrawalRequest() {
               ))}
             </div>
 
-            {/* Date Filters - On Right Side of Tabs */}
+            {/* Date Filters - Clean From/To only */}
             <div className="mb-2 flex flex-wrap items-center gap-2 pb-4 sm:pb-0">
-              <div className="flex items-center gap-2 bg-white rounded-lg border border-stroke px-2 py-1.5">
-                <Calendar className="text-gray-400 h-4 w-4" />
-                <input
-                  type="date"
-                  value={fromDate}
-                  onChange={(e) => setFromDate(e.target.value)}
-                  className="border-0 px-1 py-0.5 text-sm focus:outline-none focus:ring-0 w-28"
-                />
-                <span className="text-gray-400 text-sm">to</span>
-                <input
-                  type="date"
-                  value={toDate}
-                  onChange={(e) => setToDate(e.target.value)}
-                  className="border-0 px-1 py-0.5 text-sm focus:outline-none focus:ring-0 w-28"
-                />
+              <div className="flex items-center gap-2 bg-white rounded-lg border border-stroke px-3 py-2">
+                <Calendar className="text-orange-500 h-4 w-4" />
+                <div className="flex items-center gap-2">
+                  <label className="text-xs font-medium text-gray-600">From:</label>
+                  <input
+                    type="date"
+                    value={fromDate}
+                    onChange={(e) => setFromDate(e.target.value)}
+                    className="border-0 px-1 py-0.5 text-sm focus:outline-none focus:ring-0 w-32"
+                    placeholder="Start date"
+                  />
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <label className="text-xs font-medium text-gray-600">To:</label>
+                  <input
+                    type="date"
+                    value={toDate}
+                    onChange={(e) => setToDate(e.target.value)}
+                    className="border-0 px-1 py-0.5 text-sm focus:outline-none focus:ring-0 w-32"
+                    placeholder="End date"
+                  />
+                </div>
                 {(fromDate || toDate) && (
                   <button
                     onClick={() => {
-                      const today = new Date();
-                      const todayStr = today.toISOString().split('T')[0];
-                      setFromDate(todayStr);
-                      setToDate(todayStr);
+                      setFromDate('');
+                      setToDate('');
                     }}
-                    className="text-gray-400 hover:text-gray-600"
+                    className="text-gray-400 hover:text-gray-600 ml-1"
+                    title="Clear date filter"
                   >
                     <X className="h-4 w-4" />
                   </button>
                 )}
               </div>
-
-              {/* Quick filter buttons */}
-              <button
-                onClick={() => {
-                  const today = new Date();
-                  const todayStr = today.toISOString().split('T')[0];
-                  setFromDate(todayStr);
-                  setToDate(todayStr);
-                }}
-                className="text-xs font-medium text-orange-500 hover:text-orange-600 hover:underline whitespace-nowrap"
-              >
-                Today
-              </button>
-              <button
-                onClick={() => {
-                  const today = new Date();
-                  const weekAgo = new Date(today);
-                  weekAgo.setDate(today.getDate() - 7);
-                  setFromDate(weekAgo.toISOString().split('T')[0]);
-                  setToDate(today.toISOString().split('T')[0]);
-                }}
-                className="text-xs font-medium text-orange-500 hover:text-orange-600 hover:underline whitespace-nowrap"
-              >
-                7 Days
-              </button>
-              <button
-                onClick={() => {
-                  const today = new Date();
-                  const monthAgo = new Date(today);
-                  monthAgo.setMonth(today.getMonth() - 1);
-                  setFromDate(monthAgo.toISOString().split('T')[0]);
-                  setToDate(today.toISOString().split('T')[0]);
-                }}
-                className="text-xs font-medium text-orange-500 hover:text-orange-600 hover:underline whitespace-nowrap"
-              >
-                30 Days
-              </button>
 
               {/* Mobile Filter Button */}
               <button
@@ -762,39 +788,6 @@ export default function WithdrawalRequest() {
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-function SummaryCard({
-  title,
-  value,
-  subValue,
-  subValueColor = 'text-gray-400',
-  icon,
-}: {
-  title: string;
-  value: string;
-  subValue: string;
-  subValueColor?: string;
-  icon: React.ReactNode;
-}) {
-  return (
-    <div className="group flex items-start justify-between rounded-xl border border-stroke bg-white p-4 shadow-sm transition-colors hover:border-orange-200 sm:p-5 lg:p-6">
-      <div>
-        <p className="text-gray-400 mb-1 text-[10px] font-semibold uppercase tracking-wider sm:mb-2 sm:text-xs">
-          {title}
-        </p>
-        <h3 className="text-gray-900 mb-1 text-xl font-bold sm:text-2xl lg:text-3xl">
-          {value}
-        </h3>
-        <p className={`text-[9px] font-medium sm:text-xs ${subValueColor}`}>
-          {subValue}
-        </p>
-      </div>
-      <div className="bg-gray-50 rounded-lg p-1.5 transition-colors group-hover:bg-orange-50 sm:p-2">
-        {icon}
-      </div>
     </div>
   );
 }
