@@ -84,9 +84,9 @@ export default function BrokerCommissionHistory() {
         <span
           className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
             item.type === 'TRANSFER'
-              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
+              ? ' text-black  dark:text-blue-300'
               : item.type === 'CREDIT'
-                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                ? 'bg-green-100 text-black dark:text-green-300'
                 : item.type === 'DEBIT'
                   ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
                   : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300'
@@ -127,7 +127,7 @@ export default function BrokerCommissionHistory() {
       header: 'Type',
       accessor: 'type',
       render: () => (
-        <span className="inline-flex rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-800 dark:bg-green-900 dark:text-green-300">
+        <span className="inline-flex rounded-full  px-2 py-1 text-xs font-semibold text-black dark:bg-green-900 dark:text-green-300">
           PAID
         </span>
       ),
