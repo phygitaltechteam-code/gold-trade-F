@@ -643,7 +643,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       {/* Tooltip for collapsed sidebar */}
       {hoveredLabel && tooltipPos && !isExpanded && (
         <div
-          className="fixed z-[999] rounded-md bg-gray-800 px-3 py-1.5 text-xs font-medium text-white shadow-lg pointer-events-none"
+          className="fixed z-[999] rounded-md bg-gray-800 px-3 py-1.5 text-xs font-medium text-black shadow-lg pointer-events-none"
           style={{
             top: tooltipPos.top,
             left: tooltipPos.left,
