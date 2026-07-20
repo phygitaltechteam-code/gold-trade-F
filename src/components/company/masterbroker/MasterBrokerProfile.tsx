@@ -273,7 +273,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
 
   const baseLedgerColumns = [
     { header: 'Date & Time', accessor: 'dateTime' },
-    { header: 'Customer Name', accessor: 'customerName' },
+    { header: 'Trader Name', accessor: 'customerName' },
     { header: 'Script', accessor: 'script' },
     { header: 'Qty/Lot', accessor: (item) => formatQtyLot(item) },
     { header: 'Buy Price', accessor: 'buyPrice' },

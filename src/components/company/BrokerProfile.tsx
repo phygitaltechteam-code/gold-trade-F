@@ -614,7 +614,7 @@ const BrokerProfile = () => {
   // Base Ledger Columns - Cleaned with proper styling
   const baseLedgerColumns = [
     { header: 'Date & Time', accessor: 'dateTime' },
-    { header: 'Customer Name', accessor: 'customerName' },
+    { header: 'Trader Name', accessor: 'customerName' },
     { header: 'Script', accessor: 'script' },
     { header: 'Qty/Lot', accessor: 'qty' },
     { header: 'Buy Price', accessor: 'buyPrice' },

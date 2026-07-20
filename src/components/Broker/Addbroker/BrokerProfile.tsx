@@ -10,6 +10,7 @@ import {
 } from './brokerapi';
 import {useNavigate} from '@tanstack/react-router';
 import toast from 'react-hot-toast';
+import { formatIndianCurrency } from '@/utils/formatIndianNumber';
 
 const BrokerProfile = () => {
   const {id} = Route.useParams();
@@ -543,7 +544,7 @@ const BrokerProfile = () => {
         </div>
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-green-500 md:text-2xl">
-            ₹{cardData?.summary?.totalCommission?.toLocaleString() || '0'}
+            ₹{formatIndianCurrency(cardData?.summary?.totalCommission) || '0'}
           </h4>
           <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
             Total Commission
@@ -551,7 +552,7 @@ const BrokerProfile = () => {
         </div>
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-orange-500 md:text-2xl">
-            ₹{cardData?.summary?.paidCommission?.toLocaleString() || '0'}
+            ₹{formatIndianCurrency(cardData?.summary?.paidCommission) || '0'}
           </h4>
           <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
             Paid Commission
@@ -559,7 +560,7 @@ const BrokerProfile = () => {
         </div>
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-orange-500 md:text-2xl">
-            ₹{cardData?.summary?.pendingCommission?.toLocaleString() || '0'}
+            ₹{formatIndianCurrency(cardData?.summary?.pendingCommission) || '0'}
           </h4>
           <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
             Pending Commission
