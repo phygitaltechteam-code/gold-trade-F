@@ -220,6 +220,11 @@ const DisplayMasterBroker = ({refreshTrigger}) => {
     //   ),
     // },
     {
+      header:'Active Trader',
+      accessor:'activeCustomerCount'
+
+    },
+    {
       header: 'Status',
       accessor: 'isActive',
       render: (row) => {

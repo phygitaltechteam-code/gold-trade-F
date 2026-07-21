@@ -2,6 +2,7 @@ import React, {useState, useMemo} from 'react';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import {useGetSuperBrokerHistory} from './SBHistoryApi';
 import {useGetBrokerHistory} from './setting/SBHistoryApi';
+import { formatIndianCurrency } from '@/utils/formatIndianNumber';
 
 // Format date function
 const formatDateTime = (dateString: string) => {
@@ -114,7 +115,7 @@ export default function BrokerCommissionHistory() {
             : item.type === 'DEBIT'
               ? '-'
               : ''}{' '}
-          ₹{parseFloat(item.amount).toLocaleString('en-IN')}
+          {formatIndianCurrency(item.amount)}
         </span>
       ),
     },
@@ -137,7 +138,7 @@ export default function BrokerCommissionHistory() {
       accessor: 'amount',
       render: (item: any) => (
         <span className=" text-black">
-          ₹{parseFloat(item.amount).toLocaleString('en-IN')}
+          {formatIndianCurrency(item.amount)}
         </span>
       ),
     },
@@ -201,7 +202,7 @@ export default function BrokerCommissionHistory() {
             Total Commission
           </span>
           <h4 className="mt-2 text-2xl font-bold  text-black">
-            ₹{totalCommission.toLocaleString()}
+            ₹{formatIndianCurrency(totalCommission)}
           </h4>
         </div>
         <div className="flex flex-col rounded-xl border border-stroke bg-white p-6 shadow-default transition-shadow hover:shadow-md dark:border-strokedark dark:bg-boxdark">
@@ -209,7 +210,7 @@ export default function BrokerCommissionHistory() {
             Total Paid
           </span>
           <h4 className="mt-2 text-2xl font-bold text-black">
-            ₹{totalPaid.toLocaleString()}
+            ₹{formatIndianCurrency(totalPaid)}
           </h4>
         </div>
         <div className="flex flex-col rounded-xl border border-stroke bg-white p-6 shadow-default transition-shadow hover:shadow-md dark:border-strokedark dark:bg-boxdark">
@@ -217,7 +218,7 @@ export default function BrokerCommissionHistory() {
             Pending Commission
           </span>
           <h4 className="mt-2 text-2xl font-bold  text-black">
-            ₹{pendingCommission.toLocaleString()}
+            ₹{formatIndianCurrency(pendingCommission)}
           </h4>
         </div>
       </div>

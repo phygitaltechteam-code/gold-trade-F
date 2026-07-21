@@ -270,7 +270,7 @@ const BrokerDashboard: React.FC = () => {
         {/* Row 1: Customer Statistics - Broker's Downline */}
         <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
           <StatCard
-            title="My Customers"
+            title="My Traders"
             value={formatNumber(dashboardStats.noOfCustomer)}
             // subValue={`${dashboardStats.activeCustomers} Active`}
             icon={Users}

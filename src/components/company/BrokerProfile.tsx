@@ -21,7 +21,7 @@ import {
 } from '@/lib/api/addbroker';
 import { Route } from '@/routes/_app/companybroker/BrokerProfile.$id';
 import { Client } from '../Clients/types';
-import { formatIndianNumber } from '@/utils/formatIndianNumber';
+import { formatIndianNumber, formatIndianCurrency } from '@/utils/formatIndianNumber';
 
 // Format date function
 const formatDateTime = (dateString: string) => {
@@ -611,27 +611,58 @@ const BrokerProfile = () => {
     }, 1000);
   };
 
-  // Base Ledger Columns - Cleaned with proper styling
+
+
+  // Base Ledger Columns
   const baseLedgerColumns = [
     { header: 'Date & Time', accessor: 'dateTime' },
-    { header: 'Customer Name', accessor: 'customerName' },
+    { header: 'Trader Name', accessor: 'customerName' },
     { header: 'Script', accessor: 'script' },
     { header: 'Qty/Lot', accessor: 'qty' },
-    { header: 'Buy Price', accessor: 'buyPrice' },
-    { header: 'Sell Price', accessor: 'sellPrice' },
+    {
+      header: 'Buy Price',
+      accessor: 'buyPrice',
+      render: (item: any) => <span className="font-medium">{formatIndianCurrency(item.buyPrice) || '-'}</span>
+    },
+    {
+      header: 'Sell Price',
+      accessor: 'sellPrice',
+      render: (item: any) => <span className="font-medium">{formatIndianCurrency(item.sellPrice) || '-'}</span>
+    },
     { header: 'Status', accessor: 'status' },
-    { header: 'P&L', accessor: 'pnl' },
-    // ];
-
-    // // Expanded Ledger Columns
-    // const expandedLedgerColumns = [
-    { header: 'Buy Time', accessor: 'buyTime' },
-    { header: 'Sell Time', accessor: 'sellTime' },
-    { header: 'Broker commission', accessor: 'brokerCommission' },
+    {
+      header: 'P&L',
+      accessor: 'pnl',
+      render: (item: any) => {
+        const pnl = item.pnl || '-';
+        const isPositive = typeof pnl === 'string' && pnl.startsWith('+');
+        const isNegative = typeof pnl === 'string' && pnl.startsWith('-');
+        return (
+          <span className={`font-semibold ${isPositive ? 'text-green-600' : isNegative ? 'text-red-600' : 'text-gray-600'}`}>
+            {formatIndianCurrency(pnl)}
+          </span>
+        );
+      }
+    },
+    {
+      header: 'Buy Time',
+      accessor: 'buyTime',
+      render: (item: any) => <span>{item.buyTime || '-'}</span>
+    },
+    {
+      header: 'Sell Time',
+      accessor: 'sellTime',
+      render: (item: any) => <span>{item.sellTime || '-'}</span>
+    },
+    {
+      header: 'Broker Commission',
+      accessor: 'brokerCommission',
+      render: (item: any) => <span className="font-medium">{formatIndianCurrency(item.brokerCommission) || '-'}</span>
+    },
   ];
 
+  // Paid Columns with proper formatting
   const paidColumns = [
-    // { header: 'S.No', accessor: 'srNo' },
     {
       header: 'Date',
       accessor: 'date',
@@ -653,10 +684,15 @@ const BrokerProfile = () => {
     {
       header: 'Amount',
       accessor: 'amount',
-      render: (item: any) => <span>₹{formatIndianNumber(item?.amount)} </span>,
+      render: (item: any) => (
+        <span className="font-semibold">
+          {formatIndianCurrency(item?.amount)}
+        </span>
+      ),
     },
   ];
-  // Payment Columns - Cleaned
+
+  // Payment Columns with proper formatting
   const paymentColumns = [
     {
       header: 'Date',
@@ -667,21 +703,27 @@ const BrokerProfile = () => {
       header: 'Commission Generated',
       accessor: 'commissionGenerated',
       render: (item: any) => (
-        <span>₹{item.commissionGenerated?.toLocaleString() || '0'}</span>
+        <span className="font-medium">
+          {formatIndianCurrency(item.commissionGenerated)}
+        </span>
       ),
     },
     {
       header: 'Pending Commission',
       accessor: 'pendingGenerated',
       render: (item: any) => (
-        <span>₹{item.pendingGenerated?.toLocaleString() || '0'}</span>
+        <span className="font-medium">
+          {formatIndianCurrency(item.pendingGenerated)}
+        </span>
       ),
     },
     {
       header: 'Paid Commission',
       accessor: 'paidCommission',
       render: (item: any) => (
-        <span>₹{item.paidCommission?.toLocaleString() || '0'}</span>
+        <span className="font-medium">
+          {formatIndianCurrency(item.paidCommission)}
+        </span>
       ),
     },
     {
@@ -694,10 +736,10 @@ const BrokerProfile = () => {
       render: (item: any) => (
         <span
           className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${item.status === 'Paid'
-              ? 'bg-green-100 text-green-700'
-              : item.status === 'Pending'
-                ? 'bg-yellow-100 text-yellow-700'
-                : 'bg-gray-100 text-gray-700'
+            ? 'bg-green-100 text-green-700'
+            : item.status === 'Pending'
+              ? 'bg-yellow-100 text-yellow-700'
+              : 'bg-gray-100 text-gray-700'
             }`}
         >
           {item.status}
@@ -706,16 +748,31 @@ const BrokerProfile = () => {
     },
   ];
 
-  // Commission History Columns
+  // Commission History Columns with proper formatting
   const commissionColumns = [
-    { header: 'Date & Time', accessor: 'date' },
-
+    {
+      header: 'Date & Time',
+      accessor: 'date',
+      render: (item: any) => (
+        <span className="text-sm">
+          {item.date
+            ? new Date(item.date).toLocaleString('en-IN', {
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })
+            : '-'}
+        </span>
+      ),
+    },
     {
       header: 'Generated Commission (₹)',
       accessor: 'commissionGenerated',
       render: (item: any) => (
         <span className="text-gray-900 text-sm font-semibold">
-          ₹{item.commissionGenerated.toLocaleString('en-IN')}
+          {formatIndianCurrency(item.commissionGenerated)}
         </span>
       ),
     },
@@ -724,7 +781,7 @@ const BrokerProfile = () => {
       accessor: 'paidCommission',
       render: (item: any) => (
         <span className="text-gray-900 text-sm font-semibold">
-          ₹{item.paidCommission.toLocaleString('en-IN')}
+          {formatIndianCurrency(item.paidCommission)}
         </span>
       ),
     },
@@ -733,7 +790,7 @@ const BrokerProfile = () => {
       accessor: 'pendingCommission',
       render: (item: any) => (
         <span className="text-gray-900 text-sm font-semibold">
-          ₹{item.pendingCommission.toLocaleString('en-IN')}
+          {formatIndianCurrency(item.pendingCommission)}
         </span>
       ),
     },
@@ -760,10 +817,10 @@ const BrokerProfile = () => {
       render: (item: any) => (
         <span
           className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${item.status === 'Paid'
-              ? 'bg-green-100 text-green-700'
-              : item.status === 'Pending'
-                ? 'bg-yellow-100 text-yellow-700'
-                : 'bg-gray-100 text-gray-700'
+            ? 'bg-green-100 text-green-700'
+            : item.status === 'Pending'
+              ? 'bg-yellow-100 text-yellow-700'
+              : 'bg-gray-100 text-gray-700'
             }`}
         >
           {item.status}
@@ -772,18 +829,54 @@ const BrokerProfile = () => {
     },
   ];
 
-  // Customer Columns - Cleaned
+  // Customer/Trader Columns with proper formatting
   const customerColumns = [
-    { header: 'Trader Name', accessor: 'tradername' },
-    { header: 'Wallet Balance', accessor: 'walletBalance' },
-    { header: 'Asset Under Control', accessor: 'assetUnderControl' },
-    { header: 'Margin Amount', accessor: 'marginAmount' },
-    { header: 'Total Active Trade', accessor: 'totalActiveUsers' },
-    { header: 'Total Trade', accessor: 'totalTrade' },
+    {
+      header: 'Trader Name',
+      accessor: 'tradername',
+      render: (item: any) => (
+        <span className="font-semibold">{item.tradername || '-'}</span>
+      ),
+    },
+    {
+      header: 'Wallet Balance',
+      accessor: 'walletBalance',
+      render: (item: any) => (
+        <span className="font-medium">{formatIndianCurrency(item.walletBalance)}</span>
+      ),
+    },
+    {
+      header: 'Asset Under Control',
+      accessor: 'assetUnderControl',
+      render: (item: any) => (
+        <span className="font-medium">{formatIndianCurrency(item.assetUnderControl)}</span>
+      ),
+    },
+    {
+      header: 'Margin Amount',
+      accessor: 'marginAmount',
+      render: (item: any) => (
+        <span className="font-medium">{formatIndianCurrency(item.marginAmount)}</span>
+      ),
+    },
+    {
+      header: 'Total Active Trade',
+      accessor: 'totalActiveUsers',
+      render: (item: any) => (
+        <span className="font-medium">{item.totalActiveUsers || 0}</span>
+      ),
+    },
+    {
+      header: 'Total Trade',
+      accessor: 'totalTrade',
+      render: (item: any) => (
+        <span className="font-medium">{formatIndianCurrency(item.totalTrade)}</span>
+      ),
+    },
     {
       header: 'Demo Account',
       accessor: 'isDemo',
-      render: (row: Client) => (
+      render: (row: any) => (
         <div className="pointer-events-none">
           <input
             type="checkbox"
@@ -1145,8 +1238,8 @@ const BrokerProfile = () => {
             <button
               onClick={() => setActiveTab('ledger')}
               className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'ledger'
-                  ? 'border-b-2 border-orange-500 text-orange-500'
-                  : 'text-bodydark2'
+                ? 'border-b-2 border-orange-500 text-orange-500'
+                : 'text-bodydark2'
                 }`}
             >
               Ledger
@@ -1154,8 +1247,8 @@ const BrokerProfile = () => {
             <button
               onClick={() => setActiveTab('payment')}
               className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'payment'
-                  ? 'border-b-2 border-orange-500 text-orange-500'
-                  : 'text-bodydark2'
+                ? 'border-b-2 border-orange-500 text-orange-500'
+                : 'text-bodydark2'
                 }`}
             >
               Payment History
@@ -1164,8 +1257,8 @@ const BrokerProfile = () => {
             <button
               onClick={() => setActiveTab('paid')}
               className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'paid'
-                  ? 'border-b-2 border-orange-500 text-orange-500'
-                  : 'text-bodydark2'
+                ? 'border-b-2 border-orange-500 text-orange-500'
+                : 'text-bodydark2'
                 }`}
             >
               Paid History
@@ -1173,8 +1266,8 @@ const BrokerProfile = () => {
             <button
               onClick={() => setActiveTab('commission')}
               className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'commission'
-                  ? 'border-b-2 border-orange-500 text-orange-500'
-                  : 'text-bodydark2'
+                ? 'border-b-2 border-orange-500 text-orange-500'
+                : 'text-bodydark2'
                 }`}
             >
               Commission History
@@ -1183,8 +1276,8 @@ const BrokerProfile = () => {
             <button
               onClick={() => setActiveTab('customer')}
               className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'customer'
-                  ? 'border-b-2 border-orange-500 text-orange-500'
-                  : 'text-bodydark2'
+                ? 'border-b-2 border-orange-500 text-orange-500'
+                : 'text-bodydark2'
                 }`}
             >
               Trader ({profileData?.customers?.length || 0})
@@ -1448,8 +1541,8 @@ const BrokerProfile = () => {
                 type="button"
                 onClick={() => setCommissionType('credit')}
                 className={`rounded-lg py-2 text-sm font-semibold transition-all ${commissionType === 'credit'
-                    ? 'bg-white text-orange-500 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-800'
+                  ? 'bg-white text-orange-500 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-800'
                   }`}
               >
                 Credit (+)
@@ -1458,8 +1551,8 @@ const BrokerProfile = () => {
                 type="button"
                 onClick={() => setCommissionType('debit')}
                 className={`rounded-lg py-2 text-sm font-semibold transition-all ${commissionType === 'debit'
-                    ? 'bg-white text-orange-500 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-800'
+                  ? 'bg-white text-orange-500 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-800'
                   }`}
               >
                 Debit (-)
