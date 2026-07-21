@@ -72,6 +72,8 @@ interface DepositRequest {
   date: string;
   time: string;
   customerName: string;
+  superBroker?: string;
+  broker?: string;
   amount: number;
   type: string;
   balanceAfter: number;
@@ -232,19 +234,22 @@ export default function DepositeCompany() {
       ),
     },
     
-    {
-      header: 'Super Broker ',
-      accessor: (row: DepositRequest) => (
-        <div className="text-gray-900 text-sm">{row?.superBroker}</div>
-      ),
-    },
-    
-    {
-      header: 'Broker',
-      accessor: (row: DepositRequest) => (
-        <div className="text-gray-900 text-sm">{row?.broker}</div>
-      ),
-    },
+   {
+  header: 'Super Broker',
+  accessor: (row: DepositRequest) => (
+    <div className="text-gray-900 text-sm">
+      {row?.customer?.broker?.superBroker?.user?.fullname || '-'}
+    </div>
+  ),
+},
+{
+  header: 'Broker',
+  accessor: (row: DepositRequest) => (
+    <div className="text-gray-900 text-sm">
+      {row?.customer?.broker?.user?.fullname || '-'}
+    </div>
+  ),
+},
     {
       header: 'Amount',
       accessor: (row: DepositRequest) => (

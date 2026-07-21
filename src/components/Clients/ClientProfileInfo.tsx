@@ -50,7 +50,7 @@ export const ClientProfileInfo: React.FC<ClientProfileInfoProps> = ({
   console.log("editData",editData?.stockHoldingLimit, "stockHoldingLimit")
   console.log("edit data ", editData)
   return (
-    <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+    <div className="rounded-lg border border-stroke  shadow-default dark:border-strokedark dark:bg-boxdark bg-[#f8fafc]">
       <div className="flex flex-wrap items-center justify-between rounded-t-lg border-b border-stroke bg-gradient-to-r from-orange-500 to-red-500 px-4 py-3 md:px-6 md:py-4">
         <h2 className="text-lg font-semibold text-white md:text-xl">
           Trader Profile

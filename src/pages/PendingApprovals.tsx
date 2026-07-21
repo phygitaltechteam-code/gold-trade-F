@@ -788,7 +788,7 @@ const PendingApprovals: React.FC = () => {
   }).length;
 
   return (
-    <div className="bg-gray-50/50 font-inter min-h-screen p-4 md:p-6 lg:p-8">
+    <div className="bg-gray-50/50 font-inter min-h-screen p-4 md:p-6 lg:p-8 bg-[#f8fafc]">
       <div className="mx-auto max-w-[2000px]">
         {/* Header */}
         <div className="mb-6 md:mb-8">
@@ -889,8 +889,7 @@ const PendingApprovals: React.FC = () => {
                   />
                 </div>
 
-                <div className="relative">
-                  <Filter className="text-gray-400 absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2" />
+                <div className="relative ">
                   <select
                     value={selectedSuperBroker}
                     onChange={(e) => setSelectedSuperBroker(e.target.value)}
@@ -906,7 +905,6 @@ const PendingApprovals: React.FC = () => {
                 </div>
 
                 <div className="relative">
-                  <Filter className="text-gray-400 absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2" />
                   <select
                     value={selectedBroker}
                     onChange={(e) => setSelectedBroker(e.target.value)}

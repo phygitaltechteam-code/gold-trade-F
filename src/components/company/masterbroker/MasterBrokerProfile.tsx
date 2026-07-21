@@ -556,7 +556,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
   };
 
   return (
-    <div className="max-w-9xl mx-auto p-4 md:p-6">
+    <div className="max-w-9xl mx-auto p-4 md:p-6 bg-[#f8fafc]">
       {/* Back Button */}
       <div className="mb-4">
         <button
@@ -564,7 +564,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
           className="text-gray-700 hover:bg-gray-50 flex items-center gap-2 rounded-lg border border-stroke bg-white px-4 py-2 text-sm font-medium transition-all hover:text-orange-500"
         >
           <FiArrowLeft className="h-4 w-4" />
-          Back to Master Brokers.
+          Back to Master Brokers
         </button>
       </div>
 

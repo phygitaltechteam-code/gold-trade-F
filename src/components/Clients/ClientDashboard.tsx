@@ -430,7 +430,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
     <motion.div
       initial={{opacity: 0, y: 20}}
       animate={{opacity: 1, y: 0}}
-      className="max-w-9xl mx-auto px-4 py-6 md:px-6 md:py-8"
+      className="max-w-9xl mx-auto px-4 py-6 md:px-6 md:py-8 bg-[#f8fafc]"
     >
       {/* Header */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4 md:mb-8">
@@ -538,11 +538,11 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
           {/* Search Bar */}
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Search by Name, Email, Phone or CRN..."
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-4 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 md:py-3 md:pl-10"
+              className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 md:py-3 md:pl-10"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />

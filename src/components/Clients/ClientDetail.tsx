@@ -551,7 +551,7 @@ const handleWalletSubmit = async (e: React.FormEvent) => {
     <motion.div
       initial={{opacity: 0, x: 20}}
       animate={{opacity: 1, x: 0}}
-      className="max-w-9xl mx-auto px-4 py-6 md:px-6 md:py-8"
+      className="max-w-9xl mx-auto px-4 py-6 md:px-6 md:py-8 bg-[#f8fafc]"
     >
       {/* Header */}
       <div className="mb-6 flex flex-col justify-between gap-4 md:mb-8 md:flex-row md:items-center">

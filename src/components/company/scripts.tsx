@@ -284,7 +284,7 @@ export const DisplayScripts: React.FC = () => {
 
   return (
     <>
-      <div className="p-4 sm:p-6 lg:p-8">
+      <div className="p-4 sm:p-6 lg:p-8 bg-[#f8fafc]">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <div>
             <h1 className="text-black text-2xl font-semibold">
