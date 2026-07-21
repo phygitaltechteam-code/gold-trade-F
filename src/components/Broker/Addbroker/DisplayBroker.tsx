@@ -112,7 +112,7 @@ const DisplayBroker = ({refreshTrigger, onBrokerAdded}) => {
   ];
 
   return (
-    <div className="p-4">
+    <div className="p-4 bg-[#f8fafc]">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-gray-700 text-xl font-semibold">
           {isSuperBroker ? 'Broker List' : 'My Brokers'}
