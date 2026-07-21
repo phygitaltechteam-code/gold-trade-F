@@ -979,7 +979,7 @@ const BrokerProfile = () => {
   };
 
   return (
-    <div className="max-w-9xl mx-auto p-4 md:p-6">
+    <div className="max-w-9xl mx-auto p-4 md:p-6 bg-[#f8fafc] ">
       {/* Back Button */}
       <div className="mb-4">
         <button
