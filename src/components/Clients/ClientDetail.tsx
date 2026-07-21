@@ -461,9 +461,9 @@ const handleWalletSubmit = async (e: React.FormEvent) => {
       });
     }
 
-    toast.success(
-      `₹${walletAmount} ${walletActionType === 'add' ? 'deposited' : 'withdrawn'} successfully!`,
-    );
+    // toast.success(
+    //   `₹${walletAmount} ${walletActionType === 'add' ? 'deposited' : 'withdrawn'} successfully!`,
+    // );
 
     refetch(); // optional if you want latest wallet value immediately
 
@@ -511,7 +511,7 @@ const handleWalletSubmit = async (e: React.FormEvent) => {
         securityPin: marginPin,
       });
 
-      toast.success('Margin added successfully!');
+      // toast.success('Margin added successfully!');
 
       setIsMarginModalOpen(false);
       setIntradayMargin('');
