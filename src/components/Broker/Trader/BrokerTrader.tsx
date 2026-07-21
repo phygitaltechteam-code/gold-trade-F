@@ -432,7 +432,7 @@ export const BrokerTrader: React.FC<ClientDashboardProps> = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-9xl mx-auto px-4 py-6 md:px-6 md:py-8"
+      className="max-w-9xl mx-auto px-4 py-6 md:px-6 md:py-8 bg-[#f8fafc]"
     >
       {/* Header */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4 md:mb-8">
