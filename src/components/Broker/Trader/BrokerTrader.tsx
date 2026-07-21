@@ -22,6 +22,7 @@ import { useActivateCustomer, useGetClients } from '@/lib/react-query/client';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import { useBrokerGetAllSuperBrocker, useGetBrokerClients } from './broekrtradermutaion';
 import { Client } from '../Customer/Customertypes';
+import { formatIndianCurrency } from '@/utils/formatIndianNumber';
 
 interface ClientDashboardProps {
   onSelectClient?: (client: Client) => void;
@@ -431,7 +432,7 @@ export const BrokerTrader: React.FC<ClientDashboardProps> = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-9xl mx-auto px-4 py-6 md:px-6 md:py-8"
+      className="max-w-9xl mx-auto px-4 py-6 md:px-6 md:py-8 bg-[#f8fafc]"
     >
       {/* Header */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4 md:mb-8">
@@ -484,14 +485,14 @@ export const BrokerTrader: React.FC<ClientDashboardProps> = () => {
         /> */}
         <StatCard
           title="Wallet Balance"
-          value={Number(totalWalletBalance > 0 ? totalWalletBalance : 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          value={formatIndianCurrency(totalWalletBalance)}
           // subtext="Total volume"
           icon={Briefcase}
           isLoading={isLoading}
         />
         <StatCard
           title="Assets Under Contoll"
-          value={Number(assetUnderControll > 0 ? assetUnderControll : 0).toLocaleString('en-IN', { minimumFractionDigits: assetUnderControll > 0 ? 2 : 0, maximumFractionDigits: assetUnderControll > 0 ? 2 : 0 })}
+          value={formatIndianCurrency(assetUnderControll)}
           // subtext="Total volume"
           icon={Briefcase}
           isLoading={isLoading}
@@ -513,14 +514,14 @@ export const BrokerTrader: React.FC<ClientDashboardProps> = () => {
 
         <StatCard
           title="Total Margin Amount"
-          value={Number(totalMarginAmount > 0 ? totalMarginAmount : 0).toLocaleString('en-IN', { minimumFractionDigits: totalMarginAmount > 0 ? 2 : 0, maximumFractionDigits: totalMarginAmount > 0 ? 2 : 0 })}
+          value={formatIndianCurrency(totalMarginAmount)}
           // subtext="Assets under mgmt"
           icon={Wallet}
           isLoading={isLoading}
         />
         <StatCard
           title="Total Trades"
-          value={Number(totalTrades > 0 ? totalTrades : 0).toLocaleString('en-IN', { minimumFractionDigits: totalTrades > 0 ? 2 : 0, maximumFractionDigits: totalTrades > 0 ? 2 : 0 })}
+          value={totalTrades}
           // subtext="Latest client"
           icon={DollarSign}
           isLoading={isLoading}

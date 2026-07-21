@@ -19,7 +19,7 @@ import { CommissionTab } from './CommissionTab';
 import { BrokersTab } from './BrokersTab';
 import { CommissionModal } from './CommissionModal';
 import GenericTable from '@/components/Forms/Table/GenericTable';
-import { formatIndianNumber } from '@/utils/formatIndianNumber';
+import { formatIndianCurrency, formatIndianNumber } from '@/utils/formatIndianNumber';
 
 interface MasterBrokerProfileProps {
   id: string;
@@ -198,7 +198,6 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
 
   // Customer Table Columns - Same as Broker Profile
   const customerColumns = [
-
     {
       header: 'Trader Name',
       accessor: 'user.fullname',
@@ -247,7 +246,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
       accessor: 'totalBusiness',
       render: (item: any) => (
         <span className="font-semibold text-gray-700">
-          ₹{item?.totalBusiness?.toLocaleString() || '0'}
+          {formatIndianCurrency(item?.totalBusiness)}
         </span>
       ),
     },
@@ -256,7 +255,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
       accessor: 'totalCommission',
       render: (item: any) => (
         <span className="font-semibold text-green-600">
-          ₹{item?.totalCommission?.toLocaleString() || '0'}
+          {formatIndianCurrency(item?.totalCommission)}
         </span>
       ),
     },
@@ -265,91 +264,65 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
       accessor: 'pendingCommission',
       render: (item: any) => (
         <span className="font-semibold text-orange-500">
-          ₹{item?.pendingCommission?.toLocaleString() || '0'}
+          {formatIndianCurrency(item?.pendingCommission)}
         </span>
       ),
     },
   ];
 
+  // Base Ledger Columns with proper formatting
   const baseLedgerColumns = [
     { header: 'Date & Time', accessor: 'dateTime' },
-    { header: 'Customer Name', accessor: 'customerName' },
+    { header: 'Trader Name', accessor: 'customerName' },
     { header: 'Script', accessor: 'script' },
-    { header: 'Qty/Lot', accessor: (item) => formatQtyLot(item) },
-    { header: 'Buy Price', accessor: 'buyPrice' },
-    { header: 'Sell Price', accessor: 'sellPrice' },
+    {
+      header: 'Qty/Lot',
+      accessor: (item) => formatQtyLot(item),
+      render: (item: any) => <span>{formatQtyLot(item)}</span>
+    },
+    {
+      header: 'Buy Price',
+      accessor: 'buyPrice',
+      render: (item: any) => <span className="font-medium">{item.buyPrice || '-'}</span>
+    },
+    {
+      header: 'Sell Price',
+      accessor: 'sellPrice',
+      render: (item: any) => <span className="font-medium">{item.sellPrice || '-'}</span>
+    },
     { header: 'Status', accessor: 'status' },
-    { header: 'P&L', accessor: (item) => formatPnL(item) },
-
-    // ];
-
-    // const expandedLedgerColumns = [
-
-
-
-
-
-
-    { header: 'Buy Time', accessor: 'buyTime' },
-    { header: 'Sell Time', accessor: 'sellTime' },
-
-    { header: 'Master Broker Commission', accessor: 'masterBrokerCommission' },
-    // {header: 'Super Broker Commission', accessor: 'superBrokerCommission'},
-    // {header: 'Broker Commission', accessor: 'brokerCommission'},
-  ];
-
-  // const ledgerColumns = isLedgerExpanded
-  //   ? expandedLedgerColumns
-  //   : baseLedgerColumns;
-
-  const paymentColumns = [
-    { header: 'Date', accessor: 'date' },
-    { header: 'Commission Generated', accessor: 'commissionGenerated' },
-    { header: 'Paid Amount', accessor: 'paidAmount' },
-    { header: 'Paid Date', accessor: 'paidDate' },
-    { header: 'Status', accessor: 'status' },
-  ];
-
-  // Commission History Columns
-  const commissionColumns = [
-
     {
-      header: 'Date & Time',
-      accessor: 'createdAt',
-      render: (item: any) => (
-        <span className="text-sm">
-          {item.createdAt
-            ? new Date(item.createdAt).toLocaleString('en-IN', {
-              day: '2-digit',
-              month: 'short',
-              year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-            })
-            : '-'}
-        </span>
-      ),
+      header: 'P&L',
+      accessor: (item) => formatPnL(item),
+      render: (item: any) => {
+        const pnl = item.pnl || item['p&l'] || 0;
+        const isPositive = pnl > 0;
+        const isNegative = pnl < 0;
+        return (
+          <span className={`font-semibold ${isPositive ? 'text-green-600' : isNegative ? 'text-red-600' : 'text-gray-600'}`}>
+            {formatPnL(item)}
+          </span>
+        );
+      }
     },
     {
-      header: 'Amount (₹)',
-      accessor: 'amountValue',
-      render: (item: any) => (
-        <span className="text-gray-900 text-sm font-semibold">
-          ₹{item.amountValue.toLocaleString('en-IN')}
-        </span>
-      ),
+      header: 'Buy Time',
+      accessor: 'buyTime',
+      render: (item: any) => <span>{item.buyTime || '-'}</span>
     },
     {
-      header: 'Type',
-      accessor: 'type',
-      render: (item: any) => (
-        <span className="inline-flex rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">
-          {item.type === 'TRANSFER' ? 'Commission Transfer' : item.type}
-        </span>
-      ),
+      header: 'Sell Time',
+      accessor: 'sellTime',
+      render: (item: any) => <span>{item.sellTime || '-'}</span>
+    },
+    {
+      header: 'Master Broker Commission',
+      accessor: 'masterBrokerCommission',
+      render: (item: any) => <span className="font-medium">{item.masterBrokerCommission || '-'}</span>
     },
   ];
 
+  // Broker Columns with proper formatting
   const brokerColumns = [
     {
       header: 'Broker Name',
@@ -393,12 +366,20 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
     {
       header: 'Total Commission',
       accessor: 'totalCommission',
-      render: () => <span className="text-gray-700">-</span>,
+      render: (item: any) => (
+        <span className="font-medium text-gray-700">
+          {formatIndianCurrency(item?.totalCommission)}
+        </span>
+      ),
     },
     {
       header: 'Pending Commission',
       accessor: 'pendingCommission',
-      render: () => <span className="text-gray-700">-</span>,
+      render: (item: any) => (
+        <span className="font-medium text-orange-500">
+          {formatIndianCurrency(item?.pendingCommission)}
+        </span>
+      ),
     },
   ];
 
@@ -583,7 +564,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
       />
 
       {/* Statistics Cards Component */}
-        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-blue-500 md:text-2xl">
             {tradersData?.length || 0}
@@ -594,17 +575,17 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
         </div>
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-green-500 md:text-2xl">
-            ₹{formatIndianNumber(profileData?.totalCommission)}
+            {formatIndianCurrency(profileData?.totalCommission)}
           </h4>
           <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
             Total Commission
           </span>
         </div>
-      
+
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-orange-500 md:text-2xl">
-            ₹
-            {/* {formatIndianNumber(paymentDataFromApi?.summary?.pendingCommission)} */}
+            
+            {formatIndianCurrency(profileData?.summary?.totalPnL)}
           </h4>
           <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
             Total P&L
@@ -612,7 +593,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
         </div>
       </div>
       {/* <MasterBrokerStats profileData={profileData} /> */}
-      
+
 
       {/* Tabs and Tables Section */}
       <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">

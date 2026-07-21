@@ -158,6 +158,7 @@ import React, { useState } from 'react';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import { useGetSuperBrokerTransactionLedger } from '@/lib/react-query/transactionledger';
 import { RefreshCcw } from 'lucide-react';
+import { formatIndianCurrency } from '@/utils/formatIndianNumber';
 
 const SuperBrokerTransactionLedger = () => {
   const [ledgerStartDate, setLedgerStartDate] = useState('');
@@ -188,8 +189,8 @@ const SuperBrokerTransactionLedger = () => {
       header: 'Qty/Lot',
       accessor: (item) => formatQtyLot(item),
     },
-    { header: 'Buy Price', accessor: 'buyPrice' },
-    { header: 'Sell Price', accessor: 'sellPrice' },
+    { header: 'Buy Price', accessor: 'buyPrice' ,render:(item:any)=>{return formatIndianCurrency(item?.buyPrice)} },
+    { header: 'Sell Price', accessor: 'sellPrice' ,render:(item:any)=>{return formatIndianCurrency(item?.sellPrice)} },
 
     { header: 'Buy Time', accessor: 'buyTime' },
     { header: 'Sell Time', accessor: 'sellTime' },
@@ -217,8 +218,8 @@ const SuperBrokerTransactionLedger = () => {
     // { header: 'Margin Amount', accessor: 'marginAmount' },
     // { header: 'Payment Status', accessor: 'paymentStatus' },
     { header: 'Status', accessor: 'status' },
-    { header: 'P&L', accessor: 'pnl' },
-    { header: 'Super Broker Commission', accessor: 'superBrokerCommission' },
+    { header: 'P&L', accessor: 'pnl' ,render:(item:any)=>{return formatIndianCurrency(item?.pnl) } },
+    { header: 'Super Broker Commission', accessor: 'superBrokerCommission' ,render:(item:any)=>{return formatIndianCurrency(item?.superBrokerCommission) } },
   ];
 
   // Extract data array safely from the response
@@ -305,7 +306,7 @@ const SuperBrokerTransactionLedger = () => {
 
       <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="p-4">
-          <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+          <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:justify-end ">
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2">
                 <select

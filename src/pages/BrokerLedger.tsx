@@ -2,6 +2,7 @@ import React, {useState, useMemo} from 'react';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import {useGetBrokerTransactionLedger} from '@/lib/react-query/transactionledger';
 import { RefreshCcw } from 'lucide-react';
+import { formatIndianCurrency } from '@/utils/formatIndianNumber';
 
 const BrokerLedger = () => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -62,19 +63,18 @@ const BrokerLedger = () => {
   // Base columns - shows main information
   const baseColumns = [
     // {header: 'Date & Time', accessor: 'dateTime', render: renderDateTimeCell},
-    {header: 'Customer Name', accessor: 'customerName'},
+    {header: 'Trader Name', accessor: 'customerName'},
     {header: 'Script', accessor: 'script'},
     {header: 'Qty/Lot', accessor: (item) => formatQtyLot(item)},
-    {header: 'Buy Price', accessor: 'buyPrice'},
-    {header: 'Sell Price', accessor: 'sellPrice'},
-    {header: 'P&L', accessor: (item) => formatPnL(item)},
+    {header: 'Buy Price', accessor: 'buyPrice', render:(item:any)=>{return formatIndianCurrency(item?.buyPrice)}},
+    {header: 'Sell Price', accessor: 'sellPrice', render:(item:any)=>{return formatIndianCurrency(item?.sellPrice)} },
+    {header: 'P&L', accessor: (item:any) => formatIndianCurrency(item?.pnl)},
   
     // {header: 'Date & Time', accessor: 'dateTime', render: renderDateTimeCell},
     {header: 'Buy Time', accessor: 'buyTime', render: (item: any) => renderDateTimeCell(item.buyTime)},
     {header: 'Sell Time', accessor: 'sellTime', render: (item: any) => renderDateTimeCell(item.sellTime)},
     {header: 'Status', accessor: 'status'},
-    {header: 'P&L', accessor: (item) => formatPnL(item)},
-    {header: 'Broker Commission', accessor: 'brokerCommission'},
+    ,{header: 'Broker Commission', accessor: (item:any) => formatIndianCurrency(item?.brokerCommission)},
   ];
 
   // Extract data array safely
@@ -127,7 +127,7 @@ const BrokerLedger = () => {
   const filteredData = filterData(transactionData);
 
   return (
-    <div className="mx-auto w-full p-4 md:p-6">
+    <div className="mx-auto w-full p-4 md:p-6 bg-[#f8fafc]">
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-xl font-semibold text-black dark:text-white">
           Transaction Ledger
@@ -136,7 +136,7 @@ const BrokerLedger = () => {
 
       <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="">
-          <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+          <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:justify-end">
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2">
                 <select
