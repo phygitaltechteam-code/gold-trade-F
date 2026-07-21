@@ -22,7 +22,6 @@ import { useActivateCustomer, useGetClients } from '@/lib/react-query/client';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import { useBrokerGetAllSuperBrocker, useGetBrokerClients } from './broekrtradermutaion';
 import { Client } from '../Customer/Customertypes';
-import { formatIndianCurrency } from '@/utils/formatIndianNumber';
 
 interface ClientDashboardProps {
   onSelectClient?: (client: Client) => void;
@@ -414,7 +413,7 @@ export const BrokerTrader: React.FC<ClientDashboardProps> = () => {
                 className="peer sr-only"
                 checked={isActive}
                 onChange={(e) => handleToggleClick(row, e)}
-                disabled={isPending}
+
               />
               <div className="relative h-5 w-9 rounded-full bg-slate-200 transition-colors after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-4 peer-disabled:opacity-50" />
             </label>
@@ -485,14 +484,14 @@ export const BrokerTrader: React.FC<ClientDashboardProps> = () => {
         /> */}
         <StatCard
           title="Wallet Balance"
-          value={formatIndianCurrency(totalWalletBalance)}
+          value={Number(totalWalletBalance > 0 ? totalWalletBalance : 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           // subtext="Total volume"
           icon={Briefcase}
           isLoading={isLoading}
         />
         <StatCard
           title="Assets Under Contoll"
-          value={formatIndianCurrency(assetUnderControll)}
+          value={Number(assetUnderControll > 0 ? assetUnderControll : 0).toLocaleString('en-IN', { minimumFractionDigits: assetUnderControll > 0 ? 2 : 0, maximumFractionDigits: assetUnderControll > 0 ? 2 : 0 })}
           // subtext="Total volume"
           icon={Briefcase}
           isLoading={isLoading}
@@ -514,14 +513,14 @@ export const BrokerTrader: React.FC<ClientDashboardProps> = () => {
 
         <StatCard
           title="Total Margin Amount"
-          value={formatIndianCurrency(totalMarginAmount)}
+          value={Number(totalMarginAmount > 0 ? totalMarginAmount : 0).toLocaleString('en-IN', { minimumFractionDigits: totalMarginAmount > 0 ? 2 : 0, maximumFractionDigits: totalMarginAmount > 0 ? 2 : 0 })}
           // subtext="Assets under mgmt"
           icon={Wallet}
           isLoading={isLoading}
         />
         <StatCard
           title="Total Trades"
-          value={totalTrades}
+          value={Number(totalTrades > 0 ? totalTrades : 0).toLocaleString('en-IN', { minimumFractionDigits: totalTrades > 0 ? 2 : 0, maximumFractionDigits: totalTrades > 0 ? 2 : 0 })}
           // subtext="Latest client"
           icon={DollarSign}
           isLoading={isLoading}
@@ -544,7 +543,7 @@ export const BrokerTrader: React.FC<ClientDashboardProps> = () => {
             <input
               type="text"
               placeholder="Search by Name, Email, Phone or CRN..."
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-4 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 md:py-3 md:pl-10"
+              className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 md:py-3 md:pl-10"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -608,71 +607,7 @@ export const BrokerTrader: React.FC<ClientDashboardProps> = () => {
         rowsPerPage={10}
       />
 
-      {/* PIN Modal */}
-      {showPinModal && selectedClient && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-lg">
-            <h2 className="mb-4 text-lg font-semibold text-slate-900">
-              {selectedClient?.user?.isActive ? 'Deactivate' : 'Activate'}{' '}
-              Client
-            </h2>
-            <p className="mb-4 text-sm text-slate-600">
-              {selectedClient?.user?.isActive
-                ? `Are you sure you want to deactivate ${selectedClient?.user?.fullname}?`
-                : `Are you sure you want to activate ${selectedClient?.user?.fullname}?`}
-            </p>
-            <p className="mb-2 text-sm font-medium text-slate-700">
-              Enter Security PIN to confirm:
-            </p>
 
-            <div className="relative">
-              <input
-                type={showPin ? 'text' : 'password'}
-                placeholder="Enter Security PIN"
-                value={pin}
-                onChange={(e) => setPin(e.target.value)}
-                className="border-gray-300 w-full rounded-lg border px-4 py-2 pr-10 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
-                autoFocus
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    handleConfirm();
-                  }
-                }}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPin(!showPin)}
-                className="text-gray-500 hover:text-gray-700 absolute right-3 top-1/2 -translate-y-1/2"
-              >
-                {showPin ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
-
-            <div className="mt-5 flex justify-end gap-3">
-              <button
-                onClick={() => {
-                  setShowPinModal(false);
-                  setPin('');
-                  setSelectedClientId(null);
-                }}
-                className="border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg border px-4 py-2 text-sm font-medium transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleConfirm}
-                disabled={isPending}
-                className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${selectedClient?.user?.isActive
-                  ? 'bg-red-500 hover:bg-red-600'
-                  : 'bg-emerald-500 hover:bg-emerald-600'
-                  } disabled:opacity-50`}
-              >
-                {isPending ? 'Processing...' : 'Confirm'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </motion.div>
   );
 };

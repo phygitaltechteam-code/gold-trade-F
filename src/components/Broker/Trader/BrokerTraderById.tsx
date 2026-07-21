@@ -215,7 +215,7 @@ export const BrokerTraderById: React.FC = () => {
             return (
                 <div className="flex flex-col">
                     <span>{parts[0]}</span>
-                    <span className="text-xs text-gray-500">{parts[1]}</span>
+                    <span className="text-xs text-gray-900">{parts[1]}</span>
                 </div>
             );
         }
@@ -270,7 +270,7 @@ export const BrokerTraderById: React.FC = () => {
             accessor: 'amount',
             render: (item: any) => (
                 <span
-                    className={`font-semibold ${item.type === 'CREDIT' ? 'text-green-600' : 'text-red-600'
+                    className={` ${item.type === 'CREDIT' ? 'text-gray-900' : 'text-gray-900'
                         }`}
                 >
                     {item.amount}
@@ -281,14 +281,14 @@ export const BrokerTraderById: React.FC = () => {
             header: 'Balance After',
             accessor: 'balanceAfter',
             render: (item: any) => (
-                <span className="font-semibold text-blue-600">{item.balanceAfter}</span>
+                <span className="text-gray-900">{item.balanceAfter}</span>
             ),
         },
         {
             header: 'Notes',
             accessor: 'Notes',
             render: (item: any) => (
-                <span className="font-mono text-gray-500 text-xs">{item.Notes}</span>
+                <span className="text-gray-900">{item.Notes}</span>
             ),
         },
     ];
@@ -352,34 +352,6 @@ export const BrokerTraderById: React.FC = () => {
                             </span>
                         </div>
                     </div>
-                </div>
-                <div className="flex gap-3">
-                    <button
-                        onClick={() => {
-                            setIntradayMargin(
-                                displayClient?.intradayLeverage != null
-                                    ? String(displayClient.intradayLeverage)
-                                    : ''
-                            );
-                            setHoldingMargin(
-                                displayClient?.deliveryLeverage != null
-                                    ? String(displayClient.deliveryLeverage)
-                                    : ''
-                            );
-                            setMarginPin('');
-                            setShowMarginPin(false);
-                            setIsMarginModalOpen(true);
-                        }}
-                        className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:-translate-y-0.5 hover:bg-slate-50 active:translate-y-0 md:px-5 md:py-3"
-                    >
-                        <TrendingUp className="h-4 w-4 text-orange-500" /> Add Margin
-                    </button>
-                    <button
-                        onClick={() => setIsWalletModalOpen(true)}
-                        className="flex items-center gap-2 rounded-xl bg-orange-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-orange-200 transition-all hover:-translate-y-0.5 hover:bg-orange-600 active:translate-y-0 md:px-5 md:py-3"
-                    >
-                        <CreditCard className="h-4 w-4" /> Wallet Balance
-                    </button>
                 </div>
             </div>
 
