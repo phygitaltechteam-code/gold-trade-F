@@ -26,7 +26,7 @@ import {
   useApproveWithdrawal,
   useGetWithdrawal,
   useRejectWithdrawal,
-} from '@/lib/api/masterpanelapi/masterapi';
+} from '@/lib/react-query/withdrawal';
 
 // Simple Stat Card Component - Only title, value, and icon
 const StatCard = ({
@@ -89,10 +89,11 @@ interface WithdrawalRequest {
     tier: string;
     avatar?: string;
     initials: string;
+
+    superBrokerName: string;
+    brokerName: string;
   };
-  brokerName: string;
   brokerNumber: string;
-  superBrokerName: string;
   superBrokerNumber: string;
   walletBalance: number;
   amount: number;
@@ -244,6 +245,12 @@ export default function WithdrawalRequest() {
                 .map((n: string) => n[0])
                 .join('')
                 .toUpperCase() || 'NA',
+            brokerName:
+              item.brokerName || item.customer?.broker?.user?.fullname || '-',
+            superBrokerName:
+              item.superBrokerName ||
+              item.customer?.broker?.superBroker?.user?.fullname ||
+              '-',
           },
 
           brokerName: item.brokerName || '-',
@@ -407,7 +414,7 @@ export default function WithdrawalRequest() {
         <div className="flex items-center gap-3">
           <div>
             <div className="text-gray-900 text-sm font-semibold">
-              {row?.client?.name}
+              {row?.client?.superBrokerName}
             </div>
           </div>
         </div>
@@ -419,7 +426,7 @@ export default function WithdrawalRequest() {
         <div className="flex items-center gap-3">
           <div>
             <div className="text-gray-900 text-sm font-semibold">
-              {row?.client?.name}
+              {row?.client?.brokerName}
             </div>
           </div>
         </div>
@@ -511,7 +518,7 @@ export default function WithdrawalRequest() {
     },
     {
       title: "Today's Withdrawals",
-      value: `${formatNumber(stats.todayStats.count)} withdrawals`,
+      value: `${formatNumber(stats.todayStats.count)} `,
       icon: Activity,
       iconColor: 'text-blue-500',
     },
@@ -607,10 +614,10 @@ export default function WithdrawalRequest() {
         </AnimatePresence>
 
         {/* Main Content Area */}
-        <div className="overflow-hidden rounded-xl border border-stroke bg-white shadow-sm sm:rounded-2xl ">
+        <div className="overflow-hidden rounded-xl border border-stroke bg-white shadow-sm sm:rounded-2xl">
           {/* Tabs & Controls with Date Filters on Right */}
           <div className="flex flex-col justify-between border-b border-stroke px-4 pt-4 sm:flex-row sm:items-center sm:px-6">
-            <div className="flex gap-4 overflow-x-auto mt-6 pb-4 sm:gap-8 sm:pb-0">
+            <div className="mt-6 flex gap-4 overflow-x-auto pb-4 sm:gap-8 sm:pb-0">
               {(['Pending', 'Approved', 'Rejected'] as const).map((tab) => (
                 <button
                   key={tab}
