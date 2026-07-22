@@ -161,14 +161,14 @@ export const MasterBrokerProfileInfo: React.FC<MasterBrokerProfileInfoProps> = (
               <input
                 type="number"
                 step="0.01"
-                name="brokeragePercent"
+                name="commission"
                 value={editData.commission}
                 onChange={handleInputChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
               />
             ) : (
               <p className="text-sm font-semibold text-orange-600 dark:text-white md:text-base">
-                {profileData?.upcomingBrokeragePercent || '0'}%
+                {profileData?.commission || '0'}%
               </p>
             )}
           </div>
@@ -176,7 +176,7 @@ export const MasterBrokerProfileInfo: React.FC<MasterBrokerProfileInfoProps> = (
           {/* Customer Limit */}
           <div>
             <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-              Customer Limit
+              Trader Stock Time(In minute)
             </label>
             {isEditing ? (
               <input

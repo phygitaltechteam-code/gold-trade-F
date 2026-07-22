@@ -1,7 +1,8 @@
-import React, {useState, useMemo} from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import GenericTable from '@/components/Forms/Table/GenericTable';
-import {useGetSuperBrokerHistory} from './SBHistoryApi';
+import { useGetSuperBrokerHistory } from './SBHistoryApi';
 import { formatIndianCurrency } from '@/utils/formatIndianNumber';
+import { Filter } from 'lucide-react';
 
 // Format date function
 const formatDateTime = (dateString: string) => {
@@ -17,16 +18,27 @@ const formatDateTime = (dateString: string) => {
     const ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12;
     hours = hours ? hours : 12;
-    return `${day}/${month}/${year}, ${hours}:${minutes} ${ampm}`;
+    return `${month}/${day}/${year}, ${hours}:${minutes} ${ampm}`;
   } catch (error) {
     return 'N/A';
   }
 };
 
+// Helper function to safely parse amount
+const parseAmount = (amount: any): number => {
+  if (typeof amount === 'number') return amount;
+  if (typeof amount === 'string') {
+    const parsed = parseFloat(amount);
+    return isNaN(parsed) ? 0 : parsed;
+  }
+  return 0;
+};
+
 export default function SuperBrokerCommissionHistory() {
-  const [activeTab, setActiveTab] = useState<'commission' | 'paid'>(
-    'commission',
-  );
+  const [activeTab, setActiveTab] = useState<'commission' | 'paid'>('commission');
+  const [fromDate, setFromDate] = useState<string>('');
+  const [toDate, setToDate] = useState<string>('');
+  const [showMobileFilter, setShowMobileFilter] = useState(false);
 
   const {
     data: apiData,
@@ -43,15 +55,15 @@ export default function SuperBrokerCommissionHistory() {
 
   // Process commission history from API
   const commissionHistoryList = useMemo(() => {
-    // Check different possible data structures
     const history = apiData?.data?.history || apiData?.history || [];
     console.log('Commission History Raw:', history);
     return history.map((item: any, index: number) => ({
       sr: index + 1,
       id: item.id,
-      amount: item.amount,
+      amount: parseAmount(item.amount),
       type: item.type || 'TRANSFER',
-      createdAt: formatDateTime(item.createdAt),
+      createdAt: item.createdAt,
+      formattedCreatedAt: formatDateTime(item.createdAt),
       superBrokerId: item.superBrokerId,
       brokerId: item.brokerId,
       companyId: item.companyId,
@@ -60,37 +72,94 @@ export default function SuperBrokerCommissionHistory() {
 
   // Process paid history from API
   const paidHistoryList = useMemo(() => {
-    const paidHistory =
-      apiData?.data?.paidHistory || apiData?.paidHistory || [];
+    const paidHistory = apiData?.data?.paidHistory || apiData?.paidHistory || [];
     console.log('Paid History Raw:', paidHistory);
     return paidHistory.map((item: any, index: number) => ({
       sr: index + 1,
       id: item.id,
-      amount: item.amount,
+      amount: parseAmount(item.amount),
       type: 'PAID',
-      createdAt: formatDateTime(item.createdAt),
+      createdAt: item.createdAt,
+      formattedCreatedAt: formatDateTime(item.createdAt),
       superBrokerId: item.superBrokerId,
       brokerId: item.brokerId,
     }));
   }, [apiData]);
 
+  // Filter data by date range - shows all data when filters are empty
+  const filteredCommissionList = useMemo(() => {
+    if (!fromDate && !toDate) return commissionHistoryList;
+
+    return commissionHistoryList.filter((item: any) => {
+      if (!item.createdAt) return true;
+      const itemDate = new Date(item.createdAt).toISOString().split('T')[0];
+
+      if (fromDate && toDate) {
+        return itemDate >= fromDate && itemDate <= toDate;
+      }
+      if (fromDate) {
+        return itemDate >= fromDate;
+      }
+      if (toDate) {
+        return itemDate <= toDate;
+      }
+      return true;
+    });
+  }, [commissionHistoryList, fromDate, toDate]);
+
+  const filteredPaidList = useMemo(() => {
+    if (!fromDate && !toDate) return paidHistoryList;
+
+    return paidHistoryList.filter((item: any) => {
+      if (!item.createdAt) return true;
+      const itemDate = new Date(item.createdAt).toISOString().split('T')[0];
+
+      if (fromDate && toDate) {
+        return itemDate >= fromDate && itemDate <= toDate;
+      }
+      if (fromDate) {
+        return itemDate >= fromDate;
+      }
+      if (toDate) {
+        return itemDate <= toDate;
+      }
+      return true;
+    });
+  }, [paidHistoryList, fromDate, toDate]);
+
+  // Calculate totals from filtered data
+  const totalCommission = filteredCommissionList.reduce(
+    (sum, item) => sum + parseAmount(item.amount),
+    0,
+  );
+  const totalPaid = filteredPaidList.reduce(
+    (sum, item) => sum + parseAmount(item.amount),
+    0,
+  );
+  const pendingCommission = totalCommission - totalPaid;
+
+  // Clear filters
+  const clearFilters = () => {
+    setFromDate('');
+    setToDate('');
+  };
+
   // Commission History Columns
   const commissionColumns = [
-    {header: 'Date & Time', accessor: 'createdAt'},
+    { header: 'Date & Time', accessor: 'formattedCreatedAt' },
     {
       header: 'Type',
       accessor: 'type',
       render: (item: any) => (
         <span
-          className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
-            item.type === 'TRANSFER'
-              ? ' text-black-800  dark:text-black-300'
-              : item.type === 'CREDIT'
-                ? ' text-black -800 dark:text-black-300'
-                : item.type === 'DEBIT'
-                  ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
-                  : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300'
-          }`}
+          className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${item.type === 'TRANSFER'
+            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
+            : item.type === 'CREDIT'
+              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+              : item.type === 'DEBIT'
+                ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+                : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300'
+            }`}
         >
           {item.type}
         </span>
@@ -99,35 +168,29 @@ export default function SuperBrokerCommissionHistory() {
     {
       header: 'Amount',
       accessor: 'amount',
-      render: (item: any) => (
-        <span
-          className={`${
-            item.type === 'CREDIT' || item.type === 'TRANSFER'
-              ? 'text-black'
-              : item.type === 'DEBIT'
-                ? 'text-red-600'
-                : 'text-blue-600'
-          }`}
-        >
-          {item.type === 'CREDIT' || item.type === 'TRANSFER'
-            ? '+'
-            : item.type === 'DEBIT'
-              ? '-'
-              : ''}{' '}
-          ₹{parseFloat(item.amount).toLocaleString('en-IN')}
-        </span>
-      ),
+      render: (item: any) => {
+        const amount = parseAmount(item.amount);
+        const isCredit = item.type === 'CREDIT' || item.type === 'TRANSFER';
+        const isDebit = item.type === 'DEBIT';
+        return (
+          <span
+            className='text-gray-900'
+          >
+            {isCredit ? '+' : isDebit ? '-' : ''} {formatIndianCurrency(amount)}
+          </span>
+        );
+      },
     },
   ];
 
   // Paid History Columns
   const paidColumns = [
-    {header: 'Date & Time', accessor: 'createdAt'},
+    { header: 'Date & Time', accessor: 'formattedCreatedAt' },
     {
       header: 'Type',
       accessor: 'type',
       render: () => (
-        <span className="inline-flex rounded-full px-2 py-1 text-xs font-semibold text-black dark:bg-green-900 dark:text-green-300">
+        <span className="inline-flex rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-800 dark:bg-green-900 dark:text-green-300">
           PAID
         </span>
       ),
@@ -135,24 +198,16 @@ export default function SuperBrokerCommissionHistory() {
     {
       header: 'Amount',
       accessor: 'amount',
-      render: (item: any) => (
-        <span className="font-semibold text-black">
-          ₹{parseFloat(item.amount).toLocaleString('en-IN')}
-        </span>
-      ),
+      render: (item: any) => {
+        const amount = parseAmount(item.amount);
+        return (
+          <span className=" text-gray-900">
+            {formatIndianCurrency(amount)}
+          </span>
+        );
+      },
     },
   ];
-
-  // Calculate totals from API data
-  const totalCommission = commissionHistoryList.reduce(
-    (sum, item) => sum + parseFloat(item.amount),
-    0,
-  );
-  const totalPaid = paidHistoryList.reduce(
-    (sum, item) => sum + parseFloat(item.amount),
-    0,
-  );
-  const pendingCommission = totalCommission - totalPaid;
 
   if (isLoading) {
     return (
@@ -197,61 +252,143 @@ export default function SuperBrokerCommissionHistory() {
       {/* Stats Cards */}
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="flex flex-col rounded-xl border border-stroke bg-white p-6 shadow-default transition-shadow hover:shadow-md dark:border-strokedark dark:bg-boxdark">
-          <span className="text-gray-500 text-sm font-semibold">
+          <span className="text-sm font-semibold text-black dark:text-white">
             Total Commission
           </span>
-          <h4 className="mt-2 text-2xl font-bold text-black">
-            ₹{formatIndianCurrency(totalCommission)}
+          <h4 className="mt-2 text-2xl font-bold text-black dark:text-white">
+            {formatIndianCurrency(totalCommission)}
           </h4>
         </div>
         <div className="flex flex-col rounded-xl border border-stroke bg-white p-6 shadow-default transition-shadow hover:shadow-md dark:border-strokedark dark:bg-boxdark">
-          <span className="text-gray-500 text-sm font-semibold">
+          <span className="text-sm font-semibold text-black dark:text-white">
             Total Paid
           </span>
-          <h4 className="mt-2 text-2xl font-bold text-black">
-            ₹{formatIndianCurrency(totalPaid)}
+          <h4 className="mt-2 text-2xl font-bold text-black dark:text-white">
+            {formatIndianCurrency(totalPaid)}
           </h4>
         </div>
         <div className="flex flex-col rounded-xl border border-stroke bg-white p-6 shadow-default transition-shadow hover:shadow-md dark:border-strokedark dark:bg-boxdark">
-          <span className="text-gray-500 text-sm font-semibold">
+          <span className="text-sm font-semibold text-black dark:text-white">
             Pending Commission
           </span>
-          <h4 className="mt-2 text-2xl font-bold text-black">
-            ₹{formatIndianCurrency(pendingCommission)}
+          <h4 className="mt-2 text-2xl font-bold text-black dark:text-white">
+            {formatIndianCurrency(pendingCommission)}
           </h4>
         </div>
       </div>
 
       {/* Tabs Section */}
       <div className="rounded-xl border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-        <div className="flex border-b border-stroke dark:border-strokedark">
-          <button
-            onClick={() => setActiveTab('commission')}
-            className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
-              activeTab === 'commission'
+        <div className="flex flex-wrap items-center justify-between border-b border-stroke px-4 py-2 dark:border-strokedark">
+          <div className="flex">
+            <button
+              onClick={() => setActiveTab('commission')}
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'commission'
                 ? 'border-b-2 border-orange-500 text-orange-500'
                 : 'text-bodydark2'
-            }`}
-          >
-            Commission History ({commissionHistoryList.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('paid')}
-            className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
-              activeTab === 'paid'
+                }`}
+            >
+              Commission History ({filteredCommissionList.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('paid')}
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'paid'
                 ? 'border-b-2 border-orange-500 text-orange-500'
                 : 'text-bodydark2'
-            }`}
-          >
-            Paid History ({paidHistoryList.length})
-          </button>
+                }`}
+            >
+              Paid History ({filteredPaidList.length})
+            </button>
+          </div>
+
+          {/* Date Filter - From/To */}
+          <div className="flex flex-wrap items-center gap-3 py-2">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-black dark:text-white">
+                From:
+              </label>
+              <input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="rounded border border-stroke bg-transparent px-3 py-1 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-black dark:text-white">
+                To:
+              </label>
+              <input
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className="rounded border border-stroke bg-transparent px-3 py-1 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+              />
+            </div>
+
+            {/* Clear Filters Button - Shows when filters are applied */}
+            {(fromDate || toDate) && (
+              <button
+                onClick={clearFilters}
+                className="rounded bg-gray-200 px-3 py-1 text-sm text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+              >
+                Clear
+              </button>
+            )}
+
+            {/* Mobile Filter Button */}
+            <button
+              onClick={() => setShowMobileFilter(!showMobileFilter)}
+              className="rounded-lg border border-stroke bg-white p-2 transition-colors hover:bg-gray-50 sm:hidden"
+            >
+              <Filter className="h-4 w-4 text-gray-600" />
+            </button>
+          </div>
         </div>
+
+        {/* Mobile Filter - Expanded */}
+        {showMobileFilter && (
+          <div className="border-b border-stroke bg-gray-50 p-4 dark:border-strokedark dark:bg-gray-800 sm:hidden">
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-black dark:text-white">
+                  From:
+                </label>
+                <input
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => setFromDate(e.target.value)}
+                  className="flex-1 rounded border border-stroke bg-transparent px-3 py-1 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-black dark:text-white">
+                  To:
+                </label>
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => setToDate(e.target.value)}
+                  className="flex-1 rounded border border-stroke bg-transparent px-3 py-1 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                />
+              </div>
+              {(fromDate || toDate) && (
+                <button
+                  onClick={clearFilters}
+                  className="rounded bg-gray-200 px-3 py-1 text-sm text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                >
+                  Clear Filters
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="p-6">
           {activeTab === 'commission' ? (
             <div className="overflow-x-auto">
               <GenericTable
-                data={commissionHistoryList}
+                data={filteredCommissionList}
                 columns={commissionColumns}
                 paginationOff={true}
                 itemsPerPage={10}
@@ -261,7 +398,7 @@ export default function SuperBrokerCommissionHistory() {
           ) : (
             <div className="overflow-x-auto">
               <GenericTable
-                data={paidHistoryList}
+                data={filteredPaidList}
                 columns={paidColumns}
                 paginationOff={true}
                 itemsPerPage={10}

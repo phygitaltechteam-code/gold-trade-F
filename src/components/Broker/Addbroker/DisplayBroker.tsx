@@ -1,15 +1,15 @@
-import React, {useState, useEffect} from 'react';
-import {useNavigate} from '@tanstack/react-router';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import toast from 'react-hot-toast';
 import GenericTable from '@/components/Forms/Table/GenericTable';
-import {useGetBrokerDataApi, useDeleteBrokerApi} from './brokerapi';
-import {useAuthContext} from '@/context/AuthContext';
+import { useGetBrokerDataApi, useDeleteBrokerApi } from './brokerapi';
+import { useAuthContext } from '@/context/AuthContext';
 
-const DisplayBroker = ({refreshTrigger, onBrokerAdded}) => {
+const DisplayBroker = ({ refreshTrigger, onBrokerAdded }) => {
   const [brokers, setBrokers] = useState([]);
   const navigate = useNavigate();
-  const {user} = useAuthContext();
-  const {data: responseData, refetch} = useGetBrokerDataApi();
+  const { user } = useAuthContext();
+  const { data: responseData, refetch } = useGetBrokerDataApi();
   const deleteBrokerMutation = useDeleteBrokerApi();
 
   const isSuperBroker =
@@ -31,15 +31,15 @@ const DisplayBroker = ({refreshTrigger, onBrokerAdded}) => {
 
   // Handle row click - navigate to broker profile
   const handleRowClick = (broker: any) => {
-    navigate({to: `/broker/brokerprofile/${broker?.id}`});
+    navigate({ to: `/broker/brokerprofile/${broker?.id}` });
   };
 
   const handleView = (broker: any) => {
-    navigate({to: `/broker/brokerprofile/${broker?.id}`});
+    navigate({ to: `/broker/brokerprofile/${broker?.id}` });
   };
 
   const handleEdit = (broker: any) => {
-    navigate({to: `/broker/updatebroker/${broker?.id}`});
+    navigate({ to: `/broker/updatebroker/${broker?.id}` });
   };
 
   const handleDelete = async (broker: any) => {
@@ -59,6 +59,14 @@ const DisplayBroker = ({refreshTrigger, onBrokerAdded}) => {
   };
 
   const columns = [
+
+    {
+      header: 'Created At',
+      accessor: (row) =>
+        row.createdAt
+          ? new Date(row.createdAt).toLocaleDateString('en-IN')
+          : '-',
+    },
     {
       header: 'Broker Name',
       accessor: 'fullname',
@@ -83,32 +91,23 @@ const DisplayBroker = ({refreshTrigger, onBrokerAdded}) => {
       header: 'Aadhar Number',
       accessor: 'aadharCardNumber',
     },
-{
-  header: 'Status',
-  accessor: (row) => (
-    <span
-      className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${
-        row.isActive || row.IsOn
-          ? 'bg-green-100 text-green-700'
-          : 'bg-red-100 text-red-700'
-      }`}
-    >
-      <span className={`h-1.5 w-1.5 rounded-full ${
-        row.isActive || row.IsOn ? 'bg-green-500' : 'bg-red-500'
-      }`}></span>
-      {row.isActive || row.IsOn ? 'Active' : 'Inactive'}
-    </span>
-  ),
-},
+    // {
+    //   header: 'Status',
+    //   accessor: (row) => (
+    //     <span
+    //       className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${row.isActive || row.IsOn
+    //           ? 'bg-green-100 text-green-700'
+    //           : 'bg-red-100 text-red-700'
+    //         }`}
+    //     >
+    //       <span className={`h-1.5 w-1.5 rounded-full ${row.isActive || row.IsOn ? 'bg-green-500' : 'bg-red-500'
+    //         }`}></span>
+    //       {row.isActive || row.IsOn ? 'Active' : 'Inactive'}
+    //     </span>
+    //   ),
+    // },
 
 
-    {
-      header: 'Created At',
-      accessor: (row) =>
-        row.createdAt
-          ? new Date(row.createdAt).toLocaleDateString('en-IN')
-          : '-',
-    },
   ];
 
   return (
@@ -118,7 +117,7 @@ const DisplayBroker = ({refreshTrigger, onBrokerAdded}) => {
           {isSuperBroker ? 'Broker List' : 'My Brokers'}
         </h2>
         <button
-          onClick={() => navigate({to: '/broker/broker'})}
+          onClick={() => navigate({ to: '/broker/broker' })}
           className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 px-4 py-2 text-white transition-all hover:from-orange-600 hover:to-red-600"
         >
           <svg

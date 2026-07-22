@@ -315,7 +315,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   icon: <LayoutDashboard size={22} />,
                 },
                 {
-                  label: 'Trader Dashboard',
+                  label: 'Trader List',
                   path: '/masterbroker/client-dashboard',
                   icon: <UserCog size={22} />,
                 },

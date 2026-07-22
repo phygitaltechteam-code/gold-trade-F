@@ -1228,7 +1228,7 @@ const SuperBrokerProfile = () => {
             
            <button
               onClick={() => refetch()}
-              className="flex items-center gap-1 rounded-lg bg-orange-500 px-3 mr-3 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
+                className="rounded bg-orange-500 flex px-1 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 mr-2"
             >
               <RefreshCcw size={16} /> Refresh
             </button>

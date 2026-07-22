@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import GenericTable from '@/components/Forms/Table/GenericTable';
+import { RefreshCcw } from 'lucide-react';
 
 interface LedgerTabProps {
   ledgerStartDate: string;
@@ -10,6 +11,7 @@ interface LedgerTabProps {
   setIsLedgerExpanded: (val: boolean) => void;
   filteredLedgerData: any[];
   ledgerColumns: any[];
+  refetchLedger: () => void;
 }
 
 export const LedgerTab: React.FC<LedgerTabProps> = ({
@@ -21,6 +23,7 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({
   setIsLedgerExpanded,
   filteredLedgerData,
   ledgerColumns,
+  refetchLedger,
 }) => {
 
   const [statusFilter, setStatusFilter] = useState('')
@@ -83,6 +86,12 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({
               <option value="OPEN">Open</option>
               <option value="CLOSED">Closed</option>
             </select>
+            <button
+              onClick={() => refetchLedger()}
+              className="rounded bg-orange-500 flex px-1 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 mr-2"
+            >
+              <RefreshCcw size={16} /> Refresh
+            </button>
           </div>
           {/* <button
             onClick={() => setIsLedgerExpanded(!isLedgerExpanded)}
