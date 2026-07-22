@@ -25,6 +25,7 @@ import toast from 'react-hot-toast';
 import GenericButton from '@/components/Forms/Buttons/GenericButton';
 import {useGetCompanyDashboard} from '@/lib/api/dashboard';
 import {cn} from '@/utils/utilities';
+import { formatIndianCurrency } from '@/utils/formatIndianNumber';
 
 // Animation variants
 const containerVariants = {
@@ -324,19 +325,19 @@ const Dashboard: React.FC = () => {
         
           <FinancialStatCard
             title="Admin Commission"
-            amount={formatCurrency(dashboardStats.adminCommission)}
+            amount={formatIndianCurrency(dashboardStats.adminCommission)}
             icon={IndianRupee}
             iconColor="text-emerald-500"
           />
           <FinancialStatCard
             title="Super Broker Total Commission"
-            amount={formatCurrency(dashboardStats.superBrokerTotalCommission)}
+            amount={formatIndianCurrency(dashboardStats.superBrokerTotalCommission)}
             icon={Wallet}
             iconColor="text-blue-500"
           />
           <FinancialStatCard
             title="Total Broker Commission"
-            amount={formatCurrency(dashboardStats.totalBrokerCommission)}
+            amount={formatIndianCurrency(dashboardStats.totalBrokerCommission)}
             icon={Landmark}
             iconColor="text-indigo-500"
           />
@@ -353,13 +354,13 @@ const Dashboard: React.FC = () => {
 
           <FinancialStatCard
             title="Total Trader Wallet Balance"
-            amount={formatCurrency(dashboardStats.totalCustomerWalletBalance)}
+            amount={formatIndianCurrency(dashboardStats.totalCustomerWalletBalance)}
             icon={Wallet}
             iconColor="text-green-500"
           />
           <FinancialStatCard
             title="Pending Super Broker Commission"
-            amount={formatCurrency(dashboardStats.pendingSuperBrokerCommission)}
+            amount={formatIndianCurrency(dashboardStats.pendingSuperBrokerCommission)}
             icon={Clock}
             iconColor="text-orange-500"
           />

@@ -174,16 +174,16 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       superBrokerFilter === "all" ||
       client?.broker?.superBroker?.user?.fullname === superBrokerFilter;
 
-    const matchesCustomer =
-      customerFilter === "all"
-        ? true
-        : customerFilter === "active"
-          ? client.user?.isActive
-          : customerFilter === "inactive"
-            ? !client.user?.isActive
-            : customerFilter === "demo"
-              ? client.isDemo
-              : true;
+const matchesCustomer =
+  customerFilter === "all"
+    ? true
+    : customerFilter === "active"
+      ? client.user?.isActive === true && client.isDemo !== true  // Exclude demo
+      : customerFilter === "inactive"
+        ? client.user?.isActive === false && client.isDemo !== true  // Exclude demo
+        : customerFilter === "demo"
+          ? client.isDemo === true
+          : true;
 
     return (
       matchesSearch &&

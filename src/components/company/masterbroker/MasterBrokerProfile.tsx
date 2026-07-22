@@ -20,6 +20,7 @@ import { BrokersTab } from './BrokersTab';
 import { CommissionModal } from './CommissionModal';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import { formatIndianCurrency, formatIndianNumber } from '@/utils/formatIndianNumber';
+import { RefreshCcw } from 'lucide-react';
 
 interface MasterBrokerProfileProps {
   id: string;
@@ -90,7 +91,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
       setEditData({
         fullname: profileData?.fullname || '',
         phoneNumber: profileData?.phoneNumber || '',
-        commission: profileData?.upcomingBrokeragePercent?.toString() || '',
+        commission: profileData?.brokeragePercent?.toString() || '',
         area: profileData?.area || '',
         aadharCardNumber: profileData?.aadharCardNumber || '',
         customerLimit: profileData?.customerLimit?.toString() || '',
@@ -437,10 +438,11 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
       setEditData({
         fullname: profileData?.fullname || '',
         phoneNumber: profileData?.phoneNumber || '',
-        commission: profileData?.upcomingBrokeragePercent?.toString() || '',
+        commission: profileData?.brokeragePercent?.toString() || '',
         area: profileData?.area || '',
         aadharCardNumber: profileData?.aadharCardNumber || '',
         password: '',
+
       });
     }
     setIsEditing(false);
@@ -617,8 +619,18 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
             >
               Traders ({tradersData.length || 0})
             </button>
+            
           </div>
+          
+           <button
+              onClick={() => refetch()}
+              className="flex items-center gap-1 rounded-lg bg-orange-500 px-3 mr-3 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
+            >
+              <RefreshCcw size={16} /> Refresh
+            </button>
         </div>
+
+
 
         <div className="p-4 md:p-6">
           {activeTab === 'ledger' && (

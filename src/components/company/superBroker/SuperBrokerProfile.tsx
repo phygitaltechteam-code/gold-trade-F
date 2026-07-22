@@ -18,7 +18,7 @@ import {
 import { Route } from '@/routes/_app/companybroker/SuperbrockerProfile.$id';
 import { useNavigate } from '@tanstack/react-router';
 import toast from 'react-hot-toast';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, RefreshCcw } from 'lucide-react';
 import { formatIndianNumber } from '@/utils/formatIndianNumber';
 
 // Format date function
@@ -1225,6 +1225,13 @@ const SuperBrokerProfile = () => {
             </button>
           </div>
           <div className="flex items-center gap-2 px-4 py-2">
+            
+           <button
+              onClick={() => refetch()}
+              className="flex items-center gap-1 rounded-lg bg-orange-500 px-3 mr-3 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
+            >
+              <RefreshCcw size={16} /> Refresh
+            </button>
             <button
               onClick={handlePrintTables}
               className="flex items-center gap-2 rounded-lg bg-orange-500 px-3 py-1.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-orange-600 md:px-4 md:py-2"
