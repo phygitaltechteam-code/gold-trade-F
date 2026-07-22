@@ -435,7 +435,7 @@ const CompanyAddCustomer = () => {
             {/* Stock Holding Limit - NEW FIELD */}
             <div className="mb-2 sm:mb-4">
               <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Stock Holding Limit
+                Minimum Stock Holding time(in minute)
               </label>
               <input
                 type="text"
