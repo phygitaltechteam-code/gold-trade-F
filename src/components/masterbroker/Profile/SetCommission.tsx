@@ -255,7 +255,7 @@ const SetCommission = () => {
             <div className="flex flex-col gap-3 border-b border-stroke pb-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <h2 className="flex items-center gap-2 text-base font-semibold sm:text-lg">
-                  <Database className="h-5 w-5 text-orange-500" />
+                 
                   Set Commission
                 </h2>
                 <p className="mt-1 text-xs text-gray-500">
@@ -263,9 +263,9 @@ const SetCommission = () => {
                 </p>
               </div>
               {/* Show current commission */}
-              <div className="rounded-lg bg-orange-50 px-3 py-1.5 text-xs font-medium text-orange-600 border border-orange-200">
+              {/* <div className="rounded-lg bg-orange-50 px-3 py-1.5 text-xs font-medium text-orange-600 border border-orange-200">
                 Current: {inputCommission || 0}%
-              </div>
+              </div> */}
             </div>
 
             <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:gap-8">
@@ -288,27 +288,23 @@ const SetCommission = () => {
                     %
                   </span>
                 </div>
-                <p className="text-[10px] text-gray-400">
-                  Enter value between 0% and 100%
-                </p>
+              
               </div>
             </div>
 
             {/* Commission Calculation - Shows when value > 0 */}
             {inputCommission > 0 && (
               <div className="mt-4 rounded-lg border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3">
-                <p className="text-sm text-blue-700 flex flex-wrap items-center gap-1">
-                  <span className="font-medium">📊 Commission Calculation:</span>
+                <p className="text-sm flex flex-wrap items-center gap-1">
+                  <span className="font-medium"> Commission Calculation:</span>
                   <span className="text-gray-600">₹1,00,00,000 ×</span>
-                  <span className="font-bold text-orange-600">{inputCommission}%</span>
+                  <span>{inputCommission}%</span>
                   <span className="text-gray-600">=</span>
-                  <span className="font-bold text-green-600 text-base">
+                  <span >
                     {formatIndianCurrency(commissionData.calculatedCommission)}
                   </span>
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  * Based on ₹1 Crore (₹10,000,000) trading volume
-                </p>
+               
               </div>
             )}
 
