@@ -19,6 +19,7 @@ import {
   UserX,
   Building,
   Users,
+  AlertTriangle,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import {
@@ -35,6 +36,15 @@ const PendingApprovals: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<'PENDING' | 'ALL'>(
     'PENDING',
   );
+
+  // Confirmation Modal State
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<{
+    type: 'approve' | 'delete';
+    item: any;
+    isBroker: boolean;
+  } | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // Broker Filters
   const [brokerSearch, setBrokerSearch] = useState('');
@@ -155,138 +165,69 @@ const PendingApprovals: React.FC = () => {
     navigate({ to: `/companybroker/pendingtradeprofile/${client.id}` });
   };
 
-  // Handlers for Broker - Approve with confirmation
+  // Open confirmation modal for Broker Approve
   const handleApproveBroker = (broker: any) => {
-    confirmAlert({
-      title: 'Confirm Approval',
-      message: `Are you sure you want to approve broker "${broker.fullname || ''}"?`,
-      buttons: [
-        {
-          label: 'Approve',
-          onClick: async () => {
-            try {
-              await approveBrokerMutation.mutateAsync({
-                id: broker.id,
-                superBrokerId: broker.superBrokerId || null,
-              });
-              refetchBrokers();
-            } catch (error) {
-              console.error(error);
-              toast.error('Failed to approve broker');
-            }
-          },
-          className: 'bg-emerald-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-emerald-700 transition',
-        },
-        {
-          label: 'Cancel',
-          onClick: () => { },
-          className: 'bg-gray-300 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-400 transition ml-2',
-        },
-      ],
-      overlayClassName: 'react-confirm-alert-overlay-custom',
-      customUI: ({ onClose }) => (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="mx-4 w-full max-w-sm rounded-2xl border-l-4 border-emerald-600 bg-white p-8 shadow-2xl">
-            <h1 className="mb-3 text-xl font-bold text-text-charcoal">
-              Confirm Approval
-            </h1>
-            <p className="mb-6 text-base leading-relaxed text-text-charcoal">
-              Are you sure you want to approve broker "{broker.fullname || ''}"?
-            </p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => onClose()}
-                className="rounded-lg bg-gray-300 px-6 py-2 font-semibold text-text-charcoal transition hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={async () => {
-                  try {
-                    await approveBrokerMutation.mutateAsync({
-                      id: broker.id,
-                      superBrokerId: broker.superBrokerId || null,
-                    });
-                    refetchBrokers();
-                    onClose();
-                  } catch (error) {
-                    console.error(error);
-                    toast.error('Failed to approve broker');
-                  }
-                }}
-                className="rounded-lg bg-emerald-600 px-6 py-2 font-semibold text-white transition hover:bg-emerald-700"
-              >
-                Approve
-              </button>
-            </div>
-          </div>
-        </div>
-      ),
-    });
+    setConfirmAction({ type: 'approve', item: broker, isBroker: true });
+    setShowConfirmModal(true);
   };
 
-  // DELETE CONFIRMATION POPUP FOR BROKER
+  // Open confirmation modal for Broker Delete
   const handleDeleteBroker = (broker: any) => {
-    confirmAlert({
-      title: 'Confirm Delete',
-      message: `Are you sure you want to delete broker "${broker.fullname || ''}"? This action cannot be undone.`,
-      buttons: [
-        {
-          label: 'Delete',
-          onClick: async () => {
-            try {
-              await deleteBrokerMutation.mutateAsync(broker.id);
-              refetchBrokers();
-            } catch (error) {
-              console.error(error);
-              toast.error('Failed to delete broker');
-            }
-          },
-          className: 'bg-red-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-red-700 transition',
-        },
-        {
-          label: 'Cancel',
-          onClick: () => { },
-          className: 'bg-gray-300 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-400 transition ml-2',
-        },
-      ],
-      overlayClassName: 'react-confirm-alert-overlay-custom',
-      customUI: ({ onClose }) => (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="mx-4 w-full max-w-sm rounded-2xl border-l-4 border-red-600 bg-white p-8 shadow-2xl">
-            <h1 className="mb-3 text-xl font-bold text-text-charcoal">
-              Confirm Delete
-            </h1>
-            <p className="mb-6 text-base leading-relaxed text-text-charcoal">
-              Are you sure you want to delete broker "{broker.fullname || ''}"? This action cannot be undone.
-            </p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => onClose()}
-                className="rounded-lg bg-gray-300 px-6 py-2 font-semibold text-text-charcoal transition hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={async () => {
-                  try {
-                    await deleteBrokerMutation.mutateAsync(broker.id);
-                    refetchBrokers();
-                    onClose();
-                  } catch (error) {
-                    console.error(error);
-                    toast.error('Failed to delete broker');
-                  }
-                }}
-                className="rounded-lg bg-red-600 px-6 py-2 font-semibold text-white transition hover:bg-red-700"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      ),
-    });
+    setConfirmAction({ type: 'delete', item: broker, isBroker: true });
+    setShowConfirmModal(true);
+  };
+
+  // Open confirmation modal for Client Approve
+  const handleApproveClient = (client: any) => {
+    setConfirmAction({ type: 'approve', item: client, isBroker: false });
+    setShowConfirmModal(true);
+  };
+
+  // Open confirmation modal for Client Delete
+  const handleDeleteClient = (client: any) => {
+    setConfirmAction({ type: 'delete', item: client, isBroker: false });
+    setShowConfirmModal(true);
+  };
+
+  // Handle confirmation action
+  const handleConfirmAction = async () => {
+    if (!confirmAction) return;
+
+    setIsProcessing(true);
+    try {
+      if (confirmAction.type === 'approve') {
+        if (confirmAction.isBroker) {
+          await approveBrokerMutation.mutateAsync({
+            id: confirmAction.item.id,
+            superBrokerId: confirmAction.item.superBrokerId || null,
+          });
+          // toast.success('Broker approved successfully!');
+          refetchBrokers();
+        } else {
+          await acceptCustomerMutation.mutateAsync(confirmAction.item.id);
+          // toast.success('Customer verified successfully!');
+          refetchCustomers();
+        }
+      } else if (confirmAction.type === 'delete') {
+        if (confirmAction.isBroker) {
+          await deleteBrokerMutation.mutateAsync(confirmAction.item.id);
+          // toast.success('Broker deleted successfully!');
+          refetchBrokers();
+        } else {
+          await deleteCustomerMutation.mutateAsync(confirmAction.item.id);
+          // toast.success('Customer deleted successfully!');
+          refetchCustomers();
+        }
+      }
+
+      setShowConfirmModal(false);
+      setConfirmAction(null);
+    } catch (error: any) {
+      console.error('Error:', error);
+      toast.error(error?.response?.data?.message || 'Failed to process request.');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   // EDIT BROKER - Different route from row click
@@ -318,134 +259,6 @@ const PendingApprovals: React.FC = () => {
       console.error(error);
       toast.error('Failed to update broker');
     }
-  };
-
-  // Handlers for Client - Verify with confirmation
-  const handleApproveClient = (client: any) => {
-    confirmAlert({
-      title: 'Confirm Verify',
-      message: `Are you sure you want to verify customer "${client?.user?.fullname || client?.fullname || ''}"?`,
-      buttons: [
-        {
-          label: 'Verify',
-          onClick: async () => {
-            try {
-              await acceptCustomerMutation.mutateAsync(client.id);
-              refetchCustomers();
-            } catch (error) {
-              console.error(error);
-              toast.error('Failed to verify customer');
-            }
-          },
-          className: 'bg-emerald-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-emerald-700 transition',
-        },
-        {
-          label: 'Cancel',
-          onClick: () => { },
-          className: 'bg-gray-300 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-400 transition ml-2',
-        },
-      ],
-      overlayClassName: 'react-confirm-alert-overlay-custom',
-      customUI: ({ onClose }) => (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="mx-4 w-full max-w-sm rounded-2xl border-l-4 border-emerald-600 bg-white p-8 shadow-2xl">
-            <h1 className="mb-3 text-xl font-bold text-text-charcoal">
-              Confirm Verify
-            </h1>
-            <p className="mb-6 text-base leading-relaxed text-text-charcoal">
-              Are you sure you want to verify customer "{client?.user?.fullname || client?.fullname || ''}"?
-            </p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => onClose()}
-                className="rounded-lg bg-gray-300 px-6 py-2 font-semibold text-text-charcoal transition hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={async () => {
-                  try {
-                    await acceptCustomerMutation.mutateAsync(client.id);
-                    refetchCustomers();
-                    onClose();
-                  } catch (error) {
-                    console.error(error);
-                    toast.error('Failed to verify customer');
-                  }
-                }}
-                className="rounded-lg bg-emerald-600 px-6 py-2 font-semibold text-white transition hover:bg-emerald-700"
-              >
-                Verify
-              </button>
-            </div>
-          </div>
-        </div>
-      ),
-    });
-  };
-
-  // DELETE CONFIRMATION POPUP FOR CLIENT
-  const handleDeleteClient = (client: any) => {
-    confirmAlert({
-      title: 'Confirm Delete',
-      message: `Are you sure you want to delete client "${client?.user?.fullname || client?.fullname || ''}"? This action cannot be undone.`,
-      buttons: [
-        {
-          label: 'Delete',
-          onClick: async () => {
-            try {
-              await deleteCustomerMutation.mutateAsync(client.id);
-              refetchCustomers();
-            } catch (error) {
-              console.error(error);
-              toast.error('Failed to delete customer');
-            }
-          },
-          className: 'bg-red-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-red-700 transition',
-        },
-        {
-          label: 'Cancel',
-          onClick: () => { },
-          className: 'bg-gray-300 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-400 transition ml-2',
-        },
-      ],
-      overlayClassName: 'react-confirm-alert-overlay-custom',
-      customUI: ({ onClose }) => (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="mx-4 w-full max-w-sm rounded-2xl border-l-4 border-red-600 bg-white p-8 shadow-2xl">
-            <h1 className="mb-3 text-xl font-bold text-text-charcoal">
-              Confirm Delete
-            </h1>
-            <p className="mb-6 text-base leading-relaxed text-text-charcoal">
-              Are you sure you want to delete client "{client?.user?.fullname || client?.fullname || ''}"? This action cannot be undone.
-            </p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => onClose()}
-                className="rounded-lg bg-gray-300 px-6 py-2 font-semibold text-text-charcoal transition hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={async () => {
-                  try {
-                    await deleteCustomerMutation.mutateAsync(client.id);
-                    refetchCustomers();
-                    onClose();
-                  } catch (error) {
-                    console.error(error);
-                    toast.error('Failed to delete customer');
-                  }
-                }}
-                className="rounded-lg bg-red-600 px-6 py-2 font-semibold text-white transition hover:bg-red-700"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      ),
-    });
   };
 
   // EDIT CLIENT - Different route from row click
@@ -613,7 +426,6 @@ const PendingApprovals: React.FC = () => {
           const isRejected = item?.user?.isRejected;
           const isPending = !isVerified && !isRejected;
 
-          // Only show actions if showActions is true AND item is pending
           if (!showActions || !isPending) {
             return <span className="text-gray-400 text-sm">-</span>;
           }
@@ -733,7 +545,6 @@ const PendingApprovals: React.FC = () => {
         const isRejected = item?.user?.isRejected;
         const isPending = !isVerified && !isRejected;
 
-        // Only show actions for pending items
         if (!isPending) {
           return <span className="text-gray-400 text-sm">-</span>;
         }
@@ -787,234 +598,322 @@ const PendingApprovals: React.FC = () => {
     return user && !user.isVerified && !user.isRejected;
   }).length;
 
+  // Get item name for confirmation modal
+  const getItemName = () => {
+    if (!confirmAction) return '';
+    if (confirmAction.isBroker) {
+      return confirmAction.item?.fullname || 'this broker';
+    }
+    return confirmAction.item?.user?.fullname || confirmAction.item?.fullname || 'this customer';
+  };
+
   return (
-    <div className="bg-gray-50/50 font-inter min-h-screen p-4 md:p-6 lg:p-8 bg-[#f8fafc]">
-      <div className="mx-auto max-w-[2000px]">
-        {/* Header */}
-        <div className="mb-6 md:mb-8">
-          <h1 className="flex items-center text-2xl font-semibold text-slate-900 md:text-3xl">
-            Pending Approvals
-          </h1>
-          <p className="text-gray-500 mt-1 text-sm">
-            Review and manage pending registrations for brokers and customers.
-          </p>
-        </div>
+    <>
+      <div className="bg-gray-50/50 font-inter min-h-screen p-4 md:p-6 lg:p-8 bg-[#f8fafc]">
+        <div className="mx-auto max-w-[2000px]">
+          {/* Header */}
+          <div className="mb-6 md:mb-8">
+            <h1 className="flex items-center text-2xl font-semibold text-slate-900 md:text-3xl">
+              Pending Approvals
+            </h1>
+            <p className="text-gray-500 mt-1 text-sm">
+              Review and manage pending registrations for brokers and customers.
+            </p>
+          </div>
 
-        {/* Tabs with Filter Integration */}
-        <div className="mb-6 border-b border-stroke">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  setActiveTab('brokers');
-                  setStatusFilter('PENDING');
-                }}
-                className={`flex items-center gap-2 rounded-t-lg px-4 py-2.5 text-sm font-medium transition-all md:px-6 ${activeTab === 'brokers'
-                  ? 'border-b-2 border-orange-500 text-orange-600'
-                  : 'text-gray-500 hover:text-gray-700'
-                  }`}
-              >
-                <Building className="h-4 w-4" />
-                Brokers
-                <span
-                  className={`ml-1 rounded-full px-2 py-0.5 text-xs ${activeTab === 'brokers'
-                    ? 'bg-orange-100 text-orange-600'
-                    : 'bg-gray-100 text-gray-600'
+          {/* Tabs with Filter Integration */}
+          <div className="mb-6 border-b border-stroke">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setActiveTab('brokers');
+                    setStatusFilter('PENDING');
+                  }}
+                  className={`flex items-center gap-2 rounded-t-lg px-4 py-2.5 text-sm font-medium transition-all md:px-6 ${activeTab === 'brokers'
+                    ? 'border-b-2 border-orange-500 text-orange-600'
+                    : 'text-gray-500 hover:text-gray-700'
                     }`}
                 >
-                  {pendingBrokersCount}
-                </span>
-              </button>
-              <button
-                onClick={() => {
-                  setActiveTab('clients');
-                  setStatusFilter('PENDING');
-                }}
-                className={`flex items-center gap-2 rounded-t-lg px-4 py-2.5 text-sm font-medium transition-all md:px-6 ${activeTab === 'clients'
-                  ? 'border-b-2 border-orange-500 text-orange-600'
-                  : 'text-gray-500 hover:text-gray-700'
-                  }`}
-              >
-                <Users className="h-4 w-4" />
-                Traders
-                <span
-                  className={`ml-1 rounded-full px-2 py-0.5 text-xs ${activeTab === 'clients'
-                    ? 'bg-orange-100 text-orange-600'
-                    : 'bg-gray-100 text-gray-600'
+                  <Building className="h-4 w-4" />
+                  Brokers
+                  <span
+                    className={`ml-1 rounded-full px-2 py-0.5 text-xs ${activeTab === 'brokers'
+                      ? 'bg-orange-100 text-orange-600'
+                      : 'bg-gray-100 text-gray-600'
+                      }`}
+                  >
+                    {pendingBrokersCount}
+                  </span>
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveTab('clients');
+                    setStatusFilter('PENDING');
+                  }}
+                  className={`flex items-center gap-2 rounded-t-lg px-4 py-2.5 text-sm font-medium transition-all md:px-6 ${activeTab === 'clients'
+                    ? 'border-b-2 border-orange-500 text-orange-600'
+                    : 'text-gray-500 hover:text-gray-700'
                     }`}
                 >
-                  {pendingClientsCount}
-                </span>
-              </button>
-            </div>
+                  <Users className="h-4 w-4" />
+                  Traders
+                  <span
+                    className={`ml-1 rounded-full px-2 py-0.5 text-xs ${activeTab === 'clients'
+                      ? 'bg-orange-100 text-orange-600'
+                      : 'bg-gray-100 text-gray-600'
+                      }`}
+                  >
+                    {pendingClientsCount}
+                  </span>
+                </button>
+              </div>
 
-            {/* Status Filter Toggle */}
-            <div className="flex items-center gap-2 rounded-lg border border-stroke bg-white p-1">
-              <button
-                onClick={() => setStatusFilter('PENDING')}
-                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all md:px-4 md:text-sm ${statusFilter === 'PENDING'
-                  ? 'bg-orange-500 text-white shadow-sm'
-                  : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-              >
-                Pending Only
-              </button>
-              <button
-                onClick={() => setStatusFilter('ALL')}
-                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all md:px-4 md:text-sm ${statusFilter === 'ALL'
-                  ? 'bg-orange-500 text-white shadow-sm'
-                  : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-              >
-                All Records
-              </button>
+              {/* Status Filter Toggle */}
+              <div className="flex items-center gap-2 rounded-lg border border-stroke bg-white p-1">
+                <button
+                  onClick={() => setStatusFilter('PENDING')}
+                  className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all md:px-4 md:text-sm ${statusFilter === 'PENDING'
+                    ? 'bg-orange-500 text-white shadow-sm'
+                    : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                >
+                  Pending Only
+                </button>
+                <button
+                  onClick={() => setStatusFilter('ALL')}
+                  className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all md:px-4 md:text-sm ${statusFilter === 'ALL'
+                    ? 'bg-orange-500 text-white shadow-sm'
+                    : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                >
+                  All Records
+                </button>
+              </div>
             </div>
           </div>
+
+          {/* Tab Content - Brokers */}
+          {activeTab === 'brokers' && (
+            <div className="rounded-2xl border border-stroke bg-white shadow-sm">
+              {/* Broker Filters Toolbar */}
+              <div className="border-b border-stroke p-4 md:p-6">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  <div className="relative">
+                    <Search className="text-gray-400 absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      placeholder="Search by name, phone or BK ID..."
+                      value={brokerSearch}
+                      onChange={(e) => setBrokerSearch(e.target.value)}
+                      className="bg-gray-50/50 text-gray-900 w-full rounded-xl border border-stroke py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
+                    />
+                  </div>
+
+                  <div className="relative ">
+                    <select
+                      value={selectedSuperBroker}
+                      onChange={(e) => setSelectedSuperBroker(e.target.value)}
+                      className="bg-gray-50/50 text-gray-900 w-full cursor-pointer appearance-none rounded-xl border border-stroke py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
+                    >
+                      <option value="">All Super Brokers</option>
+                      {superBrokerList.map((sb: any) => (
+                        <option key={sb.id} value={sb.id}>
+                          {sb.fullname} ({sb.SBID || sb.id?.substring(0, 6)})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="relative">
+                    <select
+                      value={selectedBroker}
+                      onChange={(e) => setSelectedBroker(e.target.value)}
+                      className="bg-gray-50/50 text-gray-900 w-full cursor-pointer appearance-none rounded-xl border border-stroke py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
+                    >
+                      <option value="">All Brokers</option>
+                      {brokerList.map((b: any) => (
+                        <option key={b.id} value={b.id}>
+                          {b.fullname} ({b.BKId || b.id?.substring(0, 6)})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Broker Table with Row Click */}
+              {isLoadingBrokers ? (
+                <div className="flex h-64 items-center justify-center">
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <GenericTable
+                    data={filteredBrokers}
+                    columns={brokerColumns}
+                    onRowClick={handleBrokerRowClick}
+                    clickable={true}
+                    searchAble={false}
+                    itemsPerPage={10}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Tab Content - Clients */}
+          {activeTab === 'clients' && (
+            <div className="rounded-2xl border border-stroke bg-white shadow-sm">
+              {/* Client Filters Toolbar */}
+              <div className="border-b border-stroke p-4 md:p-6">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  <div className="relative">
+                    <Search className="text-gray-400 absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      placeholder="Search by name, phone, email or CRN..."
+                      value={clientSearch}
+                      onChange={(e) => setClientSearch(e.target.value)}
+                      className="bg-gray-50/50 text-gray-900 w-full rounded-xl border border-stroke py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
+                    />
+                  </div>
+
+                  <div className="relative">
+                    <Filter className="text-gray-400 absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2" />
+                    <select
+                      value={clientSelectedSuperBroker}
+                      onChange={(e) =>
+                        setClientSelectedSuperBroker(e.target.value)
+                      }
+                      className="bg-gray-50/50 text-gray-900 w-full cursor-pointer appearance-none rounded-xl border border-stroke py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
+                    >
+                      <option value="all">All Super Brokers</option>
+                      {superBrokerList.map((sb: any) => (
+                        <option key={sb.id} value={sb.id}>
+                          {sb.fullname} ({sb.SBID || sb.id?.substring(0, 6)})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="relative">
+                    <Filter className="text-gray-400 absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2" />
+                    <select
+                      value={clientSelectedBroker}
+                      onChange={(e) => setClientSelectedBroker(e.target.value)}
+                      className="bg-gray-50/50 text-gray-900 w-full cursor-pointer appearance-none rounded-xl border border-stroke py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
+                    >
+                      <option value="">All Brokers</option>
+                      {brokerList.map((b: any) => (
+                        <option key={b.id} value={b.id}>
+                          {b.fullname} ({b.BKId || b.id?.substring(0, 6)})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Client Table with Row Click */}
+              {isLoadingCustomers ? (
+                <div className="flex h-64 items-center justify-center">
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <GenericTable
+                    data={filteredClients}
+                    columns={clientColumns}
+                    onRowClick={handleClientRowClick}
+                    clickable={true}
+                    searchAble={false}
+                    itemsPerPage={10}
+                  />
+                </div>
+              )}
+            </div>
+          )}
         </div>
-
-        {/* Tab Content - Brokers */}
-        {activeTab === 'brokers' && (
-          <div className="rounded-2xl border border-stroke bg-white shadow-sm">
-            {/* Broker Filters Toolbar */}
-            <div className="border-b border-stroke p-4 md:p-6">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <div className="relative">
-                  <Search className="text-gray-400 absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    placeholder="Search by name, phone or BK ID..."
-                    value={brokerSearch}
-                    onChange={(e) => setBrokerSearch(e.target.value)}
-                    className="bg-gray-50/50 text-gray-900 w-full rounded-xl border border-stroke py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
-                  />
-                </div>
-
-                <div className="relative ">
-                  <select
-                    value={selectedSuperBroker}
-                    onChange={(e) => setSelectedSuperBroker(e.target.value)}
-                    className="bg-gray-50/50 text-gray-900 w-full cursor-pointer appearance-none rounded-xl border border-stroke py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
-                  >
-                    <option value="">All Super Brokers</option>
-                    {superBrokerList.map((sb: any) => (
-                      <option key={sb.id} value={sb.id}>
-                        {sb.fullname} ({sb.SBID || sb.id?.substring(0, 6)})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="relative">
-                  <select
-                    value={selectedBroker}
-                    onChange={(e) => setSelectedBroker(e.target.value)}
-                    className="bg-gray-50/50 text-gray-900 w-full cursor-pointer appearance-none rounded-xl border border-stroke py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
-                  >
-                    <option value="">All Brokers</option>
-                    {brokerList.map((b: any) => (
-                      <option key={b.id} value={b.id}>
-                        {b.fullname} ({b.BKId || b.id?.substring(0, 6)})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Broker Table with Row Click */}
-            {isLoadingBrokers ? (
-              <div className="flex h-64 items-center justify-center">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <GenericTable
-                  data={filteredBrokers}
-                  columns={brokerColumns}
-                  onRowClick={handleBrokerRowClick}
-                  clickable={true}
-                  searchAble={false}
-                  itemsPerPage={10}
-                />
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Tab Content - Clients */}
-        {activeTab === 'clients' && (
-          <div className="rounded-2xl border border-stroke bg-white shadow-sm">
-            {/* Client Filters Toolbar */}
-            <div className="border-b border-stroke p-4 md:p-6">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <div className="relative">
-                  <Search className="text-gray-400 absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    placeholder="Search by name, phone, email or CRN..."
-                    value={clientSearch}
-                    onChange={(e) => setClientSearch(e.target.value)}
-                    className="bg-gray-50/50 text-gray-900 w-full rounded-xl border border-stroke py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
-                  />
-                </div>
-
-                <div className="relative">
-                  <Filter className="text-gray-400 absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2" />
-                  <select
-                    value={clientSelectedSuperBroker}
-                    onChange={(e) =>
-                      setClientSelectedSuperBroker(e.target.value)
-                    }
-                    className="bg-gray-50/50 text-gray-900 w-full cursor-pointer appearance-none rounded-xl border border-stroke py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
-                  >
-                    <option value="all">All Super Brokers</option>
-                    {superBrokerList.map((sb: any) => (
-                      <option key={sb.id} value={sb.id}>
-                        {sb.fullname} ({sb.SBID || sb.id?.substring(0, 6)})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="relative">
-                  <Filter className="text-gray-400 absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2" />
-                  <select
-                    value={clientSelectedBroker}
-                    onChange={(e) => setClientSelectedBroker(e.target.value)}
-                    className="bg-gray-50/50 text-gray-900 w-full cursor-pointer appearance-none rounded-xl border border-stroke py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
-                  >
-                    <option value="">All Brokers</option>
-                    {brokerList.map((b: any) => (
-                      <option key={b.id} value={b.id}>
-                        {b.fullname} ({b.BKId || b.id?.substring(0, 6)})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Client Table with Row Click */}
-            {isLoadingCustomers ? (
-              <div className="flex h-64 items-center justify-center">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <GenericTable
-                  data={filteredClients}
-                  columns={clientColumns}
-                  onRowClick={handleClientRowClick}
-                  clickable={true}
-                  searchAble={false}
-                  itemsPerPage={10}
-                />
-              </div>
-            )}
-          </div>
-        )}
       </div>
-    </div>
+
+      {/* Confirmation Modal */}
+      {showConfirmModal && confirmAction && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-slate-100 bg-white p-6 shadow-xl">
+            <div className="flex items-start gap-4 mb-4">
+              <div className={`rounded-full p-2 ${
+                confirmAction.type === 'approve' 
+                  ? 'bg-emerald-100' 
+                  : 'bg-red-100'
+              }`}>
+                {confirmAction.type === 'approve' ? (
+                  <UserCheck className={`h-6 w-6 ${
+                    confirmAction.type === 'approve' 
+                      ? 'text-emerald-600' 
+                      : 'text-red-600'
+                  }`} />
+                ) : (
+                  <Trash2 className="h-6 w-6 text-red-600" />
+                )}
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-slate-900">
+                  {confirmAction.type === 'approve' ? 'Confirm Approval' : 'Confirm Delete'}
+                </h3>
+                <p className="text-sm text-slate-600 mt-1">
+                  {confirmAction.type === 'approve' 
+                    ? `Are you sure you want to approve ${getItemName()}?`
+                    : `Are you sure you want to delete ${getItemName()}? This action cannot be undone.`
+                  }
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowConfirmModal(false);
+                  setConfirmAction(null);
+                }}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowConfirmModal(false);
+                  setConfirmAction(null);
+                }}
+                className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmAction}
+                disabled={isProcessing}
+                className={`flex-1 rounded-xl py-2.5 text-sm font-medium text-white shadow-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                  confirmAction.type === 'approve'
+                    ? 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-200'
+                    : 'bg-red-500 hover:bg-red-600 shadow-red-200'
+                }`}
+              >
+                {isProcessing ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    Processing...
+                  </span>
+                ) : (
+                  confirmAction.type === 'approve' ? 'Approve' : 'Delete'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

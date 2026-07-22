@@ -1284,13 +1284,8 @@ const BrokerProfile = () => {
             </button>
           </div>
           <div className="flex items-center gap-2 px-4 py-2">
-                 
-           <button
-              onClick={() => refetch()}
-              className="flex items-center gap-1 rounded-lg bg-orange-500 px-3 mr-3 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
-            >
-              <RefreshCcw size={16} /> Refresh
-            </button>
+
+
             <button
               onClick={handlePrintTables}
               className="flex items-center gap-2 rounded-lg bg-orange-500 px-3 py-1.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-orange-600 md:px-4 md:py-2"
@@ -1352,18 +1347,12 @@ const BrokerProfile = () => {
                       <option value="CLOSED">Closed</option>
                     </select>
                   </div>
-                  {(ledgerStartDate || ledgerEndDate) && (
-                    <button
-                      onClick={() => {
-                        const { startDate, endDate } = getCurrentWeekRange();
-                        setLedgerStartDate(startDate);
-                        setLedgerEndDate(endDate);
-                      }}
-                      className="bg-gray-200 text-gray-700 hover:bg-gray-300 rounded px-2 py-1 text-xs font-medium transition-colors dark:bg-meta-4 dark:text-white dark:hover:bg-meta-3 md:px-3 md:py-1.5 md:text-sm"
-                    >
-                      This Week
-                    </button>
-                  )}
+                  <button
+                    onClick={() => refetch()}
+                className="rounded bg-orange-500 flex px-1 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 mr-2"
+                  >
+                    <RefreshCcw size={16} /> Refresh
+                  </button>
                 </div>
               </div>
               {isLoadingLedger ? (

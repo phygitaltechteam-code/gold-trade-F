@@ -1,6 +1,6 @@
 /*eslint-disable*/
 import React from 'react';
-import {motion} from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   Landmark,
   Wallet,
@@ -13,12 +13,13 @@ import {
   Activity,
   CheckCircle,
 } from 'lucide-react';
-import {useAuthContext} from '@/context/AuthContext';
-import {useGetSuperBrokerDashboard} from '@/lib/api/dashboard';
+import { useAuthContext } from '@/context/AuthContext';
+import { useGetSuperBrokerDashboard } from '@/lib/api/dashboard';
+import { formatIndianCurrency } from '@/utils/formatIndianNumber';
 
 // Animation variants
 const containerVariants = {
-  hidden: {opacity: 0},
+  hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
@@ -28,7 +29,7 @@ const containerVariants = {
 };
 
 const itemVariants = {
-  hidden: {opacity: 0, y: 20},
+  hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
@@ -91,7 +92,7 @@ const FinancialStatCard = ({
 );
 
 const SuperBrokerDashboard: React.FC = () => {
-  const {user} = useAuthContext();
+  const { user } = useAuthContext();
   const {
     data: dashboardData,
     isLoading,
@@ -209,24 +210,24 @@ const SuperBrokerDashboard: React.FC = () => {
             amount={formatCurrency(dashboardStats.superBrokerTotalCommission)}
             icon={Wallet}
             iconColor="text-emerald-500"
-            // subtext="Total commission earned"
+          // subtext="Total commission earned"
           />
-           
-<FinancialStatCard
-  title="Paid Commission"
-  amount={formatCurrency(
-    dashboardStats.superBrokerTotalCommission - 
-    dashboardStats.pendingSuperBrokerCommission
-  )}
-  icon={CheckCircle}
-  iconColor="text-green-500"
-/>
-           <FinancialStatCard
+
+          <FinancialStatCard
+            title="Paid Commission"
+            amount={formatIndianCurrency(
+              dashboardStats.superBrokerTotalCommission -
+              dashboardStats.pendingSuperBrokerCommission
+            )}
+            icon={CheckCircle}
+            iconColor="text-green-500"
+          />
+          <FinancialStatCard
             title="Pending Commission"
-            amount={formatCurrency(dashboardStats.pendingSuperBrokerCommission)}
+            amount={formatIndianCurrency(dashboardStats.pendingSuperBrokerCommission)}
             icon={Clock}
             iconColor="text-orange-500"
-            // subtext="Awaiting settlement"
+          // subtext="Awaiting settlement"
           />
 
           {/* <StatCard
@@ -246,9 +247,9 @@ const SuperBrokerDashboard: React.FC = () => {
 
         {/* Row 2: Commission & Earnings Cards */}
         <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-{/*         */}
-           
-          
+          {/*         */}
+
+
 
 
           {/* <FinancialStatCard

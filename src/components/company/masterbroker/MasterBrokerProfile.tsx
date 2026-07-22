@@ -66,7 +66,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
   const [statusFilter, setStatusFilter] = useState('')
 
   const { data: profileData, refetch } = useGetAllMasterBrockerById(id);
-  const { data: ledgerData = [] } = useGetMasterbrokerLedgerById(id);
+  const { data: ledgerData = [], refetch: refetchLedger } = useGetMasterbrokerLedgerById(id);
   const { data: tradersData = [] } = useGetMasterbrokertraderdById(id);
   // console.log('tradersData', tradersData);
   console.log("profileData", profileData)
@@ -91,7 +91,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
       setEditData({
         fullname: profileData?.fullname || '',
         phoneNumber: profileData?.phoneNumber || '',
-        commission: profileData?.brokeragePercent?.toString() || '',
+        commission: profileData?.commission?.toString() || '',
         area: profileData?.area || '',
         aadharCardNumber: profileData?.aadharCardNumber || '',
         customerLimit: profileData?.customerLimit?.toString() || '',
@@ -197,7 +197,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
     }));
   }, [paymentData]);
 
-  // Customer Table Columns - Same as Broker Profile
+  // Customer Table Columns - Updated with exact columns
   const customerColumns = [
     {
       header: 'Trader Name',
@@ -209,65 +209,87 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
       ),
     },
     {
-      header: 'Phone Number',
-      accessor: 'user.phoneNumber',
-      render: (item: any) => (
-        <span className="text-gray-700">{item?.user?.phoneNumber || '-'}</span>
-      ),
+      header: 'Broker Name',
+      accessor: 'brokerName',
+      render: (item: any) => {
+        const brokerName = item?.broker?.user?.fullname || item?.brokerName || '-';
+        return (
+          <span className="text-gray-700 text-sm">{brokerName}</span>
+        );
+      },
     },
     {
-      header: 'CRN',
-      accessor: 'CRN',
-      render: (item: any) => (
-        <span className="font-mono text-gray-600 text-sm font-medium">
-          {item?.CRN || '-'}
-        </span>
-      ),
+      header: 'Super Broker Name',
+      accessor: 'superBrokerName',
+      render: (item: any) => {
+        const superBrokerName = item?.broker?.superBroker?.user?.fullname ||
+          item?.superBrokerName ||
+          item?.superBroker?.fullname ||
+          '-';
+        return (
+          <span className="text-gray-700 text-sm">{superBrokerName}</span>
+        );
+      },
     },
     {
-      header: 'Commission',
-      accessor: 'brokeragePercent',
-      render: (item: any) => (
-        <span className="rounded border border-orange-100 bg-orange-50 px-2 py-1 text-xs font-bold text-orange-600">
-          {item?.brokeragePercent ? `${item.brokeragePercent}%` : '-'}
-        </span>
-      ),
+      header: 'Wallet Balance',
+      accessor: 'walletBalance',
+      render: (item: any) => {
+        const amount = item?.walletBalance || item?.wallets?.amount || 0;
+        return (
+          <span className="font-medium text-gray-900">
+            {formatIndianCurrency(amount)}
+          </span>
+        );
+      },
     },
     {
-      header: 'Address',
-      accessor: 'address',
-      render: (item: any) => (
-        <span className="text-gray-700 text-sm">
-          {item?.address || item?.area || '-'}
-        </span>
-      ),
+      header: 'Asset Under Control',
+      accessor: 'assetUnderControl',
+      render: (item: any) => {
+        const amount = item?.assetUnderControl || item?.wallets?.blockedAmount || 0;
+        return (
+          <span className="font-medium text-gray-900">
+            {formatIndianCurrency(amount)}
+          </span>
+        );
+      },
     },
     {
-      header: 'Total Business',
-      accessor: 'totalBusiness',
-      render: (item: any) => (
-        <span className="font-semibold text-gray-700">
-          {formatIndianCurrency(item?.totalBusiness)}
-        </span>
-      ),
+      header: 'Margin Amount',
+      accessor: 'marginAmount',
+      render: (item: any) => {
+        const amount = item?.marginAmount || 0;
+        return (
+          <span className="font-medium text-gray-900">
+            {formatIndianCurrency(amount)}
+          </span>
+        );
+      },
     },
     {
-      header: 'Total Commission',
-      accessor: 'totalCommission',
-      render: (item: any) => (
-        <span className="font-semibold text-green-600">
-          {formatIndianCurrency(item?.totalCommission)}
-        </span>
-      ),
+      header: 'Total Active Trade',
+      accessor: 'totalActiveTrade',
+      render: (item: any) => {
+        const count = item?.totalActiveTrade || item?._count?.trades || 0;
+        return (
+          <span className="text-gray-700 text-sm font-medium">
+            {count}
+          </span>
+        );
+      },
     },
     {
-      header: 'Pending Commission',
-      accessor: 'pendingCommission',
-      render: (item: any) => (
-        <span className="font-semibold text-orange-500">
-          {formatIndianCurrency(item?.pendingCommission)}
-        </span>
-      ),
+      header: 'Total Trade',
+      accessor: 'totalTrade',
+      render: (item: any) => {
+        const amount = item?.totalTrade || 0;
+        return (
+          <span className="font-medium text-gray-900">
+            {formatIndianCurrency(amount)}
+          </span>
+        );
+      },
     },
   ];
 
@@ -586,7 +608,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
 
         <div className="flex flex-col items-center justify-center rounded-lg border border-stroke bg-white p-4 shadow-default dark:border-strokedark dark:bg-boxdark md:p-6">
           <h4 className="text-xl font-bold text-orange-500 md:text-2xl">
-            
+
             {formatIndianCurrency(profileData?.summary?.totalPnL)}
           </h4>
           <span className="text-gray-500 mt-1 text-xs font-medium sm:text-sm">
@@ -619,15 +641,10 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
             >
               Traders ({tradersData.length || 0})
             </button>
-            
+
           </div>
-          
-           <button
-              onClick={() => refetch()}
-              className="flex items-center gap-1 rounded-lg bg-orange-500 px-3 mr-3 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
-            >
-              <RefreshCcw size={16} /> Refresh
-            </button>
+
+        
         </div>
 
 
@@ -643,6 +660,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
               setIsLedgerExpanded={setIsLedgerExpanded}
               filteredLedgerData={filteredLedgerData}
               ledgerColumns={baseLedgerColumns}
+              refetchLedger={refetchLedger}
             />
           )}
 

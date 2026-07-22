@@ -200,6 +200,7 @@ const Dashboard: React.FC = () => {
     activeCustomers: dashboardData?.cards?.customers?.active ?? 0,
     totalActiveTrends: dashboardData?.cards?.activeTrends?.total ?? 0,
     totalActiveTrendsAmount: 0,
+    activeTrades: dashboardData?.cards?.activeTrades ?? 0,
     adminCommission: dashboardData?.cards?.adminCommission ?? 0,
     totalCustomerWalletBalance:
       dashboardData?.cards?.totalCustomerWalletBalance ?? 0,
@@ -297,8 +298,8 @@ const Dashboard: React.FC = () => {
             iconColor="text-emerald-500"
           />
           <FinancialStatCard
-            title="Total Active"
-            amount={formatCurrency(dashboardStats.totalCustomerWalletBalance)}
+            title="Total Active Trades"
+            amount={formatCurrency(dashboardStats.activeTrades)}
             icon={Wallet}
             iconColor="text-blue-500"
           />

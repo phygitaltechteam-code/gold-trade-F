@@ -276,14 +276,17 @@ const SetCommission = () => {
 
             {/* Commission Calculation - Single Line */}
             {inputCommission > 0 && (
-              <div className="mt-2 rounded-lg border border-blue-100 bg-blue-50 px-4 py-2">
-                <p className="text-sm text-blue-700">
-                  <span className="font-medium">Commission Calculation:</span>{' '}
-                  ₹1,00,00,000 × {inputCommission}% ={' '}
-                  <span className="font-semibold text-green-600">
+              <div className="mt-4 rounded-lg border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3">
+                <p className="text-sm flex flex-wrap items-center gap-1">
+                  <span className="font-medium"> Commission Calculation:</span>
+                  <span className="text-gray-600">₹1,00,00,000 ×</span>
+                  <span>{inputCommission}%</span>
+                  <span className="text-gray-600">=</span>
+                  <span >
                     {formatIndianCurrency(commissionData.calculatedCommission)}
                   </span>
                 </p>
+
               </div>
             )}
 
