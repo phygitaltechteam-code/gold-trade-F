@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Database, Edit2, Eye, EyeOff, X, Shield, AlertCircle } from 'lucide-react';
-import { set } from 'lodash';
 import { useEditProfile, useGetCommission, useGetProfile, useResetPassword, useResetPin, useSetComission } from '@/lib/api/masterpanelapi/profile';
 import toast from 'react-hot-toast';
 
 const SetCommission = () => {
-  const [makerFee, setMakerFee] = useState('0.15');
+  const [makerFee, setMakerFee] = useState<string>(''); // Changed to string for input
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const { data: commission, refetch } = useGetCommission();
   const { mutateAsync: setCommission } = useSetComission();
@@ -25,6 +24,16 @@ const SetCommission = () => {
   const { data: profile } = useGetProfile();
   const { mutate: editProfile } = useEditProfile();
 
+  // ✅ Load current commission on component mount
+  useEffect(() => {
+    if (commission) {
+      const currentCommission = commission?.upcomingBrokeragePercent > 0
+        ? commission?.upcomingBrokeragePercent
+        : commission?.brokeragePercent || 0;
+      setMakerFee(String(currentCommission)); // Set default value
+    }
+  }, [commission]);
+
   // Calculate commission values for display
   const calculateCommission = (commissionPercent: number) => {
     const baseAmount = 10000000; // 1 Crore
@@ -36,11 +45,7 @@ const SetCommission = () => {
     };
   };
 
-  const currentCommission = commission?.upcomingBrokeragePercent > 0
-    ? commission?.upcomingBrokeragePercent
-    : commission?.brokeragePercent || 0;
-
-  // Get current input value or default to current commission
+  // Get current input value or default to 0
   const inputCommission = parseFloat(makerFee) || 0;
   const commissionData = calculateCommission(inputCommission);
 
@@ -172,11 +177,15 @@ const SetCommission = () => {
     });
   };
 
-  // Open PIN popup before saving
+  // ✅ Open PIN popup before saving
   const handleSaveClick = () => {
     const commissionValue = parseFloat(makerFee);
     if (isNaN(commissionValue) || commissionValue < 0) {
       toast.error('Please enter a valid commission percentage');
+      return;
+    }
+    if (commissionValue > 100) {
+      toast.error('Commission cannot exceed 100%');
       return;
     }
     setShowPinPopup(true);
@@ -184,8 +193,9 @@ const SetCommission = () => {
     setError('');
   };
 
-  // Submit with PIN verification
+  // ✅ Submit with PIN verification
   const submitWithPin = async () => {
+    // Validate PIN
     if (!securityPin || securityPin.length < 6) {
       setError('Please enter a valid 6-digit security PIN');
       return;
@@ -199,25 +209,28 @@ const SetCommission = () => {
         return;
       }
 
-      // Send both commission and securityPin as an object
+      // ✅ Send commission and securityPin to API
       await setCommission({
         commission: commissionValue,
         securityPin: securityPin
       });
 
-      // toast.success('Commission updated successfully!');
+      toast.success(`Commission updated to ${commissionValue}% successfully!`);
       setShowPinPopup(false);
       setSecurityPin('');
-      refetch();
+      refetch(); // Refresh commission data
     } catch (error: any) {
       console.error('Error updating commission:', error);
+      
       // Handle validation errors from the API
       if (error?.response?.data?.errors) {
         const errors = error.response.data.errors;
         const errorMessages = errors.map((err: any) => `${err.field}: ${err.message}`).join(', ');
         toast.error(errorMessages);
+      } else if (error?.response?.data?.message) {
+        toast.error(error.response.data.message);
       } else {
-        toast.error(error?.response?.data?.message || 'Failed to update commission. Please check your PIN.');
+        toast.error('Failed to update commission. Please check your PIN and try again.');
       }
     } finally {
       setIsSubmitting(false);
@@ -239,15 +252,23 @@ const SetCommission = () => {
       <div className="font-sans min-h-screen bg-[#F8F9FA] text-[#1A1A1A]">
         <main className="mx-auto max-w-7xl space-y-4 px-4 py-4 sm:space-y-6 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
           <section className="overflow-hidden rounded-xl border border-stroke bg-white p-6 shadow-sm">
-            <div className="flex flex-col gap-3 border-b border-stroke sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex flex-col gap-3 border-b border-stroke pb-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <h2 className="flex items-center gap-2 text-base font-semibold sm:text-lg">
+                  <Database className="h-5 w-5 text-orange-500" />
                   Set Commission
                 </h2>
+                <p className="mt-1 text-xs text-gray-500">
+                  Set brokerage commission percentage for your clients
+                </p>
+              </div>
+              {/* Show current commission */}
+              <div className="rounded-lg bg-orange-50 px-3 py-1.5 text-xs font-medium text-orange-600 border border-orange-200">
+                Current: {inputCommission || 0}%
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-2 sm:gap-6 sm:py-6 lg:gap-8">
+            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:gap-8">
               <div className="space-y-2">
                 <label className="text-gray-500 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider sm:text-xs">
                   Commission (%)
@@ -267,30 +288,39 @@ const SetCommission = () => {
                     %
                   </span>
                 </div>
+                <p className="text-[10px] text-gray-400">
+                  Enter value between 0% and 100%
+                </p>
               </div>
             </div>
 
-            {/* Commission Calculation - Single Line */}
+            {/* Commission Calculation - Shows when value > 0 */}
             {inputCommission > 0 && (
-              <div className="mt-2 rounded-lg border border-blue-100 bg-blue-50 px-4 py-2">
-                <p className="text-sm text-blue-700">
-                  <span className="font-medium">Commission Calculation:</span>{' '}
-                  ₹1,00,00,000 × {inputCommission}% ={' '}
-                  <span className="font-semibold text-green-600">
+              <div className="mt-4 rounded-lg border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3">
+                <p className="text-sm text-blue-700 flex flex-wrap items-center gap-1">
+                  <span className="font-medium">📊 Commission Calculation:</span>
+                  <span className="text-gray-600">₹1,00,00,000 ×</span>
+                  <span className="font-bold text-orange-600">{inputCommission}%</span>
+                  <span className="text-gray-600">=</span>
+                  <span className="font-bold text-green-600 text-base">
                     {formatIndianCurrency(commissionData.calculatedCommission)}
                   </span>
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  * Based on ₹1 Crore (₹10,000,000) trading volume
                 </p>
               </div>
             )}
 
-            <div className="flex justify-end mt-4">
+            {/* Save Button */}
+            <div className="flex justify-end mt-6 pt-4 border-t border-stroke">
               <button
                 type="button"
-                className="flex items-center gap-2 rounded-lg bg-[#F27D26] px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-[#E06D1F]"
+                className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 px-6 py-2.5 text-sm font-medium text-white shadow-md transition-all hover:scale-[1.02] hover:shadow-lg"
                 onClick={handleSaveClick}
               >
                 <Database className="h-4 w-4" />
-                <span>Save</span>
+                <span>Save Commission</span>
               </button>
             </div>
           </section>
@@ -312,7 +342,7 @@ const SetCommission = () => {
                   setSecurityPin('');
                   setError('');
                 }}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -354,7 +384,7 @@ const SetCommission = () => {
                   </p>
                 )}
                 <p className="mt-1 text-xs text-gray-400">
-                  Enter the 6-digit security PIN set for your account
+                  Enter the 6-digit security PIN to confirm commission update
                 </p>
               </div>
 
@@ -374,7 +404,7 @@ const SetCommission = () => {
                   type="button"
                   onClick={submitWithPin}
                   disabled={isSubmitting}
-                  className="flex-1 rounded-xl bg-orange-500 py-2.5 text-sm font-medium text-white shadow-md shadow-orange-200 transition-colors hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 py-2.5 text-sm font-medium text-white shadow-md shadow-orange-200 transition-all hover:scale-[1.02] hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? (
                     <span className="flex items-center justify-center gap-2">

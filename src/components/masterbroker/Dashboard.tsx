@@ -298,7 +298,7 @@ const Dashboard: React.FC = () => {
           />
           <FinancialStatCard
             title="Total Active"
-            amount={formatNumber(dashboardStats.totalCustomerWalletBalance)}
+            amount={formatCurrency(dashboardStats.totalCustomerWalletBalance)}
             icon={Wallet}
             iconColor="text-blue-500"
           />
