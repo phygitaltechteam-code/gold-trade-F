@@ -37,6 +37,7 @@ import {
 } from '@/lib/api/addbroker';
 import { useNavigate } from '@tanstack/react-router';
 import { CheckCircle, Clock, DollarSign, Eye, EyeOff, UserCheck, Users } from 'lucide-react';
+import { formatIndianCurrency } from '@/utils/formatIndianNumber';
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -307,7 +308,7 @@ const DisplayBroker = ({ refreshTrigger }: { refreshTrigger?: boolean }) => {
     (b) => b.id === selectedBroker?.id,
   );
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 2,
@@ -337,15 +338,16 @@ const DisplayBroker = ({ refreshTrigger }: { refreshTrigger?: boolean }) => {
           />
           <StatCard
             title="Total Commission"
-            value={formatCurrency(totalCommission)}
-            icon={DollarSign}
+            value={formatIndianCurrency(totalCommission)}
+           
             iconColor="text-purple-500"
             bgColor="bg-purple-50"
           />
+          
           <StatCard
             title="Paid Commission"
             value={
-              formatCurrency(
+              formatIndianCurrency(
                 Number.isInteger(paidCommission)
                   ? paidCommission
                   : Number(paidCommission)
@@ -358,7 +360,7 @@ const DisplayBroker = ({ refreshTrigger }: { refreshTrigger?: boolean }) => {
           <StatCard
             title="Pending Commission"
             value={
-              formatCurrency(
+              formatIndianCurrency(
                 Number.isInteger(pendingCommission)
                   ? pendingCommission
                   : Number(pendingCommission.toFixed(2))

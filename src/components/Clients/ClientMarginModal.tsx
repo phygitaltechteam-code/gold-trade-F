@@ -74,7 +74,7 @@ export const ClientMarginModal: React.FC<ClientMarginModalProps> = ({
                 className="w-full rounded-xl border border-slate-200 px-4 py-2.5 pr-12 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
               />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-400">
-                X
+                
               </span>
             </div>
           </div>
@@ -83,7 +83,7 @@ export const ClientMarginModal: React.FC<ClientMarginModalProps> = ({
           {intradayValue > 0 && (
             <div className="mt-2 rounded-xl bg-orange-50 px-4 py-3 border border-orange-200">
               <p className="text-sm text-orange-700">
-                💡 You can buy trades upto <strong>₹{maxIntradayTrade.toLocaleString('en-IN')}</strong>
+                 You can buy trades upto <strong>₹{maxIntradayTrade.toLocaleString('en-IN')}</strong>
               </p>
               <p className="text-xs text-orange-500 mt-1">
                 Wallet: ₹{walletBalance.toLocaleString('en-IN')} × {intradayValue}X = ₹{maxIntradayTrade.toLocaleString('en-IN')}
@@ -106,7 +106,7 @@ export const ClientMarginModal: React.FC<ClientMarginModalProps> = ({
                 className="w-full rounded-xl border border-slate-200 px-4 py-2.5 pr-12 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
               />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-400">
-                X
+                
               </span>
             </div>
           </div>
@@ -115,7 +115,7 @@ export const ClientMarginModal: React.FC<ClientMarginModalProps> = ({
           {holdingValue > 0 && (
             <div className="mt-2 rounded-xl bg-blue-50 px-4 py-3 border border-blue-200">
               <p className="text-sm text-blue-700">
-                💰 You can hold trades upto <strong>₹{maxHoldingTrade.toLocaleString('en-IN')}</strong>
+                You can hold trades upto <strong>₹{maxHoldingTrade.toLocaleString('en-IN')}</strong>
               </p>
               <p className="text-xs text-blue-500 mt-1">
                 Wallet: ₹{walletBalance.toLocaleString('en-IN')} × {holdingValue}X = ₹{maxHoldingTrade.toLocaleString('en-IN')}
