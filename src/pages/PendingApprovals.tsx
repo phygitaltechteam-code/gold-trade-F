@@ -699,6 +699,7 @@ const PendingApprovals: React.FC = () => {
               {/* Broker Filters Toolbar */}
               <div className="border-b border-stroke p-4 md:p-6">
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  {/* Search Bar */}
                   <div className="relative">
                     <Search className="text-gray-400 absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2" />
                     <input
@@ -710,11 +711,12 @@ const PendingApprovals: React.FC = () => {
                     />
                   </div>
 
-                  <div className="relative ">
+                  {/* Super Broker Filter - Updated to match the style */}
+                  <div className="relative w-full">
                     <select
                       value={selectedSuperBroker}
                       onChange={(e) => setSelectedSuperBroker(e.target.value)}
-                      className="bg-gray-50/50 text-gray-900 w-full cursor-pointer appearance-none rounded-xl border border-stroke py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 md:py-3"
                     >
                       <option value="">All Super Brokers</option>
                       {superBrokerList.map((sb: any) => (
@@ -725,11 +727,12 @@ const PendingApprovals: React.FC = () => {
                     </select>
                   </div>
 
-                  <div className="relative">
+                  {/* Broker Filter - Updated to match the style */}
+                  <div className="relative w-full">
                     <select
                       value={selectedBroker}
                       onChange={(e) => setSelectedBroker(e.target.value)}
-                      className="bg-gray-50/50 text-gray-900 w-full cursor-pointer appearance-none rounded-xl border border-stroke py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 md:py-3"
                     >
                       <option value="">All Brokers</option>
                       {brokerList.map((b: any) => (
@@ -768,6 +771,7 @@ const PendingApprovals: React.FC = () => {
               {/* Client Filters Toolbar */}
               <div className="border-b border-stroke p-4 md:p-6">
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  {/* Search Bar */}
                   <div className="relative">
                     <Search className="text-gray-400 absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2" />
                     <input
@@ -779,14 +783,13 @@ const PendingApprovals: React.FC = () => {
                     />
                   </div>
 
-                  <div className="relative">
-                    <Filter className="text-gray-400 absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2" />
+                  {/* Super Broker Filter */}
+                  <div className="relative w-full">
+
                     <select
                       value={clientSelectedSuperBroker}
-                      onChange={(e) =>
-                        setClientSelectedSuperBroker(e.target.value)
-                      }
-                      className="bg-gray-50/50 text-gray-900 w-full cursor-pointer appearance-none rounded-xl border border-stroke py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
+                      onChange={(e) => setClientSelectedSuperBroker(e.target.value)}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 pl-10 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 md:py-3"
                     >
                       <option value="all">All Super Brokers</option>
                       {superBrokerList.map((sb: any) => (
@@ -797,12 +800,13 @@ const PendingApprovals: React.FC = () => {
                     </select>
                   </div>
 
-                  <div className="relative">
-                    <Filter className="text-gray-400 absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2" />
+                  {/* Broker Filter */}
+                  <div className="relative w-full">
+
                     <select
                       value={clientSelectedBroker}
                       onChange={(e) => setClientSelectedBroker(e.target.value)}
-                      className="bg-gray-50/50 text-gray-900 w-full cursor-pointer appearance-none rounded-xl border border-stroke py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 pl-10 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 md:py-3"
                     >
                       <option value="">All Brokers</option>
                       {brokerList.map((b: any) => (
@@ -842,17 +846,15 @@ const PendingApprovals: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-2xl border border-slate-100 bg-white p-6 shadow-xl">
             <div className="flex items-start gap-4 mb-4">
-              <div className={`rounded-full p-2 ${
-                confirmAction.type === 'approve' 
-                  ? 'bg-emerald-100' 
-                  : 'bg-red-100'
-              }`}>
+              <div className={`rounded-full p-2 ${confirmAction.type === 'approve'
+                ? 'bg-emerald-100'
+                : 'bg-red-100'
+                }`}>
                 {confirmAction.type === 'approve' ? (
-                  <UserCheck className={`h-6 w-6 ${
-                    confirmAction.type === 'approve' 
-                      ? 'text-emerald-600' 
-                      : 'text-red-600'
-                  }`} />
+                  <UserCheck className={`h-6 w-6 ${confirmAction.type === 'approve'
+                    ? 'text-emerald-600'
+                    : 'text-red-600'
+                    }`} />
                 ) : (
                   <Trash2 className="h-6 w-6 text-red-600" />
                 )}
@@ -862,7 +864,7 @@ const PendingApprovals: React.FC = () => {
                   {confirmAction.type === 'approve' ? 'Confirm Approval' : 'Confirm Delete'}
                 </h3>
                 <p className="text-sm text-slate-600 mt-1">
-                  {confirmAction.type === 'approve' 
+                  {confirmAction.type === 'approve'
                     ? `Are you sure you want to approve ${getItemName()}?`
                     : `Are you sure you want to delete ${getItemName()}? This action cannot be undone.`
                   }
@@ -894,11 +896,10 @@ const PendingApprovals: React.FC = () => {
                 type="button"
                 onClick={handleConfirmAction}
                 disabled={isProcessing}
-                className={`flex-1 rounded-xl py-2.5 text-sm font-medium text-white shadow-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-                  confirmAction.type === 'approve'
-                    ? 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-200'
-                    : 'bg-red-500 hover:bg-red-600 shadow-red-200'
-                }`}
+                className={`flex-1 rounded-xl py-2.5 text-sm font-medium text-white shadow-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${confirmAction.type === 'approve'
+                  ? 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-200'
+                  : 'bg-red-500 hover:bg-red-600 shadow-red-200'
+                  }`}
               >
                 {isProcessing ? (
                   <span className="flex items-center justify-center gap-2">

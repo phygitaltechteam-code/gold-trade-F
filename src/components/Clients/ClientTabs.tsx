@@ -1,13 +1,15 @@
 import React, { useState, useMemo } from 'react';
 import GenericTable from '@/components/Forms/Table/GenericTable';
+import { RefreshCcw } from 'lucide-react';
 
 interface ClientTabsProps {
   activeTab: string;
   setActiveTab: (val: string) => void;
   tradingLedgerData: any[];
-  paymentData:any[],
+  paymentData: any[],
   ledgerColumns: any[];
   tradingLedgerColumns: any[];
+  refetchLedger: () => void
 }
 
 export const ClientTabs: React.FC<ClientTabsProps> = ({
@@ -17,6 +19,7 @@ export const ClientTabs: React.FC<ClientTabsProps> = ({
   paymentData,
   ledgerColumns,
   tradingLedgerColumns,
+  refetchLedger,
 }) => {
   const [statusFilter, setStatusFilter] = useState('');
 
@@ -38,21 +41,19 @@ export const ClientTabs: React.FC<ClientTabsProps> = ({
         <div className="flex flex-wrap">
           <button
             onClick={() => setActiveTab('ledger')}
-            className={`px-3 py-2 text-xs font-semibold transition-colors md:px-4 md:py-3 md:text-sm ${
-              activeTab === 'ledger'
+            className={`px-3 py-2 text-xs font-semibold transition-colors md:px-4 md:py-3 md:text-sm ${activeTab === 'ledger'
                 ? 'border-b-2 border-orange-500 text-orange-500'
                 : 'text-slate-500 hover:text-slate-700'
-            }`}
+              }`}
           >
             Trader Ledger ({filteredLedgerData.length})
           </button>
           <button
             onClick={() => setActiveTab('payment')}
-            className={`px-3 py-2 text-xs font-semibold transition-colors md:px-4 md:py-3 md:text-sm ${
-              activeTab === 'payment'
+            className={`px-3 py-2 text-xs font-semibold transition-colors md:px-4 md:py-3 md:text-sm ${activeTab === 'payment'
                 ? 'border-b-2 border-orange-500 text-orange-500'
                 : 'text-slate-500 hover:text-slate-700'
-            }`}
+              }`}
           >
             Payment History ({paymentData.length})
           </button>
@@ -69,8 +70,19 @@ export const ClientTabs: React.FC<ClientTabsProps> = ({
               <option value="OPEN">Open</option>
               <option value="CLOSED">Closed</option>
             </select>
+            <button
+              onClick={() => refetchLedger()}
+              className="rounded bg-orange-500 flex px-1 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 mr-2"
+            >
+              <RefreshCcw size={16} /> Refresh
+            </button>
+
           </div>
         )}
+
+
+
+
       </div>
 
       {activeTab === 'ledger' && (
@@ -88,7 +100,7 @@ export const ClientTabs: React.FC<ClientTabsProps> = ({
               isSearchable={true}
             />
           ) : (
-             <div className="flex h-64 items-center justify-center">
+            <div className="flex h-64 items-center justify-center">
               <p className="text-slate-400">No payment entries found</p>
             </div>
           )}

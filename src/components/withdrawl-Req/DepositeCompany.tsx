@@ -1,5 +1,5 @@
-import React, {useState, useMemo} from 'react';
-import {useQueryClient} from '@tanstack/react-query';
+import React, { useState, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   Search,
   Filter,
@@ -11,9 +11,9 @@ import {
   Users,
   Activity,
 } from 'lucide-react';
-import {motion, AnimatePresence} from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import GenericTable from '@/components/Forms/Table/GenericTable';
-import {useGetDepositeCompany} from '@/lib/react-query/withdrawal';
+import { useGetDepositeCompany } from '@/lib/react-query/withdrawal';
 
 // Simple Stat Card Component - Only title, value, and icon
 const StatCard = ({
@@ -83,7 +83,7 @@ interface DepositRequest {
 
 export default function DepositeCompany() {
   const queryClient = useQueryClient();
-  const {data: deposits, refetch} = useGetDepositeCompany();
+  const { data: deposits, refetch } = useGetDepositeCompany();
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [showMobileFilter, setShowMobileFilter] = useState(false);
@@ -127,7 +127,7 @@ export default function DepositeCompany() {
       hour12: true,
     });
 
-    return {date: formattedDate, time: formattedTime};
+    return { date: formattedDate, time: formattedTime };
   };
 
   // Date filtering logic - If no dates selected, show all data
@@ -233,23 +233,23 @@ export default function DepositeCompany() {
         <div className="text-gray-900 text-sm">{row?.customerName}</div>
       ),
     },
-    
-   {
-  header: 'Super Broker',
-  accessor: (row: DepositRequest) => (
-    <div className="text-gray-900 text-sm">
-      {row?.customer?.broker?.superBroker?.user?.fullname || '-'}
-    </div>
-  ),
-},
-{
-  header: 'Broker',
-  accessor: (row: DepositRequest) => (
-    <div className="text-gray-900 text-sm">
-      {row?.customer?.broker?.user?.fullname || '-'}
-    </div>
-  ),
-},
+
+    {
+      header: 'Super Broker',
+      accessor: (row: DepositRequest) => (
+        <div className="text-gray-900 text-sm">
+          {row?.customer?.broker?.superBroker?.user?.fullname || '-'}
+        </div>
+      ),
+    },
+    {
+      header: 'Broker',
+      accessor: (row: DepositRequest) => (
+        <div className="text-gray-900 text-sm">
+          {row?.customer?.broker?.user?.fullname || '-'}
+        </div>
+      ),
+    },
     {
       header: 'Amount',
       accessor: (row: DepositRequest) => (
@@ -331,7 +331,7 @@ export default function DepositeCompany() {
             </div>
             <button
               onClick={() => refetch()}
-              className="flex items-center gap-1 rounded-lg bg-orange-500 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
+              className="rounded bg-orange-500 flex px-1 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 mr-2"
             >
               <RefreshCcw size={16} /> Refresh
             </button>
@@ -400,9 +400,9 @@ export default function DepositeCompany() {
           <AnimatePresence>
             {showMobileFilter && (
               <motion.div
-                initial={{opacity: 0, height: 0}}
-                animate={{opacity: 1, height: 'auto'}}
-                exit={{opacity: 0, height: 0}}
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
                 className="bg-gray-50/50 border-b border-stroke p-4 sm:hidden"
               >
                 <h3 className="text-gray-400 mb-2 text-xs font-bold">

@@ -1225,10 +1225,10 @@ const SuperBrokerProfile = () => {
             </button>
           </div>
           <div className="flex items-center gap-2 px-4 py-2">
-            
-           <button
+
+            <button
               onClick={() => refetch()}
-                className="rounded bg-orange-500 flex px-1 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 mr-2"
+              className="rounded bg-orange-500 flex px-1 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 mr-2"
             >
               <RefreshCcw size={16} /> Refresh
             </button>
@@ -1445,18 +1445,14 @@ const SuperBrokerProfile = () => {
                   </div>
                 </div>
               </div>
-              {filteredCommissionHistory.length > 0 ? (
-                <GenericTable
-                  data={filteredCommissionHistory}
-                  columns={commissionColumns}
-                  paginationOff={false}
-                  itemsPerPage={10}
-                />
-              ) : (
-                <div className="py-8 text-center">
-                  <p className="text-gray-500">No commission history found</p>
-                </div>
-              )}
+
+              <GenericTable
+                data={filteredCommissionHistory}
+                columns={commissionColumns}
+                paginationOff={false}
+                itemsPerPage={10}
+              />
+
             </div>
           )}
 

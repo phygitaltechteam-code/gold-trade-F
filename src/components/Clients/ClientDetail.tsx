@@ -136,7 +136,8 @@ export const ClientDetail: React.FC = () => {
 }, [displayClient]);
 
   const updateCustomer = useUpdateCustomer();
-  const {data: ledgerData} = useGetClientLedgerById(id);
+  const {data: ledgerData,refetch:refetchLedger} = useGetClientLedgerById(id);
+  console.log('ledgerData', ledgerData);
 
     const totalPnL = useMemo(() => {
     const ledgerDataArray = ledgerData?.data || [];
@@ -651,6 +652,7 @@ const handleWalletSubmit = async (e: React.FormEvent) => {
             ledgerColumns={ledgerColumns}
             // paymentColumns={paymentColumns}
             tradingLedgerColumns={tradingLedgerColumns}
+            refetchLedger={refetchLedger}
           />
         </div>
       </div>
