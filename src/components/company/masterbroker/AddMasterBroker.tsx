@@ -1,14 +1,15 @@
-import {useAddBroker} from '@/lib/api/addbroker';
-import React, {useState} from 'react';
-import {useNavigate} from '@tanstack/react-router';
-import {z} from 'zod';
-import {FormProvider, useForm} from 'react-hook-form';
-import {zodResolver} from '@hookform/resolvers/zod';
+import { useAddBroker } from '@/lib/api/addbroker';
+import React, { useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
+import { z } from 'zod';
+import { FormProvider, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import GenericInputField from '@/components/Forms/Input/GenericInputField';
-import {useAddMasterBrocker} from '@/lib/react-query/masterbroker';
-import {X, ZoomIn} from 'lucide-react';
+import { useAddMasterBrocker } from '@/lib/react-query/masterbroker';
+import { X, ZoomIn } from 'lucide-react';
+import toast from 'react-hot-toast';
 
-// Zod Schema
+// Zod Schema with new fields
 const BrokerSchema = z.object({
   fullname: z.string().min(1, 'Full name is required'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
@@ -23,26 +24,38 @@ const BrokerSchema = z.object({
   customerLimit: z.coerce
     .number()
     .min(0, 'Customer limit must be a positive number'),
+  // New fields for slippage
+  allowSlippage: z.boolean().default(false),
+  buySlippage: z.coerce.number().min(0, 'Buy slippage must be a positive number').optional(),
+  sellSlippage: z.coerce.number().min(0, 'Sell slippage must be a positive number').optional(),
 });
 
 type FormValues = z.infer<typeof BrokerSchema>;
 
 const AddMasterBroker = () => {
   const navigate = useNavigate();
-  const addbroker = useAddBroker();
 
   const methods = useForm<FormValues>({
     resolver: zodResolver(BrokerSchema),
     defaultValues: {
+      fullname: '',
+      password: '',
+      phoneNumber: '',
+      commission: 0,
+      area: '',
+      aadharCardNumber: '',
+      panCardNumber: '',
+      customerLimit: 0,
       aadharCardF: undefined,
       panCard: undefined,
       photo: undefined,
-      aadharCardNumber: '',
-      panCardNumber: '',
+      allowSlippage: false,
+      buySlippage: 0,
+      sellSlippage: 0,
     },
   });
 
-  const {mutateAsync: addMasterBrocker, isPending} = useAddMasterBrocker();
+  const { mutateAsync: addMasterBrocker, isPending } = useAddMasterBrocker();
 
   const [imagePreviews, setImagePreviews] = useState({
     aadharCardF: '',
@@ -53,6 +66,9 @@ const AddMasterBroker = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [showImageModal, setShowImageModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Watch the allowSlippage field to show/hide slippage fields
+  const allowSlippage = methods.watch('allowSlippage');
 
   // Convert image to base64
   const handleImageChange = (
@@ -123,7 +139,43 @@ const AddMasterBroker = () => {
     try {
       setIsSubmitting(true);
 
-      await addMasterBrocker(data);
+      // Prepare the payload with proper field names
+      const payload: any = {
+        fullname: data.fullname,
+        password: data.password,
+        phoneNumber: data.phoneNumber,
+        commission: data.commission,
+        customerLimit: data.customerLimit,
+        area: data.area,
+        aadharCardNumber: data.aadharCardNumber || '',
+        panCardNumber: data.panCardNumber || '',
+        aadharCardF: data.aadharCardF,
+        panCard: data.panCard,
+        photo: data.photo,
+        allowSlippage: data.allowSlippage || false,
+      };
+
+      // Only add slippage fields if allowed
+      if (data.allowSlippage) {
+        // Map form field names to API expected field names
+        const buyValue = Number(data.buySlippage);
+        const sellValue = Number(data.sellSlippage);
+
+        // Only add if values are valid numbers and greater than 0
+        if (!isNaN(buyValue) && buyValue > 0) {
+          payload.buySlipagePercent = buyValue;
+          payload.buySlippage = buyValue; // Alternative field name
+        }
+
+        if (!isNaN(sellValue) && sellValue > 0) {
+          payload.sellSlipagePercent = sellValue;
+          payload.sellSlippage = sellValue; // Alternative field name
+        }
+      }
+
+      console.log('📤 Submitting payload:', payload);
+
+      await addMasterBrocker(payload);
 
       methods.reset();
       setImagePreviews({
@@ -132,11 +184,13 @@ const AddMasterBroker = () => {
         photo: '',
       });
 
+      toast.success('Master broker registered successfully!');
       navigate({
         to: '/companybroker/display-master-broker',
       });
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      console.error('❌ Submit error:', error);
+      toast.error(error?.response?.data?.message || 'Failed to register master broker');
     } finally {
       setIsSubmitting(false);
     }
@@ -298,9 +352,9 @@ const AddMasterBroker = () => {
                 name="commission"
                 label="Commission (%)"
                 type="number"
-                // required
                 placeholder="Enter commission percentage"
               />
+              
               <GenericInputField
                 name="customerLimit"
                 label="Trader Limit"
@@ -309,6 +363,64 @@ const AddMasterBroker = () => {
                 step="any"
                 placeholder="Enter Trader Limit"
               />
+
+              {/* Allow Slippage Checkbox */}
+              <div className="col-span-1 sm:col-span-2">
+                <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3">
+                  <input
+                    type="checkbox"
+                    id="allowSlippage"
+                    checked={allowSlippage}
+                    onChange={(e) => {
+                      const isChecked = e.target.checked;
+                      methods.setValue('allowSlippage', isChecked);
+                      if (!isChecked) {
+                        // Reset slippage values when unchecked
+                        methods.setValue('buySlippage', 0);
+                        methods.setValue('sellSlippage', 0);
+                      }
+                    }}
+                    className="h-5 w-5 cursor-pointer accent-orange-500"
+                  />
+                  <label
+                    htmlFor="allowSlippage"
+                    className="text-gray-700 cursor-pointer text-sm font-medium"
+                  >
+                    Allow Slippage Settings
+                  </label>
+                </div>
+              </div>
+
+              {/* Conditional Slippage Fields */}
+              {allowSlippage && (
+                <>
+                  <div className="col-span-1 sm:col-span-2">
+                    <div className="rounded-lg border border-orange-200 bg-orange-50 p-4">
+                      <h3 className="mb-3 text-sm font-semibold text-orange-700">
+                        Slippage Settings
+                      </h3>
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <GenericInputField
+                          name="buySlippage"
+                          label="Buy Slippage (%)"
+                          type="number"
+                          required={allowSlippage}
+                          step="0.01"
+                          placeholder="Enter buy slippage percentage"
+                        />
+                        <GenericInputField
+                          name="sellSlippage"
+                          label="Sell Slippage (%)"
+                          type="number"
+                          required={allowSlippage}
+                          step="0.01"
+                          placeholder="Enter sell slippage percentage"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Image Uploads */}
