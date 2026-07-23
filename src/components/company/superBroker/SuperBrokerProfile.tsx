@@ -14,12 +14,14 @@ import {
   useAddCommission,
   useGetSuperBrokerLedger,
   useGetSuperBrokerPaymentHistory,
+  useAllSuperBrockerBrokers,
 } from '@/lib/react-query/superbrocker';
 import { Route } from '@/routes/_app/companybroker/SuperbrockerProfile.$id';
 import { useNavigate } from '@tanstack/react-router';
 import toast from 'react-hot-toast';
 import { Eye, EyeOff, RefreshCcw } from 'lucide-react';
-import { formatIndianNumber } from '@/utils/formatIndianNumber';
+import { formatIndianCurrency, formatIndianNumber } from '@/utils/formatIndianNumber';
+import { getAllSuperBrockerBrokers } from '@/lib/api/superbrocker';
 
 // Format date function
 const formatDateTime = (dateString: string) => {
@@ -71,6 +73,8 @@ const SuperBrokerProfile = () => {
   );
 
   const { data: profileData, refetch } = useGetAllSuperBrockerById(id);
+  const { data: getbrokerData= [] } =   useAllSuperBrockerBrokers(id);
+  console.log("ajkdhskjhd",getbrokerData)
   const { mutate: updateSuperBrokerProfile, isPending: isUpdating } =
     useUpdateSuperBrokerProfile();
   const { mutate: addCommission, isPending: isCommissionPending } =
@@ -98,7 +102,7 @@ const SuperBrokerProfile = () => {
 
   // Update editData when profileData loads
   useEffect(() => {
-    if (profileData) {
+    if (profileData?.data?.data) {
       setEditData({
         fullname: profileData?.fullname || '',
         phoneNumber: profileData?.phoneNumber || '',
@@ -141,14 +145,21 @@ const SuperBrokerProfile = () => {
     setCommissionEndDate(endDate);
   }, []);
 
-  // Get brokers from profileData and add SR number
-  const brokersList = useMemo(() => {
-    const brokers = profileData?.brokers || [];
-    return brokers.map((broker: any, index: number) => ({
-      ...broker,
-      srNo: index + 1,
-    }));
-  }, [profileData?.brokers]);
+ const brokersList = useMemo(() => {
+  // The API response structure is: { data: { data: [...] } }
+  const brokers = getbrokerData?.data?.data || getbrokerData?.data || [];
+  return brokers.map((broker: any, index: number) => ({
+    ...broker,
+    srNo: index + 1,
+    // Map commission from brokeragePercent
+    commission: broker.brokeragePercent || 0,
+    // Map user details correctly
+    user: {
+      fullname: broker.fullname || '',
+      phoneNumber: broker.phoneNumber || '',
+    }
+  }));
+}, [getbrokerData]);
 
   // Commission History Data from API
   const commissionHistoryList = useMemo(() => {
@@ -493,63 +504,59 @@ const SuperBrokerProfile = () => {
     },
   ];
 
-  const brokerColumns = [
-    {
-      header: 'Broker Name',
-      accessor: 'user.fullname',
-      render: (item: any) => (
-        <div className="font-semibold text-black">
-          {item?.user?.fullname || '-'}
-        </div>
-      ),
+ const brokerColumns = [
+  {
+    header: 'Broker Name',
+    accessor: 'fullname', // Changed from 'user.fullname'
+    render: (item: any) => (
+      <div className="font-semibold text-black">
+        {item?.fullname || '-'}
+      </div>
+    ),
+  },
+  {
+    header: 'Phone Number',
+    accessor: 'phoneNumber', // Changed from 'user.phoneNumber'
+    render: (item: any) => (
+      <span className="text-gray-700">{item?.phoneNumber || '-'}</span>
+    ),
+  },
+  {
+    header: 'BKId',
+    accessor: 'BKId',
+    render: (item: any) => (
+      <span className="font-mono text-gray-600 text-sm font-medium">
+        {item?.BKId || '-'}
+      </span>
+    ),
+  },
+  {
+    header: 'Commission',
+    accessor: 'brokeragePercent', // Changed from 'commission'
+    render: (item: any) => (
+      <span className="rounded border border-orange-100 bg-orange-50 px-2 py-1 text-xs font-bold text-orange-600">
+        {item?.brokeragePercent || item?.commission ? `${item?.brokeragePercent || item?.commission}%` : '-'}
+      </span>
+    ),
+  },
+  {
+    header: 'Total Commission',
+    accessor: 'totalCommission',
+    render: (item: any) => (
+      <span className="text-gray-700">{formatIndianCurrency(item?.totalCommission )}</span>
+    ),
+  },
+  {
+    header: 'Pending Commission',
+    accessor: 'pendingCommission',
+    render: (item: any) => {
+      const total = parseFloat(item?.totalCommission || 0);
+      const paid = parseFloat(item?.totalPaidCommission || 0);
+      const pending = total - paid;
+      return <span className="text-gray-700">{formatIndianCurrency(pending)} </span>;
     },
-    {
-      header: 'Phone Number',
-      accessor: 'user.phoneNumber',
-      render: (item: any) => (
-        <span className="text-gray-700">{item?.user?.phoneNumber || '-'}</span>
-      ),
-    },
-    {
-      header: 'BKId',
-      accessor: 'BKId',
-      render: (item: any) => (
-        <span className="font-mono text-gray-600 text-sm font-medium">
-          {item?.BKId || '-'}
-        </span>
-      ),
-    },
-    {
-      header: 'Commission',
-      accessor: 'commission',
-      render: (item: any) => (
-        <span className="rounded border border-orange-100 bg-orange-50 px-2 py-1 text-xs font-bold text-orange-600">
-          {item?.commission ? `${item.commission}%` : '-'}
-        </span>
-      ),
-    },
-    // {
-    //   header: 'Total Brokers',
-    //   accessor: 'totalBrokers',
-    //   render: () => <span className="text-gray-700"></span>,
-    // },
-    // {
-    //   header: 'Total Business',
-    //   accessor: 'totalBusiness',
-    //   render: (item: any) => <span className="text-gray-700">-</span>,
-    // },
-    {
-      header: 'Total Commission',
-      accessor: 'totalCommission',
-      render: () => <span className="text-gray-700">-</span>,
-    },
-    {
-      header: 'Pending Commission',
-      accessor: 'pendingCommission',
-      render: () => <span className="text-gray-700">-</span>,
-    },
-  ];
-
+  },
+];
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setEditData((prev) => ({ ...prev, [name]: value }));
@@ -899,7 +906,8 @@ const SuperBrokerProfile = () => {
        th {
         background-color: #f0f0f0 !important;
         color: #1a4d2e !important;
-        }
+        }import { useGetBrokerData } from './../../../lib/api/addbroker';
+
       }
     </style>
   `;
@@ -950,7 +958,7 @@ const SuperBrokerProfile = () => {
           className="text-gray-700 hover:bg-gray-50 flex items-center gap-2 rounded-lg border border-stroke bg-white px-4 py-2 text-sm font-medium transition-all hover:text-orange-500"
         >
           <FiArrowLeft className="h-4 w-4" />
-          Back to Super Brokers
+          Back to Super Brokers.
         </button>
       </div>
 
@@ -1458,6 +1466,9 @@ const SuperBrokerProfile = () => {
 
           {activeTab === 'broker' && (
             <div className="overflow-x-auto">
+              <h3 className="text-base font-semibold text-black dark:text-white md:text-lg">
+                  Broker List
+                </h3>
               <GenericTable
                 data={brokersList}
                 columns={brokerColumns}
