@@ -127,6 +127,7 @@ import { Route as AppClientBeneficiaryverificationIdImport } from './routes/_app
 import { Route as AppBrokerUpdatebrokerIdImport } from './routes/_app/broker/updatebroker.$id'
 import { Route as AppBrokerTrasactionTransactionledgerImport } from './routes/_app/broker/trasaction/transactionledger'
 import { Route as AppBrokerTraderBrokertraderImport } from './routes/_app/broker/trader/brokertrader'
+import { Route as AppBrokerTraderAddbrokertraderImport } from './routes/_app/broker/trader/addbrokertrader'
 import { Route as AppBrokerCustomerCustomerdisplayImport } from './routes/_app/broker/customer/customerdisplay'
 import { Route as AppBrokerBrokerprofileIdImport } from './routes/_app/broker/brokerprofile.$id'
 import { Route as AppKYCApprovalKycdetailesIdImport } from './routes/_app/KYCApproval/kycdetailes.$id'
@@ -878,6 +879,13 @@ const AppBrokerTraderBrokertraderRoute =
     getParentRoute: () => AppRoute,
   } as any)
 
+const AppBrokerTraderAddbrokertraderRoute =
+  AppBrokerTraderAddbrokertraderImport.update({
+    id: '/broker/trader/addbrokertrader',
+    path: '/broker/trader/addbrokertrader',
+    getParentRoute: () => AppRoute,
+  } as any)
+
 const AppBrokerCustomerCustomerdisplayRoute =
   AppBrokerCustomerCustomerdisplayImport.update({
     id: '/broker/customer/customerdisplay',
@@ -1623,6 +1631,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBrokerCustomerCustomerdisplayImport
       parentRoute: typeof AppImport
     }
+    '/_app/broker/trader/addbrokertrader': {
+      id: '/_app/broker/trader/addbrokertrader'
+      path: '/broker/trader/addbrokertrader'
+      fullPath: '/broker/trader/addbrokertrader'
+      preLoaderRoute: typeof AppBrokerTraderAddbrokertraderImport
+      parentRoute: typeof AppImport
+    }
     '/_app/broker/trader/brokertrader': {
       id: '/_app/broker/trader/brokertrader'
       path: '/broker/trader/brokertrader'
@@ -1853,6 +1868,7 @@ interface AppRouteChildren {
   AppKYCApprovalKycdetailesIdRoute: typeof AppKYCApprovalKycdetailesIdRoute
   AppBrokerBrokerprofileIdRoute: typeof AppBrokerBrokerprofileIdRoute
   AppBrokerCustomerCustomerdisplayRoute: typeof AppBrokerCustomerCustomerdisplayRoute
+  AppBrokerTraderAddbrokertraderRoute: typeof AppBrokerTraderAddbrokertraderRoute
   AppBrokerTraderBrokertraderRoute: typeof AppBrokerTraderBrokertraderRoute
   AppBrokerTrasactionTransactionledgerRoute: typeof AppBrokerTrasactionTransactionledgerRoute
   AppBrokerUpdatebrokerIdRoute: typeof AppBrokerUpdatebrokerIdRoute
@@ -1972,6 +1988,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppKYCApprovalKycdetailesIdRoute: AppKYCApprovalKycdetailesIdRoute,
   AppBrokerBrokerprofileIdRoute: AppBrokerBrokerprofileIdRoute,
   AppBrokerCustomerCustomerdisplayRoute: AppBrokerCustomerCustomerdisplayRoute,
+  AppBrokerTraderAddbrokertraderRoute: AppBrokerTraderAddbrokertraderRoute,
   AppBrokerTraderBrokertraderRoute: AppBrokerTraderBrokertraderRoute,
   AppBrokerTrasactionTransactionledgerRoute:
     AppBrokerTrasactionTransactionledgerRoute,
@@ -2132,6 +2149,7 @@ export interface FileRoutesByFullPath {
   '/KYCApproval/kycdetailes/$id': typeof AppKYCApprovalKycdetailesIdRoute
   '/broker/brokerprofile/$id': typeof AppBrokerBrokerprofileIdRoute
   '/broker/customer/customerdisplay': typeof AppBrokerCustomerCustomerdisplayRoute
+  '/broker/trader/addbrokertrader': typeof AppBrokerTraderAddbrokertraderRoute
   '/broker/trader/brokertrader': typeof AppBrokerTraderBrokertraderRoute
   '/broker/trasaction/transactionledger': typeof AppBrokerTrasactionTransactionledgerRoute
   '/broker/updatebroker/$id': typeof AppBrokerUpdatebrokerIdRoute
@@ -2251,6 +2269,7 @@ export interface FileRoutesByTo {
   '/KYCApproval/kycdetailes/$id': typeof AppKYCApprovalKycdetailesIdRoute
   '/broker/brokerprofile/$id': typeof AppBrokerBrokerprofileIdRoute
   '/broker/customer/customerdisplay': typeof AppBrokerCustomerCustomerdisplayRoute
+  '/broker/trader/addbrokertrader': typeof AppBrokerTraderAddbrokertraderRoute
   '/broker/trader/brokertrader': typeof AppBrokerTraderBrokertraderRoute
   '/broker/trasaction/transactionledger': typeof AppBrokerTrasactionTransactionledgerRoute
   '/broker/updatebroker/$id': typeof AppBrokerUpdatebrokerIdRoute
@@ -2375,6 +2394,7 @@ export interface FileRoutesById {
   '/_app/KYCApproval/kycdetailes/$id': typeof AppKYCApprovalKycdetailesIdRoute
   '/_app/broker/brokerprofile/$id': typeof AppBrokerBrokerprofileIdRoute
   '/_app/broker/customer/customerdisplay': typeof AppBrokerCustomerCustomerdisplayRoute
+  '/_app/broker/trader/addbrokertrader': typeof AppBrokerTraderAddbrokertraderRoute
   '/_app/broker/trader/brokertrader': typeof AppBrokerTraderBrokertraderRoute
   '/_app/broker/trasaction/transactionledger': typeof AppBrokerTrasactionTransactionledgerRoute
   '/_app/broker/updatebroker/$id': typeof AppBrokerUpdatebrokerIdRoute
@@ -2496,6 +2516,7 @@ export interface FileRouteTypes {
     | '/KYCApproval/kycdetailes/$id'
     | '/broker/brokerprofile/$id'
     | '/broker/customer/customerdisplay'
+    | '/broker/trader/addbrokertrader'
     | '/broker/trader/brokertrader'
     | '/broker/trasaction/transactionledger'
     | '/broker/updatebroker/$id'
@@ -2614,6 +2635,7 @@ export interface FileRouteTypes {
     | '/KYCApproval/kycdetailes/$id'
     | '/broker/brokerprofile/$id'
     | '/broker/customer/customerdisplay'
+    | '/broker/trader/addbrokertrader'
     | '/broker/trader/brokertrader'
     | '/broker/trasaction/transactionledger'
     | '/broker/updatebroker/$id'
@@ -2736,6 +2758,7 @@ export interface FileRouteTypes {
     | '/_app/KYCApproval/kycdetailes/$id'
     | '/_app/broker/brokerprofile/$id'
     | '/_app/broker/customer/customerdisplay'
+    | '/_app/broker/trader/addbrokertrader'
     | '/_app/broker/trader/brokertrader'
     | '/_app/broker/trasaction/transactionledger'
     | '/_app/broker/updatebroker/$id'
@@ -2884,6 +2907,7 @@ export const routeTree = rootRoute
         "/_app/KYCApproval/kycdetailes/$id",
         "/_app/broker/brokerprofile/$id",
         "/_app/broker/customer/customerdisplay",
+        "/_app/broker/trader/addbrokertrader",
         "/_app/broker/trader/brokertrader",
         "/_app/broker/trasaction/transactionledger",
         "/_app/broker/updatebroker/$id",
@@ -3310,6 +3334,10 @@ export const routeTree = rootRoute
     },
     "/_app/broker/customer/customerdisplay": {
       "filePath": "_app/broker/customer/customerdisplay.tsx",
+      "parent": "/_app"
+    },
+    "/_app/broker/trader/addbrokertrader": {
+      "filePath": "_app/broker/trader/addbrokertrader.tsx",
       "parent": "/_app"
     },
     "/_app/broker/trader/brokertrader": {

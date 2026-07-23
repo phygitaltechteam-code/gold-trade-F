@@ -609,7 +609,7 @@ const CompanyAddCustomer = () => {
             {/* Intraday Leverage - NEW */}
             <div className="mb-2 sm:mb-4">
               <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Intraday Leverage
+                Intraday Margin
               </label>
               <input
                 type="number"
@@ -630,7 +630,7 @@ const CompanyAddCustomer = () => {
             {/* Delivery Leverage - NEW */}
             <div className="mb-2 sm:mb-4">
               <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Delivery Leverage
+                Delivery Margin
               </label>
               <input
                 type="number"

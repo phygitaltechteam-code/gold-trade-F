@@ -439,23 +439,23 @@ export const BrokerTrader: React.FC<ClientDashboardProps> = () => {
           Trader Management
         </h1>
 
-        {/* <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3">
           <button
             onClick={() => refetch()}
             disabled={isFetching}
-            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-50 disabled:opacity-50"
+            className="rounded bg-orange-500 flex px-1 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 mr-2"
           >
             <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
             Refresh
           </button>
           <button
-            onClick={() => navigate({ to: '/companybroker/companyaddcustomer' })}
+            onClick={() => navigate({ to: '/broker/trader/addbrokertrader' })}
             className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:scale-[1.02] hover:from-orange-600 hover:to-red-600"
           >
             <Plus className="h-4 w-4" />
             Add Trader
           </button>
-        </div> */}
+        </div>
 
       </div>
 
