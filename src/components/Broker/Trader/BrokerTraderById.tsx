@@ -15,7 +15,7 @@ import { useGetBrokerClientById, useGetBrokerClientLedgerById } from './broekrtr
 import { ClientDetailStats } from '@/components/Clients/ClientDetailStats';
 import { ClientDocs } from '@/components/Clients/ClientDocs';
 import { ClientTabs } from '@/components/Clients/ClientTabs';
-
+import { ClientProfileInfo } from '@/components/Clients/ClientProfileInfo';
 
 const formatQtyLot = (item) => {
     if (!item) return '-';
@@ -27,11 +27,9 @@ const formatQtyLot = (item) => {
     return qty;
 };
 
-
 const formatPnL = (item) => {
     const pnl = item.pnl || item['p&l'] || 0;
     const sign = pnl > 0 ? '+' : '';
-
     return `${sign}${Number(pnl).toFixed(2)}`;
 };
 
@@ -61,8 +59,6 @@ export const BrokerTraderById: React.FC = () => {
     const [isEditing, setIsEditing] = useState(false);
     const { data: clientData, isLoading, refetch } = useGetBrokerClientById(id);
     const displayClient = clientData;
-
-
 
     console.log('displayClient', displayClient?.intradayLeverage);
     const [activeTab, setActiveTab] = useState('ledger');
@@ -97,29 +93,23 @@ export const BrokerTraderById: React.FC = () => {
                     ? String(displayClient.intradayLeverage)
                     : ''
             );
-
             setHoldingMargin(
                 displayClient?.deliveryLeverage != null
                     ? String(displayClient.deliveryLeverage)
                     : ''
             );
-        }
-    }, [displayClient]);
-
-
-    useEffect(() => {
-        if (displayClient) {
-            setIntradayMargin(
-                displayClient?.intradayLeverage != null
-                    ? String(displayClient.intradayLeverage)
-                    : ''
-            );
-
-            setHoldingMargin(
-                displayClient?.deliveryLeverage != null
-                    ? String(displayClient.deliveryLeverage)
-                    : ''
-            );
+            // Update editData when displayClient loads
+            setEditData({
+                fullname: displayClient?.user?.fullname || '',
+                phoneNumber: displayClient?.user?.phoneNumber || '',
+                aadharCardNumber: displayClient?.aadharCardNumber || '',
+                brokeragePercent: displayClient?.brokeragePercent || '',
+                address: displayClient?.address || '',
+                password: '',
+                type: displayClient?.type || '',
+                panCardNumber: displayClient?.panCardNumber || '',
+                stockHoldingLimit: displayClient?.stockHoldingLimit || 0,
+            });
         }
     }, [displayClient]);
 
@@ -131,7 +121,6 @@ export const BrokerTraderById: React.FC = () => {
             return sum + Number(item.pnl ?? item['p&l'] ?? 0);
         }, 0);
     }, [ledgerData]);
-
 
     const [tradingLedgerData, setTradingLedgerData] = useState<any[]>([]);
     const [paymentData, setPaymentData] = useState<any[]>([]);
@@ -182,6 +171,7 @@ export const BrokerTraderById: React.FC = () => {
         console.log('formattedLedgers', formattedLedgers);
         setTradingLedgerData(formattedLedgers);
     }, [ledgerData]);
+
     useEffect(() => {
         const tradingLedgers = clientData?.tradingLedgers || [];
         const formattedLedgers = tradingLedgers.map((item: any) => {
@@ -208,6 +198,7 @@ export const BrokerTraderById: React.FC = () => {
         console.log('formattedLedgers', formattedLedgers);
         setPaymentData(formattedLedgers);
     }, [clientData]);
+
     const renderDateTime = (dateString: string) => {
         if (!dateString || dateString === '-') return '-';
         const parts = dateString.split(', ');
@@ -238,13 +229,6 @@ export const BrokerTraderById: React.FC = () => {
         { header: 'Broker Commission', accessor: (item: any) => formatCommission(item.brokerCommission) },
     ];
 
-    const paymentColumns = [
-        { header: 'Date/Time', accessor: 'dateTime' },
-        { header: 'Amount', accessor: 'amount' },
-        { header: 'Wallet Amount', accessor: 'walletAmount' },
-    ];
-
-    // Trading Ledger Columns - No Sr column
     const tradingLedgerColumns = [
         {
             header: 'Date & Time',
@@ -269,10 +253,7 @@ export const BrokerTraderById: React.FC = () => {
             header: 'Amount',
             accessor: 'amount',
             render: (item: any) => (
-                <span
-                    className={` ${item.type === 'CREDIT' ? 'text-gray-900' : 'text-gray-900'
-                        }`}
-                >
+                <span className="text-gray-900">
                     {item.amount}
                 </span>
             ),
@@ -293,10 +274,43 @@ export const BrokerTraderById: React.FC = () => {
         },
     ];
 
+    // Handle edit functions
+    const handleEditClick = () => {
+        setEditData({
+            fullname: displayClient?.user?.fullname || '',
+            phoneNumber: displayClient?.user?.phoneNumber || '',
+            aadharCardNumber: displayClient?.aadharCardNumber || '',
+            brokeragePercent: displayClient?.brokeragePercent || '',
+            address: displayClient?.address || '',
+            password: '',
+            type: displayClient?.type || '',
+            panCardNumber: displayClient?.panCardNumber || '',
+            stockHoldingLimit: displayClient?.stockHoldingLimit || 0,
+        });
+        setIsEditing(true);
+    };
+
+    const handleCancel = () => {
+        setIsEditing(false);
+    };
+
+    const handleSave = () => {
+        // Save logic here
+        toast.success('Profile updated successfully!');
+        setIsEditing(false);
+    };
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setEditData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+    };
+
     const handleBack = () => {
         navigate({ to: '/broker/trader/brokertrader' });
     };
-
 
     if (isLoading) {
         return (
@@ -317,12 +331,15 @@ export const BrokerTraderById: React.FC = () => {
         displayClient?.wallets?.blockedAmount || '0',
     );
     const aadharNumber = displayClient?.aadharCardNumber || 'N/A';
+    const stockHoldingLimit = displayClient?.stockHoldingLimit || 0;
+    const panCardNumber = displayClient?.panCardNumber || 'N/A';
+    const type = displayClient?.type || 'N/A';
 
     return (
         <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="max-w-9xl mx-auto px-4 py-6 md:px-6 md:py-8"
+            className="max-w-9xl mx-auto px-4 py-6 md:px-6 md:py-8 bg-[#f8fafc]"
         >
             {/* Header */}
             <div className="mb-6 flex flex-col justify-between gap-4 md:mb-8 md:flex-row md:items-center">
@@ -361,9 +378,25 @@ export const BrokerTraderById: React.FC = () => {
                     <ClientDetailStats
                         walletAmountValue={walletAmountValue}
                         blockedAmount={blockedAmount}
-                        totalPnL={totalPnL}  // ← Pass totalPnL instead of isActive/isVerified
+                        totalPnL={totalPnL}
                     />
 
+                    {/* Profile Info Component */}
+                    <ClientProfileInfo
+                        displayClient={displayClient}
+                        isEditing={isEditing}
+                        editData={editData}
+                        handleInputChange={handleInputChange}
+                        handleSave={handleSave}
+                        handleCancel={handleCancel}
+                        handleEditClick={handleEditClick}
+                        fullName={fullName}
+                        phone={phone}
+                        aadharNumber={aadharNumber}
+                        stockHoldingLimit={stockHoldingLimit}
+                        panCardNumber={panCardNumber}
+                        type={type}
+                    />
 
                     {/* Documentation Component */}
                     <ClientDocs displayClient={displayClient} />
@@ -375,12 +408,10 @@ export const BrokerTraderById: React.FC = () => {
                         tradingLedgerData={tradingLedgerData}
                         paymentData={paymentData}
                         ledgerColumns={ledgerColumns}
-                        // paymentColumns={paymentColumns}
                         tradingLedgerColumns={tradingLedgerColumns}
                     />
                 </div>
             </div>
-
         </motion.div>
     );
 };
