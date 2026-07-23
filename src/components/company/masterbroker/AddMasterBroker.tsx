@@ -303,11 +303,11 @@ const AddMasterBroker = () => {
               />
               <GenericInputField
                 name="customerLimit"
-                label="Customer Limit"
+                label="Trader Limit"
                 type="number"
                 required
                 step="any"
-                placeholder="Enter customer limit"
+                placeholder="Enter Trader Limit"
               />
             </div>
 

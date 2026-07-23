@@ -176,7 +176,7 @@ export const MasterBrokerProfileInfo: React.FC<MasterBrokerProfileInfoProps> = (
           {/* Customer Limit */}
           <div>
             <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-              Trader Stock Time(In minute)
+              Trader Limit
             </label>
             {isEditing ? (
               <input

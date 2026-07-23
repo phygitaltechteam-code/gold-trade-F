@@ -291,6 +291,21 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
         );
       },
     },
+     {
+          header: 'Demo Account',
+          accessor: 'isDemo',
+          render: (row: any) => (
+            <div className="pointer-events-none">
+              <input
+                type="checkbox"
+                checked={!!row.isDemo}
+                readOnly
+                disabled
+                className="h-4 w-4 accent-orange-500"
+              />
+            </div>
+          ),
+        },
   ];
 
   // Base Ledger Columns with proper formatting
