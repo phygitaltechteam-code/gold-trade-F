@@ -15,3 +15,18 @@ export const useCustomerHolding = () => {
         },
     });
 };
+
+export const useUpdateMargin = () => {
+    return useMutation({
+        mutationFn: async (data: {
+            customers: {customerId: string; intradayMargin:number; deliveryMargin:number}[]; 
+
+        }) => {
+            const response = await api.patch(
+                `/company/customer/limit`,
+                data,
+            );
+            return response.data;
+        },
+    });
+};

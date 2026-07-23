@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import DisplaySuperBroker from './DisplaySuperBoker';
 import { useGetAllSuperBrocker } from '@/lib/react-query/superbrocker';
@@ -11,6 +11,7 @@ import {
   Clock,
   TrendingUp,
 } from 'lucide-react';
+import { formatIndianNumber } from '@/utils/formatIndianNumber';
 
 // Animation variants
 const containerVariants = {
@@ -91,7 +92,8 @@ const SuperBrokerflow = () => {
   ).length || 0;
 
   // Calculate total commission
-  const totalCommission = brokerData?.reduce((sum, broker) => {
+  const totalCommission = useMemo(() => {
+  return brokerData?.reduce((sum, broker) => {
     const commission = broker.totalCommission ||
       broker.totalBrokerCommission ||
       broker.commissionTotal ||
@@ -100,9 +102,11 @@ const SuperBrokerflow = () => {
       0;
     return sum + (typeof commission === 'number' ? commission : parseFloat(commission) || 0);
   }, 0) || 0;
+}, [brokerData]);
 
-  // Calculate paid commission
-  const paidCommission = brokerData?.reduce((sum, broker) => {
+// Calculate paid commission from brokerData
+const paidCommission = useMemo(() => {
+  return brokerData?.reduce((sum, broker) => {
     const commission = broker.paidCommission ||
       broker.paidBrokerCommission ||
       broker.commissionPaid ||
@@ -110,9 +114,11 @@ const SuperBrokerflow = () => {
       0;
     return sum + (typeof commission === 'number' ? commission : parseFloat(commission) || 0);
   }, 0) || 0;
+}, [brokerData]);
 
-  // Calculate pending commission
-  const pendingCommission = brokerData?.reduce((sum, broker) => {
+// Calculate pending commission from brokerData
+const pendingCommission = useMemo(() => {
+  return brokerData?.reduce((sum, broker) => {
     const commission = broker.pendingCommission ||
       broker.pendingBrokerCommission ||
       broker.commissionPending ||
@@ -120,6 +126,21 @@ const SuperBrokerflow = () => {
       0;
     return sum + (typeof commission === 'number' ? commission : parseFloat(commission) || 0);
   }, 0) || 0;
+}, [brokerData]);
+
+// Alternative: Calculate pending as Total - Paid
+const pendingCommissionFromTotal = useMemo(() => {
+  return Math.max(0, totalCommission - paidCommission);
+}, [totalCommission, paidCommission]);
+
+// Log for debugging
+console.log('Commission Summary from Brokers:', {
+  totalCommission,
+  paidCommission,
+  pendingCommission,
+  'pending (Total - Paid)': pendingCommissionFromTotal,
+  brokerCount: brokerData.length
+});
 
   // Format currency - Show full amount without shortening
 const formatCurrency = (amount: number) => {
@@ -150,7 +171,7 @@ const formatCurrency = (amount: number) => {
         className="mb-4 flex flex-col justify-between gap-4 md:flex-row md:items-center"
       >
         <h1 className="text-2xl font-semibold text-slate-900 md:text-3xl">
-          Super Broker Management
+          Super Broker Management.
         </h1>
         <button
           onClick={() => navigate({ to: '/companybroker/addSuperBrocker' })}
@@ -193,39 +214,27 @@ const formatCurrency = (amount: number) => {
             iconColor="text-emerald-500"
             bgColor="bg-emerald-50"
           />
-          <StatCard
-            title="Total Commission"
-            value={formatCurrency(totalCommission)}
-            icon={DollarSign}
-            iconColor="text-purple-500"
-            bgColor="bg-purple-50"
-          />
-          <StatCard
-            title="Paid Commission"
-            value={
-              formatCurrency(
-                Number.isInteger(paidCommission)
-                  ? paidCommission
-                  : Number(paidCommission)
-              )
-            }
-            icon={CheckCircle}
-            iconColor="text-green-500"
-            bgColor="bg-green-50"
-          />
-          <StatCard
-            title="Pending Commission"
-            value={
-              formatCurrency(
-                Number.isInteger(pendingCommission)
-                  ? pendingCommission
-                  : Number(pendingCommission.toFixed(2))
-              )
-            }
-            icon={Clock}
-            iconColor="text-orange-500"
-            bgColor="bg-orange-50"
-          />
+         <StatCard
+    title="Total Commission"
+    value={`₹${formatIndianNumber(totalCommission)}`}
+    icon={DollarSign}
+    iconColor="text-green-500"
+    bgColor="bg-green-50"
+  />
+  <StatCard
+    title="Paid Commission"
+    value={`₹${formatIndianNumber(paidCommission)}`}
+    icon={CheckCircle}
+    iconColor="text-purple-500"
+    bgColor="bg-purple-50"
+  />
+  <StatCard
+    title="Pending Commission"
+    value={`₹${formatIndianNumber(pendingCommissionFromTotal)}`}
+    icon={Clock}
+    iconColor="text-orange-500"
+    bgColor="bg-orange-50"
+  />
         </motion.div>
       )}
 

@@ -8,6 +8,7 @@ import ResetPassword from './ResetPassword';
 import ChamkiTrading from './ChamkiTrading';
 import DisplayScripts from './scripts';
 import CustomerHolding from './CustomerHolding';
+import UpdateMargin from './UpdateMargin';
 
 const ProfileTabs = () => {
   const { user } = useAuthContext();
@@ -27,6 +28,8 @@ const ProfileTabs = () => {
         { id: 'Script', label: 'Script Management' },
         { id: 'Chamki', label: 'Order Setting' },
         { id: 'customerholding', label: 'Minimum Stock Holding Time(In Minutes)' },
+         { id: 'updatemargin', label: 'Update Margin' },
+
       ];
     }
 
@@ -89,6 +92,8 @@ const ProfileTabs = () => {
         {activeComponent === 'Script' && <DisplayScripts />}
         {activeComponent === 'Chamki' && <ChamkiTrading />}
         {activeComponent === 'customerholding' && <CustomerHolding />}
+        
+         {activeComponent === 'updatemargin' && <UpdateMargin/>}
       </div>
     </div>
   );
