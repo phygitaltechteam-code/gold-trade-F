@@ -30,3 +30,17 @@ export const useCustomerHoldingAdmin = () => {
         },
     });
 };
+export const useUpdateMarginMaster = () => {
+    return useMutation({
+        mutationFn: async (data: {
+            customers: {customerId: string; intradayMargin:number; deliveryMargin:number}[]; 
+
+        }) => {
+            const response = await api.patch(
+                `/master-broker/profile/limit`,
+                data,
+            );
+            return response.data;
+        },
+    });
+};
