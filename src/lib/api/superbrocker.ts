@@ -76,3 +76,13 @@ export const getAllSuperBrockerById = async (id: string) => {
     throw error;
   }
 };
+
+export const getAllSuperBrockerBrokers = async (id: string) => {
+  try {
+    const response = await api.get(`company/super-broker/brokers/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching brockers:', error);
+    throw error;
+  }
+};

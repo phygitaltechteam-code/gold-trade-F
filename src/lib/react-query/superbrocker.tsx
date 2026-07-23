@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import {
   addSuperBrocker,
   getAllSuperBrocker,
+  getAllSuperBrockerBrokers,
   getAllSuperBrockerById,
   SuperBrocker,
 } from '../api/superbrocker';
@@ -34,6 +35,12 @@ export const useGetAllSuperBrockerById = (id: string) =>
   useQuery({
     queryKey: ['super_brocker', id],
     queryFn: () => getAllSuperBrockerById(id),
+  });
+
+export const useAllSuperBrockerBrokers = (id: string) =>
+  useQuery({
+    queryKey: ['super_brocker-brokers', id],
+    queryFn: () => getAllSuperBrockerBrokers(id),
   });
 
 export const activeSuperBrocker = async (id: string, pin: string) => {
