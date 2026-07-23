@@ -20,7 +20,7 @@ import { Route } from '@/routes/_app/companybroker/SuperbrockerProfile.$id';
 import { useNavigate } from '@tanstack/react-router';
 import toast from 'react-hot-toast';
 import { Eye, EyeOff, RefreshCcw } from 'lucide-react';
-import { formatIndianCurrency, formatIndianCurrency, formatIndianNumber } from '@/utils/formatIndianNumber';
+import { formatIndianCurrency, formatIndianNumber } from '@/utils/formatIndianNumber';
 import { getAllSuperBrockerBrokers } from '@/lib/api/superbrocker';
 
 // Format date function
