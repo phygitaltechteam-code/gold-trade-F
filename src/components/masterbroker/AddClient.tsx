@@ -1,5 +1,4 @@
-import { useAddCustomer } from '@/lib/api/addcustomer'; // Changed this import
-// import { useGetBrokerData } from '@/lib/api/addbroker';
+import { useAddCustomer } from '@/lib/api/addcustomer';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import toast from 'react-hot-toast';
@@ -7,7 +6,7 @@ import { z } from 'zod';
 import { useAuthContext } from '@/context/AuthContext';
 import { X, ZoomIn } from 'lucide-react';
 
-// Define Zod schema for form data validation - ADDED stockHoldingLimit
+// Define Zod schema for form data validation - ADDED new fields
 const CustomerSchema = z.object({
   fullname: z.string().min(1, 'Full name is required'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
@@ -22,6 +21,9 @@ const CustomerSchema = z.object({
     invalid_type_error: 'Type must be either mega or mini'
   }),
   stockHoldingLimit: z.string().optional(),
+  walletBalance: z.string().optional(),
+  intradayLeverage: z.string().optional(),
+  deliveryLeverage: z.string().optional(),
 });
 
 const CompanyAddCustomer = () => {
@@ -40,7 +42,10 @@ const CompanyAddCustomer = () => {
     panCardNumber: '',
     masterBrokerId: '',
     type: '',
-    stockHoldingLimit: '', // ADDED
+    stockHoldingLimit: '',
+    walletBalance: '', // NEW
+    intradayLeverage: '', // NEW
+    deliveryLeverage: '', // NEW
   });
 
   const [images, setImages] = useState({
@@ -158,7 +163,6 @@ const CompanyAddCustomer = () => {
   const validateForm = () => {
     try {
       CustomerSchema.parse(formData);
-
       setErrors({});
       return true;
     } catch (error) {
@@ -184,7 +188,10 @@ const CompanyAddCustomer = () => {
       panCardNumber: '',
       masterBrokerId: '',
       type: '',
-      stockHoldingLimit: '', // ADDED
+      stockHoldingLimit: '',
+      walletBalance: '',
+      intradayLeverage: '',
+      deliveryLeverage: '',
     });
     setImages({
       aadharCardF: null,
@@ -219,9 +226,20 @@ const CompanyAddCustomer = () => {
     formDataToSend.append('isDemo', formData.isDemo);
     formDataToSend.append('type', formData.type);
     
-    // ADDED - Send stockHoldingLimit to backend
+    // Stock Holding Limit
     if (formData.stockHoldingLimit) {
       formDataToSend.append('stockHoldingLimit', formData.stockHoldingLimit);
+    }
+
+    // NEW FIELDS - Wallet Balance, Intraday Leverage, Delivery Leverage
+    if (formData.walletBalance) {
+      formDataToSend.append('walletBalance', formData.walletBalance);
+    }
+    if (formData.intradayLeverage) {
+      formDataToSend.append('intradayLeverage', formData.intradayLeverage);
+    }
+    if (formData.deliveryLeverage) {
+      formDataToSend.append('deliveryLeverage', formData.deliveryLeverage);
     }
 
     // OPTIONAL FIELDS
@@ -249,7 +267,7 @@ const CompanyAddCustomer = () => {
     try {
       await addCustomer.mutateAsync(formDataToSend);
       resetForm();
-      toast.success('Customer registered successfully!');
+      // toast.success('Customer registered successfully!');
       navigate({ to: '/masterbroker/client-dashboard' });
     } catch (error: any) {
       console.error('Error:', error);
@@ -432,7 +450,7 @@ const CompanyAddCustomer = () => {
               )}
             </div>
 
-            {/* Stock Holding Limit - NEW FIELD */}
+            {/* Stock Holding Limit */}
             <div className="mb-2 sm:mb-4">
               <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
                 Minimum Stock Holding time(in minute)
@@ -448,6 +466,66 @@ const CompanyAddCustomer = () => {
               />
               {errors.stockHoldingLimit && (
                 <p className="mt-1 text-xs text-red-500">{errors.stockHoldingLimit}</p>
+              )}
+            </div>
+
+            {/* Wallet Balance - NEW */}
+            <div className="mb-2 sm:mb-4">
+              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
+                Wallet Balance
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                name="walletBalance"
+                value={formData.walletBalance}
+                onChange={handleInputChange}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.walletBalance ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                placeholder="Enter wallet balance"
+              />
+              {errors.walletBalance && (
+                <p className="mt-1 text-xs text-red-500">{errors.walletBalance}</p>
+              )}
+            </div>
+
+            {/* Intraday Leverage - NEW */}
+            <div className="mb-2 sm:mb-4">
+              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
+                Intraday Leverage
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                name="intradayLeverage"
+                value={formData.intradayLeverage}
+                onChange={handleInputChange}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.intradayLeverage ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                placeholder="Enter intraday leverage"
+              />
+              {errors.intradayLeverage && (
+                <p className="mt-1 text-xs text-red-500">{errors.intradayLeverage}</p>
+              )}
+            </div>
+
+            {/* Delivery Leverage - NEW */}
+            <div className="mb-2 sm:mb-4">
+              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
+                Delivery Leverage
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                name="deliveryLeverage"
+                value={formData.deliveryLeverage}
+                onChange={handleInputChange}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.deliveryLeverage ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                placeholder="Enter delivery leverage"
+              />
+              {errors.deliveryLeverage && (
+                <p className="mt-1 text-xs text-red-500">{errors.deliveryLeverage}</p>
               )}
             </div>
 

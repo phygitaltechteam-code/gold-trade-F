@@ -1,4 +1,4 @@
-import {useAddCustomer} from '@/lib/api/addcustomer'; // Changed this import
+import {useAddCustomer} from '@/lib/api/addcustomer';
 import {useGetBrokerData} from '@/lib/api/addbroker';
 import React, {useState, useEffect, useMemo} from 'react';
 import {useNavigate} from '@tanstack/react-router';
@@ -7,7 +7,7 @@ import {z} from 'zod';
 import {useAuthContext} from '@/context/AuthContext';
 import {X, ZoomIn} from 'lucide-react';
 
-// Define Zod schema for form data validation - ADDED type field
+// Define Zod schema for form data validation - ADDED new fields
 const CustomerSchema = z.object({
   fullname: z.string().min(1, 'Full name is required'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
@@ -15,7 +15,6 @@ const CustomerSchema = z.object({
   BrokerId: z.string().min(1, 'Please select a Broker'),
   area: z.string().min(1, 'Area is required'),
   isDemo: z.boolean(),
-  // commission: z.coerce.number().min(0, 'Commission must be a valid number'),
   aadharCardNumber: z.string().optional(),
   panCardNumber: z.string().optional(),
   type: z.enum(['mega', 'mini'], {
@@ -23,13 +22,14 @@ const CustomerSchema = z.object({
     invalid_type_error: 'Type must be either mega or mini',
   }),
   stockHoldingLimit: z.coerce.number().int('Stock holding limit must be a whole number').optional(),
-
-  // documentNumber: z.string().min(1, 'Document number is required'), // ADD THIS
+  walletBalance: z.string().optional(),
+  intradayLeverage: z.string().optional(),
+  deliveryLeverage: z.string().optional(),
 });
 
 const CompanyAddCustomer = () => {
   const navigate = useNavigate();
-  const addCustomer = useAddCustomer(); // Changed from useAddBroker to useAddCustomer
+  const addCustomer = useAddCustomer();
   const {user} = useAuthContext();
   const isSuperBroker = user?.role === 'SUPERBROKER';
 
@@ -43,9 +43,11 @@ const CompanyAddCustomer = () => {
     panCardNumber: '',
     BrokerId: '',
     isDemo: false,
-    type: '', // ADDED - no default value, user must select
-    // documentNumber: '', // ADD THIS
+    type: '',
     stockHoldingLimit: 0,
+    walletBalance: '', // NEW
+    intradayLeverage: '', // NEW
+    deliveryLeverage: '', // NEW
   });
 
   const [images, setImages] = useState({
@@ -185,12 +187,6 @@ const CompanyAddCustomer = () => {
   const validateForm = () => {
     try {
       CustomerSchema.parse(formData);
-
-      // if (!images.aadharCardF) {
-      //   toast.error('Aadhar Card image is required');
-      //   return false;
-      // }
-
       setErrors({});
       return true;
     } catch (error) {
@@ -216,9 +212,11 @@ const CompanyAddCustomer = () => {
       panCardNumber: '',
       BrokerId: '',
       isDemo: false,
-      type: '', // ADDED - reset to empty
-      // documentNumber: '', // ADD THIS
+      type: '',
       stockHoldingLimit: 0,
+      walletBalance: '',
+      intradayLeverage: '',
+      deliveryLeverage: '',
     });
     setImages({
       aadharCardF: null,
@@ -244,18 +242,30 @@ const CompanyAddCustomer = () => {
 
     const formDataToSend = new FormData();
 
-    // ALL REQUIRED FIELDS - ADDED type
+    // ALL REQUIRED FIELDS
     formDataToSend.append('fullname', formData.fullname);
     formDataToSend.append('password', formData.password);
     formDataToSend.append('phoneNumber', formData.phoneNumber);
     formDataToSend.append('email', `${formData.phoneNumber}@temp.com`);
     formDataToSend.append('role', 'CUSTOMER');
     formDataToSend.append('isDemo', formData.isDemo);
-    formDataToSend.append('type', formData.type); // ADDED - send type to backend
-    // formDataToSend.append('documentNumber', formData.documentNumber); // ADD THIS
-   if (formData.stockHoldingLimit) {
+    formDataToSend.append('type', formData.type);
+    
+    if (formData.stockHoldingLimit) {
       formDataToSend.append('stockHoldingLimit', Number(formData.stockHoldingLimit));
     }
+
+    // NEW FIELDS - Wallet Balance, Intraday Leverage, Delivery Leverage
+    if (formData.walletBalance) {
+      formDataToSend.append('walletBalance', formData.walletBalance);
+    }
+    if (formData.intradayLeverage) {
+      formDataToSend.append('intradayLeverage', formData.intradayLeverage);
+    }
+    if (formData.deliveryLeverage) {
+      formDataToSend.append('deliveryLeverage', formData.deliveryLeverage);
+    }
+
     // OPTIONAL FIELDS
     if (formData.aadharCardNumber) {
       formDataToSend.append('aadharCardNumber', formData.aadharCardNumber);
@@ -281,19 +291,9 @@ const CompanyAddCustomer = () => {
       formDataToSend.append('panCard', images.panCard);
     }
 
-    // console.log('📤 Sending data with documentNumber:');
-    // for (let pair of formDataToSend.entries()) {
-    //   if (pair[1] instanceof File) {
-    //     console.log(`  ${pair[0]}: [File] ${pair[1].name}`);
-    //   } else {
-    //     console.log(`  ${pair[0]}: ${pair[1]}`);
-    //   }
-    // }
-
     try {
       await addCustomer.mutateAsync(formDataToSend);
       resetForm();
-      // toast.success('Customer registered successfully!');
       navigate({to: '/clients/mainpage'});
     } catch (error: any) {
       console.error('Error:', error);
@@ -564,22 +564,87 @@ const CompanyAddCustomer = () => {
                 <p className="mt-1 text-xs text-red-500">{errors.type}</p>
               )}
             </div>
-             <div className="mb-2 sm:mb-4">
+
+            {/* Stock Holding Limit */}
+            <div className="mb-2 sm:mb-4">
               <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-              Minimum Stock Holding time(in minute)
+                Minimum Stock Holding time(in minute)
               </label>
               <input
                 type="number"
                 name="stockHoldingLimit"
                 value={formData.stockHoldingLimit}
                 onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.stockHoldingLimit ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                placeholder="Minimum Stock Holding time(in minute)
-"
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
+                  errors.stockHoldingLimit ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="Minimum Stock Holding time(in minute)"
               />
               {errors.stockHoldingLimit && (
                 <p className="mt-1 text-xs text-red-500">{errors.stockHoldingLimit}</p>
+              )}
+            </div>
+
+            {/* Wallet Balance - NEW */}
+            <div className="mb-2 sm:mb-4">
+              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
+                Wallet Balance
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                name="walletBalance"
+                value={formData.walletBalance}
+                onChange={handleInputChange}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
+                  errors.walletBalance ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="Enter wallet balance"
+              />
+              {errors.walletBalance && (
+                <p className="mt-1 text-xs text-red-500">{errors.walletBalance}</p>
+              )}
+            </div>
+
+            {/* Intraday Leverage - NEW */}
+            <div className="mb-2 sm:mb-4">
+              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
+                Intraday Leverage
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                name="intradayLeverage"
+                value={formData.intradayLeverage}
+                onChange={handleInputChange}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
+                  errors.intradayLeverage ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="Enter intraday leverage"
+              />
+              {errors.intradayLeverage && (
+                <p className="mt-1 text-xs text-red-500">{errors.intradayLeverage}</p>
+              )}
+            </div>
+
+            {/* Delivery Leverage - NEW */}
+            <div className="mb-2 sm:mb-4">
+              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
+                Delivery Leverage
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                name="deliveryLeverage"
+                value={formData.deliveryLeverage}
+                onChange={handleInputChange}
+                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
+                  errors.deliveryLeverage ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="Enter delivery leverage"
+              />
+              {errors.deliveryLeverage && (
+                <p className="mt-1 text-xs text-red-500">{errors.deliveryLeverage}</p>
               )}
             </div>
 
@@ -667,56 +732,7 @@ const CompanyAddCustomer = () => {
               >
                 Demo Account
               </label>
-
-              {/* <span
-                className={`rounded-full px-2 py-1 text-xs font-semibold ${
-                  formData.isDemo
-                    ? 'bg-orange-100 text-orange-700'
-                    : 'bg-gray-100 text-gray-600'
-                }`}
-              >
-                {formData.isDemo ? 'Demo Customer' : 'Live Customer'}
-              </span> */}
             </div>
-
-            {/* Document Number - Required */}
-            {/* <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Document Number <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="documentNumber"
-                value={formData.documentNumber}
-                onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.documentNumber ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                placeholder="Enter document number"
-              />
-              {errors.documentNumber && (
-                <p className="mt-1 text-xs text-red-500">{errors.documentNumber}</p>
-              )}
-            </div> */}
-
-            {/* Commission - Required */}
-            {/* <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Commission % <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                name="commission"
-                value={formData.commission}
-                onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.commission ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                placeholder="Enter Commission %"
-              />
-              {errors.commission && (
-                <p className="mt-1 text-xs text-red-500">{errors.commission}</p>
-              )}
-            </div> */}
           </div>
 
           {/* Document Upload Section */}

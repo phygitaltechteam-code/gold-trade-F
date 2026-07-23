@@ -371,7 +371,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       {/* Header */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4 md:mb-8">
         <h1 className="text-2xl font-semibold text-slate-900 md:text-3xl">
-          Trader Management...
+          Trader Management
         </h1>
 
         <button
