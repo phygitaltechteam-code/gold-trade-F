@@ -1,6 +1,6 @@
 /*eslint-disable*/
-import React, {useState, useEffect, useRef} from 'react';
-import {motion} from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import {
   CalendarDays,
   RefreshCw,
@@ -17,15 +17,16 @@ import {
   PieChart,
   CheckCircle,
 } from 'lucide-react';
-import {useAuthContext} from '@/context/AuthContext';
+import { useAuthContext } from '@/context/AuthContext';
 import toast from 'react-hot-toast';
 import GenericButton from '@/components/Forms/Buttons/GenericButton';
-import {useGetBrokerDashboard} from '@/lib/api/dashboard';
-import {cn} from '@/utils/utilities';
+import { useGetBrokerDashboard } from '@/lib/api/dashboard';
+import { cn } from '@/utils/utilities';
+import { formatIndianCurrency } from '@/utils/formatIndianNumber';
 
 // Animation variants
 const containerVariants = {
-  hidden: {opacity: 0},
+  hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
@@ -35,7 +36,7 @@ const containerVariants = {
 };
 
 const itemVariants = {
-  hidden: {opacity: 0, y: 20},
+  hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
@@ -98,7 +99,7 @@ const FinancialStatCard = ({
 );
 
 const BrokerDashboard: React.FC = () => {
-  const {user} = useAuthContext();
+  const { user } = useAuthContext();
   // const [selectedPeriod, setSelectedPeriod] = useState<
   //   '30d' | '7d' | '24h' | 'custom'
   // >('30d');
@@ -278,17 +279,17 @@ const BrokerDashboard: React.FC = () => {
           />
           <FinancialStatCard
             title="My Total Commission"
-            amount={formatCurrency(dashboardStats.brokerTotalCommission)}
+            amount={formatIndianCurrency(dashboardStats.brokerTotalCommission)}
             icon={Wallet}
             iconColor="text-emerald-500"
-            // subtext="Total commission earned"
+          // subtext="Total commission earned"
           />
           <FinancialStatCard
             title="Pending Commission"
-            amount={formatCurrency(dashboardStats.pendingBrokerCommission)}
+            amount={formatIndianCurrency(dashboardStats.pendingBrokerCommission)}
             icon={Clock}
             iconColor="text-orange-500"
-            // subtext="Awaiting settlement"
+          // subtext="Awaiting settlement"
           />
           {/* <StatCard
             title="Active Trends"
@@ -306,23 +307,23 @@ const BrokerDashboard: React.FC = () => {
 
         {/* Row 2: Commission & Earnings Cards */}
         <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-          
-          
-         <FinancialStatCard
-  title="Paid Commission"
-  amount={formatCurrency(
-    dashboardStats.brokerTotalCommission - dashboardStats.pendingBrokerCommission
-  )}
-  icon={CheckCircle}
-  iconColor="text-green-500"
-  // subtext="Already paid"
-/>
- <FinancialStatCard
+
+
+          <FinancialStatCard
+            title="Paid Commission"
+            amount={formatIndianCurrency(
+              dashboardStats.brokerTotalCommission - dashboardStats.pendingBrokerCommission
+            )}
+            icon={CheckCircle}
+            iconColor="text-green-500"
+          // subtext="Already paid"
+          />
+          <FinancialStatCard
             title="Customer Wallet Balance"
-            amount={formatCurrency(dashboardStats.totalCustomerWalletBalance)}
+            amount={formatIndianCurrency(dashboardStats.totalCustomerWalletBalance)}
             icon={Wallet}
             iconColor="text-blue-500"
-            // subtext="Total client funds"
+          // subtext="Total client funds"
           />
           {/* <FinancialStatCard
             title="Win Rate"
@@ -335,7 +336,7 @@ const BrokerDashboard: React.FC = () => {
 
         {/* Row 3: Customer Financial Overview */}
         <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-         
+
           {/* <FinancialStatCard
             title="Total Deposits"
             amount={formatCurrency(dashboardStats.totalDeposits)}

@@ -304,23 +304,23 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
         </span>
       ),
     },
-    {
-      header: 'P&L',
-      accessor: 'pnl',
-      render: (row: Client) => {
-        const pnl = 0;
-        const isProfit = pnl >= 0;
-        return (
-          <span
-            className={`whitespace-nowrap text-sm ${isProfit ? 'text-gray-9000' : 'text-gray-900'
-              }`}
-          >
-            {isProfit ? '+' : ''}
-            {pnl.toFixed(2)}
-          </span>
-        );
-      },
-    },
+    // {
+    //   header: 'P&L',
+    //   accessor: 'pnl',
+    //   render: (row: Client) => {
+    //     const pnl = 0;
+    //     const isProfit = pnl >= 0;
+    //     return (
+    //       <span
+    //         className={`whitespace-nowrap text-sm ${isProfit ? 'text-gray-9000' : 'text-gray-900'
+    //           }`}
+    //       >
+    //         {isProfit ? '+' : ''}
+    //         {pnl.toFixed(2)}
+    //       </span>
+    //     );
+    //   },
+    // },
     {
       header: 'Demo Account',
       accessor: 'isDemo',
@@ -444,7 +444,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
             <input
               type="text"
               placeholder="Search by Name, Email, Phone or CRN..."
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-4 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 md:py-3 md:pl-10"
+              className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 md:py-3 md:pl-10"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />

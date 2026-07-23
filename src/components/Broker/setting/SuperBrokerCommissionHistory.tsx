@@ -18,7 +18,7 @@ const formatDateTime = (dateString: string) => {
     const ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12;
     hours = hours ? hours : 12;
-    return `${month}/${day}/${year}, ${hours}:${minutes} ${ampm}`;
+    return `${day}/${month}/${year}, ${hours}:${minutes} ${ampm}`;
   } catch (error) {
     return 'N/A';
   }
@@ -48,25 +48,23 @@ export default function SuperBrokerCommissionHistory() {
     refetch,
   } = useGetSuperBrokerHistory();
 
-  console.log('Query Status - isLoading:', isLoading);
-  console.log('Query Status - isError:', isError);
-  console.log('Query Status - error:', error);
   console.log('Full API Response:', apiData);
 
-  // Process commission history from API
+  // Process commission history from API - Updated structure
   const commissionHistoryList = useMemo(() => {
-    const history = apiData?.data?.history || apiData?.history || [];
+    const history = apiData?.data?.commissionHistory || apiData?.commissionHistory || [];
     console.log('Commission History Raw:', history);
     return history.map((item: any, index: number) => ({
       sr: index + 1,
       id: item.id,
-      amount: parseAmount(item.amount),
-      type: item.type || 'TRANSFER',
-      createdAt: item.createdAt,
-      formattedCreatedAt: formatDateTime(item.createdAt),
-      superBrokerId: item.superBrokerId,
-      brokerId: item.brokerId,
-      companyId: item.companyId,
+      date: item.date,
+      commissionGenerated: parseAmount(item.commissionGenerated),
+      pendingCommission: parseAmount(item.pendingCommission),
+      paidCommission: parseAmount(item.paidCommission),
+      paidDate: item.paidDate || null,
+      status: item.status || 'PENDING',
+      formattedDate: item.date ? formatDateTime(item.date) : '-',
+      formattedPaidDate: item.paidDate ? formatDateTime(item.paidDate) : '-',
     }));
   }, [apiData]);
 
@@ -77,22 +75,22 @@ export default function SuperBrokerCommissionHistory() {
     return paidHistory.map((item: any, index: number) => ({
       sr: index + 1,
       id: item.id,
+      date: item.date,
       amount: parseAmount(item.amount),
-      type: 'PAID',
-      createdAt: item.createdAt,
-      formattedCreatedAt: formatDateTime(item.createdAt),
-      superBrokerId: item.superBrokerId,
-      brokerId: item.brokerId,
+      formattedDate: item.date ? formatDateTime(item.date) : '-',
     }));
   }, [apiData]);
+
+  // Get summary data
+  const summary = apiData?.data?.summary || apiData?.summary || {};
 
   // Filter data by date range - shows all data when filters are empty
   const filteredCommissionList = useMemo(() => {
     if (!fromDate && !toDate) return commissionHistoryList;
 
     return commissionHistoryList.filter((item: any) => {
-      if (!item.createdAt) return true;
-      const itemDate = new Date(item.createdAt).toISOString().split('T')[0];
+      if (!item.date) return true;
+      const itemDate = new Date(item.date).toISOString().split('T')[0];
 
       if (fromDate && toDate) {
         return itemDate >= fromDate && itemDate <= toDate;
@@ -111,8 +109,8 @@ export default function SuperBrokerCommissionHistory() {
     if (!fromDate && !toDate) return paidHistoryList;
 
     return paidHistoryList.filter((item: any) => {
-      if (!item.createdAt) return true;
-      const itemDate = new Date(item.createdAt).toISOString().split('T')[0];
+      if (!item.date) return true;
+      const itemDate = new Date(item.date).toISOString().split('T')[0];
 
       if (fromDate && toDate) {
         return itemDate >= fromDate && itemDate <= toDate;
@@ -127,16 +125,15 @@ export default function SuperBrokerCommissionHistory() {
     });
   }, [paidHistoryList, fromDate, toDate]);
 
-  // Calculate totals from filtered data
-  const totalCommission = filteredCommissionList.reduce(
-    (sum, item) => sum + parseAmount(item.amount),
-    0,
-  );
-  const totalPaid = filteredPaidList.reduce(
-    (sum, item) => sum + parseAmount(item.amount),
-    0,
-  );
-  const pendingCommission = totalCommission - totalPaid;
+  // Calculate totals from summary or filtered data
+  const totalCommission = summary.commissionGenerated || 
+    filteredCommissionList.reduce((sum, item) => sum + item.commissionGenerated, 0);
+  
+  const totalPaid = summary.paidCommission || 
+    filteredCommissionList.reduce((sum, item) => sum + item.paidCommission, 0);
+  
+  const pendingCommission = summary.pendingCommission || 
+    filteredCommissionList.reduce((sum, item) => sum + item.pendingCommission, 0);
 
   // Clear filters
   const clearFilters = () => {
@@ -144,68 +141,87 @@ export default function SuperBrokerCommissionHistory() {
     setToDate('');
   };
 
-  // Commission History Columns
+  // Commission History Columns - Updated
   const commissionColumns = [
-    { header: 'Date & Time', accessor: 'formattedCreatedAt' },
     {
-      header: 'Type',
-      accessor: 'type',
+      header: 'Date & Time',
+      accessor: 'date',
       render: (item: any) => (
-        <span
-          className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${item.type === 'TRANSFER'
-            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
-            : item.type === 'CREDIT'
-              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
-              : item.type === 'DEBIT'
-                ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
-                : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300'
-            }`}
-        >
-          {item.type}
+        <span className="text-sm">{item.formattedDate}</span>
+      ),
+    },
+    {
+      header: 'Commission (₹)',
+      accessor: 'commissionGenerated',
+      render: (item: any) => (
+        <span className="text-gray-900 text-sm font-semibold">
+          {formatIndianCurrency(item.commissionGenerated)}
         </span>
       ),
     },
     {
-      header: 'Amount',
-      accessor: 'amount',
-      render: (item: any) => {
-        const amount = parseAmount(item.amount);
-        const isCredit = item.type === 'CREDIT' || item.type === 'TRANSFER';
-        const isDebit = item.type === 'DEBIT';
-        return (
-          <span
-            className='text-gray-900'
-          >
-            {isCredit ? '+' : isDebit ? '-' : ''} {formatIndianCurrency(amount)}
-          </span>
-        );
-      },
+      header: 'Pending Commission (₹)',
+      accessor: 'pendingCommission',
+      render: (item: any) => (
+        <span className="text-gray-900 text-sm font-semibold">
+          {formatIndianCurrency(item.pendingCommission)}
+        </span>
+      ),
+    },
+    {
+      header: 'Paid Commission (₹)',
+      accessor: 'paidCommission',
+      render: (item: any) => (
+        <span className="text-gray-900 text-sm font-semibold">
+          {formatIndianCurrency(item.paidCommission)}
+        </span>
+      ),
+    },
+    {
+      header: 'Paid Date',
+      accessor: 'paidDate',
+      render: (item: any) => (
+        <span className="text-sm">
+          {item.formattedPaidDate}
+        </span>
+      ),
+    },
+    {
+      header: 'Status',
+      accessor: 'status',
+      render: (item: any) => (
+        <span
+          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+            item.status === 'PAID'
+              ? 'bg-green-100 text-green-700'
+              : item.status === 'PENDING'
+                ? 'bg-yellow-100 text-yellow-700'
+                : 'bg-gray-100 text-gray-700'
+          }`}
+        >
+          {item.status || 'PENDING'}
+        </span>
+      ),
     },
   ];
 
   // Paid History Columns
   const paidColumns = [
-    { header: 'Date & Time', accessor: 'formattedCreatedAt' },
     {
-      header: 'Type',
-      accessor: 'type',
-      render: () => (
-        <span className="inline-flex rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-800 dark:bg-green-900 dark:text-green-300">
-          PAID
-        </span>
+      header: 'Date & Time',
+      accessor: 'date',
+      render: (item: any) => (
+        <span className="text-sm">{item.formattedDate}</span>
       ),
     },
     {
-      header: 'Amount',
+      header: 'Amount (₹)',
       accessor: 'amount',
-      render: (item: any) => {
-        const amount = parseAmount(item.amount);
-        return (
-          <span className=" text-gray-900">
-            {formatIndianCurrency(amount)}
-          </span>
-        );
-      },
+      render: (item: any) => (
+        <span className="text-gray-900 text-sm font-semibold">
+          {formatIndianCurrency(item.amount)}
+        </span>
+      ),
     },
   ];
 
@@ -241,12 +257,21 @@ export default function SuperBrokerCommissionHistory() {
       <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">
-            Super Broker Commission History.
+            Super Broker Commission History
           </h1>
           <p className="text-sm text-slate-500">
             Track and manage generated commission records
           </p>
         </div>
+        <button
+          onClick={() => refetch()}
+          className="flex items-center gap-2 rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-orange-600"
+        >
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Refresh
+        </button>
       </div>
 
       {/* Stats Cards */}
@@ -283,19 +308,21 @@ export default function SuperBrokerCommissionHistory() {
           <div className="flex">
             <button
               onClick={() => setActiveTab('commission')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'commission'
-                ? 'border-b-2 border-orange-500 text-orange-500'
-                : 'text-bodydark2'
-                }`}
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
+                activeTab === 'commission'
+                  ? 'border-b-2 border-orange-500 text-orange-500'
+                  : 'text-bodydark2'
+              }`}
             >
               Commission History ({filteredCommissionList.length})
             </button>
             <button
               onClick={() => setActiveTab('paid')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'paid'
-                ? 'border-b-2 border-orange-500 text-orange-500'
-                : 'text-bodydark2'
-                }`}
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
+                activeTab === 'paid'
+                  ? 'border-b-2 border-orange-500 text-orange-500'
+                  : 'text-bodydark2'
+              }`}
             >
               Paid History ({filteredPaidList.length})
             </button>

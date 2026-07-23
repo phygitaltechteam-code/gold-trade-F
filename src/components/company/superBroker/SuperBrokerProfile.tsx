@@ -19,7 +19,7 @@ import { Route } from '@/routes/_app/companybroker/SuperbrockerProfile.$id';
 import { useNavigate } from '@tanstack/react-router';
 import toast from 'react-hot-toast';
 import { Eye, EyeOff, RefreshCcw } from 'lucide-react';
-import { formatIndianNumber } from '@/utils/formatIndianNumber';
+import { formatIndianCurrency, formatIndianNumber } from '@/utils/formatIndianNumber';
 
 // Format date function
 const formatDateTime = (dateString: string) => {
@@ -296,12 +296,12 @@ const SuperBrokerProfile = () => {
     {
       header: 'Buy Price',
       accessor: 'buyPrice',
-      render: (item: any) => <span className="font-medium">{formatIndianNumber(item.buyPrice || '-')}</span>
+      render: (item: any) => <span className="font-medium">{formatIndianCurrency(item.buyPrice || '-')}</span>
     },
     {
       header: 'Sell Price',
       accessor: 'sellPrice',
-      render: (item: any) => <span className="font-medium">{formatIndianNumber(item.sellPrice || '-')}</span>
+      render: (item: any) => <span className="font-medium">{formatIndianCurrency(item.sellPrice || '-')}</span>
     },
     { header: 'Status', accessor: 'status' },
     {
@@ -313,7 +313,7 @@ const SuperBrokerProfile = () => {
         const isNegative = typeof pnl === 'string' && pnl.startsWith('-');
         return (
           <span className={` ${isPositive ? 'text-green-600' : isNegative ? 'text-red-600' : 'text-gray-600'}`}>
-            {formatIndianNumber(pnl)}
+            {formatIndianCurrency(pnl)}
           </span>
         );
       }
@@ -331,7 +331,7 @@ const SuperBrokerProfile = () => {
     {
       header: 'Super Broker Commission',
       accessor: 'superBrokerCommission',
-      render: (item: any) => <span className="">{formatIndianNumber(item.superBrokerCommission || '-')}</span>
+      render: (item: any) => <span className="">{formatIndianCurrency(item.superBrokerCommission || '-')}</span>
     },
   ];
 
@@ -346,21 +346,21 @@ const SuperBrokerProfile = () => {
       header: 'Commission Generated',
       accessor: 'commissionGenerated',
       render: (item: any) => (
-        <span>₹{formatIndianNumber(item.commissionGenerated)}</span>
+        <span>{formatIndianCurrency(item.commissionGenerated)}</span>
       ),
     },
     {
       header: 'Pending Commission',
       accessor: 'PendingCommission',
       render: (item: any) => (
-        <span>₹{formatIndianNumber(item.PendingCommission)}</span>
+        <span>{formatIndianCurrency(item.PendingCommission)}</span>
       ),
     },
     {
       header: 'Paid Commission',
       accessor: 'paidcommission',
       render: (item: any) => (
-        <span>₹{formatIndianNumber(item.paidcommission)}</span>
+        <span>{formatIndianCurrency(item.paidcommission)}</span>
       ),
     },
     {
@@ -436,7 +436,7 @@ const SuperBrokerProfile = () => {
       accessor: 'commissionGenerated',
       render: (item: any) => (
         <span className="text-gray-900 text-sm font-semibold">
-          ₹{item?.commissionGenerated.toLocaleString('en-IN')}
+          {formatIndianCurrency(item?.commissionGenerated)}
         </span>
       ),
     },
@@ -445,7 +445,7 @@ const SuperBrokerProfile = () => {
       accessor: 'pendingCommission',
       render: (item: any) => (
         <span className="text-gray-900 text-sm font-semibold">
-          ₹{item?.pendingCommission.toLocaleString('en-IN')}
+          {formatIndianCurrency(item?.pendingCommission)}
         </span>
       ),
     },
@@ -454,7 +454,7 @@ const SuperBrokerProfile = () => {
       accessor: 'paidCommission',
       render: (item: any) => (
         <span className="text-gray-900 text-sm font-semibold">
-          ₹{item?.paidCommission.toLocaleString('en-IN')}
+          {formatIndianCurrency(item?.paidCommission)}
         </span>
       ),
     },

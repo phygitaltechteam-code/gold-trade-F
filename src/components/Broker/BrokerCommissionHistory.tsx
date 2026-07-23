@@ -1,7 +1,6 @@
-import React, {useState, useMemo} from 'react';
+import React, { useState, useMemo } from 'react';
 import GenericTable from '@/components/Forms/Table/GenericTable';
-import {useGetSuperBrokerHistory} from './SBHistoryApi';
-import {useGetBrokerHistory} from './setting/SBHistoryApi';
+import { useGetBrokerHistory } from './setting/SBHistoryApi';
 import { formatIndianCurrency } from '@/utils/formatIndianNumber';
 
 // Format date function
@@ -37,85 +36,103 @@ export default function BrokerCommissionHistory() {
     refetch,
   } = useGetBrokerHistory();
 
-  console.log('Query Status - isLoading:', isLoading);
-  console.log('Query Status - isError:', isError);
-  console.log('Query Status - error:', error);
   console.log('Full API Response:', apiData);
 
   // Process commission history from API
   const commissionHistoryList = useMemo(() => {
-    // Check different possible data structures
-    const history = apiData?.data?.history || apiData?.history || [];
+    const history = apiData?.data?.commissionHistory || apiData?.commissionHistory || [];
     console.log('Commission History Raw:', history);
     return history.map((item: any, index: number) => ({
       sr: index + 1,
       id: item.id,
-      amount: item.amount,
-      type: item.type || 'TRANSFER',
-      createdAt: formatDateTime(item.createdAt),
-      superBrokerId: item.superBrokerId,
-      brokerId: item.brokerId,
-      companyId: item.companyId,
+      date: item.date,
+      commissionGenerated: item.commissionGenerated || 0,
+      paidCommission: item.paidCommission || 0,
+      pendingCommission: item.pendingCommission || 0,
+      paidDate: item.paidDate || null,
+      status: item.status || 'PENDING',
+      formattedDate: item.date ? formatDateTime(item.date) : '-',
+      formattedPaidDate: item.paidDate ? formatDateTime(item.paidDate) : '-',
     }));
   }, [apiData]);
 
   // Process paid history from API
   const paidHistoryList = useMemo(() => {
-    const paidHistory =
-      apiData?.data?.paidHistory || apiData?.paidHistory || [];
+    const paidHistory = apiData?.data?.paidHistory || apiData?.paidHistory || [];
     console.log('Paid History Raw:', paidHistory);
     return paidHistory.map((item: any, index: number) => ({
       sr: index + 1,
       id: item.id,
-      amount: item.amount,
-      type: 'PAID',
-      createdAt: formatDateTime(item.createdAt),
-      superBrokerId: item.superBrokerId,
-      brokerId: item.brokerId,
+      date: item.date,
+      amount: item.amount || 0,
+      formattedDate: item.date ? formatDateTime(item.date) : '-',
     }));
   }, [apiData]);
 
+  // Get summary data
+  const summary = apiData?.data?.summary || apiData?.summary || {};
+
   // Commission History Columns
   const commissionColumns = [
-    {header: 'Date & Time', accessor: 'createdAt'},
+
     {
-      header: 'Type',
-      accessor: 'type',
+      header: 'Date & Time',
+      accessor: 'date',
       render: (item: any) => (
-        <span
-          className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
-            item.type === 'TRANSFER'
-              ? ' text-black  dark:text-blue-300'
-              : item.type === 'CREDIT'
-                ? 'bg-green-100 text-black dark:text-green-300'
-                : item.type === 'DEBIT'
-                  ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
-                  : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300'
-          }`}
-        >
-          {item.type}
+        <span className="text-sm">
+          {item.formattedDate}
         </span>
       ),
     },
     {
-      header: 'Amount',
-      accessor: 'amount',
+      header: 'Generated Commission (₹)',
+      accessor: 'commissionGenerated',
+      render: (item: any) => (
+        <span className="text-gray-900 text-sm font-semibold">
+          {formatIndianCurrency(item.commissionGenerated)}
+        </span>
+      ),
+    },
+    {
+      header: 'Paid Commission (₹)',
+      accessor: 'paidCommission',
+      render: (item: any) => (
+        <span className="text-gray-900 text-sm font-semibold">
+          {formatIndianCurrency(item.paidCommission)}
+        </span>
+      ),
+    },
+    {
+      header: 'Pending Commission (₹)',
+      accessor: 'pendingCommission',
+      render: (item: any) => (
+        <span className="text-gray-900 text-sm font-semibold">
+          {formatIndianCurrency(item.pendingCommission)}
+        </span>
+      ),
+    },
+    {
+      header: 'Paid Date',
+      accessor: 'paidDate',
+      render: (item: any) => (
+        <span className="text-sm">
+          {item.formattedPaidDate}
+        </span>
+      ),
+    },
+    {
+      header: 'Status',
+      accessor: 'status',
       render: (item: any) => (
         <span
-          className={` ${
-            item.type === 'CREDIT' || item.type === 'TRANSFER'
-              ? 'text-black'
-              : item.type === 'DEBIT'
-                ? 'text-red-600'
-                : 'text-blue-600'
-          }`}
+          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${item.status === 'PAID'
+              ? 'bg-green-100 text-green-700'
+              : item.status === 'PENDING'
+                ? 'bg-yellow-100 text-yellow-700'
+                : 'bg-gray-100 text-gray-700'
+            }`}
         >
-          {item.type === 'CREDIT' || item.type === 'TRANSFER'
-            ? '+'
-            : item.type === 'DEBIT'
-              ? '-'
-              : ''}{' '}
-          {formatIndianCurrency(item.amount)}
+          {item.status || 'PENDING'}
         </span>
       ),
     },
@@ -123,63 +140,36 @@ export default function BrokerCommissionHistory() {
 
   // Paid History Columns
   const paidColumns = [
-    {header: 'Date & Time', accessor: 'createdAt'},
+
     {
-      header: 'Type',
-      accessor: 'type',
-      render: () => (
-        <span className="inline-flex rounded-full  px-2 py-1 text-xs font-semibold text-black dark:bg-green-900 dark:text-green-300">
-          PAID
+      header: 'Date & Time',
+      accessor: 'date',
+      render: (item: any) => (
+        <span className="text-sm">
+          {item.formattedDate}
         </span>
       ),
     },
     {
-      header: 'Amount',
+      header: 'Amount (₹)',
       accessor: 'amount',
       render: (item: any) => (
-        <span className=" text-black">
+        <span className="text-gray-900 text-sm font-semibold">
           {formatIndianCurrency(item.amount)}
         </span>
       ),
     },
   ];
 
-  // Calculate totals from API data
-  const totalCommission = commissionHistoryList.reduce(
-    (sum, item) => sum + parseFloat(item.amount),
-    0,
-  );
-  const totalPaid = paidHistoryList.reduce(
-    (sum, item) => sum + parseFloat(item.amount),
-    0,
-  );
-  const pendingCommission = totalCommission - totalPaid;
+  // Calculate totals from summary or list
+  const totalCommission = summary.commissionGenerated ||
+    commissionHistoryList.reduce((sum, item) => sum + item.commissionGenerated, 0);
 
-  // if (isLoading) {
-  //   return (
-  //     <div className="flex h-64 items-center justify-center">
-  //       <div className="h-8 w-8 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
-  //     </div>
-  //   );
-  // }
+  const totalPaid = summary.paidCommission ||
+    commissionHistoryList.reduce((sum, item) => sum + item.paidCommission, 0);
 
-  // if (isError) {
-  //   return (
-  //     <div className="flex h-64 flex-col items-center justify-center">
-  //       <div className="text-center">
-  //         <p className="text-red-500">
-  //           Error loading data: {error?.message || 'Something went wrong'}
-  //         </p>
-  //         <button
-  //           onClick={() => refetch()}
-  //           className="mt-4 rounded-lg bg-orange-500 px-4 py-2 text-white hover:bg-orange-600"
-  //         >
-  //           Retry
-  //         </button>
-  //       </div>
-  //     </div>
-  //   );
-  // }
+  const pendingCommission = summary.pendingCommission ||
+    commissionHistoryList.reduce((sum, item) => sum + item.pendingCommission, 0);
 
   return (
     <div className="min-h-screen w-full bg-[#f8fafc] p-4 md:p-6">
@@ -193,6 +183,15 @@ export default function BrokerCommissionHistory() {
             Track and manage generated commission records
           </p>
         </div>
+        <button
+          onClick={() => refetch()}
+          className="flex items-center gap-2 rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-orange-600"
+        >
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Refresh
+        </button>
       </div>
 
       {/* Stats Cards */}
@@ -201,8 +200,8 @@ export default function BrokerCommissionHistory() {
           <span className="text-gray-500 text-sm font-semibold">
             Total Commission
           </span>
-          <h4 className="mt-2 text-2xl font-bold  text-black">
-            ₹{formatIndianCurrency(totalCommission)}
+          <h4 className="mt-2 text-2xl font-bold text-black">
+            {formatIndianCurrency(totalCommission)}
           </h4>
         </div>
         <div className="flex flex-col rounded-xl border border-stroke bg-white p-6 shadow-default transition-shadow hover:shadow-md dark:border-strokedark dark:bg-boxdark">
@@ -210,15 +209,15 @@ export default function BrokerCommissionHistory() {
             Total Paid
           </span>
           <h4 className="mt-2 text-2xl font-bold text-black">
-            ₹{formatIndianCurrency(totalPaid)}
+            {formatIndianCurrency(totalPaid)}
           </h4>
         </div>
         <div className="flex flex-col rounded-xl border border-stroke bg-white p-6 shadow-default transition-shadow hover:shadow-md dark:border-strokedark dark:bg-boxdark">
           <span className="text-gray-500 text-sm font-semibold">
             Pending Commission
           </span>
-          <h4 className="mt-2 text-2xl font-bold  text-black">
-            ₹{formatIndianCurrency(pendingCommission)}
+          <h4 className="mt-2 text-2xl font-bold text-black">
+            {formatIndianCurrency(pendingCommission)}
           </h4>
         </div>
       </div>
@@ -228,27 +227,25 @@ export default function BrokerCommissionHistory() {
         <div className="flex border-b border-stroke dark:border-strokedark">
           <button
             onClick={() => setActiveTab('commission')}
-            className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
-              activeTab === 'commission'
+            className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'commission'
                 ? 'border-b-2 border-orange-500 text-orange-500'
                 : 'text-bodydark2'
-            }`}
+              }`}
           >
             Commission History ({commissionHistoryList.length})
           </button>
           <button
             onClick={() => setActiveTab('paid')}
-            className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
-              activeTab === 'paid'
+            className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'paid'
                 ? 'border-b-2 border-orange-500 text-orange-500'
                 : 'text-bodydark2'
-            }`}
+              }`}
           >
             Paid History ({paidHistoryList.length})
           </button>
         </div>
 
-        {/* <div className="p-6">
+        <div className="p-6">
           {activeTab === 'commission' ? (
             commissionHistoryList.length > 0 ? (
               <div className="overflow-x-auto">
@@ -262,12 +259,6 @@ export default function BrokerCommissionHistory() {
             ) : (
               <div className="py-12 text-center">
                 <p className="text-gray-500">No commission history found</p>
-                <button
-                  onClick={() => refetch()}
-                  className="mt-4 rounded-lg bg-orange-500 px-4 py-2 text-sm text-white hover:bg-orange-600"
-                >
-                  Refresh
-                </button>
               </div>
             )
           ) : paidHistoryList.length > 0 ? (
@@ -282,33 +273,6 @@ export default function BrokerCommissionHistory() {
           ) : (
             <div className="py-12 text-center">
               <p className="text-gray-500">No paid history found</p>
-              <button
-                onClick={() => refetch()}
-                className="mt-4 rounded-lg bg-orange-500 px-4 py-2 text-sm text-white hover:bg-orange-600"
-              >
-                Refresh
-              </button>
-            </div>
-          )}
-        </div> */}
-        <div className="p-6">
-          {activeTab === 'commission' ? (
-            <div className="overflow-x-auto">
-              <GenericTable
-                data={commissionHistoryList}
-                columns={commissionColumns}
-                paginationOff={true}
-                itemsPerPage={10}
-              />
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <GenericTable
-                data={paidHistoryList}
-                columns={paidColumns}
-                paginationOff={true}
-                itemsPerPage={10}
-              />
             </div>
           )}
         </div>

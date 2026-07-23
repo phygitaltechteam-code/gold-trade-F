@@ -366,7 +366,7 @@ const Dashboard: React.FC = () => {
           />
           <FinancialStatCard
             title="Pending Broker Commission"
-            amount={`₹${new Intl.NumberFormat('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}).format(dashboardStats.pendingBrokerCommission || 0)}`}
+            amount={formatIndianCurrency(dashboardStats.pendingBrokerCommission)}
             icon={Clock}
             iconColor="text-orange-500"
           />
