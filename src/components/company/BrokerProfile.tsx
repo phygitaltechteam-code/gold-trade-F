@@ -242,18 +242,18 @@ const BrokerProfile = () => {
 
   console.log('traderTable', traderTable);
 
-  // Commission History Data
+  // Commission History Data 
   const commissionHistoryList = useMemo(() => {
     const histories = paymentDataFromApi?.commissionHistory || [];
     return histories.map((item: any, index: number) => ({
       sr: index + 1,
       id: item.id,
-      date: formatDateTime(item.date),
-      commissionGenerated: item.commissionGenerated,
-      pendingCommission: parseFloat(item.pendingCommission),
-      paidCommission: parseFloat(item.paidCommission),
-      status: item.status,
-      paidDate: formatDateTime(item.paidDate),
+      date: item.date,
+      commissionGenerated: item.commissionGenerated || 0,
+      pendingCommission: item.pendingCommission || 0,
+      paidCommission: item.paidCommission || 0,
+      status: item.status || 'Pending',
+      paidDate: item.paidDate || null,
     }));
   }, [paymentDataFromApi?.commissionHistory]);
 
@@ -755,15 +755,7 @@ const BrokerProfile = () => {
       accessor: 'date',
       render: (item: any) => (
         <span className="text-sm">
-          {item.date
-            ? new Date(item.date).toLocaleString('en-IN', {
-              day: '2-digit',
-              month: 'short',
-              year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-            })
-            : '-'}
+          {item?.date ? formatDateTime(item.date) : '-'}
         </span>
       ),
     },
@@ -799,15 +791,7 @@ const BrokerProfile = () => {
       accessor: 'paidDate',
       render: (item: any) => (
         <span className="text-sm">
-          {item.paidDate
-            ? new Date(item.paidDate).toLocaleString('en-IN', {
-              day: '2-digit',
-              month: 'short',
-              year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-            })
-            : '-'}
+          {item?.paidDate ? formatDateTime(item.paidDate) : '-'}
         </span>
       ),
     },
@@ -823,12 +807,11 @@ const BrokerProfile = () => {
               : 'bg-gray-100 text-gray-700'
             }`}
         >
-          {item.status}
+          {item.status || 'Pending'}
         </span>
       ),
     },
   ];
-
   // Customer/Trader Columns with proper formatting
   const customerColumns = [
     {
@@ -1349,7 +1332,7 @@ const BrokerProfile = () => {
                   </div>
                   <button
                     onClick={() => refetch()}
-                className="rounded bg-orange-500 flex px-1 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 mr-2"
+                    className="rounded bg-orange-500 flex px-1 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 mr-2"
                   >
                     <RefreshCcw size={16} /> Refresh
                   </button>

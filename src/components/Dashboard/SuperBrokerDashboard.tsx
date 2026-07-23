@@ -207,7 +207,7 @@ const SuperBrokerDashboard: React.FC = () => {
           />
           <FinancialStatCard
             title="My Total Commission"
-            amount={formatCurrency(dashboardStats.superBrokerTotalCommission)}
+            amount={formatIndianCurrency(dashboardStats.superBrokerTotalCommission)}
             icon={Wallet}
             iconColor="text-emerald-500"
           // subtext="Total commission earned"
