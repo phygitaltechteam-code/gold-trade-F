@@ -473,7 +473,7 @@ export default function WithdrawalRequest() {
     },
     {
       title: "Today's Withdrawals",
-      value: `${formatNumber(stats.todayStats.count)} withdrawals`,
+      value: `${formatNumber(stats.todayStats.count)}`,
       icon: Activity,
       iconColor: "text-blue-500",
     },
