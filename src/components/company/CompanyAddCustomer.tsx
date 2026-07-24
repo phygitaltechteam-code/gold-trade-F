@@ -1,53 +1,104 @@
-import {useAddCustomer} from '@/lib/api/addcustomer';
-import {useGetBrokerData} from '@/lib/api/addbroker';
-import React, {useState, useEffect, useMemo} from 'react';
-import {useNavigate} from '@tanstack/react-router';
+import { useAddCustomer } from '@/lib/api/addcustomer';
+import { useGetBrokerData } from '@/lib/api/addbroker';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import toast from 'react-hot-toast';
-import {z} from 'zod';
-import {useAuthContext} from '@/context/AuthContext';
-import {X, ZoomIn} from 'lucide-react';
+import { z } from 'zod';
+import { FormProvider, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useAuthContext } from '@/context/AuthContext';
+import { X, ZoomIn } from 'lucide-react';
+import GenericInputField from '@/components/Forms/Input/GenericInputField';
+import GenericDropdown from '@/components/Forms/DropDown/GenericDropdown';
+import { formatIndianCurrency } from '@/utils/formatIndianNumber';
 
-// Define Zod schema for form data validation - ADDED new fields
+// Define Zod schema for form data validation
 const CustomerSchema = z.object({
-  fullname: z.string().min(1, 'Full name is required'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-  phoneNumber: z.string().min(1, 'Phone number is required'),
+  fullname: z.string()
+    .min(1, 'Full name is required')
+    .max(100, 'Full name must be less than 100 characters')
+    .regex(/^[a-zA-Z\s'-]+$/, 'Full name can only contain letters, spaces, hyphens, and apostrophes'),
+
+  phoneNumber: z.string()
+    .min(10, 'Phone number must be exactly 10 digits')
+    .max(10, 'Phone number must be exactly 10 digits')
+    .regex(/^[0-9]{10}$/, 'Phone number must contain only digits'),
+
+  password: z.string()
+    .min(6, 'Password must be at least 6 characters')
+    .max(20, 'Password must be less than 20 characters')
+    .regex(/^(?=.*[A-Za-z])(?=.*\d)/, 'Password must contain at least one letter and one number'),
+
   BrokerId: z.string().min(1, 'Please select a Broker'),
-  area: z.string().min(1, 'Area is required'),
+
+  area: z.string()
+    .min(1, 'Area is required')
+    .max(100, 'Area must be less than 100 characters'),
+
   isDemo: z.boolean(),
-  aadharCardNumber: z.string().optional(),
-  panCardNumber: z.string().optional(),
+
   type: z.enum(['mega', 'mini'], {
     required_error: 'Please select a customer type',
     invalid_type_error: 'Type must be either mega or mini',
   }),
-  stockHoldingLimit: z.coerce.number().int('Stock holding limit must be a whole number').optional(),
-  walletBalance: z.string().optional(),
-  intradayLeverage: z.string().optional(),
-  deliveryLeverage: z.string().optional(),
+
+  aadharCardNumber: z.string()
+    .optional()
+    .refine(
+      (val) => !val || (val.length === 12 && /^[0-9]{12}$/.test(val)),
+      'Aadhar number must be exactly 12 digits'
+    ),
+
+  panCardNumber: z.string()
+    .optional()
+    .refine(
+      (val) => !val || /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(val.toUpperCase()),
+      'PAN card must be in format: ABCDE1234F'
+    ),
+
+  stockHoldingLimit: z.coerce.number()
+    .int('Stock holding limit must be a whole number')
+    .min(0, 'Stock holding limit must be a positive number')
+    .optional(),
+
+  walletBalance: z.coerce.number()
+    .min(0, 'Wallet balance must be a positive number')
+    .optional(),
+
+  intradayLeverage: z.coerce.number()
+    .min(0, 'Intraday leverage must be a positive number')
+    .optional(),
+
+  deliveryLeverage: z.coerce.number()
+    .min(0, 'Delivery leverage must be a positive number')
+    .optional(),
 });
+
+type FormValues = z.infer<typeof CustomerSchema>;
 
 const CompanyAddCustomer = () => {
   const navigate = useNavigate();
   const addCustomer = useAddCustomer();
-  const {user} = useAuthContext();
+  const { user } = useAuthContext();
   const isSuperBroker = user?.role === 'SUPERBROKER';
 
-  const [formData, setFormData] = useState({
-    fullname: '',
-    password: '',
-    area: '',
-    commission: '',
-    phoneNumber: '',
-    aadharCardNumber: '',
-    panCardNumber: '',
-    BrokerId: '',
-    isDemo: false,
-    type: '',
-    stockHoldingLimit: 0,
-    walletBalance: '', // NEW
-    intradayLeverage: '', // NEW
-    deliveryLeverage: '', // NEW
+  const methods = useForm<FormValues>({
+    resolver: zodResolver(CustomerSchema),
+    defaultValues: {
+      fullname: '',
+      password: '',
+      area: '',
+      phoneNumber: '',
+      aadharCardNumber: '',
+      panCardNumber: '',
+      BrokerId: '',
+      isDemo: false,
+      type: '',
+      stockHoldingLimit: 0,
+      walletBalance: 0,
+      intradayLeverage: 0,
+      deliveryLeverage: 0,
+    },
   });
 
   const [images, setImages] = useState({
@@ -62,10 +113,9 @@ const CompanyAddCustomer = () => {
 
   const [selectedImage, setSelectedImage] = useState(null);
   const [showImageModal, setShowImageModal] = useState(false);
-  const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const {data: allbrockers} = useGetBrokerData();
+  const { data: allbrockers } = useGetBrokerData();
 
   // Extract brokers array from the nested response
   const brokers = useMemo(() => {
@@ -76,41 +126,61 @@ const CompanyAddCustomer = () => {
     return [];
   }, [allbrockers]);
 
-  // Searchable Dropdown state
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  // Format brokers for dropdown
+  const brokerOptions = brokers.map((b) => ({
+    id: b.id,
+    label: b.fullname || b.user?.fullname || 'Unknown',
+    subLabel: b.BKId || 'N/A',
+  }));
 
-  // Filter brokers based on search term
-  const filteredBrokers = useMemo(() => {
-    if (!searchTerm) return brokers;
-    return brokers.filter(
-      (b) =>
-        b.fullname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        b.BKId?.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
-  }, [brokers, searchTerm]);
+  // Get values for calculations - STATIC WALLET BALANCE (1 Crore)
+  const STATIC_WALLET_BALANCE = 100000; // ₹10,00,00 (10 Lakh)
+  const intradayLeverage = methods.watch('intradayLeverage') || 0;
+  const deliveryLeverage = methods.watch('deliveryLeverage') || 0;
+
+  // Calculate max trade values using static wallet balance
+  const maxIntradayTrade = STATIC_WALLET_BALANCE * Number(intradayLeverage);
+  const maxDeliveryTrade = STATIC_WALLET_BALANCE * Number(deliveryLeverage);
 
   useEffect(() => {
     if (isSuperBroker && user) {
-      setFormData((prev) => ({
-        ...prev,
-        BrokerId: user.id,
-      }));
+      methods.setValue('BrokerId', user.id);
     }
   }, [isSuperBroker, user]);
 
-  const handleInputChange = (e) => {
-    const {name, value} = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  // Handle phone number input - only allow digits
+  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '');
+    if (value.length <= 10) {
+      methods.setValue('phoneNumber', value);
+      methods.clearErrors('phoneNumber');
+    }
+  };
 
-    if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: '',
-      }));
+  // Handle aadhar number input - only allow digits
+  const handleAadharChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '');
+    if (value.length <= 12) {
+      methods.setValue('aadharCardNumber', value);
+      methods.clearErrors('aadharCardNumber');
+    }
+  };
+
+  // Handle PAN card input - auto uppercase and format
+  const handlePanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (value.length <= 10) {
+      methods.setValue('panCardNumber', value);
+      methods.clearErrors('panCardNumber');
+    }
+  };
+
+  // Handle stock holding limit - add 'min' suffix display
+  const handleStockHoldingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '');
+    if (value.length <= 3) {
+      methods.setValue('stockHoldingLimit', Number(value));
+      methods.clearErrors('stockHoldingLimit');
     }
   };
 
@@ -119,18 +189,18 @@ const CompanyAddCustomer = () => {
     if (file) {
       const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
       if (!validTypes.includes(file.type)) {
-        setErrors((prev) => ({
-          ...prev,
-          [field]: 'Please upload a valid image file (JPEG, PNG)',
-        }));
+        methods.setError(field, {
+          type: 'manual',
+          message: 'Please upload a valid image file (JPEG, PNG)',
+        });
         return;
       }
 
       if (file.size > 5 * 1024 * 1024) {
-        setErrors((prev) => ({
-          ...prev,
-          [field]: 'Image size should be less than 5MB',
-        }));
+        methods.setError(field, {
+          type: 'manual',
+          message: 'Image size should be less than 5MB',
+        });
         return;
       }
 
@@ -148,12 +218,7 @@ const CompanyAddCustomer = () => {
       };
       reader.readAsDataURL(file);
 
-      if (errors[field]) {
-        setErrors((prev) => ({
-          ...prev,
-          [field]: '',
-        }));
-      }
+      methods.clearErrors(field);
     }
   };
 
@@ -166,12 +231,7 @@ const CompanyAddCustomer = () => {
       ...prev,
       [field]: null,
     }));
-    if (errors[field]) {
-      setErrors((prev) => ({
-        ...prev,
-        [field]: '',
-      }));
-    }
+    methods.clearErrors(field);
   };
 
   const openImageModal = (imageUrl) => {
@@ -184,40 +244,8 @@ const CompanyAddCustomer = () => {
     setShowImageModal(false);
   };
 
-  const validateForm = () => {
-    try {
-      CustomerSchema.parse(formData);
-      setErrors({});
-      return true;
-    } catch (error) {
-      const formattedErrors = {};
-      error.errors.forEach((err) => {
-        formattedErrors[err.path[0]] = err.message;
-      });
-      setErrors(formattedErrors);
-      const firstError = error.errors[0];
-      toast.error(firstError.message);
-      return false;
-    }
-  };
-
   const resetForm = () => {
-    setFormData({
-      fullname: '',
-      password: '',
-      area: '',
-      commission: '',
-      phoneNumber: '',
-      aadharCardNumber: '',
-      panCardNumber: '',
-      BrokerId: '',
-      isDemo: false,
-      type: '',
-      stockHoldingLimit: 0,
-      walletBalance: '',
-      intradayLeverage: '',
-      deliveryLeverage: '',
-    });
+    methods.reset();
     setImages({
       aadharCardF: null,
       panCard: null,
@@ -226,75 +254,64 @@ const CompanyAddCustomer = () => {
       aadharCardF: null,
       panCard: null,
     });
-    setErrors({});
-    setSearchTerm('');
-    setIsDropdownOpen(false);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    const formDataToSend = new FormData();
-
-    // ALL REQUIRED FIELDS
-    formDataToSend.append('fullname', formData.fullname);
-    formDataToSend.append('password', formData.password);
-    formDataToSend.append('phoneNumber', formData.phoneNumber);
-    formDataToSend.append('email', `${formData.phoneNumber}@temp.com`);
-    formDataToSend.append('role', 'CUSTOMER');
-    formDataToSend.append('isDemo', formData.isDemo);
-    formDataToSend.append('type', formData.type);
-    
-    if (formData.stockHoldingLimit) {
-      formDataToSend.append('stockHoldingLimit', Number(formData.stockHoldingLimit));
-    }
-
-    // NEW FIELDS - Wallet Balance, Intraday Leverage, Delivery Leverage
-    if (formData.walletBalance) {
-      formDataToSend.append('walletBalance', formData.walletBalance);
-    }
-    if (formData.intradayLeverage) {
-      formDataToSend.append('intradayLeverage', formData.intradayLeverage);
-    }
-    if (formData.deliveryLeverage) {
-      formDataToSend.append('deliveryLeverage', formData.deliveryLeverage);
-    }
-
-    // OPTIONAL FIELDS
-    if (formData.aadharCardNumber) {
-      formDataToSend.append('aadharCardNumber', formData.aadharCardNumber);
-    }
-    if (formData.panCardNumber) {
-      formDataToSend.append('panCardNumber', formData.panCardNumber);
-    }
-    if (formData.area) {
-      formDataToSend.append('area', formData.area);
-    }
-    if (formData.commission) {
-      formDataToSend.append('brokeragePercent', formData.commission);
-    }
-    if (formData.BrokerId) {
-      formDataToSend.append('brokerId', formData.BrokerId);
-    }
-
-    // IMAGES
-    if (images.aadharCardF) {
-      formDataToSend.append('aadharCard', images.aadharCardF);
-    }
-    if (images.panCard) {
-      formDataToSend.append('panCard', images.panCard);
-    }
-
+  const onSubmit = async (data: FormValues) => {
     try {
+      setIsSubmitting(true);
+
+      const formDataToSend = new FormData();
+
+      // ALL REQUIRED FIELDS
+      formDataToSend.append('fullname', data.fullname.trim());
+      formDataToSend.append('password', data.password);
+      formDataToSend.append('phoneNumber', data.phoneNumber);
+      formDataToSend.append('email', `${data.phoneNumber}@temp.com`);
+      formDataToSend.append('role', 'CUSTOMER');
+      formDataToSend.append('isDemo', String(data.isDemo));
+      formDataToSend.append('type', data.type);
+
+      if (data.stockHoldingLimit) {
+        formDataToSend.append('stockHoldingLimit', String(data.stockHoldingLimit));
+      }
+
+      // NEW FIELDS
+      if (data.walletBalance) {
+        formDataToSend.append('walletBalance', String(data.walletBalance));
+      }
+      if (data.intradayLeverage) {
+        formDataToSend.append('intradayLeverage', String(data.intradayLeverage));
+      }
+      if (data.deliveryLeverage) {
+        formDataToSend.append('deliveryLeverage', String(data.deliveryLeverage));
+      }
+
+      // OPTIONAL FIELDS
+      if (data.aadharCardNumber) {
+        formDataToSend.append('aadharCardNumber', data.aadharCardNumber);
+      }
+      if (data.panCardNumber) {
+        formDataToSend.append('panCardNumber', data.panCardNumber);
+      }
+      if (data.area) {
+        formDataToSend.append('area', data.area.trim());
+      }
+      if (data.BrokerId) {
+        formDataToSend.append('brokerId', data.BrokerId);
+      }
+
+      // IMAGES
+      if (images.aadharCardF) {
+        formDataToSend.append('aadharCard', images.aadharCardF);
+      }
+      if (images.panCard) {
+        formDataToSend.append('panCard', images.panCard);
+      }
+
       await addCustomer.mutateAsync(formDataToSend);
       resetForm();
-      navigate({to: '/clients/mainpage'});
+      toast.success('Customer registered successfully!');
+      navigate({ to: '/clients/mainpage' });
     } catch (error: any) {
       console.error('Error:', error);
       const errorMsg = error?.response?.data?.message || 'Registration failed';
@@ -304,7 +321,7 @@ const CompanyAddCustomer = () => {
     }
   };
 
-  const ImageUploadField = ({label, field, required}) => (
+  const ImageUploadField = ({ label, field, required }) => (
     <div className="mb-4">
       <label className="text-gray-700 mb-2 block text-sm font-medium">
         {label} {required && <span className="text-red-500">*</span>}
@@ -360,11 +377,33 @@ const CompanyAddCustomer = () => {
           </label>
         )}
       </div>
-      {errors[field] && (
-        <p className="mt-1 text-xs text-red-500">{errors[field]}</p>
+      {methods.formState.errors[field] && (
+        <p className="mt-1 text-xs text-red-500">
+          {methods.formState.errors[field]?.message as string}
+        </p>
       )}
     </div>
   );
+
+  // Handle intraday margin change with X suffix
+  const handleIntradayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace('X', '').trim();
+    const numValue = parseFloat(value);
+    if (!isNaN(numValue) && numValue >= 0) {
+      methods.setValue('intradayLeverage', numValue);
+      methods.clearErrors('intradayLeverage');
+    }
+  };
+
+  // Handle delivery margin change with X suffix
+  const handleDeliveryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace('X', '').trim();
+    const numValue = parseFloat(value);
+    if (!isNaN(numValue) && numValue >= 0) {
+      methods.setValue('deliveryLeverage', numValue);
+      methods.clearErrors('deliveryLeverage');
+    }
+  };
 
   return (
     <div className="bg-gray-50 min-h-screen p-3 sm:p-4 md:p-6">
@@ -393,413 +432,316 @@ const CompanyAddCustomer = () => {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 sm:p-6">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
-            {/* Full Name */}
-            <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Full Name <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
+        <FormProvider {...methods}>
+          <form onSubmit={methods.handleSubmit(onSubmit)} className="p-4 sm:p-6">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
+              {/* ===== REQUIRED FIELDS FIRST ===== */}
+
+              {/* Full Name - Required */}
+              <GenericInputField
                 name="fullname"
-                value={formData.fullname}
-                onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
-                  errors.fullname ? 'border-red-500' : 'border-gray-300'
-                }`}
+                label="Full Name"
+                type="text"
+                required
                 placeholder="Enter full name"
               />
-              {errors.fullname && (
-                <p className="mt-1 text-xs text-red-500">{errors.fullname}</p>
-              )}
-            </div>
 
-            {/* Phone number */}
-            <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Phone Number <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="tel"
-                name="phoneNumber"
-                value={formData.phoneNumber}
-                onChange={handleInputChange}
-                maxLength={10}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
-                  errors.phoneNumber ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="Enter 10-digit phone number"
-              />
-              {errors.phoneNumber && (
-                <p className="mt-1 text-xs text-red-500">
-                  {errors.phoneNumber}
-                </p>
-              )}
-            </div>
+              {/* Phone Number - Required */}
+              <div>
+                <GenericInputField
+                  name="phoneNumber"
+                  label="Phone Number"
+                  type="tel"
+                  required
+                  placeholder="Enter 10-digit phone number"
+                  onChange={handlePhoneNumberChange}
+                />
+                {methods.formState.errors.phoneNumber && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {methods.formState.errors.phoneNumber.message}
+                  </p>
+                )}
+              </div>
 
-            {/* Password */}
-            <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Password <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="password"
+              {/* Password - Required */}
+              <GenericInputField
                 name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
-                  errors.password ? 'border-red-500' : 'border-gray-300'
-                }`}
+                label="Password"
+                type="password"
+                required
                 placeholder="Enter password (min 6 characters)"
               />
-              {errors.password && (
-                <p className="mt-1 text-xs text-red-500">{errors.password}</p>
-              )}
-            </div>
 
-            {/* Searchable Broker Dropdown */}
-            <div className="relative mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Assign to Broker <span className="text-red-500">*</span>
-              </label>
+              {/* Broker Dropdown - Required */}
               {isSuperBroker ? (
-                <input
-                  type="text"
-                  disabled
-                  value={`${user?.fullname || 'Super Broker'} (Current User)`}
-                  className="w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-100 p-2 font-semibold text-slate-500"
-                />
+                <div className="mb-2 sm:mb-4">
+                  <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
+                    Assign to Broker <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    disabled
+                    value={`${user?.fullname || 'Super Broker'} (Current User)`}
+                    className="w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-100 p-2 font-semibold text-slate-500"
+                  />
+                </div>
               ) : (
+                <GenericDropdown
+                  name="BrokerId"
+                  label="Assign to Broker"
+                  required
+                  placeholder="Search Broker by Name or BK ID"
+                  options={brokerOptions}
+                  searchable={true}
+                />
+              )}
+
+              {/* Customer Type - Required */}
+              <div className="mb-2 sm:mb-4">
+                <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
+                  Customer Type <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="type"
+                  value={methods.watch('type')}
+                  onChange={(e) => methods.setValue('type', e.target.value)}
+                  className={`flex w-full cursor-pointer items-center rounded border-[1.7px] bg-transparent px-3 py-1 text-black outline-none transition ${methods.formState.errors.type ? 'border-red-500' : 'border-stroke'
+                    } focus-within:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus-within:border-primary`}
+                >
+                  <option value="">Select Customer Type</option>
+                  <option value="mega">Mega</option>
+                  <option value="mini">Mini</option>
+                </select>
+                {methods.formState.errors.type && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {methods.formState.errors.type.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Area - Required */}
+              <GenericInputField
+                name="area"
+                label="Area"
+                required
+                placeholder="Enter area"
+              />
+
+              {/* ===== OPTIONAL FIELDS BELOW ===== */}
+
+              {/* Stock Holding Limit - with min suffix */}
+              <div className="mb-3 mt-1.5 sm:mb-4">
+                <label className="mb-2.5 block text-black dark:text-white">
+                  Minimum Stock Holding time (in minute)
+                </label>
+                <div className="relative">
+                  <GenericInputField
+                    name="stockHoldingLimit"
+                    type="text"
+                    placeholder="Enter time in minutes"
+                    onChange={handleStockHoldingChange}
+                    maxLength={3}
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-400">
+                    min
+                  </span>
+                </div>
+                {methods.formState.errors.stockHoldingLimit && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {methods.formState.errors.stockHoldingLimit.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Wallet Balance */}
+              <GenericInputField
+                name="walletBalance"
+                label="Wallet Balance"
+                type="number"
+                step="0.01"
+                placeholder="Enter wallet balance"
+              />
+
+              {/* Intraday Leverage - with X suffix and dynamic message */}
+              <div className="mb-2 sm:mb-4">
+                <label className="mb-2.5 block text-black dark:text-white">
+                  Intraday Margin
+                </label>
                 <div className="relative">
                   <input
                     type="text"
-                    placeholder="Search Broker by Name or BK ID"
-                    value={
-                      isDropdownOpen
-                        ? searchTerm
-                        : brokers.find((b) => b.id === formData.BrokerId)
-                          ? `${brokers.find((b) => b.id === formData.BrokerId)?.fullname} (${brokers.find((b) => b.id === formData.BrokerId)?.BKId})`
-                          : ''
-                    }
-                    onChange={(e) => {
-                      setSearchTerm(e.target.value);
-                      setIsDropdownOpen(true);
-                    }}
-                    onFocus={() => {
-                      setIsDropdownOpen(true);
-                      setSearchTerm('');
-                    }}
-                    onBlur={() =>
-                      setTimeout(() => setIsDropdownOpen(false), 200)
-                    }
-                    className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
-                      errors.BrokerId ? 'border-red-500' : 'border-gray-300'
-                    }`}
+                    name="intradayLeverage"
+                    value={methods.watch('intradayLeverage') ? `${methods.watch('intradayLeverage')}X` : ''}
+                    onChange={handleIntradayChange}
+                    className={`w-full rounded border-[1.7px] bg-transparent px-3 py-1 text-black outline-none transition ${methods.formState.errors.intradayLeverage ? 'border-red-500' : 'border-stroke'
+                      }`}
+                    placeholder="Enter intraday leverage"
                   />
-                  {isDropdownOpen && (
-                    <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
-                      {filteredBrokers.length > 0 ? (
-                        filteredBrokers.map((b) => (
-                          <div
-                            key={b.id}
-                            className="cursor-pointer px-4 py-2 transition-colors hover:bg-orange-50"
-                            onClick={() => {
-                              setFormData((prev) => ({
-                                ...prev,
-                                BrokerId: b.id,
-                              }));
-                              setSearchTerm('');
-                              setIsDropdownOpen(false);
-                              if (errors.BrokerId) {
-                                setErrors((prev) => ({
-                                  ...prev,
-                                  BrokerId: '',
-                                }));
-                              }
-                            }}
-                          >
-                            <div className="text-gray-900 font-medium">
-                              {b.fullname}
-                            </div>
-                            <div className="text-gray-500 text-xs">
-                              BK ID: {b.BKId}
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="text-gray-500 px-4 py-2 text-sm">
-                          {searchTerm
-                            ? 'No Brokers found'
-                            : 'No brokers available'}
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </div>
-              )}
-              {errors.BrokerId && !isSuperBroker && (
-                <p className="mt-1 text-xs text-red-500">{errors.BrokerId}</p>
-              )}
-            </div>
-
-            {/* Customer Type - DROPDOWN */}
-            <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Customer Type <span className="text-red-500">*</span>
-              </label>
-              <select
-                name="type"
-                value={formData.type}
-                onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
-                  errors.type ? 'border-red-500' : 'border-gray-300'
-                }`}
-              >
-                <option value="">Select Customer Type</option>
-                <option value="mega">Mega</option>
-                <option value="mini">Mini</option>
-              </select>
-              {errors.type && (
-                <p className="mt-1 text-xs text-red-500">{errors.type}</p>
-              )}
-            </div>
-
-            {/* Stock Holding Limit */}
-            <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Minimum Stock Holding time(in minute)
-              </label>
-              <input
-                type="number"
-                name="stockHoldingLimit"
-                value={formData.stockHoldingLimit}
-                onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
-                  errors.stockHoldingLimit ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="Minimum Stock Holding time(in minute)"
-              />
-              {errors.stockHoldingLimit && (
-                <p className="mt-1 text-xs text-red-500">{errors.stockHoldingLimit}</p>
-              )}
-            </div>
-
-            {/* Wallet Balance - NEW */}
-            <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Wallet Balance
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                name="walletBalance"
-                value={formData.walletBalance}
-                onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
-                  errors.walletBalance ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="Enter wallet balance"
-              />
-              {errors.walletBalance && (
-                <p className="mt-1 text-xs text-red-500">{errors.walletBalance}</p>
-              )}
-            </div>
-
-            {/* Intraday Leverage - NEW */}
-            <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Intraday Margin
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                name="intradayLeverage"
-                value={formData.intradayLeverage}
-                onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
-                  errors.intradayLeverage ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="Enter intraday leverage"
-              />
-              {errors.intradayLeverage && (
-                <p className="mt-1 text-xs text-red-500">{errors.intradayLeverage}</p>
-              )}
-            </div>
-
-            {/* Delivery Leverage - NEW */}
-            <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Delivery Margin
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                name="deliveryLeverage"
-                value={formData.deliveryLeverage}
-                onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
-                  errors.deliveryLeverage ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="Enter delivery leverage"
-              />
-              {errors.deliveryLeverage && (
-                <p className="mt-1 text-xs text-red-500">{errors.deliveryLeverage}</p>
-              )}
-            </div>
-
-            {/* Aadhar Card Number - Optional */}
-            <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Aadhar Card Number
-              </label>
-              <input
-                type="text"
-                name="aadharCardNumber"
-                value={formData.aadharCardNumber}
-                onChange={handleInputChange}
-                maxLength={12}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
-                  errors.aadharCardNumber ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="Enter 12-digit Aadhar number"
-              />
-              {errors.aadharCardNumber && (
-                <p className="mt-1 text-xs text-red-500">
-                  {errors.aadharCardNumber}
-                </p>
-              )}
-            </div>
-
-            {/* PAN Card Number - Optional */}
-            <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                PAN Card Number
-              </label>
-              <input
-                type="text"
-                name="panCardNumber"
-                value={formData.panCardNumber}
-                onChange={handleInputChange}
-                maxLength={10}
-                className="border-gray-300 w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base"
-                placeholder="Enter PAN card number (e.g., ABCDE1234F)"
-              />
-              {errors.panCardNumber && (
-                <p className="mt-1 text-xs text-red-500">
-                  {errors.panCardNumber}
-                </p>
-              )}
-            </div>
-
-            {/* Area - Required */}
-            <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Area <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="area"
-                value={formData.area}
-                onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
-                  errors.area ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="Enter Area"
-              />
-              {errors.area && (
-                <p className="mt-1 text-xs text-red-500">{errors.area}</p>
-              )}
-            </div>
-
-            {/* Demo Account Toggle */}
-            <div className="mb-4 flex items-center gap-3">
-              <input
-                id="isDemo"
-                type="checkbox"
-                checked={formData.isDemo}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    isDemo: e.target.checked,
-                  }))
-                }
-                className="h-5 w-5 cursor-pointer accent-orange-500"
-              />
-              <label
-                htmlFor="isDemo"
-                className="text-gray-700 cursor-pointer text-sm font-medium"
-              >
-                Demo Account
-              </label>
-            </div>
-          </div>
-
-          {/* Document Upload Section */}
-          <div className="border-gray-200 mt-6 border-t pt-6">
-            <h2 className="text-gray-800 mb-4 text-base font-semibold sm:text-lg">
-              Document Upload
-            </h2>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
-              <ImageUploadField
-                label="Aadhar Card"
-                field="aadharCardF"
-                required={false}
-              />
-              <ImageUploadField
-                label="PAN Card"
-                field="panCard"
-                required={false}
-              />
-            </div>
-          </div>
-
-          {/* Review Section */}
-          {(imagePreviews.aadharCardF || imagePreviews.panCard) && (
-            <div className="bg-gray-50 mt-6 rounded-lg p-4">
-              <h3 className="text-md text-gray-800 mb-3 font-semibold">
-                Review Uploaded Images
-              </h3>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {imagePreviews.aadharCardF && (
-                  <div>
-                    <p className="text-gray-600 mb-1 text-sm">Aadhar Card:</p>
-                    <img
-                      src={imagePreviews.aadharCardF}
-                      alt="Aadhar Card"
-                      className="h-20 w-20 cursor-pointer rounded-lg object-cover sm:h-24 sm:w-24"
-                      onClick={() => openImageModal(imagePreviews.aadharCardF)}
-                    />
-                  </div>
+                {methods.formState.errors.intradayLeverage && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {methods.formState.errors.intradayLeverage.message}
+                  </p>
                 )}
-                {imagePreviews.panCard && (
-                  <div>
-                    <p className="text-gray-600 mb-1 text-sm">PAN Card:</p>
-                    <img
-                      src={imagePreviews.panCard}
-                      alt="PAN Card"
-                      className="h-20 w-20 cursor-pointer rounded-lg object-cover sm:h-24 sm:w-24"
-                      onClick={() => openImageModal(imagePreviews.panCard)}
-                    />
+                {/* Dynamic Calculation Message - Static 1 Crore */}
+                {intradayLeverage > 0 && (
+                  <div className="mt-1 px-4 py-3 ">
+                    <p className="text-sm text-gray-700 font-semibold ">
+                      {formatIndianCurrency(STATIC_WALLET_BALANCE)} × {intradayLeverage}X = <strong>{formatIndianCurrency(maxIntradayTrade)}</strong>
+                    </p>
                   </div>
                 )}
               </div>
-            </div>
-          )}
 
-          {/* Submit Buttons */}
-          <div className="mt-8 flex justify-end gap-3">
-            <button
-              type="submit"
-              disabled={isSubmitting || addCustomer.isPending}
-              className="rounded-lg bg-gradient-to-r from-orange-500 to-red-500 px-8 py-2.5 text-sm font-medium text-white shadow-lg shadow-orange-500/20 transition-all hover:from-orange-600 hover:to-red-600 disabled:opacity-50"
-            >
-              {isSubmitting || addCustomer.isPending
-                ? 'Submitting...'
-                : 'Register Customer'}
-            </button>
-          </div>
-        </form>
+              {/* Delivery Leverage - with X suffix and dynamic message */}
+              <div className="mb-2 sm:mb-4">
+                <label className="mb-2.5 block text-black dark:text-white">
+                  Delivery Margin
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    name="deliveryLeverage"
+                    value={methods.watch('deliveryLeverage') ? `${methods.watch('deliveryLeverage')}X` : ''}
+                    onChange={handleDeliveryChange}
+                    className={`w-full rounded border-[1.7px] bg-transparent px-3 py-1 text-black outline-none transition ${methods.formState.errors.deliveryLeverage ? 'border-red-500' : 'border-stroke'
+                      } focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary`}
+                    placeholder="Enter delivery leverage"
+                  />
+                </div>
+                {methods.formState.errors.deliveryLeverage && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {methods.formState.errors.deliveryLeverage.message}
+                  </p>
+                )}
+                {/* Dynamic Calculation Message - Static 1 Crore */}
+                {deliveryLeverage > 0 && (
+                  <div className="mt-1 px-4 py-3 ">
+                    <p className="text-sm text-gray-700 font-semibold">
+                      {formatIndianCurrency(STATIC_WALLET_BALANCE)} × {deliveryLeverage}X = <strong>{formatIndianCurrency(maxDeliveryTrade)}</strong>
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Aadhar Card Number - Optional */}
+              <div>
+                <GenericInputField
+                  name="aadharCardNumber"
+                  label="Aadhar Card Number (Optional)"
+                  type="text"
+                  placeholder="Enter 12-digit Aadhar number"
+                  onChange={handleAadharChange}
+                />
+                {methods.formState.errors.aadharCardNumber && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {methods.formState.errors.aadharCardNumber.message}
+                  </p>
+                )}
+              </div>
+
+              {/* PAN Card Number - Optional */}
+              <div>
+                <GenericInputField
+                  name="panCardNumber"
+                  label="PAN Card Number (Optional)"
+                  type="text"
+                  placeholder="Enter PAN card number (e.g., ABCDE1234F)"
+                  onChange={handlePanChange}
+                />
+                {methods.formState.errors.panCardNumber && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {methods.formState.errors.panCardNumber.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Demo Account Toggle */}
+              <div className="col-span-1 sm:col-span-2">
+                <div className="flex items-center gap-3">
+                  <input
+                    id="isDemo"
+                    type="checkbox"
+                    checked={methods.watch('isDemo')}
+                    onChange={(e) => methods.setValue('isDemo', e.target.checked)}
+                    className="h-5 w-5 cursor-pointer accent-orange-500"
+                  />
+                  <label
+                    htmlFor="isDemo"
+                    className="text-gray-700 cursor-pointer text-sm font-medium"
+                  >
+                    Demo Account
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Document Upload Section */}
+            <div className="border-gray-200 mt-6 border-t pt-6">
+              <h2 className="text-gray-800 mb-4 text-base font-semibold sm:text-lg">
+                Document Upload <span className="text-sm font-normal text-gray-500">(Optional)</span>
+              </h2>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
+                <ImageUploadField
+                  label="Aadhar Card"
+                  field="aadharCardF"
+                  required={false}
+                />
+                <ImageUploadField
+                  label="PAN Card"
+                  field="panCard"
+                  required={false}
+                />
+              </div>
+            </div>
+
+            {/* Review Section */}
+            {(imagePreviews.aadharCardF || imagePreviews.panCard) && (
+              <div className="bg-gray-50 mt-6 rounded-lg p-4">
+                <h3 className="text-md text-gray-800 mb-3 font-semibold">
+                  Review Uploaded Images
+                </h3>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {imagePreviews.aadharCardF && (
+                    <div>
+                      <p className="text-gray-600 mb-1 text-sm">Aadhar Card:</p>
+                      <img
+                        src={imagePreviews.aadharCardF}
+                        alt="Aadhar Card"
+                        className="h-20 w-20 cursor-pointer rounded-lg object-cover sm:h-24 sm:w-24"
+                        onClick={() => openImageModal(imagePreviews.aadharCardF)}
+                      />
+                    </div>
+                  )}
+                  {imagePreviews.panCard && (
+                    <div>
+                      <p className="text-gray-600 mb-1 text-sm">PAN Card:</p>
+                      <img
+                        src={imagePreviews.panCard}
+                        alt="PAN Card"
+                        className="h-20 w-20 cursor-pointer rounded-lg object-cover sm:h-24 sm:w-24"
+                        onClick={() => openImageModal(imagePreviews.panCard)}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Submit Buttons */}
+            <div className="mt-8 flex justify-end gap-3">
+              <button
+                type="submit"
+                disabled={isSubmitting || addCustomer.isPending}
+                className="rounded-lg bg-gradient-to-r from-orange-500 to-red-500 px-8 py-2.5 text-sm font-medium text-white shadow-lg shadow-orange-500/20 transition-all hover:from-orange-600 hover:to-red-600 disabled:opacity-50"
+              >
+                {isSubmitting || addCustomer.isPending
+                  ? 'Submitting...'
+                  : 'Register Customer'}
+              </button>
+            </div>
+          </form>
+        </FormProvider>
       </div>
 
       {/* Image Popup Modal */}
