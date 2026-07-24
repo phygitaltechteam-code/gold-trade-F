@@ -334,10 +334,9 @@ const TransactionLedger = () => {
                 )}
                 <button
                   onClick={() => refetch()}
-                  className="flex items-center gap-2 rounded bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
+                  className="rounded bg-orange-500 flex px-1 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 mr-2"
                 >
-                  <RefreshCcw size={20} />
-                  Refresh
+                  <RefreshCcw size={20} />Refresh
                 </button>
               </div>
             </div>

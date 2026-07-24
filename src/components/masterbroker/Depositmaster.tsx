@@ -1,5 +1,5 @@
-import React, {useState, useMemo} from 'react';
-import {useQueryClient} from '@tanstack/react-query';
+import React, { useState, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   Search,
   Filter,
@@ -8,12 +8,12 @@ import {
   Calendar,
   DollarSign,
   TrendingUp,
-  Users,
-  Activity,
+  Clock,
+  CalendarDays,
 } from 'lucide-react';
-import {motion, AnimatePresence} from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import GenericTable from '@/components/Forms/Table/GenericTable';
-import {useGetDepositeMaster} from '@/lib/react-query/withdrawal';
+import { useGetDepositeMaster } from '@/lib/react-query/withdrawal';
 
 // Simple Stat Card Component - Only title, value, and icon
 const StatCard = ({
@@ -81,7 +81,7 @@ interface DepositRequest {
 
 export default function Depositemaster() {
   const queryClient = useQueryClient();
-  const {data: deposits, refetch} = useGetDepositeMaster();
+  const { data: deposits, refetch } = useGetDepositeMaster();
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [showMobileFilter, setShowMobileFilter] = useState(false);
@@ -125,10 +125,10 @@ export default function Depositemaster() {
       hour12: true,
     });
 
-    return {date: formattedDate, time: formattedTime};
+    return { date: formattedDate, time: formattedTime };
   };
 
-  // Date filtering logic - If no dates selected, show all data
+  // Date filtering logic
   const filterByDate = (dateString: string) => {
     if (!fromDate || !toDate) return true;
 
@@ -142,6 +142,23 @@ export default function Depositemaster() {
     to.setHours(23, 59, 59, 999);
 
     return date >= from && date <= to;
+  };
+
+  // Check if date is today
+  const isToday = (dateString: string) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const date = new Date(dateString);
+    date.setHours(0, 0, 0, 0);
+    return date.getTime() === today.getTime();
+  };
+
+  // Check if date is in current month
+  const isCurrentMonth = (dateString: string) => {
+    const today = new Date();
+    const date = new Date(dateString);
+    return date.getMonth() === today.getMonth() && 
+           date.getFullYear() === today.getFullYear();
   };
 
   // Transform API data
@@ -191,21 +208,27 @@ export default function Depositemaster() {
 
   // Calculate stats
   const stats = useMemo(() => {
-    const totalDepositAmount =
-      dateFilteredData?.reduce((sum, r) => sum + r.amount, 0) || 0;
+    // All time stats
+    const totalDepositAmount = dateFilteredData?.reduce((sum, r) => sum + r.amount, 0) || 0;
     const totalCount = dateFilteredData?.length || 0;
-    const uniqueCustomers = new Set(
-      dateFilteredData?.map((r) => r.customerName),
-    ).size;
 
-    // Calculate average deposit
-    const avgDeposit = totalCount > 0 ? totalDepositAmount / totalCount : 0;
+    // Today stats
+    const todayData = dateFilteredData?.filter((r) => isToday(r.date)) || [];
+    const todayAmount = todayData.reduce((sum, r) => sum + r.amount, 0);
+    const todayCount = todayData.length;
+
+    // This month stats
+    const monthData = dateFilteredData?.filter((r) => isCurrentMonth(r.date)) || [];
+    const monthAmount = monthData.reduce((sum, r) => sum + r.amount, 0);
+    const monthCount = monthData.length;
 
     return {
       totalDepositAmount,
       totalCount,
-      uniqueCustomers,
-      avgDeposit,
+      todayAmount,
+      todayCount,
+      monthAmount,
+      monthCount,
     };
   }, [dateFilteredData]);
 
@@ -249,8 +272,14 @@ export default function Depositemaster() {
     },
   ];
 
-  // Stats Card data - Only title, value, icon
+  // Stats Card data - Simple 4 cards like withdrawal page
   const statCards = [
+    {
+      title: 'Total Deposit Amount',
+      value: formatIndianCurrency(stats.totalDepositAmount),
+      icon: TrendingUp,
+      iconColor: 'text-orange-500',
+    },
     {
       title: 'Total Deposits',
       value: formatNumber(stats.totalCount),
@@ -258,21 +287,17 @@ export default function Depositemaster() {
       iconColor: 'text-green-500',
     },
     {
-      title: 'Total Amount',
-      value: formatIndianCurrency(stats.totalDepositAmount),
-      icon: TrendingUp,
-      iconColor: 'text-orange-500',
-    },
-    {
-      title: 'Unique Customers',
-      value: formatNumber(stats.uniqueCustomers),
-      icon: Users,
+      title: "Today's Deposits",
+      value: formatNumber(stats.todayCount),
+      subValue: formatIndianCurrency(stats.todayAmount),
+      icon: Clock,
       iconColor: 'text-blue-500',
     },
     {
-      title: 'Average Deposit',
-      value: formatIndianCurrency(stats.avgDeposit),
-      icon: Activity,
+      title: 'This Month',
+      value: formatNumber(stats.monthCount),
+      subValue: formatIndianCurrency(stats.monthAmount),
+      icon: CalendarDays,
       iconColor: 'text-purple-500',
     },
   ];
@@ -312,14 +337,14 @@ export default function Depositemaster() {
             </div>
             <button
               onClick={() => refetch()}
-              className="flex items-center gap-1 rounded-lg bg-orange-500 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
-            >
-              <RefreshCcw size={16} /> Refresh
+               className="rounded bg-orange-500 flex px-1 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 mr-2"
+                            >
+                              <RefreshCcw size={20}/>Refresh
             </button>
           </div>
         </div>
 
-        {/* Stats Cards - Simple design */}
+        {/* Stats Cards - 4 cards in a row like withdrawal page */}
         <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {statCards.map((card, index) => (
             <StatCard
@@ -381,9 +406,9 @@ export default function Depositemaster() {
           <AnimatePresence>
             {showMobileFilter && (
               <motion.div
-                initial={{opacity: 0, height: 0}}
-                animate={{opacity: 1, height: 'auto'}}
-                exit={{opacity: 0, height: 0}}
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
                 className="bg-gray-50/50 border-b border-stroke p-4 sm:hidden"
               >
                 <h3 className="text-gray-400 mb-2 text-xs font-bold">

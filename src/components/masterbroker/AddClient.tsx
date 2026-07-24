@@ -439,11 +439,6 @@ const AddClient = () => {
                   placeholder="Enter 10-digit phone number"
                   onChange={handlePhoneNumberChange}
                 />
-                {methods.formState.errors.phoneNumber && (
-                  <p className="mt-1 text-xs text-red-500">
-                    {methods.formState.errors.phoneNumber.message}
-                  </p>
-                )}
               </div>
 
               {/* Password - Required */}
