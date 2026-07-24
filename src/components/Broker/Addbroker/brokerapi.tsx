@@ -286,7 +286,7 @@ export const useUpdateBrokerProfile = () => {
       });
     },
     onSuccess: () => {
-      toast.success('Broker profile updated successfully!');
+      toast.success('Super broker profile updated successfully!');
       queryClient.invalidateQueries({ queryKey: ['get-broker'] });
       queryClient.invalidateQueries({ queryKey: ['super_brocker'] });
     },

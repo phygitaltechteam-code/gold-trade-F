@@ -457,7 +457,7 @@ const CompanyAddCustomer = () => {
                   onChange={handlePhoneNumberChange}
                   maxLength={10}
                 />
-              
+
               </div>
 
               {/* Password - Required */}
@@ -495,8 +495,8 @@ const CompanyAddCustomer = () => {
 
               {/* Customer Type - Required */}
               <div className="mb-2 sm:mb-4">
-                <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                  Customer Type <span className="text-red-500">*</span>
+                <label className="mb-2.5 block text-black dark:text-white">
+                  Trader Type <span className="text-red-500">*</span>
                 </label>
                 <select
                   name="type"
@@ -505,7 +505,7 @@ const CompanyAddCustomer = () => {
                   className={`flex w-full cursor-pointer items-center rounded border-[1.7px] bg-transparent px-3 py-1 text-black outline-none transition ${methods.formState.errors.type ? 'border-red-500' : 'border-stroke'
                     } focus-within:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus-within:border-primary`}
                 >
-                  <option value="">Select Customer Type</option>
+                  <option value="">Select Trader Type</option>
                   <option value="mega">Mega</option>
                   <option value="mini">Mini</option>
                 </select>

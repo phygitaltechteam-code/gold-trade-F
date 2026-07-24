@@ -15,7 +15,7 @@ function RouteComponent() {
     <div className="h-screen w-full bg-[#f8fafc] p-4 md:p-6">
       <div className="mb-4 flex items-center justify-between p-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Broker List</h1>
+          <h1 className="text-2xl font-bold text-black">Broker List</h1>
           <p className="text-sm text-slate-500">
             Supervise and manage brokers under your direct network
           </p>

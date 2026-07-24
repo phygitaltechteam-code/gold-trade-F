@@ -167,7 +167,7 @@ const BrokerProfile = () => {
       { id: id, data: updatePayload },
       {
         onSuccess: () => {
-          toast.success('Profile updated successfully!');
+          // toast.success('Profile updated successfully!');
           setIsEditing(false);
           refetch(); // Refresh the profile data
         },
@@ -458,6 +458,7 @@ const BrokerProfile = () => {
                   name="aadharCardNumber"
                   value={editData.aadharCardNumber}
                   onChange={handleInputChange}
+                  maxLength={12}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
                 />
               ) : (
