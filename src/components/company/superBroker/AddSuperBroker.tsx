@@ -264,6 +264,7 @@ const AddSuperBroker = () => {
                 type="tel"
                 required
                 placeholder="Enter phone number"
+                maxLength={10}
               />
 
               <GenericInputField

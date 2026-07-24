@@ -363,6 +363,7 @@ const AddMasterBroker = () => {
                   required
                   placeholder="Enter 10-digit phone number"
                   onChange={handlePhoneNumberChange}
+                  maxLength={10}
                 />
                 
               </div>

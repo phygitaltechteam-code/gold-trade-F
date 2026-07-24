@@ -463,12 +463,9 @@ const AddBrokerTrader = () => {
                                     required
                                     placeholder="Enter 10-digit phone number"
                                     onChange={handlePhoneNumberChange}
+                                    maxLength={10}
                                 />
-                                {methods.formState.errors.phoneNumber && (
-                                    <p className="mt-1 text-xs text-red-500">
-                                        {methods.formState.errors.phoneNumber.message}
-                                    </p>
-                                )}
+                               
                             </div>
 
                             {/* Password - Required */}
@@ -480,29 +477,7 @@ const AddBrokerTrader = () => {
                                 placeholder="Enter password (min 6 characters)"
                             />
 
-                            {/* Broker Dropdown - Required */}
-                            {isSuperBroker ? (
-                                <div className="mb-2 sm:mb-4">
-                                    <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                                        Assign to Broker <span className="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        disabled
-                                        value={`${user?.fullname || 'Super Broker'} (Current User)`}
-                                        className="w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-100 p-2 font-semibold text-slate-500"
-                                    />
-                                </div>
-                            ) : (
-                                <GenericDropdown
-                                    name="brokerId"
-                                    label="Assign to Broker"
-                                    required
-                                    placeholder="Search Broker by Name or BK ID"
-                                    options={brokerOptions}
-                                    searchable={true}
-                                />
-                            )}
+                           
 
                             {/* Customer Type - Required */}
                             <div className="mb-2 sm:mb-4">
