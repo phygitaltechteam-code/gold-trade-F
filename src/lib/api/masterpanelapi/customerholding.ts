@@ -63,8 +63,8 @@ export const useUpdateSlippageMaster = () => {
     mutationFn: async (data: {
       customers: Array<{
         customerId: string;
-        sellSlippage: string;
-        buySlippage: string;
+        sellSlippage: number;
+        buySlippage: number;
       }>;
       securityPin: string;
     }) => {
