@@ -1,4 +1,5 @@
-import {api} from '@/utils/axios';
+import { api } from '@/utils/axios';
+
 
 export type MasterBrocker = {
   fullname: string;
@@ -12,16 +13,11 @@ export type MasterBrocker = {
   aadharCardF?: File;
   panCard?: File;
   photo?: File;
-  allowSlippage?: boolean;
-  buySlippage?: number;
-  sellSlippage?: number;
-  buySlipagePercent?: number;
-  sellSlipagePercent?: number;
+  allowSlipage?: boolean;
 };
 
 export const addMasterBrocker = async (data: MasterBrocker) => {
   try {
-    console.log("📤 Sending data:", data);
     const formData = new FormData();
 
     // Required fields
@@ -31,34 +27,8 @@ export const addMasterBrocker = async (data: MasterBrocker) => {
     formData.append('commission', data.commission.toString());
     formData.append('customerLimit', data.customerLimit.toString());
     formData.append('area', data.area);
-
-    // Slippage fields - ONLY send if allowSlippage is true and values exist
-    if (data.allowSlippage === true) {
-      // Get the buy slippage value
-      let buyValue = data.buySlippage ?? data.buySlipagePercent;
-      let sellValue = data.sellSlippage ?? data.sellSlipagePercent;
-
-      // Only append if values are valid numbers and greater than 0
-      if (buyValue !== undefined && buyValue !== null && !isNaN(buyValue) && buyValue > 0) {
-        // Try all possible field name variations
-        formData.append('buySlipagePercent', buyValue.toString());
-       
-        console.log(`✅ Buy slippage: ${buyValue}`);
-      } else {
-        console.log('ℹ️ Buy slippage value is 0 or invalid, skipping');
-      }
-
-      if (sellValue !== undefined && sellValue !== null && !isNaN(sellValue) && sellValue > 0) {
-        formData.append('sellSlipagePercent', sellValue.toString());
-      
-        console.log(`✅ Sell slippage: ${sellValue}`);
-      } else {
-        console.log('ℹ️ Sell slippage value is 0 or invalid, skipping');
-      }
-    } else {
-      console.log('ℹ️ Slippage not allowed, skipping slippage fields');
-      // Explicitly don't append slippage fields
-    }
+    // Send  as string - the backend will parse it
+    formData.append('allowSlipage', String(data.allowSlipage ?? false));
 
     // Optional fields
     if (data.aadharCardNumber) {
@@ -104,7 +74,6 @@ export const addMasterBrocker = async (data: MasterBrocker) => {
     throw error;
   }
 };
-
 export const getAllMasterBrocker = async () => {
   try {
     const response = await api.get(`company/master-broker`);

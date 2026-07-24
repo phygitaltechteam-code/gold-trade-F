@@ -1,40 +1,81 @@
-import {useAddBroker} from '@/lib/api/addbroker';
-import React, {useState, useEffect} from 'react';
-import {useNavigate} from '@tanstack/react-router';
+import { useAddBroker } from '@/lib/api/addbroker';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import toast from 'react-hot-toast';
-import {z} from 'zod';
-import {useAuthContext} from '@/context/AuthContext';
-import {X, ZoomIn} from 'lucide-react';
-import {useGetAllSuperBrocker} from '@/lib/react-query/superbrocker';
+import { z } from 'zod';
+import { FormProvider, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useAuthContext } from '@/context/AuthContext';
+import { X, ZoomIn } from 'lucide-react';
+import { useGetAllSuperBrocker } from '@/lib/react-query/superbrocker';
+import GenericInputField from '@/components/Forms/Input/GenericInputField';
+import GenericDropdown from '../Forms/DropDown/GenericDropDown';
 
-// Define Zod schema for form data validation
+// Define Zod schema for form data validation with proper validations
 const BrokerSchema = z.object({
-  fullname: z.string().min(1, 'Full name is required'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-  phoneNumber: z.string().min(1, 'Phone number is required'),
+  // Required fields first
+  fullname: z.string()
+    .min(1, 'Full name is required')
+    .max(100, 'Full name must be less than 100 characters')
+    .regex(/^[a-zA-Z\s'-]+$/, 'Full name can only contain letters, spaces, hyphens, and apostrophes'),
+  
+  phoneNumber: z.string()
+    .min(10, 'Phone number must be exactly 10 digits')
+    .max(10, 'Phone number must be exactly 10 digits')
+    .regex(/^[0-9]{10}$/, 'Phone number must contain only digits'),
+  
+  password: z.string()
+    .min(6, 'Password must be at least 6 characters')
+    .max(20, 'Password must be less than 20 characters')
+    .regex(/^(?=.*[A-Za-z])(?=.*\d)/, 'Password must contain at least one letter and one number'),
+  
   superBrokerId: z.string().min(1, 'Please select a Super Broker'),
-  area: z.string().min(1, 'Area is required'),
-  commission: z.coerce.number().min(0, 'Commission must be a valid number'),
-  aadharCardNumber: z.string().optional(),
-  panCardNumber: z.string().optional(),
+  
+  area: z.string()
+    .min(1, 'Area is required')
+    .max(100, 'Area must be less than 100 characters'),
+  
+  commission: z.coerce.number()
+    .min(0, 'Commission must be a valid number')
+    .max(100, 'Commission cannot exceed 100%'),
+  
+  // Optional fields
+  aadharCardNumber: z.string()
+    .optional()
+    .refine(
+      (val) => !val || (val.length === 12 && /^[0-9]{12}$/.test(val)),
+      'Aadhar number must be exactly 12 digits'
+    ),
+  
+  panCardNumber: z.string()
+    .optional()
+    .refine(
+      (val) => !val || /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(val.toUpperCase()),
+      'PAN card must be in format: ABCDE1234F'
+    ),
 });
+
+type FormValues = z.infer<typeof BrokerSchema>;
 
 const AddBroker = () => {
   const navigate = useNavigate();
   const addbroker = useAddBroker();
-  const {data: superBrokersData} = useGetAllSuperBrocker();
-  const {user} = useAuthContext();
+  const { data: superBrokersData } = useGetAllSuperBrocker();
+  const { user } = useAuthContext();
   const isSuperBroker = user?.role === 'SUPERBROKER';
 
-  const [formData, setFormData] = useState({
-    fullname: '',
-    password: '',
-    area: '',
-    commission: '',
-    phoneNumber: '',
-    aadharCardNumber: '',
-    panCardNumber: '',
-    superBrokerId: '',
+  const methods = useForm<FormValues>({
+    resolver: zodResolver(BrokerSchema),
+    defaultValues: {
+      fullname: '',
+      password: '',
+      area: '',
+      commission: 0,
+      phoneNumber: '',
+      aadharCardNumber: '',
+      panCardNumber: '',
+      superBrokerId: '',
+    },
   });
 
   const [images, setImages] = useState({
@@ -49,44 +90,49 @@ const AddBroker = () => {
 
   const [selectedImage, setSelectedImage] = useState(null);
   const [showImageModal, setShowImageModal] = useState(false);
-  const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Searchable Dropdown state
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Get super brokers from API response
   const superBrokersList =
     superBrokersData?.data?.data || superBrokersData?.data || [];
 
-  const filteredSuperBrokers = superBrokersList.filter(
-    (sb) =>
-      sb.fullname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      sb.BKId?.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  // Format super brokers for dropdown
+  const superBrokerOptions = superBrokersList.map((sb) => ({
+    id: sb.id,
+    label: sb.fullname || sb.user?.fullname || 'Unknown',
+    subLabel: sb.BKId || sb.SBID || 'N/A',
+  }));
 
   useEffect(() => {
     if (isSuperBroker && user) {
-      setFormData((prev) => ({
-        ...prev,
-        superBrokerId: user.id,
-      }));
+      methods.setValue('superBrokerId', user.id);
     }
   }, [isSuperBroker, user]);
 
-  const handleInputChange = (e) => {
-    const {name, value} = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  // Handle phone number input - only allow digits
+  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '');
+    if (value.length <= 10) {
+      methods.setValue('phoneNumber', value);
+      methods.clearErrors('phoneNumber');
+    }
+  };
 
-    if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: '',
-      }));
+  // Handle aadhar number input - only allow digits
+  const handleAadharChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '');
+    if (value.length <= 12) {
+      methods.setValue('aadharCardNumber', value);
+      methods.clearErrors('aadharCardNumber');
+    }
+  };
+
+  // Handle PAN card input - auto uppercase and format
+  const handlePanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (value.length <= 10) {
+      methods.setValue('panCardNumber', value);
+      methods.clearErrors('panCardNumber');
     }
   };
 
@@ -95,18 +141,18 @@ const AddBroker = () => {
     if (file) {
       const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
       if (!validTypes.includes(file.type)) {
-        setErrors((prev) => ({
-          ...prev,
-          [field]: 'Please upload a valid image file (JPEG, PNG)',
-        }));
+        methods.setError(field, {
+          type: 'manual',
+          message: 'Please upload a valid image file (JPEG, PNG)',
+        });
         return;
       }
 
       if (file.size > 5 * 1024 * 1024) {
-        setErrors((prev) => ({
-          ...prev,
-          [field]: 'Image size should be less than 5MB',
-        }));
+        methods.setError(field, {
+          type: 'manual',
+          message: 'Image size should be less than 5MB',
+        });
         return;
       }
 
@@ -124,12 +170,7 @@ const AddBroker = () => {
       };
       reader.readAsDataURL(file);
 
-      if (errors[field]) {
-        setErrors((prev) => ({
-          ...prev,
-          [field]: '',
-        }));
-      }
+      methods.clearErrors(field);
     }
   };
 
@@ -142,12 +183,7 @@ const AddBroker = () => {
       ...prev,
       [field]: null,
     }));
-    if (errors[field]) {
-      setErrors((prev) => ({
-        ...prev,
-        [field]: '',
-      }));
-    }
+    methods.clearErrors(field);
   };
 
   const openImageModal = (imageUrl) => {
@@ -160,40 +196,8 @@ const AddBroker = () => {
     setShowImageModal(false);
   };
 
-  const validateForm = () => {
-    try {
-      BrokerSchema.parse(formData);
-
-      // if (!images.aadharCardF) {
-      //   toast.error('Aadhar Card image is required');
-      //   return false;
-      // }
-
-      setErrors({});
-      return true;
-    } catch (error) {
-      const formattedErrors = {};
-      error.errors.forEach((err) => {
-        formattedErrors[err.path[0]] = err.message;
-      });
-      setErrors(formattedErrors);
-      const firstError = error.errors[0];
-      toast.error(firstError.message);
-      return false;
-    }
-  };
-
   const resetForm = () => {
-    setFormData({
-      fullname: '',
-      password: '',
-      area: '',
-      commission: '',
-      phoneNumber: '',
-      aadharCardNumber: '',
-      panCardNumber: '',
-      superBrokerId: '',
-    });
+    methods.reset();
     setImages({
       aadharCardF: null,
       panCard: null,
@@ -202,50 +206,42 @@ const AddBroker = () => {
       aadharCardF: null,
       panCard: null,
     });
-    setErrors({});
-    setSearchTerm('');
-    setIsDropdownOpen(false);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    const formDataToSend = new FormData();
-    formDataToSend.append('fullname', formData.fullname);
-    formDataToSend.append('password', formData.password);
-    formDataToSend.append('phoneNumber', formData.phoneNumber);
-    formDataToSend.append('aadharCardNumber', formData.aadharCardNumber);
-    formDataToSend.append('panCardNumber', formData.panCardNumber);
-    formDataToSend.append('commission', formData.commission);
-    formDataToSend.append('area', formData.area);
-    formDataToSend.append('superBrokerId', formData.superBrokerId);
-
-    if (images.aadharCardF) {
-      formDataToSend.append('aadharCardF', images.aadharCardF);
-    }
-    if (images.panCard) {
-      formDataToSend.append('panCard', images.panCard);
-    }
-
+  const onSubmit = async (data: FormValues) => {
     try {
+      setIsSubmitting(true);
+
+      const formDataToSend = new FormData();
+      formDataToSend.append('fullname', data.fullname.trim());
+      formDataToSend.append('password', data.password);
+      formDataToSend.append('phoneNumber', data.phoneNumber);
+      formDataToSend.append('aadharCardNumber', data.aadharCardNumber || '');
+      formDataToSend.append('panCardNumber', data.panCardNumber || '');
+      formDataToSend.append('commission', data.commission.toString());
+      formDataToSend.append('area', data.area.trim());
+      formDataToSend.append('superBrokerId', data.superBrokerId);
+
+      if (images.aadharCardF) {
+        formDataToSend.append('aadharCardF', images.aadharCardF);
+      }
+      if (images.panCard) {
+        formDataToSend.append('panCard', images.panCard);
+      }
+
       await addbroker.mutateAsync(formDataToSend);
       resetForm();
-      // toast.success('Broker registered successfully!');
-      navigate({to: '/companybroker/displaybroker'});
-    } catch (error) {
+      toast.success('Broker registered successfully!');
+      navigate({ to: '/companybroker/displaybroker' });
+    } catch (error: any) {
       console.error('Submission error:', error);
+      toast.error(error?.response?.data?.message || 'Failed to register broker');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const ImageUploadField = ({label, field, required}) => (
+  const ImageUploadField = ({ label, field, required }) => (
     <div className="mb-4">
       <label className="text-gray-700 mb-2 block text-sm font-medium">
         {label} {required && <span className="text-red-500">*</span>}
@@ -301,8 +297,10 @@ const AddBroker = () => {
           </label>
         )}
       </div>
-      {errors[field] && (
-        <p className="mt-1 text-xs text-red-500">{errors[field]}</p>
+      {methods.formState.errors[field] && (
+        <p className="mt-1 text-xs text-red-500">
+          {methods.formState.errors[field]?.message as string}
+        </p>
       )}
     </div>
   );
@@ -336,311 +334,188 @@ const AddBroker = () => {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 sm:p-6">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
-            {/* Full Name */}
-            <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Full Name <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
+        <FormProvider {...methods}>
+          <form onSubmit={methods.handleSubmit(onSubmit)} className="p-4 sm:p-6">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
+              {/* ===== REQUIRED FIELDS FIRST ===== */}
+              
+              {/* Full Name - Required */}
+              <GenericInputField
                 name="fullname"
-                value={formData.fullname}
-                onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
-                  errors.fullname ? 'border-red-500' : 'border-gray-300'
-                }`}
+                label="Full Name"
+                type="text"
+                required
                 placeholder="Enter full name"
               />
-              {errors.fullname && (
-                <p className="mt-1 text-xs text-red-500">{errors.fullname}</p>
-              )}
-            </div>
 
-            {/* Phone number */}
-            <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Phone Number <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="tel"
-                name="phoneNumber"
-                value={formData.phoneNumber}
-                onChange={handleInputChange}
-                maxLength={10}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
-                  errors.phoneNumber ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="Enter 10-digit phone number"
-              />
-              {errors.phoneNumber && (
-                <p className="mt-1 text-xs text-red-500">
-                  {errors.phoneNumber}
-                </p>
-              )}
-            </div>
+              {/* Phone Number - Required */}
+              <div>
+                <GenericInputField
+                  name="phoneNumber"
+                  label="Phone Number"
+                  type="tel"
+                  required
+                  placeholder="Enter 10-digit phone number"
+                  onChange={handlePhoneNumberChange}
+                />
+                {methods.formState.errors.phoneNumber && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {methods.formState.errors.phoneNumber.message}
+                  </p>
+                )}
+              </div>
 
-            {/* Password */}
-            <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Password <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="password"
+              {/* Password - Required */}
+              <GenericInputField
                 name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
-                  errors.password ? 'border-red-500' : 'border-gray-300'
-                }`}
+                label="Password"
+                type="password"
+                required
                 placeholder="Enter password (min 6 characters)"
               />
-              {errors.password && (
-                <p className="mt-1 text-xs text-red-500">{errors.password}</p>
-              )}
-            </div>
 
-            {/* Searchable Super Broker Dropdown */}
-            <div className="relative mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Assign to Super Broker <span className="text-red-500">*</span>
-              </label>
+              {/* Super Broker Dropdown - Required */}
               {isSuperBroker ? (
-                <input
-                  type="text"
-                  disabled
-                  value={`${user?.fullname || 'Super Broker'} (Current User)`}
-                  className="w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-100 p-2 font-semibold text-slate-500"
-                />
-              ) : (
-                <div className="relative">
+                <div className="mb-2 sm:mb-4">
+                  <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
+                    Assign to Super Broker <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="text"
-                    placeholder="Search Super Broker by Name or BK ID"
-                    value={
-                      isDropdownOpen
-                        ? searchTerm
-                        : superBrokersList.find(
-                              (sb) => sb.id === formData.superBrokerId,
-                            )
-                          ? `${superBrokersList.find((sb) => sb.id === formData.superBrokerId)?.fullname} (${superBrokersList.find((sb) => sb.id === formData.superBrokerId)?.BKId})`
-                          : ''
-                    }
-                    onChange={(e) => {
-                      setSearchTerm(e.target.value);
-                      setIsDropdownOpen(true);
-                    }}
-                    onFocus={() => {
-                      setIsDropdownOpen(true);
-                      setSearchTerm('');
-                    }}
-                    onBlur={() =>
-                      setTimeout(() => setIsDropdownOpen(false), 200)
-                    }
-                    className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
-                      errors.superBrokerId
-                        ? 'border-red-500'
-                        : 'border-gray-300'
-                    }`}
+                    disabled
+                    value={`${user?.fullname || 'Super Broker'} (Current User)`}
+                    className="w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-100 p-2 font-semibold text-slate-500"
                   />
-                  {isDropdownOpen && (
-                    <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
-                      {filteredSuperBrokers.length > 0 ? (
-                        filteredSuperBrokers.map((sb) => (
-                          <div
-                            key={sb.id}
-                            className="cursor-pointer px-4 py-2 transition-colors hover:bg-orange-50"
-                            onClick={() => {
-                              setFormData((prev) => ({
-                                ...prev,
-                                superBrokerId: sb.id,
-                              }));
-                              setSearchTerm('');
-                              setIsDropdownOpen(false);
-                              if (errors.superBrokerId) {
-                                setErrors((prev) => ({
-                                  ...prev,
-                                  superBrokerId: '',
-                                }));
-                              }
-                            }}
-                          >
-                            <div className="text-gray-900 font-medium">
-                              {sb.fullname}
-                            </div>
-                            <div className="text-gray-500 text-xs">
-                              BK ID: {sb.BKId}
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="text-gray-500 px-4 py-2 text-sm">
-                          No Super Brokers found
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </div>
+              ) : (
+                <GenericDropdown
+                  name="superBrokerId"
+                  label="Assign to Super Broker"
+                  required
+                  placeholder="Search Super Broker by Name or BK ID"
+                  options={superBrokerOptions}
+                  searchable={true}
+                />
               )}
-              {errors.superBrokerId && !isSuperBroker && (
-                <p className="mt-1 text-xs text-red-500">
-                  {errors.superBrokerId}
-                </p>
-              )}
-            </div>
 
-            {/* Aadhar Card Number - Optional */}
-            <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Aadhar Card Number
-              </label>
-              <input
-                type="text"
-                name="aadharCardNumber"
-                value={formData.aadharCardNumber}
-                onChange={handleInputChange}
-                maxLength={12}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
-                  errors.aadharCardNumber ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="Enter 12-digit Aadhar number"
-              />
-              {errors.aadharCardNumber && (
-                <p className="mt-1 text-xs text-red-500">
-                  {errors.aadharCardNumber}
-                </p>
-              )}
-            </div>
-
-            {/* PAN Card Number - Optional */}
-            <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                PAN Card Number
-              </label>
-              <input
-                type="text"
-                name="panCardNumber"
-                value={formData.panCardNumber}
-                onChange={handleInputChange}
-                maxLength={10}
-                className="border-gray-300 w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base"
-                placeholder="Enter PAN card number (e.g., ABCDE1234F)"
-              />
-              {errors.panCardNumber && (
-                <p className="mt-1 text-xs text-red-500">
-                  {errors.panCardNumber}
-                </p>
-              )}
-            </div>
-
-            {/* Area - Required */}
-            <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Area <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
+              {/* Area - Required */}
+              <GenericInputField
                 name="area"
-                value={formData.area}
-                onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
-                  errors.area ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="Enter Area"
+                label="Area"
+                required
+                placeholder="Enter area"
               />
-              {errors.area && (
-                <p className="mt-1 text-xs text-red-500">{errors.area}</p>
-              )}
-            </div>
 
-            {/* Commission - Required */}
-            <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Commission % <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                step="0.01"
+              {/* Commission - Required */}
+              <GenericInputField
                 name="commission"
-                value={formData.commission}
-                onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${
-                  errors.commission ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="Enter Commission %"
+                label="Commission (%)"
+                type="number"
+                required
+                placeholder="Enter commission percentage (0-100)"
               />
-              {errors.commission && (
-                <p className="mt-1 text-xs text-red-500">{errors.commission}</p>
-              )}
-            </div>
-          </div>
 
-          {/* Document Upload Section */}
-          <div className="border-gray-200 mt-6 border-t pt-6">
-            <h2 className="text-gray-800 mb-4 text-base font-semibold sm:text-lg">
-              Document Upload
-            </h2>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
-              <ImageUploadField
-                label="Aadhar Card"
-                field="aadharCardF"
-                required={false}
-              />
-              <ImageUploadField
-                label="PAN Card"
-                field="panCard"
-                required={false}
-              />
-            </div>
-          </div>
-
-          {/* Review Section */}
-          {(imagePreviews.aadharCardF || imagePreviews.panCard) && (
-            <div className="bg-gray-50 mt-6 rounded-lg p-4">
-              <h3 className="text-md text-gray-800 mb-3 font-semibold">
-                Review Uploaded Images
-              </h3>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {imagePreviews.aadharCardF && (
-                  <div>
-                    <p className="text-gray-600 mb-1 text-sm">Aadhar Card:</p>
-                    <img
-                      src={imagePreviews.aadharCardF}
-                      alt="Aadhar Card"
-                      className="h-20 w-20 cursor-pointer rounded-lg object-cover sm:h-24 sm:w-24"
-                      onClick={() => openImageModal(imagePreviews.aadharCardF)}
-                    />
-                  </div>
+              {/* ===== OPTIONAL FIELDS BELOW ===== */}
+              
+              {/* Aadhar Card Number - Optional */}
+              <div>
+                <GenericInputField
+                  name="aadharCardNumber"
+                  label="Aadhar Card Number (Optional)"
+                  type="text"
+                  placeholder="Enter 12-digit Aadhar number"
+                  onChange={handleAadharChange}
+                />
+                {methods.formState.errors.aadharCardNumber && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {methods.formState.errors.aadharCardNumber.message}
+                  </p>
                 )}
-                {imagePreviews.panCard && (
-                  <div>
-                    <p className="text-gray-600 mb-1 text-sm">PAN Card:</p>
-                    <img
-                      src={imagePreviews.panCard}
-                      alt="PAN Card"
-                      className="h-20 w-20 cursor-pointer rounded-lg object-cover sm:h-24 sm:w-24"
-                      onClick={() => openImageModal(imagePreviews.panCard)}
-                    />
-                  </div>
+              </div>
+
+              {/* PAN Card Number - Optional */}
+              <div>
+                <GenericInputField
+                  name="panCardNumber"
+                  label="PAN Card Number (Optional)"
+                  type="text"
+                  placeholder="Enter PAN card number (e.g., ABCDE1234F)"
+                  onChange={handlePanChange}
+                />
+                {methods.formState.errors.panCardNumber && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {methods.formState.errors.panCardNumber.message}
+                  </p>
                 )}
               </div>
             </div>
-          )}
 
-          {/* Submit Buttons */}
-          <div className="mt-8 flex justify-end gap-3">
-            <button
-              type="submit"
-              disabled={isSubmitting || addbroker.isPending}
-              className="rounded-lg bg-gradient-to-r from-orange-500 to-red-500 px-8 py-2.5 text-sm font-medium text-white shadow-lg shadow-orange-500/20 transition-all hover:from-orange-600 hover:to-red-600 disabled:opacity-50"
-            >
-              {isSubmitting || addbroker.isPending
-                ? 'Submitting...'
-                : 'Register Broker'}
-            </button>
-          </div>
-        </form>
+            {/* Document Upload Section - Optional */}
+            <div className="border-gray-200 mt-6 border-t pt-6">
+              <h2 className="text-gray-800 mb-4 text-base font-semibold sm:text-lg">
+                Document Upload <span className="text-sm font-normal text-gray-500">(Optional)</span>
+              </h2>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
+                <ImageUploadField
+                  label="Aadhar Card"
+                  field="aadharCardF"
+                  required={false}
+                />
+                <ImageUploadField
+                  label="PAN Card"
+                  field="panCard"
+                  required={false}
+                />
+              </div>
+            </div>
+
+            {/* Review Section */}
+            {(imagePreviews.aadharCardF || imagePreviews.panCard) && (
+              <div className="bg-gray-50 mt-6 rounded-lg p-4">
+                <h3 className="text-md text-gray-800 mb-3 font-semibold">
+                  Review Uploaded Images
+                </h3>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {imagePreviews.aadharCardF && (
+                    <div>
+                      <p className="text-gray-600 mb-1 text-sm">Aadhar Card:</p>
+                      <img
+                        src={imagePreviews.aadharCardF}
+                        alt="Aadhar Card"
+                        className="h-20 w-20 cursor-pointer rounded-lg object-cover sm:h-24 sm:w-24"
+                        onClick={() => openImageModal(imagePreviews.aadharCardF)}
+                      />
+                    </div>
+                  )}
+                  {imagePreviews.panCard && (
+                    <div>
+                      <p className="text-gray-600 mb-1 text-sm">PAN Card:</p>
+                      <img
+                        src={imagePreviews.panCard}
+                        alt="PAN Card"
+                        className="h-20 w-20 cursor-pointer rounded-lg object-cover sm:h-24 sm:w-24"
+                        onClick={() => openImageModal(imagePreviews.panCard)}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Submit Buttons */}
+            <div className="mt-8 flex justify-end gap-3">
+              <button
+                type="submit"
+                disabled={isSubmitting || addbroker.isPending}
+                className="rounded-lg bg-gradient-to-r from-orange-500 to-red-500 px-8 py-2.5 text-sm font-medium text-white shadow-lg shadow-orange-500/20 transition-all hover:from-orange-600 hover:to-red-600 disabled:opacity-50"
+              >
+                {isSubmitting || addbroker.isPending
+                  ? 'Submitting...'
+                  : 'Register Broker'}
+              </button>
+            </div>
+          </form>
+        </FormProvider>
       </div>
 
       {/* Image Popup Modal */}

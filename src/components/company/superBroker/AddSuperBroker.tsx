@@ -1,12 +1,12 @@
-import {useAddBroker} from '@/lib/api/addbroker';
-import React, {useState} from 'react';
-import {useNavigate} from '@tanstack/react-router';
-import {z} from 'zod';
-import {FormProvider, useForm} from 'react-hook-form';
-import {zodResolver} from '@hookform/resolvers/zod';
+import { useAddBroker } from '@/lib/api/addbroker';
+import React, { useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
+import { z } from 'zod';
+import { FormProvider, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import GenericInputField from '@/components/Forms/Input/GenericInputField';
-import {useAddSuperBrocker} from '@/lib/react-query/superbrocker';
-import {X, ZoomIn} from 'lucide-react';
+import { useAddSuperBrocker } from '@/lib/react-query/superbrocker';
+import { X, ZoomIn } from 'lucide-react';
 
 // Zod Schema
 const BrokerSchema = z.object({
@@ -39,7 +39,7 @@ const AddSuperBroker = () => {
     },
   });
 
-  const {mutateAsync: addSuperBrocker, isPending} = useAddSuperBrocker();
+  const { mutateAsync: addSuperBrocker, isPending } = useAddSuperBrocker();
 
   const [imagePreviews, setImagePreviews] = useState({
     aadharCardF: '',
@@ -273,20 +273,6 @@ const AddSuperBroker = () => {
               />
 
               <GenericInputField
-                name="aadharCardNumber"
-                label="Aadhar Card Number (Optional)"
-                type="text"
-                placeholder="Enter aadhar card number"
-              />
-
-              <GenericInputField
-                name="panCardNumber"
-                label="PAN Card Number (Optional)"
-                type="text"
-                placeholder="Enter PAN card number"
-              />
-
-              <GenericInputField
                 name="area"
                 label="Area"
                 required
@@ -299,6 +285,20 @@ const AddSuperBroker = () => {
                 type="number"
                 // required
                 placeholder="Enter commission percentage"
+              />
+
+              <GenericInputField
+                name="aadharCardNumber"
+                label="Aadhar Card Number (Optional)"
+                type="text"
+                placeholder="Enter aadhar card number"
+              />
+
+              <GenericInputField
+                name="panCardNumber"
+                label="PAN Card Number (Optional)"
+                type="text"
+                placeholder="Enter PAN card number"
               />
             </div>
 
@@ -314,7 +314,7 @@ const AddSuperBroker = () => {
                   field="aadharCardF"
                 />
                 <ImageUploadField label="PAN Card" field="panCard" />
-                <ImageUploadField label="Profile Photo" field="photo" />
+                <ImageUploadField label="Logo" field="photo" />
               </div>
             </div>
 

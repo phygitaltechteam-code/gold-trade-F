@@ -9,24 +9,49 @@ import { useAddMasterBrocker } from '@/lib/react-query/masterbroker';
 import { X, ZoomIn } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-// Zod Schema with new fields
+// Zod Schema with proper validations
 const BrokerSchema = z.object({
-  fullname: z.string().min(1, 'Full name is required'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-  phoneNumber: z.string().min(1, 'Phone number is required'),
-  commission: z.coerce.number().min(0, 'Commission must be a positive number'),
-  area: z.string().min(1, 'Area is required'),
-  aadharCardNumber: z.string().optional(),
-  panCardNumber: z.string().optional(),
+  // Required fields first
+  fullname: z.string()
+    .min(1, 'Full name is required'),
+
+  phoneNumber: z.string()
+    .min(10, 'Phone number must be exactly 10 digits')
+    .max(10, 'Phone number must be exactly 10 digits')
+    .regex(/^[0-9]{10}$/, 'Phone number must contain only digits'),
+
+  password: z.string()
+    .min(6, 'Password must be at least 6 characters'),
+
+  area: z.string()
+    .min(1, 'Area is required'),
+
+  commission: z.coerce.number()
+    .min(0, 'Commission must be a positive number'),
+
+  customerLimit: z.coerce.number()
+    .min(0, 'Customer limit must be a positive number'),
+
+  // Optional fields
+  aadharCardNumber: z.string()
+    .optional()
+    .refine(
+      (val) => !val || (val.length === 12 && /^[0-9]{12}$/.test(val)),
+      'Aadhar number must be exactly 12 digits'
+    ),
+
+  panCardNumber: z.string()
+    .optional()
+    .refine(
+      (val) => !val || /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(val.toUpperCase()),
+      'PAN card must be in format: ABCDE1234F'
+    ),
+
   aadharCardF: z.any().optional(),
   panCard: z.any().optional(),
   photo: z.any().optional(),
-  customerLimit: z.coerce
-    .number()
-    .min(0, 'Customer limit must be a positive number'),
-  allowSlippage: z.boolean().default(false),
-  buySlippage: z.coerce.number().min(0, 'Buy slippage must be a positive number').optional(),
-  sellSlippage: z.coerce.number().min(0, 'Sell slippage must be a positive number').optional(),
+
+  allowSlipage: z.boolean().default(false),
 });
 
 type FormValues = z.infer<typeof BrokerSchema>;
@@ -38,19 +63,17 @@ const AddMasterBroker = () => {
     resolver: zodResolver(BrokerSchema),
     defaultValues: {
       fullname: '',
-      password: '',
       phoneNumber: '',
-      commission: 0,
+      password: '',
       area: '',
+      commission: 0,
+      customerLimit: 0,
       aadharCardNumber: '',
       panCardNumber: '',
-      customerLimit: 0,
       aadharCardF: undefined,
       panCard: undefined,
       photo: undefined,
-      allowSlippage: false,
-      buySlippage: 0,
-      sellSlippage: 0,
+      allowSlipage: false,
     },
   });
 
@@ -66,8 +89,8 @@ const AddMasterBroker = () => {
   const [showImageModal, setShowImageModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Watch the allowSlippage field to show/hide slippage fields
-  const allowSlippage = methods.watch('allowSlippage');
+  // Watch the allowSlipage field
+  const allowSlipage = methods.watch('allowSlipage');
 
   // Convert image to base64
   const handleImageChange = (
@@ -134,43 +157,64 @@ const AddMasterBroker = () => {
     setShowImageModal(false);
   };
 
+  // Handle phone number input - only allow digits
+  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '');
+    if (value.length <= 10) {
+      methods.setValue('phoneNumber', value);
+      methods.clearErrors('phoneNumber');
+    }
+  };
+
+  // Handle aadhar number input - only allow digits
+  const handleAadharChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '');
+    if (value.length <= 12) {
+      methods.setValue('aadharCardNumber', value);
+      methods.clearErrors('aadharCardNumber');
+    }
+  };
+
+  // Handle PAN card input - auto uppercase and format
+  const handlePanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (value.length <= 10) {
+      methods.setValue('panCardNumber', value);
+      methods.clearErrors('panCardNumber');
+    }
+  };
+
+  // Handle slippage checkbox change
+  const handleSlippageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const isChecked = e.target.checked;
+    methods.setValue('allowSlipage', isChecked);
+    methods.clearErrors('allowSlipage');
+    console.log('Slippage allowed:', isChecked);
+  };
+
   const handleSubmit = async (data: FormValues) => {
     try {
       setIsSubmitting(true);
 
       // Prepare the payload with proper field names
       const payload: any = {
-        fullname: data.fullname,
-        password: data.password,
+        fullname: data.fullname.trim(),
         phoneNumber: data.phoneNumber,
+        password: data.password,
+        area: data.area.trim(),
         commission: data.commission,
         customerLimit: data.customerLimit,
-        area: data.area,
         aadharCardNumber: data.aadharCardNumber || '',
         panCardNumber: data.panCardNumber || '',
         aadharCardF: data.aadharCardF,
         panCard: data.panCard,
         photo: data.photo,
-        allowSlippage: data.allowSlippage || false,
+        // IMPORTANT: Explicitly send allowSlipage as boolean
+        allowSlipage: data.allowSlipage === true,
       };
 
-      // Only add slippage fields if allowed
-      if (data.allowSlippage) {
-        const buyValue = Number(data.buySlippage);
-        const sellValue = Number(data.sellSlippage);
-
-        if (!isNaN(buyValue) && buyValue > 0) {
-          payload.buySlipagePercent = buyValue;
-          payload.buySlippage = buyValue;
-        }
-
-        if (!isNaN(sellValue) && sellValue > 0) {
-          payload.sellSlipagePercent = sellValue;
-          payload.sellSlippage = sellValue;
-        }
-      }
-
       console.log('📤 Submitting payload:', payload);
+      console.log('Slippage setting:', payload.allowSlipage ? 'ENABLED' : 'DISABLED');
 
       await addMasterBrocker(payload);
 
@@ -181,7 +225,6 @@ const AddMasterBroker = () => {
         photo: '',
       });
 
-      toast.success('Master broker registered successfully!');
       navigate({
         to: '/companybroker/display-master-broker',
       });
@@ -300,6 +343,9 @@ const AddMasterBroker = () => {
             className="p-4 sm:p-6"
           >
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
+              {/* ===== REQUIRED FIELDS FIRST ===== */}
+
+              {/* Full Name - Required */}
               <GenericInputField
                 name="fullname"
                 label="Full Name"
@@ -308,14 +354,24 @@ const AddMasterBroker = () => {
                 placeholder="Enter full name"
               />
 
-              <GenericInputField
-                name="phoneNumber"
-                label="Phone Number"
-                type="tel"
-                required
-                placeholder="Enter phone number"
-              />
+              {/* Phone Number - Required */}
+              <div>
+                <GenericInputField
+                  name="phoneNumber"
+                  label="Phone Number"
+                  type="tel"
+                  required
+                  placeholder="Enter 10-digit phone number"
+                  onChange={handlePhoneNumberChange}
+                />
+                {methods.formState.errors.phoneNumber && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {methods.formState.errors.phoneNumber.message}
+                  </p>
+                )}
+              </div>
 
+              {/* Password - Required */}
               <GenericInputField
                 name="password"
                 label="Password"
@@ -324,20 +380,7 @@ const AddMasterBroker = () => {
                 placeholder="Enter password (min 6 characters)"
               />
 
-              <GenericInputField
-                name="aadharCardNumber"
-                label="Aadhar Card Number (Optional)"
-                type="text"
-                placeholder="Enter aadhar card number"
-              />
-
-              <GenericInputField
-                name="panCardNumber"
-                label="PAN Card Number (Optional)"
-                type="text"
-                placeholder="Enter PAN card number"
-              />
-
+              {/* Area - Required */}
               <GenericInputField
                 name="area"
                 label="Area"
@@ -345,13 +388,16 @@ const AddMasterBroker = () => {
                 placeholder="Enter area"
               />
 
+              {/* Commission - Required */}
               <GenericInputField
                 name="commission"
                 label="Commission (%)"
                 type="number"
+                required
                 placeholder="Enter commission percentage"
               />
 
+              {/* Customer Limit - Required */}
               <GenericInputField
                 name="customerLimit"
                 label="Trader Limit"
@@ -361,63 +407,67 @@ const AddMasterBroker = () => {
                 placeholder="Enter Trader Limit"
               />
 
-              {/* Allow Slippage Checkbox - Simple design */}
+              {/* ===== OPTIONAL FIELDS BELOW ===== */}
+
+              {/* Aadhar Card Number - Optional */}
+              <div>
+                <GenericInputField
+                  name="aadharCardNumber"
+                  label="Aadhar Card Number (Optional)"
+                  type="text"
+                  placeholder="Enter 12-digit Aadhar number"
+                  onChange={handleAadharChange}
+                />
+                {methods.formState.errors.aadharCardNumber && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {methods.formState.errors.aadharCardNumber.message}
+                  </p>
+                )}
+              </div>
+
+              {/* PAN Card Number - Optional */}
+              <div>
+                <GenericInputField
+                  name="panCardNumber"
+                  label="PAN Card Number (Optional)"
+                  type="text"
+                  placeholder="Enter PAN card number (e.g., ABCDE1234F)"
+                  onChange={handlePanChange}
+                />
+                {methods.formState.errors.panCardNumber && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {methods.formState.errors.panCardNumber.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Allow Slippage Checkbox - Optional */}
               <div className="col-span-1 sm:col-span-2">
                 <div className="flex items-center gap-3">
                   <input
                     type="checkbox"
-                    id="allowSlippage"
-                    checked={allowSlippage}
-                    onChange={(e) => {
-                      const isChecked = e.target.checked;
-                      methods.setValue('allowSlippage', isChecked);
-                      if (!isChecked) {
-                        methods.setValue('buySlippage', 0);
-                        methods.setValue('sellSlippage', 0);
-                      }
-                    }}
+                    id="allowSlipage"
+                    checked={allowSlipage}
+                    onChange={handleSlippageChange}
                     className="h-4 w-4 cursor-pointer accent-orange-500"
                   />
                   <label
-                    htmlFor="allowSlippage"
+                    htmlFor="allowSlipage"
                     className="text-gray-700 cursor-pointer text-sm font-medium"
                   >
                     Allow Slippage Settings
                   </label>
                 </div>
+                <p className="mt-1 text-xs text-gray-400">
+                  {allowSlipage ? '✅ Slippage is ENABLED' : '❌ Slippage is DISABLED'}
+                </p>
               </div>
-
-              {/* Conditional Slippage Fields */}
-              {allowSlippage && (
-                <>
-                  <div className="col-span-1 sm:col-span-2">
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                      <GenericInputField
-                        name="buySlippage"
-                        label="Buy Slippage (%)"
-                        type="number"
-                        required={allowSlippage}
-                        step="0.01"
-                        placeholder="Enter buy slippage percentage"
-                      />
-                      <GenericInputField
-                        name="sellSlippage"
-                        label="Sell Slippage (%)"
-                        type="number"
-                        required={allowSlippage}
-                        step="0.01"
-                        placeholder="Enter sell slippage percentage"
-                      />
-                    </div>
-                  </div>
-                </>
-              )}
             </div>
 
-            {/* Image Uploads */}
+            {/* Image Uploads - Optional */}
             <div className="border-stroke mt-6 border-t pt-6 sm:mt-8">
               <h2 className="text-gray-800 mb-4 text-base font-semibold sm:text-lg">
-                Upload Documents
+                Upload Documents <span className="text-sm font-normal text-gray-500">(Optional)</span>
               </h2>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
@@ -426,7 +476,7 @@ const AddMasterBroker = () => {
                   field="aadharCardF"
                 />
                 <ImageUploadField label="PAN Card" field="panCard" />
-                <ImageUploadField label="Profile Photo" field="photo" />
+                <ImageUploadField label="Logo" field="photo" />
               </div>
             </div>
 
