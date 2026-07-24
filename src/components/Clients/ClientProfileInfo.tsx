@@ -55,7 +55,7 @@ export const ClientProfileInfo: React.FC<ClientProfileInfoProps> = ({
         <h2 className="text-lg font-semibold text-white md:text-xl">
           Trader Profile
         </h2>
-        {/* {!isEditing ? (
+        {!isEditing ? (
           <button
             onClick={handleEditClick}
             className="hover:bg-gray-100 flex items-center gap-2 rounded bg-white px-3 py-1.5 text-sm font-medium text-orange-500 transition-colors md:px-4 md:py-2"
@@ -77,7 +77,7 @@ export const ClientProfileInfo: React.FC<ClientProfileInfoProps> = ({
               <FiSave className="h-3 w-3 md:h-4 md:w-4" /> Save
             </button>
           </div>
-        )} */}
+        )}
       </div>
 
       <div className="p-4 md:p-6">

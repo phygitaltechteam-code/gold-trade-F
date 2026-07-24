@@ -8,8 +8,8 @@ import {
   Calendar,
   DollarSign,
   TrendingUp,
-  Users,
-  Activity,
+  Clock,
+  CalendarDays,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GenericTable from '@/components/Forms/Table/GenericTable';
@@ -146,6 +146,23 @@ export default function DepositeCompany() {
     return date >= from && date <= to;
   };
 
+  // Check if date is today
+  const isToday = (dateString: string) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const date = new Date(dateString);
+    date.setHours(0, 0, 0, 0);
+    return date.getTime() === today.getTime();
+  };
+
+  // Check if date is in current month
+  const isCurrentMonth = (dateString: string) => {
+    const today = new Date();
+    const date = new Date(dateString);
+    return date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear();
+  };
+
   // Transform API data
   const MOCK_DATA = useMemo(() => {
     return (
@@ -193,21 +210,27 @@ export default function DepositeCompany() {
 
   // Calculate stats
   const stats = useMemo(() => {
-    const totalDepositAmount =
-      dateFilteredData?.reduce((sum, r) => sum + r.amount, 0) || 0;
+    // All time stats
+    const totalDepositAmount = dateFilteredData?.reduce((sum, r) => sum + r.amount, 0) || 0;
     const totalCount = dateFilteredData?.length || 0;
-    const uniqueCustomers = new Set(
-      dateFilteredData?.map((r) => r.customerName),
-    ).size;
 
-    // Calculate average deposit
-    const avgDeposit = totalCount > 0 ? totalDepositAmount / totalCount : 0;
+    // Today stats
+    const todayData = dateFilteredData?.filter((r) => isToday(r.date)) || [];
+    const todayAmount = todayData.reduce((sum, r) => sum + r.amount, 0);
+    const todayCount = todayData.length;
+
+    // This month stats
+    const monthData = dateFilteredData?.filter((r) => isCurrentMonth(r.date)) || [];
+    const monthAmount = monthData.reduce((sum, r) => sum + r.amount, 0);
+    const monthCount = monthData.length;
 
     return {
       totalDepositAmount,
       totalCount,
-      uniqueCustomers,
-      avgDeposit,
+      todayAmount,
+      todayCount,
+      monthAmount,
+      monthCount,
     };
   }, [dateFilteredData]);
 
@@ -233,7 +256,6 @@ export default function DepositeCompany() {
         <div className="text-gray-900 text-sm">{row?.customerName}</div>
       ),
     },
-
     {
       header: 'Super Broker',
       accessor: (row: DepositRequest) => (
@@ -268,8 +290,14 @@ export default function DepositeCompany() {
     },
   ];
 
-  // Stats Card data - Only title, value, icon
+  // Stats Card data - Simple 4 cards like withdrawal page
   const statCards = [
+    {
+      title: 'Total Deposit Amount',
+      value: formatIndianCurrency(stats.totalDepositAmount),
+      icon: TrendingUp,
+      iconColor: 'text-orange-500',
+    },
     {
       title: 'Total Deposits',
       value: formatNumber(stats.totalCount),
@@ -277,21 +305,17 @@ export default function DepositeCompany() {
       iconColor: 'text-green-500',
     },
     {
-      title: 'Total Amount',
-      value: formatIndianCurrency(stats.totalDepositAmount),
-      icon: TrendingUp,
-      iconColor: 'text-orange-500',
-    },
-    {
-      title: 'Unique Customers',
-      value: formatNumber(stats.uniqueCustomers),
-      icon: Users,
+      title: "Today's Deposits",
+      value: formatNumber(stats.todayCount),
+      subValue: formatIndianCurrency(stats.todayAmount),
+      icon: Clock,
       iconColor: 'text-blue-500',
     },
     {
-      title: 'Average Deposit',
-      value: formatIndianCurrency(stats.avgDeposit),
-      icon: Activity,
+      title: 'This Month',
+      value: formatNumber(stats.monthCount),
+      subValue: formatIndianCurrency(stats.monthAmount),
+      icon: CalendarDays,
       iconColor: 'text-purple-500',
     },
   ];
@@ -331,14 +355,14 @@ export default function DepositeCompany() {
             </div>
             <button
               onClick={() => refetch()}
-              className="rounded bg-orange-500 flex px-1 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 mr-2"
+              className="flex items-center gap-1 rounded-lg bg-orange-500 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
             >
               <RefreshCcw size={16} /> Refresh
             </button>
           </div>
         </div>
 
-        {/* Stats Cards - Simple design */}
+        {/* Stats Cards - 4 cards in a row like withdrawal page */}
         <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {statCards.map((card, index) => (
             <StatCard

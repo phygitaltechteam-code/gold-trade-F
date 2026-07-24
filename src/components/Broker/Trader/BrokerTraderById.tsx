@@ -16,6 +16,7 @@ import { ClientDetailStats } from '@/components/Clients/ClientDetailStats';
 import { ClientDocs } from '@/components/Clients/ClientDocs';
 import { ClientTabs } from '@/components/Clients/ClientTabs';
 import { ClientProfileInfo } from '@/components/Clients/ClientProfileInfo';
+import { BrokerTraderProfile } from './BrokerTraderProfie';
 
 const formatQtyLot = (item) => {
     if (!item) return '-';
@@ -382,7 +383,7 @@ export const BrokerTraderById: React.FC = () => {
                     />
 
                     {/* Profile Info Component */}
-                    <ClientProfileInfo
+                    <BrokerTraderProfile
                         displayClient={displayClient}
                         isEditing={isEditing}
                         editData={editData}

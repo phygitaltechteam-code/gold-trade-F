@@ -30,7 +30,7 @@ const ProfileTabs = () => {
         { id: 'Chamki', label: 'Holding' },
         { id: 'customerholding', label: 'Minimum Stock Holding Time (In Minutes)' },
         { id: 'updatemargin', label: 'Update Margin' },
-        { id: 'slippage', label: 'Slippage' }, // Changed label
+        { id: 'slippage', label: 'Slippage' }, 
       ];
     }
 
