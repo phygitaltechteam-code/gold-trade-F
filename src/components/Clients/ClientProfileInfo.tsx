@@ -9,7 +9,7 @@ interface EditData {
   address: string;
   password?: string;
   panCardNumber: string;
-  stockHoldingLimit:number
+  stockHoldingLimit: number
   type: string;
 }
 
@@ -17,7 +17,7 @@ interface ClientProfileInfoProps {
   displayClient: any;
   isEditing: boolean;
   editData: EditData;
-  handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void; 
+  handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   handleSave: () => void;
   handleCancel: () => void;
   handleEditClick: () => void;
@@ -26,7 +26,7 @@ interface ClientProfileInfoProps {
   aadharNumber: string;
   panCardNumber: string;
   type: string;
-  stockHoldingLimit:number
+  stockHoldingLimit: number
 }
 
 export const ClientProfileInfo: React.FC<ClientProfileInfoProps> = ({
@@ -47,7 +47,7 @@ export const ClientProfileInfo: React.FC<ClientProfileInfoProps> = ({
 }) => {
 
 
-  console.log("editData",editData?.stockHoldingLimit, "stockHoldingLimit")
+  console.log("editData", editData?.stockHoldingLimit, "stockHoldingLimit")
   console.log("edit data ", editData)
   return (
     <div className="rounded-lg border border-stroke  shadow-default dark:border-strokedark dark:bg-boxdark bg-[#f8fafc]">
@@ -113,6 +113,7 @@ export const ClientProfileInfo: React.FC<ClientProfileInfoProps> = ({
                 name="phoneNumber"
                 value={editData.phoneNumber}
                 onChange={handleInputChange}
+                maxLength={10}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
               />
             ) : (
@@ -133,6 +134,7 @@ export const ClientProfileInfo: React.FC<ClientProfileInfoProps> = ({
                 name="aadharCardNumber"
                 value={editData.aadharCardNumber}
                 onChange={handleInputChange}
+                maxLength={12}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
                 placeholder="Enter 12-digit Aadhar number"
               />
@@ -193,7 +195,7 @@ export const ClientProfileInfo: React.FC<ClientProfileInfoProps> = ({
               {displayClient?.pincode || 'N/A'}
             </p>
           </div> */}
-           <div>
+          <div>
             <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
               Pancard
             </label>
@@ -209,7 +211,7 @@ export const ClientProfileInfo: React.FC<ClientProfileInfoProps> = ({
               <p className="text-sm text-black dark:text-white md:text-base">
                 {displayClient?.panCardNumber || 'N/A'}
               </p>
-            )}                           
+            )}
           </div>
 
           <div>
@@ -228,33 +230,33 @@ export const ClientProfileInfo: React.FC<ClientProfileInfoProps> = ({
               <p className="text-sm text-black dark:text-white md:text-base">
                 {stockHoldingLimit !== undefined ? stockHoldingLimit : 'N/A'}
               </p>
-            )}                           
+            )}
           </div>
 
 
-          
-                <div>
-                  <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-                    Customer Type <span className="text-red-500">*</span>
-                  </label>
-                  {isEditing ? (
-                    <select
-                      name="type"
-                      value={editData.type || ''}
-                      onChange={handleInputChange}
-                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
-                    >
-                      <option value="mega">Mega</option>
-                      <option value="mini">Mini</option>
-                    </select>
-                  ) : (
-                    <p className="text-sm text-black dark:text-white md:text-base">
-                      {displayClient?.type || 'N/A'}
-                    </p>
-                  )}
-                </div>
 
-                
+          <div>
+            <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
+              Customer Type <span className="text-red-500">*</span>
+            </label>
+            {isEditing ? (
+              <select
+                name="type"
+                value={editData.type || ''}
+                onChange={handleInputChange}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
+              >
+                <option value="mega">Mega</option>
+                <option value="mini">Mini</option>
+              </select>
+            ) : (
+              <p className="text-sm text-black dark:text-white md:text-base">
+                {displayClient?.type || 'N/A'}
+              </p>
+            )}
+          </div>
+
+
 
 
 
