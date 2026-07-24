@@ -76,6 +76,12 @@ const BrokerProfile = () => {
   const { mutate: addBrokerCommission, isPending: isCommissionPending } =
     useAddAdminBrokerCommission();
 
+  // Validation errors state for edit form
+  const [editErrors, setEditErrors] = useState({
+    phoneNumber: '',
+    aadharCardNumber: '',
+  });
+
   const [editData, setEditData] = useState({
     fullname: '',
     phoneNumber: '',
@@ -98,6 +104,8 @@ const BrokerProfile = () => {
         area: profileData?.area || '',
         password: '',
       });
+      // Clear validation errors
+      setEditErrors({ phoneNumber: '', aadharCardNumber: '' });
     }
   }, [profileData]);
 
@@ -285,14 +293,71 @@ const BrokerProfile = () => {
     navigate({ to: '/companybroker/displaybroker' });
   };
 
+  // ===== VALIDATION FUNCTIONS =====
+
+  const validatePhoneNumber = (value: string) => {
+    const cleanValue = value.replace(/\D/g, '');
+    if (cleanValue.length === 0) {
+      return ''; // No error for empty (optional field)
+    }
+    if (cleanValue.length !== 10) {
+      return 'Phone number must be exactly 10 digits';
+    }
+    return '';
+  };
+
+  const validateAadharNumber = (value: string) => {
+    const cleanValue = value.replace(/\D/g, '');
+    if (cleanValue.length === 0) {
+      return ''; // No error for empty (optional field)
+    }
+    if (cleanValue.length !== 12) {
+      return 'Aadhar number must be exactly 12 digits';
+    }
+    return '';
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setEditData((prev) => ({ ...prev, [name]: value }));
+    
+    // Format and validate on change
+    let formattedValue = value;
+    let error = '';
+
+    if (name === 'phoneNumber') {
+      formattedValue = value.replace(/\D/g, '').slice(0, 10);
+      error = validatePhoneNumber(formattedValue);
+      setEditErrors((prev) => ({ ...prev, phoneNumber: error }));
+    } else if (name === 'aadharCardNumber') {
+      formattedValue = value.replace(/\D/g, '').slice(0, 12);
+      error = validateAadharNumber(formattedValue);
+      setEditErrors((prev) => ({ ...prev, aadharCardNumber: error }));
+    }
+
+    setEditData((prev) => ({ ...prev, [name]: formattedValue }));
   };
+
+  // ===== HANDLE SAVE WITH VALIDATION =====
 
   const handleSave = () => {
     if (!id) {
       toast.error('Broker ID is missing');
+      return;
+    }
+
+    // Validate phone number
+    const phoneError = validatePhoneNumber(editData.phoneNumber);
+    if (phoneError) {
+      setEditErrors((prev) => ({ ...prev, phoneNumber: phoneError }));
+      toast.error(phoneError);
+      return;
+    }
+
+    // Validate Aadhar number
+    const aadharError = validateAadharNumber(editData.aadharCardNumber);
+    if (aadharError) {
+      setEditErrors((prev) => ({ ...prev, aadharCardNumber: aadharError }));
+      toast.error(aadharError);
       return;
     }
 
@@ -337,6 +402,7 @@ const BrokerProfile = () => {
         onSuccess: () => {
           setIsEditing(false);
           setShowPassword(false);
+          setEditErrors({ phoneNumber: '', aadharCardNumber: '' });
           refetch();
         },
         onError: (error: any) => {
@@ -362,6 +428,7 @@ const BrokerProfile = () => {
     }
     setIsEditing(false);
     setShowPassword(false);
+    setEditErrors({ phoneNumber: '', aadharCardNumber: '' });
   };
 
   // Handle Commission Submit
@@ -1040,19 +1107,32 @@ const BrokerProfile = () => {
               </p>
             </div>
 
-            {/* Phone Number - Editable */}
+            {/* Phone Number - Editable with Validation */}
             <div>
               <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                 Phone Number
               </label>
               {isEditing ? (
-                <input
-                  type="tel"
-                  name="phoneNumber"
-                  value={editData.phoneNumber}
-                  onChange={handleInputChange}
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
-                />
+                <div>
+                  <input
+                    type="tel"
+                    name="phoneNumber"
+                    value={editData.phoneNumber}
+                    onChange={handleInputChange}
+                    maxLength={10}
+                    className={`w-full rounded border-[1.5px] px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2 ${
+                      editErrors.phoneNumber
+                        ? 'border-red-500 focus:border-red-500'
+                        : 'border-stroke'
+                    }`}
+                    placeholder="Enter 10-digit phone number"
+                  />
+                  {editErrors.phoneNumber && (
+                    <p className="mt-1 text-xs text-red-500">
+                      {editErrors.phoneNumber}
+                    </p>
+                  )}
+                </div>
               ) : (
                 <p className="text-sm text-black dark:text-white md:text-base">
                   {profileData?.phoneNumber || 'N/A'}
@@ -1060,19 +1140,32 @@ const BrokerProfile = () => {
               )}
             </div>
 
-            {/* Aadhar Number - Editable */}
+            {/* Aadhar Number - Editable with Validation */}
             <div>
               <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                 Aadhar Number
               </label>
               {isEditing ? (
-                <input
-                  type="text"
-                  name="aadharCardNumber"
-                  value={editData.aadharCardNumber}
-                  onChange={handleInputChange}
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
-                />
+                <div>
+                  <input
+                    type="text"
+                    name="aadharCardNumber"
+                    value={editData.aadharCardNumber}
+                    onChange={handleInputChange}
+                    maxLength={12}
+                    className={`w-full rounded border-[1.5px] px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2 ${
+                      editErrors.aadharCardNumber
+                        ? 'border-red-500 focus:border-red-500'
+                        : 'border-stroke'
+                    }`}
+                    placeholder="Enter 12-digit Aadhar number"
+                  />
+                  {editErrors.aadharCardNumber && (
+                    <p className="mt-1 text-xs text-red-500">
+                      {editErrors.aadharCardNumber}
+                    </p>
+                  )}
+                </div>
               ) : (
                 <p className="text-sm text-black dark:text-white md:text-base">
                   {profileData?.aadharCardNumber || 'N/A'}

@@ -1,35 +1,50 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import toast from 'react-hot-toast';
 import { z } from 'zod';
 import { useAuthContext } from '@/context/AuthContext';
 import { useBroker } from './brokerapi';
 import { X, ZoomIn } from 'lucide-react';
+import { FormProvider, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import GenericInputField from '@/components/Forms/Input/GenericInputField';
 
-// Define Zod schema for form data validation
+// Define Zod schema
 const BrokerSchema = z.object({
   fullname: z.string().min(1, 'Full name is required'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
-  phoneNumber: z.string().min(1, 'Phone number is required'),
+  phoneNumber: z.string()
+    .min(10, 'Phone number must be exactly 10 digits')
+    .max(10, 'Phone number must be exactly 10 digits')
+    .regex(/^[0-9]{10}$/, 'Phone number must contain only digits'),
   area: z.string().min(1, 'Area is required'),
   commission: z.coerce.number().min(0, 'Commission must be a valid number'),
+  aadharCardNumber: z.string().optional(),
+  panCardNumber: z.string().optional(),
 });
+
+type FormValues = z.infer<typeof BrokerSchema>;
 
 const Broker = () => {
   const navigate = useNavigate();
   const addbroker = useBroker();
   const { user } = useAuthContext();
-  const isSuperBroker = user?.role === 'SUPERBROKER';
 
-  const [formData, setFormData] = useState({
-    fullname: '',
-    password: '',
-    area: '',
-    commission: '',
-    phoneNumber: '',
-    aadharCardNumber: '',
-    panCardNumber: '',
+  // Initialize react-hook-form
+  const methods = useForm<FormValues>({
+    resolver: zodResolver(BrokerSchema),
+    defaultValues: {
+      fullname: '',
+      password: '',
+      area: '',
+      commission: 0,
+      phoneNumber: '',
+      aadharCardNumber: '',
+      panCardNumber: '',
+    },
   });
+
+  const { setValue, formState: { errors, isSubmitting: isFormSubmitting } } = methods;
 
   const [images, setImages] = useState({
     aadharCardF: null,
@@ -43,88 +58,42 @@ const Broker = () => {
 
   const [selectedImage, setSelectedImage] = useState(null);
   const [showImageModal, setShowImageModal] = useState(false);
-
-  const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Searchable Dropdown state
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  // ===== HANDLER FUNCTIONS =====
 
-  // Mock super brokers
-  const mockSuperBrokers = [
-    { id: '1', SBID: 'SB-1001', fullname: 'Rajesh Kumar' },
-    { id: '2', SBID: 'SB-1002', fullname: 'Priya Sharma' },
-    { id: '3', SBID: 'SB-1003', fullname: 'Amit Patel' },
-    { id: '4', SBID: 'SB-1004', fullname: 'Neha Gupta' },
-  ];
-
-  const filteredSuperBrokers = mockSuperBrokers.filter(
-    (sb) =>
-      sb.fullname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      sb.SBID.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
-
-  // const handleInputChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     [name]: value,
-  //   }));
-
-  //   if (errors[name]) {
-  //     setErrors((prev) => ({
-  //       ...prev,
-  //       [name]: '',
-  //     }));
-  //   }
-  // };
-
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-
-    // For phone number - only allow digits and limit to 10
-    if (name === 'phoneNumber') {
-      const numericValue = value.replace(/[^0-9]/g, '').slice(0, 10);
-      setFormData((prev) => ({
-        ...prev,
-        [name]: numericValue,
-      }));
-    }
-    else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
-
-    if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: '',
-      }));
+  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '');
+    if (value.length <= 10) {
+      setValue('phoneNumber', value);
     }
   };
 
+  const handleAadharChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '');
+    if (value.length <= 12) {
+      setValue('aadharCardNumber', value);
+    }
+  };
 
-  const handleImageChange = (e, field) => {
-    const file = e.target.files[0];
+  const handlePanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (value.length <= 10) {
+      setValue('panCardNumber', value);
+    }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
+    const file = e.target.files?.[0];
     if (file) {
       const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
       if (!validTypes.includes(file.type)) {
-        setErrors((prev) => ({
-          ...prev,
-          [field]: 'Please upload a valid image file (JPEG, PNG)',
-        }));
+        toast.error('Please upload a valid image file (JPEG, PNG)');
         return;
       }
 
       if (file.size > 5 * 1024 * 1024) {
-        setErrors((prev) => ({
-          ...prev,
-          [field]: 'Image size should be less than 5MB',
-        }));
+        toast.error('Image size should be less than 5MB');
         return;
       }
 
@@ -141,17 +110,10 @@ const Broker = () => {
         }));
       };
       reader.readAsDataURL(file);
-
-      if (errors[field]) {
-        setErrors((prev) => ({
-          ...prev,
-          [field]: '',
-        }));
-      }
     }
   };
 
-  const removeImage = (field) => {
+  const removeImage = (field: string) => {
     setImages((prev) => ({
       ...prev,
       [field]: null,
@@ -160,15 +122,9 @@ const Broker = () => {
       ...prev,
       [field]: null,
     }));
-    if (errors[field]) {
-      setErrors((prev) => ({
-        ...prev,
-        [field]: '',
-      }));
-    }
   };
 
-  const openImageModal = (imageUrl) => {
+  const openImageModal = (imageUrl: string) => {
     setSelectedImage(imageUrl);
     setShowImageModal(true);
   };
@@ -179,15 +135,7 @@ const Broker = () => {
   };
 
   const resetForm = () => {
-    setFormData({
-      fullname: '',
-      password: '',
-      area: '',
-      commission: '',
-      phoneNumber: '',
-      aadharCardNumber: '',
-      panCardNumber: '',
-    });
+    methods.reset();
     setImages({
       aadharCardF: null,
       panCard: null,
@@ -196,65 +144,19 @@ const Broker = () => {
       aadharCardF: null,
       panCard: null,
     });
-    setErrors({});
-    setSearchTerm('');
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // Validate required fields
-    if (!formData.fullname) {
-      toast.error('Full name is required');
-      return;
-    }
-    if (!formData.password) {
-      toast.error('Password is required');
-      return;
-    }
-    if (formData.password.length < 6) {
-      toast.error('Password must be at least 6 characters');
-      return;
-    }
-    if (!formData.phoneNumber) {
-      toast.error('Phone number is required');
-      return;
-    }
-
-    // Add 10-digit phone number validation
-    if (formData.phoneNumber.length !== 10) {
-      toast.error('Phone number must be exactly 10 digits');
-      return;
-    }
-
-    if (!formData.area) {
-      toast.error('Area is required');
-      return;
-    }
-
-
-
-    // Validate commission is a valid number
-    let commissionValue = 0;
-    if (formData.commission) {
-      commissionValue = parseFloat(formData.commission);
-      if (isNaN(commissionValue)) {
-        toast.error('Commission must be a valid number');
-        return;
-      }
-    } else {
-      toast.error('Commission is required');
-      return;
-    }
-
+  const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
 
     const formDataToSend = new FormData();
-    formDataToSend.append('fullname', formData.fullname);
-    formDataToSend.append('password', formData.password);
-    formDataToSend.append('phoneNumber', formData.phoneNumber);
-    formDataToSend.append('aadharCardNumber', formData.aadharCardNumber);
-    formDataToSend.append('panCardNumber', formData.panCardNumber);
+    formDataToSend.append('fullname', data.fullname);
+    formDataToSend.append('password', data.password);
+    formDataToSend.append('phoneNumber', data.phoneNumber);
+    formDataToSend.append('aadharCardNumber', data.aadharCardNumber || '');
+    formDataToSend.append('panCardNumber', data.panCardNumber || '');
+    formDataToSend.append('commission', data.commission.toString());
+    formDataToSend.append('area', data.area);
 
     if (images.aadharCardF) {
       formDataToSend.append('aadharCardF', images.aadharCardF);
@@ -263,20 +165,20 @@ const Broker = () => {
       formDataToSend.append('panCard', images.panCard);
     }
 
-    formDataToSend.append('commission', commissionValue);
-    formDataToSend.append('area', formData.area);
-
     try {
       await addbroker.mutateAsync(formDataToSend);
       resetForm();
-    } catch (error) {
+      toast.success('Broker registered successfully!');
+      navigate({ to: '/broker/displaybroker' });
+    } catch (error: any) {
       console.error('Submission error:', error);
+      toast.error(error?.response?.data?.message || 'Failed to register broker');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const ImageUploadField = ({ label, field, required }) => (
+  const ImageUploadField = ({ label, field, required }: { label: string; field: string; required: boolean }) => (
     <div className="mb-4">
       <label className="text-gray-700 mb-2 block text-sm font-medium">
         {label} {required && <span className="text-red-500">*</span>}
@@ -287,26 +189,26 @@ const Broker = () => {
             <img
               src={imagePreviews[field]}
               alt={`${label} preview`}
-              className="border-gray-300 h-24 w-24 cursor-pointer rounded-lg border-2 object-cover sm:h-32 sm:w-32"
+              className="border-gray-300 h-24 w-24 cursor-pointer rounded-lg border-2 object-cover transition-transform hover:scale-105 sm:h-32 sm:w-32"
               onClick={() => openImageModal(imagePreviews[field])}
             />
             <button
               type="button"
               onClick={() => removeImage(field)}
-              className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
+              className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white transition-all hover:scale-110 hover:bg-red-600"
             >
               <X className="h-3 w-3 sm:h-4 sm:w-4" />
             </button>
             <button
               type="button"
               onClick={() => openImageModal(imagePreviews[field])}
-              className="absolute bottom-1 right-1 rounded-full bg-black/50 p-1 text-white hover:bg-black/70"
+              className="absolute bottom-1 right-1 rounded-full bg-black/50 p-1 text-white transition-all hover:scale-110 hover:bg-black/70"
             >
               <ZoomIn className="h-3 w-3 sm:h-4 sm:w-4" />
             </button>
           </div>
         ) : (
-          <label className="border-gray-300 bg-gray-50 hover:bg-gray-100 flex h-24 w-24 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed sm:h-32 sm:w-32">
+          <label className="border-gray-300 bg-gray-50 hover:bg-gray-100 flex h-24 w-24 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-all hover:border-orange-400 sm:h-32 sm:w-32">
             <div className="flex flex-col items-center justify-center pb-6 pt-5">
               <svg
                 className="text-gray-400 mb-2 h-6 w-6 sm:h-8 sm:w-8"
@@ -333,7 +235,7 @@ const Broker = () => {
         )}
       </div>
       {errors[field] && (
-        <p className="mt-1 text-xs text-red-500">{errors[field]}</p>
+        <p className="mt-1 text-xs text-red-500">{errors[field]?.message as string}</p>
       )}
     </div>
   );
@@ -365,243 +267,143 @@ const Broker = () => {
           </div>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-4 sm:p-6">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
-            {/* Full Name */}
-            <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Full Name <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
+        {/* Form with FormProvider */}
+        <FormProvider {...methods}>
+          <form onSubmit={methods.handleSubmit(onSubmit)} className="p-4 sm:p-6">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
+              {/* Full Name */}
+              <GenericInputField
                 name="fullname"
-                value={formData.fullname}
-                onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.fullname ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                label="Full Name"
+                type="text"
+                required
                 placeholder="Enter full name"
               />
-              {errors.fullname && (
-                <p className="mt-1 text-xs text-red-500">{errors.fullname}</p>
-              )}
-            </div>
 
-            {/* Phone number */}
-            <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Phone Number <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="tel"
-                name="phoneNumber"
-                value={formData.phoneNumber}
-                onChange={handleInputChange}
-                maxLength={10}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.phoneNumber ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                placeholder="Enter 10-digit phone number"
-              />
-              {errors.phoneNumber && (
-                <p className="mt-1 text-xs text-red-500">
-                  {errors.phoneNumber}
-                </p>
-              )}
-            </div>
+              {/* Phone Number */}
+              <div>
+                <GenericInputField
+                  name="phoneNumber"
+                  label="Phone Number"
+                  type="tel"
+                  required
+                  placeholder="Enter 10-digit phone number"
+                  onChange={handlePhoneNumberChange}
+                />
+              
+              </div>
 
-            {/* Password */}
-            <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Password <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="password"
+              {/* Password */}
+              <GenericInputField
                 name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.password ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                label="Password"
+                type="password"
+                required
                 placeholder="Enter password (min 6 characters)"
               />
-              {errors.password && (
-                <p className="mt-1 text-xs text-red-500">{errors.password}</p>
-              )}
-            </div>
 
-            {/* Aadhar Card Number */}
-            <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Aadhar Card Number
-              </label>
-              <input
-                type="text"
-                name="aadharCardNumber"
-                value={formData.aadharCardNumber}
-                onChange={handleInputChange}
-                maxLength={12}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.aadharCardNumber ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                placeholder="Enter 12-digit Aadhar number"
-              />
-              {errors.aadharCardNumber && (
-                <p className="mt-1 text-xs text-red-500">
-                  {errors.aadharCardNumber}
-                </p>
-              )}
-            </div>
-
-            {/* PAN Card Number */}
-            <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                PAN Card Number
-              </label>
-              <input
-                type="text"
-                name="panCardNumber"
-                value={formData.panCardNumber}
-                onChange={handleInputChange}
-                maxLength={10}
-                className="border-gray-300 w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base"
-                placeholder="Enter PAN card number (e.g., ABCDE1234F)"
-              />
-              {errors.panCardNumber && (
-                <p className="mt-1 text-xs text-red-500">
-                  {errors.panCardNumber}
-                </p>
-              )}
-            </div>
-
-            {/* Area - Required */}
-            <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Area <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
+              {/* Area */}
+              <GenericInputField
                 name="area"
-                value={formData.area}
-                onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.area ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                placeholder="Enter Area"
-              />
-              {errors.area && (
-                <p className="mt-1 text-xs text-red-500">{errors.area}</p>
-              )}
-            </div>
-
-            {/* Commission - Required */}
-            {/* <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Commission % <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                name="commission"
-                value={formData.commission}
-                onChange={handleInputChange}
-                step="0.01"
-                min="0"
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.commission ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                placeholder="Enter Commission %"
-              />
-              {errors.commission && (
-                <p className="mt-1 text-xs text-red-500">{errors.commission}</p>
-              )}
-            </div> */}
-
-            {/* Commission - Required */}
-            <div className="mb-2 sm:mb-4">
-              <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Commission % <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                name="commission"
-                value={formData.commission}
-                onChange={handleInputChange}
-                className={`w-full rounded-lg border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:text-base ${errors.commission ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                placeholder="Enter Commission %"
-              />
-              {errors.commission && (
-                <p className="mt-1 text-xs text-red-500">{errors.commission}</p>
-              )}
-            </div>
-
-
-          </div>
-
-          {/* Document Upload Section - Side by side on mobile */}
-          <div className="border-gray-200 mt-6 border-t pt-6">
-            <h2 className="text-gray-800 mb-4 text-base font-semibold sm:text-lg">
-              Document Upload
-            </h2>
-            <div className="grid grid-cols-2 gap-3 sm:gap-6">
-              <ImageUploadField
-                label="Aadhar Card"
-                field="aadharCardF"
+                label="Area"
                 required
+                placeholder="Enter area"
               />
-              <ImageUploadField
-                label="PAN Card"
-                field="panCard"
-                required={false}
+
+              {/* Commission */}
+              <GenericInputField
+                name="commission"
+                label="Commission (%)"
+                type="number"
+                required
+                placeholder="Enter commission percentage (0-100)"
+              />
+
+              {/* Aadhar Card Number - Optional */}
+              <GenericInputField
+                name="aadharCardNumber"
+                label="Aadhar Card Number (Optional)"
+                type="text"
+                placeholder="Enter 12-digit Aadhar number"
+                onChange={handleAadharChange}
+              />
+
+              {/* PAN Card Number - Optional */}
+              <GenericInputField
+                name="panCardNumber"
+                label="PAN Card Number (Optional)"
+                type="text"
+                placeholder="Enter PAN card number (e.g., ABCDE1234F)"
+                onChange={handlePanChange}
               />
             </div>
-          </div>
 
-          {/* Review Section - Side by side on mobile */}
-          {(imagePreviews.aadharCardF || imagePreviews.panCard) && (
-            <div className="bg-gray-50 mt-6 rounded-lg p-4">
-              <h3 className="text-gray-800 text-md mb-3 font-semibold">
-                Review Uploaded Images
-              </h3>
-              <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                {imagePreviews.aadharCardF && (
-                  <div>
-                    <p className="text-gray-600 mb-1 text-xs sm:text-sm">
-                      Aadhar Card:
-                    </p>
-                    <img
-                      src={imagePreviews.aadharCardF}
-                      alt="Aadhar Card"
-                      className="h-20 w-20 cursor-pointer rounded-lg object-cover sm:h-24 sm:w-24"
-                      onClick={() => openImageModal(imagePreviews.aadharCardF)}
-                    />
-                  </div>
-                )}
-                {imagePreviews.panCard && (
-                  <div>
-                    <p className="text-gray-600 mb-1 text-xs sm:text-sm">
-                      PAN Card:
-                    </p>
-                    <img
-                      src={imagePreviews.panCard}
-                      alt="PAN Card"
-                      className="h-20 w-20 cursor-pointer rounded-lg object-cover sm:h-24 sm:w-24"
-                      onClick={() => openImageModal(imagePreviews.panCard)}
-                    />
-                  </div>
-                )}
+            {/* Document Upload Section */}
+            <div className="border-gray-200 mt-6 border-t pt-6">
+              <h2 className="text-gray-800 mb-4 text-base font-semibold sm:text-lg">
+                Document Upload <span className="text-sm font-normal text-gray-500">(Optional)</span>
+              </h2>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
+                <ImageUploadField
+                  label="Aadhar Card"
+                  field="aadharCardF"
+                  required={false}
+                />
+                <ImageUploadField
+                  label="PAN Card"
+                  field="panCard"
+                  required={false}
+                />
               </div>
             </div>
-          )}
 
-          {/* Submit Button - Right aligned */}
-          <div className="mt-8 flex justify-end">
-            <button
-              type="submit"
-              disabled={isSubmitting || addbroker.isPending}
-              className="w-full min-w-[200px] rounded-lg bg-gradient-to-r from-orange-500 to-red-500 px-6 py-2.5 text-sm font-medium text-white transition-all hover:from-orange-600 hover:to-red-600 disabled:opacity-50 sm:w-auto sm:text-base"
-            >
-              {isSubmitting || addbroker.isPending
-                ? 'Submitting...'
-                : 'Register Broker'}
-            </button>
-          </div>
-        </form>
+            {/* Review Section */}
+            {(imagePreviews.aadharCardF || imagePreviews.panCard) && (
+              <div className="bg-gray-50 mt-6 rounded-lg p-4">
+                <h3 className="text-md text-gray-800 mb-3 font-semibold">
+                  Review Uploaded Images
+                </h3>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {imagePreviews.aadharCardF && (
+                    <div>
+                      <p className="text-gray-600 mb-1 text-sm">Aadhar Card:</p>
+                      <img
+                        src={imagePreviews.aadharCardF}
+                        alt="Aadhar Card"
+                        className="h-20 w-20 cursor-pointer rounded-lg object-cover sm:h-24 sm:w-24"
+                        onClick={() => openImageModal(imagePreviews.aadharCardF)}
+                      />
+                    </div>
+                  )}
+                  {imagePreviews.panCard && (
+                    <div>
+                      <p className="text-gray-600 mb-1 text-sm">PAN Card:</p>
+                      <img
+                        src={imagePreviews.panCard}
+                        alt="PAN Card"
+                        className="h-20 w-20 cursor-pointer rounded-lg object-cover sm:h-24 sm:w-24"
+                        onClick={() => openImageModal(imagePreviews.panCard)}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <div className="mt-8 flex justify-end">
+              <button
+                type="submit"
+                disabled={isSubmitting || addbroker.isPending}
+                className="w-full min-w-[200px] rounded-lg bg-gradient-to-r from-orange-500 to-red-500 px-6 py-2.5 text-sm font-medium text-white transition-all hover:from-orange-600 hover:to-red-600 disabled:opacity-50 sm:w-auto sm:text-base"
+              >
+                {isSubmitting || addbroker.isPending
+                  ? 'Submitting...'
+                  : 'Register Broker'}
+              </button>
+            </div>
+          </form>
+        </FormProvider>
       </div>
 
       {/* Image Popup Modal */}
@@ -613,7 +415,7 @@ const Broker = () => {
           <div className="relative max-h-[90vh] max-w-[90vw]">
             <button
               onClick={closeImageModal}
-              className="text-gray-800 hover:bg-gray-100 absolute -right-2 -top-2 rounded-full bg-white p-1"
+              className="text-gray-800 hover:bg-gray-100 absolute -right-2 -top-2 rounded-full bg-white p-1 transition-all hover:scale-110"
             >
               <X className="h-5 w-5" />
             </button>

@@ -12,7 +12,9 @@ import { X, ZoomIn } from 'lucide-react';
 const BrokerSchema = z.object({
   fullname: z.string().min(1, 'Full name is required'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
-  phoneNumber: z.string().min(1, 'Phone number is required'),
+  phoneNumber: z.string().min(1, 'Phone number is required')
+    .length(10, 'Phone number must be exactly 10 digits')
+    .regex(/^[0-9]{10}$/, 'Phone number must contain only digits'),
   commission: z.coerce.number(),
   area: z.string().min(1, 'Area is required'),
   aadharCardNumber: z.string().optional(),
@@ -222,7 +224,7 @@ const AddSuperBroker = () => {
           <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
             <div>
               <h1 className="text-xl font-bold text-white sm:text-2xl">
-                Super Broker Registration
+                Super Broker Registration.
               </h1>
               <p className="mt-1 text-sm text-orange-100">
                 Please fill in all required details

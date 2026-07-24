@@ -426,7 +426,7 @@ const BrokerProfile = () => {
               )}
             </div>
 
-            {/* Email - Editable */}
+            {/* Email - Editable
             <div>
               <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                 Email
@@ -444,7 +444,7 @@ const BrokerProfile = () => {
                   {profileData?.email || 'N/A'}
                 </p>
               )}
-            </div>
+            </div> */}
 
             {/* Aadhar Number - Editable */}
             <div>

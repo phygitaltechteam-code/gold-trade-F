@@ -85,6 +85,12 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
     password: '',
   });
 
+  // Validation errors state for edit form
+  const [editErrors, setEditErrors] = useState({
+    phoneNumber: '',
+    aadharCardNumber: '',
+  });
+
   // Update editData when profileData loads
   useEffect(() => {
     if (profileData) {
@@ -97,6 +103,8 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
         customerLimit: profileData?.customerLimit?.toString() || '',
         password: '',
       });
+      // Clear validation errors
+      setEditErrors({ phoneNumber: '', aadharCardNumber: '' });
     }
   }, [profileData]);
 
@@ -421,14 +429,69 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
     },
   ];
 
+  // ===== VALIDATION FUNCTIONS =====
+
+  const validatePhoneNumber = (value: string) => {
+    const cleanValue = value.replace(/\D/g, '');
+    if (cleanValue.length === 0) {
+      return ''; // No error for empty (optional field)
+    }
+    if (cleanValue.length !== 10) {
+      return 'Phone number must be exactly 10 digits';
+    }
+    return '';
+  };
+
+  const validateAadharNumber = (value: string) => {
+    const cleanValue = value.replace(/\D/g, '');
+    if (cleanValue.length === 0) {
+      return ''; // No error for empty (optional field)
+    }
+    if (cleanValue.length !== 12) {
+      return 'Aadhar number must be exactly 12 digits';
+    }
+    return '';
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setEditData((prev) => ({ ...prev, [name]: value }));
+    
+    // Format and validate on change
+    let formattedValue = value;
+    let error = '';
+
+    if (name === 'phoneNumber') {
+      formattedValue = value.replace(/\D/g, '').slice(0, 10);
+      error = validatePhoneNumber(formattedValue);
+      setEditErrors((prev) => ({ ...prev, phoneNumber: error }));
+    } else if (name === 'aadharCardNumber') {
+      formattedValue = value.replace(/\D/g, '').slice(0, 12);
+      error = validateAadharNumber(formattedValue);
+      setEditErrors((prev) => ({ ...prev, aadharCardNumber: error }));
+    }
+
+    setEditData((prev) => ({ ...prev, [name]: formattedValue }));
   };
 
   const handleSave = () => {
     if (!id) {
       toast.error('Master Broker ID is missing');
+      return;
+    }
+
+    // Validate phone number
+    const phoneError = validatePhoneNumber(editData.phoneNumber);
+    if (phoneError) {
+      setEditErrors((prev) => ({ ...prev, phoneNumber: phoneError }));
+      toast.error(phoneError);
+      return;
+    }
+
+    // Validate Aadhar number
+    const aadharError = validateAadharNumber(editData.aadharCardNumber);
+    if (aadharError) {
+      setEditErrors((prev) => ({ ...prev, aadharCardNumber: aadharError }));
+      toast.error(aadharError);
       return;
     }
 
@@ -459,6 +522,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
         onSuccess: () => {
           setIsEditing(false);
           setShowPassword(false);
+          setEditErrors({ phoneNumber: '', aadharCardNumber: '' });
           refetch();
         },
         onError: (error: any) => {
@@ -478,12 +542,13 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
         commission: profileData?.brokeragePercent?.toString() || '',
         area: profileData?.area || '',
         aadharCardNumber: profileData?.aadharCardNumber || '',
+        customerLimit: profileData?.customerLimit?.toString() || '',
         password: '',
-
       });
     }
     setIsEditing(false);
     setShowPassword(false);
+    setEditErrors({ phoneNumber: '', aadharCardNumber: '' });
   };
 
   const handleBack = () => {
@@ -600,6 +665,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
         isUpdating={isUpdating}
         showPassword={showPassword}
         setShowPassword={setShowPassword}
+        editErrors={editErrors} // Pass validation errors
       />
 
       {/* Statistics Cards Component */}
