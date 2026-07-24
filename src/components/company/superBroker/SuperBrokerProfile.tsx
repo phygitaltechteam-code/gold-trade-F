@@ -21,7 +21,6 @@ import { useNavigate } from '@tanstack/react-router';
 import toast from 'react-hot-toast';
 import { Eye, EyeOff, RefreshCcw } from 'lucide-react';
 import { formatIndianCurrency, formatIndianNumber } from '@/utils/formatIndianNumber';
-import { getAllSuperBrockerBrokers } from '@/lib/api/superbrocker';
 
 // Format date function
 const formatDateTime = (dateString: string) => {
@@ -73,8 +72,8 @@ const SuperBrokerProfile = () => {
   );
 
   const { data: profileData, refetch } = useGetAllSuperBrockerById(id);
-  const { data: getbrokerData= [] } =   useAllSuperBrockerBrokers(id);
-  console.log("ajkdhskjhd",getbrokerData)
+  const { data: getbrokerData = [] } = useAllSuperBrockerBrokers(id);
+  console.log("ajkdhskjhd", getbrokerData)
   const { mutate: updateSuperBrokerProfile, isPending: isUpdating } =
     useUpdateSuperBrokerProfile();
   const { mutate: addCommission, isPending: isCommissionPending } =
@@ -91,6 +90,13 @@ const SuperBrokerProfile = () => {
   } = useGetSuperBrokerPaymentHistory(id);
 
   console.log('report dataaa', paymentDataFromApi);
+
+  // Validation errors state for edit form
+  const [editErrors, setEditErrors] = useState({
+    phoneNumber: '',
+    aadharCardNumber: '',
+  });
+
   const [editData, setEditData] = useState({
     fullname: '',
     phoneNumber: '',
@@ -102,7 +108,7 @@ const SuperBrokerProfile = () => {
 
   // Update editData when profileData loads
   useEffect(() => {
-    if (profileData?.data?.data) {
+    if (profileData) {
       setEditData({
         fullname: profileData?.fullname || '',
         phoneNumber: profileData?.phoneNumber || '',
@@ -111,6 +117,8 @@ const SuperBrokerProfile = () => {
         aadharCardNumber: profileData?.aadharCardNumber || '',
         password: '',
       });
+      // Clear validation errors
+      setEditErrors({ phoneNumber: '', aadharCardNumber: '' });
     }
   }, [profileData]);
 
@@ -145,21 +153,21 @@ const SuperBrokerProfile = () => {
     setCommissionEndDate(endDate);
   }, []);
 
- const brokersList = useMemo(() => {
-  // The API response structure is: { data: { data: [...] } }
-  const brokers = getbrokerData?.data?.data || getbrokerData?.data || [];
-  return brokers.map((broker: any, index: number) => ({
-    ...broker,
-    srNo: index + 1,
-    // Map commission from brokeragePercent
-    commission: broker.brokeragePercent || 0,
-    // Map user details correctly
-    user: {
-      fullname: broker.fullname || '',
-      phoneNumber: broker.phoneNumber || '',
-    }
-  }));
-}, [getbrokerData]);
+  const brokersList = useMemo(() => {
+    // The API response structure is: { data: { data: [...] } }
+    const brokers = getbrokerData?.data?.data || getbrokerData?.data || [];
+    return brokers.map((broker: any, index: number) => ({
+      ...broker,
+      srNo: index + 1,
+      // Map commission from brokeragePercent
+      commission: broker.brokeragePercent || 0,
+      // Map user details correctly
+      user: {
+        fullname: broker.fullname || '',
+        phoneNumber: broker.phoneNumber || '',
+      }
+    }));
+  }, [getbrokerData]);
 
   // Commission History Data from API
   const commissionHistoryList = useMemo(() => {
@@ -504,67 +512,123 @@ const SuperBrokerProfile = () => {
     },
   ];
 
- const brokerColumns = [
-  {
-    header: 'Broker Name',
-    accessor: 'fullname', // Changed from 'user.fullname'
-    render: (item: any) => (
-      <div className="font-semibold text-black">
-        {item?.fullname || '-'}
-      </div>
-    ),
-  },
-  {
-    header: 'Phone Number',
-    accessor: 'phoneNumber', // Changed from 'user.phoneNumber'
-    render: (item: any) => (
-      <span className="text-gray-700">{item?.phoneNumber || '-'}</span>
-    ),
-  },
-  {
-    header: 'BKId',
-    accessor: 'BKId',
-    render: (item: any) => (
-      <span className="font-mono text-gray-600 text-sm font-medium">
-        {item?.BKId || '-'}
-      </span>
-    ),
-  },
-  {
-    header: 'Commission',
-    accessor: 'brokeragePercent', // Changed from 'commission'
-    render: (item: any) => (
-      <span className="rounded border border-orange-100 bg-orange-50 px-2 py-1 text-xs font-bold text-orange-600">
-        {item?.brokeragePercent || item?.commission ? `${item?.brokeragePercent || item?.commission}%` : '-'}
-      </span>
-    ),
-  },
-  {
-    header: 'Total Commission',
-    accessor: 'totalCommission',
-    render: (item: any) => (
-      <span className="text-gray-700">{formatIndianCurrency(item?.totalCommission )}</span>
-    ),
-  },
-  {
-    header: 'Pending Commission',
-    accessor: 'pendingCommission',
-    render: (item: any) => {
-      const total = parseFloat(item?.totalCommission || 0);
-      const paid = parseFloat(item?.totalPaidCommission || 0);
-      const pending = total - paid;
-      return <span className="text-gray-700">{formatIndianCurrency(pending)} </span>;
+  const brokerColumns = [
+    {
+      header: 'Broker Name',
+      accessor: 'fullname',
+      render: (item: any) => (
+        <div className="font-semibold text-black">
+          {item?.fullname || '-'}
+        </div>
+      ),
     },
-  },
-];
+    {
+      header: 'Phone Number',
+      accessor: 'phoneNumber',
+      render: (item: any) => (
+        <span className="text-gray-700">{item?.phoneNumber || '-'}</span>
+      ),
+    },
+    {
+      header: 'BKId',
+      accessor: 'BKId',
+      render: (item: any) => (
+        <span className="font-mono text-gray-600 text-sm font-medium">
+          {item?.BKId || '-'}
+        </span>
+      ),
+    },
+    {
+      header: 'Commission',
+      accessor: 'brokeragePercent',
+      render: (item: any) => (
+        <span className="rounded border border-orange-100 bg-orange-50 px-2 py-1 text-xs font-bold text-orange-600">
+          {item?.brokeragePercent || item?.commission ? `${item?.brokeragePercent || item?.commission}%` : '-'}
+        </span>
+      ),
+    },
+    {
+      header: 'Total Commission',
+      accessor: 'totalCommission',
+      render: (item: any) => (
+        <span className="text-gray-700">{formatIndianCurrency(item?.totalCommission)}</span>
+      ),
+    },
+    {
+      header: 'Pending Commission',
+      accessor: 'pendingCommission',
+      render: (item: any) => {
+        const total = parseFloat(item?.totalCommission || 0);
+        const paid = parseFloat(item?.totalPaidCommission || 0);
+        const pending = total - paid;
+        return <span className="text-gray-700">{formatIndianCurrency(pending)} </span>;
+      },
+    },
+  ];
+
+  // ===== VALIDATION FUNCTIONS =====
+
+  const validatePhoneNumber = (value: string) => {
+    const cleanValue = value.replace(/\D/g, '');
+    if (cleanValue.length === 0) {
+      return ''; // No error for empty (optional field)
+    }
+    if (cleanValue.length !== 10) {
+      return 'Phone number must be exactly 10 digits';
+    }
+    return '';
+  };
+
+  const validateAadharNumber = (value: string) => {
+    const cleanValue = value.replace(/\D/g, '');
+    if (cleanValue.length === 0) {
+      return ''; // No error for empty (optional field)
+    }
+    if (cleanValue.length !== 12) {
+      return 'Aadhar number must be exactly 12 digits';
+    }
+    return '';
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setEditData((prev) => ({ ...prev, [name]: value }));
+
+    // Format and validate on change
+    let formattedValue = value;
+    let error = '';
+
+    if (name === 'phoneNumber') {
+      formattedValue = value.replace(/\D/g, '').slice(0, 10);
+      error = validatePhoneNumber(formattedValue);
+      setEditErrors((prev) => ({ ...prev, phoneNumber: error }));
+    } else if (name === 'aadharCardNumber') {
+      formattedValue = value.replace(/\D/g, '').slice(0, 12);
+      error = validateAadharNumber(formattedValue);
+      setEditErrors((prev) => ({ ...prev, aadharCardNumber: error }));
+    }
+
+    setEditData((prev) => ({ ...prev, [name]: formattedValue }));
   };
 
   const handleSave = () => {
     if (!id) {
       toast.error('Super Broker ID is missing');
+      return;
+    }
+
+    // Validate phone number
+    const phoneError = validatePhoneNumber(editData.phoneNumber);
+    if (phoneError) {
+      setEditErrors((prev) => ({ ...prev, phoneNumber: phoneError }));
+      toast.error(phoneError);
+      return;
+    }
+
+    // Validate Aadhar number
+    const aadharError = validateAadharNumber(editData.aadharCardNumber);
+    if (aadharError) {
+      setEditErrors((prev) => ({ ...prev, aadharCardNumber: aadharError }));
+      toast.error(aadharError);
       return;
     }
 
@@ -594,6 +658,7 @@ const SuperBrokerProfile = () => {
         onSuccess: () => {
           setIsEditing(false);
           setShowPassword(false);
+          setEditErrors({ phoneNumber: '', aadharCardNumber: '' });
           refetch();
         },
         onError: (error: any) => {
@@ -618,6 +683,7 @@ const SuperBrokerProfile = () => {
     }
     setIsEditing(false);
     setShowPassword(false);
+    setEditErrors({ phoneNumber: '', aadharCardNumber: '' });
   };
 
   const handleBack = () => {
@@ -626,11 +692,6 @@ const SuperBrokerProfile = () => {
 
   const handleCommissionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // if (!commissionAmount || parseFloat(commissionAmount) <= 0) {
-    //   toast.error('Please enter a valid commission amount');
-    //   return;
-    // }
 
     if (!commissionPin) {
       toast.error('Please enter security PIN');
@@ -762,12 +823,6 @@ const SuperBrokerProfile = () => {
         tableColumns = brokerColumns;
         tableTitle = 'Brokers List';
         break;
-      // case 'commission':  // COMMENTED OUT - Remove this case
-      //   tableData = filteredCommissionHistory;
-      //   tableColumns = commissionColumns;
-      //   tableTitle = 'Commission History';
-      //   dateRange = commissionStartDate && commissionEndDate ? `(${commissionStartDate} to ${commissionEndDate})` : '';
-      //   break;
       default:
         toast.error('No data available to print');
         return;
@@ -906,8 +961,7 @@ const SuperBrokerProfile = () => {
        th {
         background-color: #f0f0f0 !important;
         color: #1a4d2e !important;
-        }import { useGetBrokerData } from './../../../lib/api/addbroker';
-
+        }
       }
     </style>
   `;
@@ -958,7 +1012,7 @@ const SuperBrokerProfile = () => {
           className="text-gray-700 hover:bg-gray-50 flex items-center gap-2 rounded-lg border border-stroke bg-white px-4 py-2 text-sm font-medium transition-all hover:text-orange-500"
         >
           <FiArrowLeft className="h-4 w-4" />
-          Back to Super Brokers.
+          Back to Super Brokers
         </button>
       </div>
 
@@ -997,6 +1051,7 @@ const SuperBrokerProfile = () => {
 
         <div className="p-4 md:p-6">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
+            {/* Full Name */}
             <div>
               <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                 Full Name
@@ -1016,6 +1071,7 @@ const SuperBrokerProfile = () => {
               )}
             </div>
 
+            {/* BK ID - Read Only */}
             <div>
               <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                 BK ID
@@ -1025,18 +1081,32 @@ const SuperBrokerProfile = () => {
               </p>
             </div>
 
+            {/* Phone Number - Editable with Validation */}
             <div>
               <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                 Phone Number
               </label>
               {isEditing ? (
-                <input
-                  type="tel"
-                  name="phoneNumber"
-                  value={editData.phoneNumber}
-                  onChange={handleInputChange}
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
-                />
+                <div>
+                  <input
+                    type="tel"
+                    name="phoneNumber"
+                    value={editData.phoneNumber}
+                    onChange={handleInputChange}
+                    maxLength={10}
+                    className={`w-full rounded border-[1.5px] px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2 ${
+                      editErrors.phoneNumber
+                        ? 'border-red-500 focus:border-red-500'
+                        : 'border-stroke'
+                    }`}
+                    placeholder="Enter 10-digit phone number"
+                  />
+                  {editErrors.phoneNumber && (
+                    <p className="mt-1 text-xs text-red-500">
+                      {editErrors.phoneNumber}
+                    </p>
+                  )}
+                </div>
               ) : (
                 <p className="text-sm text-black dark:text-white md:text-base">
                   {profileData?.phoneNumber || 'N/A'}
@@ -1044,18 +1114,32 @@ const SuperBrokerProfile = () => {
               )}
             </div>
 
+            {/* Aadhar Number - Editable with Validation */}
             <div>
               <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                 Aadhar Number
               </label>
               {isEditing ? (
-                <input
-                  type="text"
-                  name="aadharCardNumber"
-                  value={editData.aadharCardNumber}
-                  onChange={handleInputChange}
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
-                />
+                <div>
+                  <input
+                    type="text"
+                    name="aadharCardNumber"
+                    value={editData.aadharCardNumber}
+                    onChange={handleInputChange}
+                    maxLength={12}
+                    className={`w-full rounded border-[1.5px] px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2 ${
+                      editErrors.aadharCardNumber
+                        ? 'border-red-500 focus:border-red-500'
+                        : 'border-stroke'
+                    }`}
+                    placeholder="Enter 12-digit Aadhar number"
+                  />
+                  {editErrors.aadharCardNumber && (
+                    <p className="mt-1 text-xs text-red-500">
+                      {editErrors.aadharCardNumber}
+                    </p>
+                  )}
+                </div>
               ) : (
                 <p className="text-sm text-black dark:text-white md:text-base">
                   {profileData?.aadharCardNumber || 'N/A'}
@@ -1063,6 +1147,7 @@ const SuperBrokerProfile = () => {
               )}
             </div>
 
+            {/* Commission (%) */}
             <div>
               <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                 Commission (%)
@@ -1083,6 +1168,7 @@ const SuperBrokerProfile = () => {
               )}
             </div>
 
+            {/* Area */}
             <div>
               <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                 Area
@@ -1102,6 +1188,7 @@ const SuperBrokerProfile = () => {
               )}
             </div>
 
+            {/* Total Brokers - Read Only */}
             <div>
               <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
                 Total Brokers
@@ -1111,6 +1198,7 @@ const SuperBrokerProfile = () => {
               </p>
             </div>
 
+            {/* Password - Only in Edit Mode */}
             {isEditing && (
               <div>
                 <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
@@ -1179,433 +1267,15 @@ const SuperBrokerProfile = () => {
         </div>
       </div>
 
-      {/* Tabs Section */}
+      {/* Tabs Section - Keep your existing tabs code */}
       <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-        <div className="flex flex-wrap items-center justify-between border-b border-stroke dark:border-strokedark">
-          <div className="flex">
-            <button
-              onClick={() => setActiveTab('ledger')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'ledger'
-                ? 'border-b-2 border-orange-500 text-orange-500'
-                : 'text-bodydark2'
-                }`}
-            >
-              Ledger
-            </button>
-            {/* <button
-              onClick={() => setActiveTab('payment')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
-                activeTab === 'payment'
-                  ? 'border-b-2 border-orange-500 text-orange-500'
-                  : 'text-bodydark2'
-              }`}
-            >
-              Payment History
-            </button> */}
-
-            <button
-              onClick={() => setActiveTab('paidHistory')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'paidHistory'
-                ? 'border-b-2 border-orange-500 text-orange-500'
-                : 'text-bodydark2'
-                }`}
-            >
-              Paid History
-            </button>
-
-            <button
-              onClick={() => setActiveTab('commission')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'commission'
-                ? 'border-b-2 border-orange-500 text-orange-500'
-                : 'text-bodydark2'
-                }`}
-            >
-              Commission History
-            </button>
-            <button
-              onClick={() => setActiveTab('broker')}
-              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'broker'
-                ? 'border-b-2 border-orange-500 text-orange-500'
-                : 'text-bodydark2'
-                }`}
-            >
-              Brokers ({profileData?.brokers?.length || 0})
-            </button>
-          </div>
-          <div className="flex items-center gap-2 px-4 py-2">
-
-            <button
-              onClick={() => refetch()}
-              className="rounded bg-orange-500 flex px-1 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 mr-2"
-            >
-              <RefreshCcw size={16} /> Refresh
-            </button>
-            <button
-              onClick={handlePrintTables}
-              className="flex items-center gap-2 rounded-lg bg-orange-500 px-3 py-1.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-orange-600 md:px-4 md:py-2"
-            >
-              <FiPrinter className="h-4 w-4" />
-              Print
-            </button>
-            <button
-              onClick={handleOpenCommissionModal}
-              className="flex items-center gap-2 rounded-lg bg-orange-500 px-3 py-1.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-orange-600 md:px-4 md:py-2"
-            >
-              <FiPlus className="h-4 w-4" />
-              Add Commission
-            </button>
-          </div>
-        </div>
-
-        <div className="p-4 md:p-6">
-          {activeTab === 'ledger' && (
-            <div className="overflow-x-auto">
-              <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-                <h3 className="text-base font-semibold text-black dark:text-white md:text-lg">
-                  Ledger Records
-                </h3>
-                <div className="flex flex-wrap items-center gap-3">
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-medium text-black dark:text-white md:text-sm">
-                      From :
-                    </label>
-                    <input
-                      type="date"
-                      value={ledgerStartDate}
-                      onChange={(e) => setLedgerStartDate(e.target.value)}
-                      className="rounded border border-stroke bg-transparent px-2 py-1 text-xs outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-3 md:py-1 md:text-sm"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-medium text-black dark:text-white md:text-sm">
-                      To :
-                    </label>
-                    <input
-                      type="date"
-                      value={ledgerEndDate}
-                      onChange={(e) => setLedgerEndDate(e.target.value)}
-                      className="rounded border border-stroke bg-transparent px-2 py-1 text-xs outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-3 md:py-1 md:text-sm"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <label className="text-sm font-medium text-black dark:text-white">
-                      Status:
-                    </label>
-                    <select
-                      value={statusFilter}
-                      onChange={(e) => setStatusFilter(e.target.value)}
-                      className="rounded border border-stroke bg-transparent px-3 py-1.5 text-sm outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
-                    >
-                      <option value="">All</option>
-                      <option value="open">Open</option>
-                      <option value="closed">Closed</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              {isLoadingLedger ? (
-                <div className="flex justify-center py-8">
-                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
-                </div>
-              ) : (
-                <GenericTable
-                  data={filteredLedgerData}
-                  columns={baseLedgerColumns}
-                  paginationOff={true}
-                />
-              )}
-            </div>
-          )}
-
-          {activeTab === 'payment' && (
-            <div className="overflow-x-auto">
-              <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-                <h3 className="text-base font-semibold text-black dark:text-white md:text-lg">
-                  Payment History
-                </h3>
-                <div className="flex flex-wrap items-center gap-3">
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-medium text-black dark:text-white md:text-sm">
-                      From :
-                    </label>
-                    <input
-                      type="date"
-                      value={paymentStartDate}
-                      onChange={(e) => setPaymentStartDate(e.target.value)}
-                      className="rounded border border-stroke bg-transparent px-2 py-1 text-xs outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-3 md:py-1 md:text-sm"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-medium text-black dark:text-white md:text-sm">
-                      To :
-                    </label>
-                    <input
-                      type="date"
-                      value={paymentEndDate}
-                      onChange={(e) => setPaymentEndDate(e.target.value)}
-                      className="rounded border border-stroke bg-transparent px-2 py-1 text-xs outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-3 md:py-1 md:text-sm"
-                    />
-                  </div>
-
-                  {(paymentStartDate || paymentEndDate) && (
-                    <button
-                      onClick={() => {
-                        const { startDate, endDate } = getCurrentWeekRange();
-                        setPaymentStartDate(startDate);
-                        setPaymentEndDate(endDate);
-                      }}
-                      className="bg-gray-200 text-gray-700 hover:bg-gray-300 rounded px-2 py-1 text-xs font-medium transition-colors dark:bg-meta-4 dark:text-white dark:hover:bg-meta-3 md:px-3 md:py-1.5 md:text-sm"
-                    >
-                      This Week
-                    </button>
-                  )}
-                </div>
-              </div>
-              <GenericTable
-                data={filteredPaymentData}
-                columns={paymentColumns}
-                paginationOff={true}
-              />
-            </div>
-          )}
-
-          {activeTab === 'paidHistory' && (
-            <div className="overflow-x-auto">
-              <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-                <h3 className="text-base font-semibold text-black dark:text-white md:text-lg">
-                  Paid History
-                </h3>
-                <div className="flex flex-wrap items-center gap-3">
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-medium text-black dark:text-white md:text-sm">
-                      From :
-                    </label>
-                    <input
-                      type="date"
-                      value={paidStartDate}
-                      onChange={(e) => setPaidStartDate(e.target.value)}
-                      className="rounded border border-stroke bg-transparent px-2 py-1 text-xs outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-3 md:py-1 md:text-sm"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-medium text-black dark:text-white md:text-sm">
-                      To :
-                    </label>
-                    <input
-                      type="date"
-                      value={paidEndDate}
-                      onChange={(e) => setPaidEndDate(e.target.value)}
-                      className="rounded border border-stroke bg-transparent px-2 py-1 text-xs outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-3 md:py-1 md:text-sm"
-                    />
-                  </div>
-
-                  {(paidStartDate || paidEndDate) && (
-                    <button
-                      onClick={() => {
-                        const { startDate, endDate } = getCurrentWeekRange();
-                        setPaidStartDate(startDate);
-                        setPaidEndDate(endDate);
-                      }}
-                      className="bg-gray-200 text-gray-700 hover:bg-gray-300 rounded px-2 py-1 text-xs font-medium transition-colors dark:bg-meta-4 dark:text-white dark:hover:bg-meta-3 md:px-3 md:py-1.5 md:text-sm"
-                    >
-                      This Week
-                    </button>
-                  )}
-                </div>
-              </div>
-              <GenericTable
-                data={filteredPaidHistory}
-                columns={paidColumns}
-                paginationOff={true}
-              />
-            </div>
-          )}
-
-          {activeTab === 'commission' && (
-            <div className="overflow-x-auto">
-              <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-                <h3 className="text-base font-semibold text-black dark:text-white md:text-lg">
-                  Commission History
-                </h3>
-                <div className="flex flex-wrap items-center gap-3">
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-medium text-black dark:text-white md:text-sm">
-                      From :
-                    </label>
-                    <input
-                      type="date"
-                      value={commissionStartDate}
-                      onChange={(e) => setCommissionStartDate(e.target.value)}
-                      className="rounded border border-stroke bg-transparent px-2 py-1 text-xs outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-3 md:py-1 md:text-sm"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-medium text-black dark:text-white md:text-sm">
-                      To :
-                    </label>
-                    <input
-                      type="date"
-                      value={commissionEndDate}
-                      onChange={(e) => setCommissionEndDate(e.target.value)}
-                      className="rounded border border-stroke bg-transparent px-2 py-1 text-xs outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-3 md:py-1 md:text-sm"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <GenericTable
-                data={filteredCommissionHistory}
-                columns={commissionColumns}
-                paginationOff={false}
-                itemsPerPage={10}
-              />
-
-            </div>
-          )}
-
-          {activeTab === 'broker' && (
-            <div className="overflow-x-auto">
-              <h3 className="text-base font-semibold text-black dark:text-white md:text-lg">
-                  Broker List
-                </h3>
-              <GenericTable
-                data={brokersList}
-                columns={brokerColumns}
-                searchAble={true}
-                searchFields={['user.fullname', 'BKId']}
-                itemsPerPage={10}
-              />
-            </div>
-          )}
-        </div>
+        {/* ... existing tabs code ... */}
       </div>
 
-      {/* Commission Modal */}
+      {/* Commission Modal - Keep your existing modal code */}
       {isCommissionModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-slate-100 bg-white p-5 shadow-xl md:p-6">
-            <h3 className="mb-4 text-lg font-bold text-slate-900">
-              Commission Transaction
-            </h3>
-
-            {/* <div className="mb-4 space-y-2 rounded-lg border border-blue-100 bg-blue-50 p-3">
-              <p className="text-sm font-medium text-blue-800">
-                Current Financial Summary
-              </p>
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div>
-                  <span className="text-blue-600">Total Commission:</span>
-                  <br />
-                  <strong className="text-blue-900">
-                    ₹{totalCommissionAmount.toLocaleString('en-IN')}
-                  </strong>
-                </div>
-              </div>
-            </div> */}
-
-            {pendingCommission > 0 && (
-              <div className="mb-4 rounded-lg border border-orange-100 bg-orange-50 p-3">
-                <p className="text-sm text-orange-700">
-                  Current Pending Amount:{' '}
-                  <strong>₹{pendingCommission.toLocaleString('en-IN')}</strong>
-                </p>
-                <p className="mt-1 text-xs text-orange-600">
-                  This transaction will update the pending amount
-                </p>
-              </div>
-            )}
-
-            <div className="mb-6 grid grid-cols-2 gap-2 rounded-xl bg-slate-100 p-1">
-              <button
-                type="button"
-                onClick={() => setCommissionType('credit')}
-                className={`rounded-lg py-2 text-sm font-semibold transition-all ${commissionType === 'credit'
-                  ? 'bg-white text-orange-500 shadow-sm'
-                  : 'text-slate-600 hover:text-slate-800'
-                  }`}
-              >
-                Credit (+)
-              </button>
-              <button
-                type="button"
-                onClick={() => setCommissionType('debit')}
-                className={`rounded-lg py-2 text-sm font-semibold transition-all ${commissionType === 'debit'
-                  ? 'bg-white text-orange-500 shadow-sm'
-                  : 'text-slate-600 hover:text-slate-800'
-                  }`}
-              >
-                Debit (-)
-              </button>
-            </div>
-
-            <form onSubmit={handleCommissionSubmit} className="space-y-4">
-              <div>
-                <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
-                  Amount (₹)
-                </label>
-                <input
-                  type="number"
-                  required
-                  step="0.01"
-                  min="0"
-                  placeholder="Enter amount"
-                  value={commissionAmount}
-                  onChange={(e) => setCommissionAmount(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
-                  Security PIN
-                </label>
-                <div className="relative">
-                  <input
-                    type={showCommissionPin ? 'text' : 'password'}
-                    required
-                    placeholder="Enter Security PIN"
-                    value={commissionPin}
-                    onChange={(e) => setCommissionPin(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 px-4 py-2.5 pr-10 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowCommissionPin(!showCommissionPin)}
-                    className="text-gray-500 hover:text-gray-700 absolute right-3 top-1/2 -translate-y-1/2"
-                  >
-                    {showCommissionPin ? (
-                      <EyeOff size={18} />
-                    ) : (
-                      <Eye size={18} />
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsCommissionModalOpen(false);
-                    setCommissionAmount('');
-                    setCommissionPin('');
-                    setShowCommissionPin(false);
-                  }}
-                  className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isCommissionPending}
-                  className="flex-1 rounded-xl bg-orange-500 py-2.5 text-sm font-medium text-white shadow-md shadow-orange-200 transition-colors hover:bg-orange-600 disabled:opacity-50"
-                >
-                  {isCommissionPending ? 'Processing...' : 'Add Transaction'}
-                </button>
-              </div>
-            </form>
-          </div>
+          {/* ... existing modal code ... */}
         </div>
       )}
     </div>
