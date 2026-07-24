@@ -158,12 +158,22 @@ export const ClientDetail: React.FC = () => {
     }));
   }, [displayClient?.tradingLedgers]);
 
-  const totalPnL = Array.isArray(ledgerDataaa?.data?.data)
-    ? ledgerDataaa.data.data.reduce((sum: number, item: any) => {
-      return sum + Number(item.pnl ?? item['p&l'] ?? 0);
-    }, 0)
-    : 0;
+  // Calculate total P&L with proper sign handling
+  const totalPnL = useMemo(() => {
+    if (!ledgerDataaa?.data?.data || !Array.isArray(ledgerDataaa.data.data)) {
+      return 0;
+    }
+    return ledgerDataaa.data.data.reduce((sum: number, item: any) => {
+      const pnlValue = Number(item.pnl ?? item['p&l'] ?? 0);
+      return sum + pnlValue;
+    }, 0);
+  }, [ledgerDataaa]);
 
+  // Helper function to get swapped P&L value
+  const getSwappedPnL = (value: number) => {
+    // Swap the sign: positive becomes negative, negative becomes positive
+    return -value;
+  };
   // Ledger Columns
   const baseColumns = [
     {
@@ -376,7 +386,7 @@ export const ClientDetail: React.FC = () => {
 
       setIsEditing(false);
       await refetch();
-      toast.success('Profile updated successfully!');
+      // toast.success('Profile updated successfully!');
     } catch (error: any) {
       toast.error(error?.response?.data?.message || 'Failed to update profile');
     }
@@ -643,18 +653,41 @@ export const ClientDetail: React.FC = () => {
             Total P&L
           </div>
           <div className="text-xl font-semibold text-slate-900 md:text-2xl">
-            {formatIndianCurrency(totalPnL)}
+            {/* FIXED: Show swapped P&L with proper sign */}
+            {(() => {
+              const swappedPnL = getSwappedPnL(totalPnL);
+              if (swappedPnL > 0) {
+                return <span className="text-green-600">+{formatIndianCurrency(swappedPnL)}</span>;
+              } else if (swappedPnL < 0) {
+                return <span className="text-red-600">{formatIndianCurrency(swappedPnL)}</span>;
+              } else {
+                return <span className="text-gray-600">₹0</span>;
+              }
+            })()}
           </div>
           <div className="mt-1 flex items-center gap-1 text-xs font-medium">
-            {totalPnL > 0 ? (
-              <div className="flex items-center gap-1 text-green-600">
-                <div className="h-2 w-2 rounded-full bg-green-500" /> P&L
-              </div>
-            ) : (
-              <div className="flex items-center gap-1 text-red-600">
-                <div className="h-2 w-2 rounded-full bg-red-500" /> P&L
-              </div>
-            )}
+            {(() => {
+              const swappedPnL = getSwappedPnL(totalPnL);
+              if (swappedPnL > 0) {
+                return (
+                  <div className="flex items-center gap-1 text-green-600">
+                    <div className="h-2 w-2 rounded-full bg-green-500" /> Profit
+                  </div>
+                );
+              } else if (swappedPnL < 0) {
+                return (
+                  <div className="flex items-center gap-1 text-red-600">
+                    <div className="h-2 w-2 rounded-full bg-red-500" /> Loss
+                  </div>
+                );
+              } else {
+                return (
+                  <div className="flex items-center gap-1 text-gray-500">
+                    <div className="h-2 w-2 rounded-full bg-gray-400" /> Break-even
+                  </div>
+                );
+              }
+            })()}
           </div>
         </div>
       </div>
@@ -936,8 +969,8 @@ export const ClientDetail: React.FC = () => {
             <button
               onClick={() => setActiveTab('ledger')}
               className={`px-3 py-2 text-xs font-semibold transition-colors md:px-4 md:py-3 md:text-sm ${activeTab === 'ledger'
-                  ? 'border-b-2 border-orange-500 text-orange-500'
-                  : 'text-slate-500 hover:text-slate-700'
+                ? 'border-b-2 border-orange-500 text-orange-500'
+                : 'text-slate-500 hover:text-slate-700'
                 }`}
             >
               <TrendingUp className="inline h-4 w-4 mr-1" />
@@ -946,8 +979,8 @@ export const ClientDetail: React.FC = () => {
             <button
               onClick={() => setActiveTab('tradingledger')}
               className={`px-3 py-2 text-xs font-semibold transition-colors md:px-4 md:py-3 md:text-sm ${activeTab === 'tradingledger'
-                  ? 'border-b-2 border-orange-500 text-orange-500'
-                  : 'text-slate-500 hover:text-slate-700'
+                ? 'border-b-2 border-orange-500 text-orange-500'
+                : 'text-slate-500 hover:text-slate-700'
                 }`}
             >
               <CreditCard className="inline h-4 w-4 mr-1" />
@@ -960,7 +993,7 @@ export const ClientDetail: React.FC = () => {
             <div className="flex flex-wrap items-center gap-2 py-1">
               {/* Date Filters */}
               <div className="flex items-center gap-1 bg-white rounded-lg border border-stroke px-2 py-1 md:gap-2">
-                
+
                 <div className="flex items-center gap-1">
                   <label className="text-[10px] font-medium text-gray-600 hidden sm:inline md:text-xs">From:</label>
                   <input
@@ -970,7 +1003,7 @@ export const ClientDetail: React.FC = () => {
                     className="border-0 px-0.5 py-0.5 text-[10px] focus:outline-none focus:ring-0 w-16 sm:w-20 md:w-28 md:text-sm"
                   />
                 </div>
-                
+
                 <div className="flex items-center gap-1">
                   <label className="text-[10px] font-medium text-gray-600 hidden sm:inline md:text-xs">To:</label>
                   <input
