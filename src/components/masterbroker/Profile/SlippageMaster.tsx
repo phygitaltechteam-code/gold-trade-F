@@ -12,10 +12,10 @@ import { useGetSlipPageClientsMaster, useUpdateSlippageMaster } from '@/lib/api/
 
 const SlippageMaster = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [sellSlipagePercents, setsellSlipagePercents] = useState<Record<string, string>>({});
-  const [buySlipagePercents, setbuySlipagePercents] = useState<Record<string, string>>({});
-  const [originalsellSlipagePercents, setOriginalsellSlipagePercents] = useState<Record<string, string>>({});
-  const [originalbuySlipagePercents, setOriginalbuySlipagePercents] = useState<Record<string, string>>({});
+  const [sellSlipagePercents, setSellSlipagePercents] = useState<Record<string, string>>({});
+  const [buySlipagePercents, setBuySlipagePercents] = useState<Record<string, string>>({});
+  const [originalSellSlipagePercents, setOriginalSellSlipagePercents] = useState<Record<string, string>>({});
+  const [originalBuySlipagePercents, setOriginalBuySlipagePercents] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);
 
   // Apply to All states
@@ -43,32 +43,32 @@ const SlippageMaster = () => {
         buy[client.id] = client.buySlipagePercent?.toString() || '';
       });
 
-      setsellSlipagePercents(sell);
-      setbuySlipagePercents(buy);
-      setOriginalsellSlipagePercents(sell);
-      setOriginalbuySlipagePercents(buy);
+      setSellSlipagePercents(sell);
+      setBuySlipagePercents(buy);
+      setOriginalSellSlipagePercents(sell);
+      setOriginalBuySlipagePercents(buy);
     }
   }, [clients]);
 
   // Handle sell slippage change
-  const handlesellSlipagePercentChange = (customerId: string, value: string) => {
+  const handleSellSlipagePercentChange = (customerId: string, value: string) => {
     if (value !== '' && !/^\d*\.?\d*$/.test(value)) {
       toast.error('Please enter a valid number');
       return;
     }
-    setsellSlipagePercents((prev) => ({
+    setSellSlipagePercents((prev) => ({
       ...prev,
       [customerId]: value,
     }));
   };
 
   // Handle buy slippage change
-  const handlebuySlipagePercentChange = (customerId: string, value: string) => {
+  const handleBuySlipagePercentChange = (customerId: string, value: string) => {
     if (value !== '' && !/^\d*\.?\d*$/.test(value)) {
       toast.error('Please enter a valid number');
       return;
     }
-    setbuySlipagePercents((prev) => ({
+    setBuySlipagePercents((prev) => ({
       ...prev,
       [customerId]: value,
     }));
@@ -104,11 +104,11 @@ const SlippageMaster = () => {
     });
 
     if (applyToAllSell) {
-      setsellSlipagePercents((prev) => ({ ...prev, ...updatedSell }));
+      setSellSlipagePercents((prev) => ({ ...prev, ...updatedSell }));
     }
 
     if (applyToAllBuy) {
-      setbuySlipagePercents((prev) => ({ ...prev, ...updatedBuy }));
+      setBuySlipagePercents((prev) => ({ ...prev, ...updatedBuy }));
     }
 
     let message = 'Applied ';
@@ -135,15 +135,15 @@ const SlippageMaster = () => {
   const handleSaveAllSlippages = () => {
     const customers: {
       customerId: string;
-      sellSlipagePercent: string;
-      buySlipagePercent: string;
+      sellSlipagePercent: number;
+      buySlipagePercent: number;
     }[] = [];
 
     clients.forEach((client: any) => {
       const currentSell = sellSlipagePercents[client.id] || '';
-      const originalSell = originalsellSlipagePercents[client.id] || '';
+      const originalSell = originalSellSlipagePercents[client.id] || '';
       const currentBuy = buySlipagePercents[client.id] || '';
-      const originalBuy = originalbuySlipagePercents[client.id] || '';
+      const originalBuy = originalBuySlipagePercents[client.id] || '';
 
       if (
         currentSell !== originalSell ||
@@ -151,8 +151,8 @@ const SlippageMaster = () => {
       ) {
         customers.push({
           customerId: client.id,
-          sellSlipagePercent: currentSell || '0',
-          buySlipagePercent: currentBuy || '0',
+          sellSlipagePercent: parseFloat(currentSell) || 0,
+          buySlipagePercent: parseFloat(currentBuy) || 0,
         });
       }
     });
@@ -180,15 +180,15 @@ const SlippageMaster = () => {
 
     const customers: {
       customerId: string;
-      sellSlipagePercent: string;
-      buySlipagePercent: string;
+      sellSlipagePercent: number;
+      buySlipagePercent: number;
     }[] = [];
 
     clients.forEach((client: any) => {
       const currentSell = sellSlipagePercents[client.id] || '0';
-      const originalSell = originalsellSlipagePercents[client.id] || '0';
+      const originalSell = originalSellSlipagePercents[client.id] || '0';
       const currentBuy = buySlipagePercents[client.id] || '0';
-      const originalBuy = originalbuySlipagePercents[client.id] || '0';
+      const originalBuy = originalBuySlipagePercents[client.id] || '0';
 
       if (
         currentSell !== originalSell ||
@@ -196,8 +196,8 @@ const SlippageMaster = () => {
       ) {
         customers.push({
           customerId: client.id,
-          sellSlipagePercent: currentSell,
-          buySlipagePercent: currentBuy,
+          sellSlipagePercent: parseFloat(currentSell) || 0,
+          buySlipagePercent: parseFloat(currentBuy) || 0,
         });
       }
     });
@@ -218,8 +218,8 @@ const SlippageMaster = () => {
           toast.success(
             `Successfully updated slippage for ${customers.length} customer(s)`,
           );
-          setOriginalsellSlipagePercents({ ...sellSlipagePercents });
-          setOriginalbuySlipagePercents({ ...buySlipagePercents });
+          setOriginalSellSlipagePercents({ ...sellSlipagePercents });
+          setOriginalBuySlipagePercents({ ...buySlipagePercents });
           closeModal();
           refetch();
         },
@@ -234,22 +234,26 @@ const SlippageMaster = () => {
   };
 
   // Filter clients based on search
-  const filteredClients = clients.filter((client: any) => {
+  const filteredClients = React.useMemo(() => {
+    if (!Array.isArray(clients)) return [];
     const searchLower = searchTerm.toLowerCase();
-    return (
-      client.user?.fullname?.toLowerCase().includes(searchLower) ||
-      client.user?.email?.toLowerCase().includes(searchLower) ||
-      client.id?.toLowerCase().includes(searchLower)
-    );
-  });
+    return clients.filter((client: any) => {
+      return (
+        client.user?.fullname?.toLowerCase().includes(searchLower) ||
+        client.user?.email?.toLowerCase().includes(searchLower) ||
+        client.id?.toLowerCase().includes(searchLower)
+      );
+    });
+  }, [clients, searchTerm]);
 
   // Check if any changes were made
   const hasChanges = React.useMemo(() => {
+    if (!Array.isArray(clients)) return false;
     for (const client of clients) {
       const currentSell = sellSlipagePercents[client.id] || '';
-      const originalSell = originalsellSlipagePercents[client.id] || '';
+      const originalSell = originalSellSlipagePercents[client.id] || '';
       const currentBuy = buySlipagePercents[client.id] || '';
-      const originalBuy = originalbuySlipagePercents[client.id] || '';
+      const originalBuy = originalBuySlipagePercents[client.id] || '';
 
       if (
         currentSell !== originalSell ||
@@ -262,19 +266,20 @@ const SlippageMaster = () => {
   }, [
     sellSlipagePercents,
     buySlipagePercents,
-    originalsellSlipagePercents,
-    originalbuySlipagePercents,
+    originalSellSlipagePercents,
+    originalBuySlipagePercents,
     clients,
   ]);
 
   // Get total number of customers with changes
   const getChangedCount = React.useMemo(() => {
+    if (!Array.isArray(clients)) return 0;
     let count = 0;
     for (const client of clients) {
       const currentSell = sellSlipagePercents[client.id] || '';
-      const originalSell = originalsellSlipagePercents[client.id] || '';
+      const originalSell = originalSellSlipagePercents[client.id] || '';
       const currentBuy = buySlipagePercents[client.id] || '';
-      const originalBuy = originalbuySlipagePercents[client.id] || '';
+      const originalBuy = originalBuySlipagePercents[client.id] || '';
 
       if (
         currentSell !== originalSell ||
@@ -287,8 +292,8 @@ const SlippageMaster = () => {
   }, [
     sellSlipagePercents,
     buySlipagePercents,
-    originalsellSlipagePercents,
-    originalbuySlipagePercents,
+    originalSellSlipagePercents,
+    originalBuySlipagePercents,
     clients,
   ]);
 
@@ -330,7 +335,7 @@ const SlippageMaster = () => {
               onChange={(e) => {
                 const value = e.target.value;
                 if (value === '' || /^\d*\.?\d*$/.test(value)) {
-                  handlesellSlipagePercentChange(row.id, value);
+                  handleSellSlipagePercentChange(row.id, value);
                 }
               }}
               className="w-full rounded-lg border border-stroke px-3 py-1.5 pr-8 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
@@ -355,7 +360,7 @@ const SlippageMaster = () => {
               onChange={(e) => {
                 const value = e.target.value;
                 if (value === '' || /^\d*\.?\d*$/.test(value)) {
-                  handlebuySlipagePercentChange(row.id, value);
+                  handleBuySlipagePercentChange(row.id, value);
                 }
               }}
               className="w-full rounded-lg border border-stroke px-3 py-1.5 pr-8 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"

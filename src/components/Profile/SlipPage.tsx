@@ -8,7 +8,7 @@ import {
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import toast from 'react-hot-toast';
 import { useGetClients } from '@/lib/react-query/client';
-import { useUpdateSlippage } from '@/lib/api/customerholding'; 
+import { useUpdateSlippage } from '@/lib/api/customerholding';
 
 const Slippage = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -27,8 +27,19 @@ const Slippage = () => {
   const [pin, setPin] = useState('');
   const [showPin, setShowPin] = useState(false);
 
-  const { data: clients = [], refetch, isLoading } = useGetClients();
-  const { mutate: updateSlippage, isPending } = useUpdateSlippage(); // You'll need to create this
+  const { data: responseData, refetch, isLoading } = useGetClients();
+  const { mutate: updateSlippage, isPending } = useUpdateSlippage();
+
+  // Extract clients array from response
+  const clients = React.useMemo(() => {
+    if (!responseData) return [];
+    if (Array.isArray(responseData)) return responseData;
+    if (responseData.data && Array.isArray(responseData.data)) return responseData.data;
+    if (responseData.data?.data && Array.isArray(responseData.data.data)) return responseData.data.data;
+    if (responseData.customers && Array.isArray(responseData.customers)) return responseData.customers;
+    if (responseData.users && Array.isArray(responseData.users)) return responseData.users;
+    return [];
+  }, [responseData]);
 
   useEffect(() => {
     if (clients && clients.length > 0) {
@@ -36,9 +47,9 @@ const Slippage = () => {
       const buy: Record<string, string> = {};
 
       clients.forEach((client: any) => {
-        // Map sellSlippage and buySlippage from your client data
-        sell[client.id] = client.sellSlippage?.toString() || '';
-        buy[client.id] = client.buySlippage?.toString() || '';
+        // Use the correct field names from API: sellSlipagePercent and buySlipagePercent
+        sell[client.id] = client.sellSlipagePercent?.toString() || '';
+        buy[client.id] = client.buySlipagePercent?.toString() || '';
       });
 
       setSellSlippages(sell);
@@ -111,11 +122,11 @@ const Slippage = () => {
 
     let message = 'Applied ';
     if (applyToAllSell && applyToAllBuy) {
-      message += `sell slippage ${applyToAllSell} and buy slippage ${applyToAllBuy} to all customers`;
+      message += `sell slippage ${applyToAllSell}% and buy slippage ${applyToAllBuy}% to all customers`;
     } else if (applyToAllSell) {
-      message += `sell slippage ${applyToAllSell} to all customers`;
+      message += `sell slippage ${applyToAllSell}% to all customers`;
     } else if (applyToAllBuy) {
-      message += `buy slippage ${applyToAllBuy} to all customers`;
+      message += `buy slippage ${applyToAllBuy}% to all customers`;
     }
     toast.success(message);
 
@@ -131,10 +142,15 @@ const Slippage = () => {
 
   // Save all slippages at once - Show PIN popup first
   const handleSaveAllSlippages = () => {
+    if (!Array.isArray(clients) || clients.length === 0) {
+      toast.error('No customers found');
+      return;
+    }
+
     const customers: {
       customerId: string;
-      sellSlippage: string;
-      buySlippage: string;
+      sellSlipagePercent: string;
+      buySlipagePercent: string;
     }[] = [];
 
     clients.forEach((client: any) => {
@@ -149,8 +165,8 @@ const Slippage = () => {
       ) {
         customers.push({
           customerId: client.id,
-          sellSlippage: currentSell || '0',
-          buySlippage: currentBuy || '0',
+          sellSlipagePercent: currentSell || '0',
+          buySlipagePercent: currentBuy || '0',
         });
       }
     });
@@ -178,8 +194,8 @@ const Slippage = () => {
 
     const customers: {
       customerId: string;
-      sellSlippage: string;
-      buySlippage: string;
+      sellSlipagePercent: string;
+      buySlipagePercent: string;
     }[] = [];
 
     clients.forEach((client: any) => {
@@ -194,8 +210,8 @@ const Slippage = () => {
       ) {
         customers.push({
           customerId: client.id,
-          sellSlippage: currentSell,
-          buySlippage: currentBuy,
+          sellSlipagePercent: currentSell,
+          buySlipagePercent: currentBuy,
         });
       }
     });
@@ -232,17 +248,21 @@ const Slippage = () => {
   };
 
   // Filter clients based on search
-  const filteredClients = clients.filter((client: any) => {
+  const filteredClients = React.useMemo(() => {
+    if (!Array.isArray(clients)) return [];
     const searchLower = searchTerm.toLowerCase();
-    return (
-      client.user?.fullname?.toLowerCase().includes(searchLower) ||
-      client.user?.phoneNumber?.includes(searchTerm) ||
-      client.CRN?.toLowerCase().includes(searchLower)
-    );
-  });
+    return clients.filter((client: any) => {
+      return (
+        client.user?.fullname?.toLowerCase().includes(searchLower) ||
+        client.user?.phoneNumber?.includes(searchTerm) ||
+        client.CRN?.toLowerCase().includes(searchLower)
+      );
+    });
+  }, [clients, searchTerm]);
 
   // Check if any changes were made
   const hasChanges = React.useMemo(() => {
+    if (!Array.isArray(clients)) return false;
     for (const client of clients) {
       const currentSell = sellSlippages[client.id] || '';
       const originalSell = originalSellSlippages[client.id] || '';
@@ -267,6 +287,7 @@ const Slippage = () => {
 
   // Get total number of customers with changes
   const getChangedCount = React.useMemo(() => {
+    if (!Array.isArray(clients)) return 0;
     let count = 0;
     for (const client of clients) {
       const currentSell = sellSlippages[client.id] || '';
@@ -316,7 +337,7 @@ const Slippage = () => {
     },
     {
       header: 'Sell Slippage (%)',
-      accessor: 'sellSlippage',
+      accessor: 'sellSlipagePercent',
       render: (row: any) => {
         const currentValue = sellSlippages[row.id] || '';
 
@@ -341,7 +362,7 @@ const Slippage = () => {
     },
     {
       header: 'Buy Slippage (%)',
-      accessor: 'buySlippage',
+      accessor: 'buySlipagePercent',
       render: (row: any) => {
         const currentValue = buySlippages[row.id] || '';
 
@@ -369,7 +390,6 @@ const Slippage = () => {
   return (
     <div className="font-sans min-h-screen bg-[#F8F9FA] text-[#1A1A1A]">
       <main className="mx-auto max-w-7xl space-y-4 px-4 py-4 sm:space-y-6 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
-        {/* Customer Slippage Table */}
         <section className="overflow-hidden rounded-xl border border-stroke bg-white p-6 shadow-sm">
           <div className="mb-4 flex flex-col justify-between gap-4 border-b border-stroke pb-4 sm:flex-row sm:items-center">
             <h2 className="text-lg font-semibold">Update Customer Slippage</h2>
@@ -389,7 +409,6 @@ const Slippage = () => {
 
               {/* Conditional: Show Apply to All OR Save Button */}
               {!hasChanges ? (
-                // Show Apply to All when no changes
                 <div className="flex items-center gap-2">
                   <input
                     type="text"
@@ -425,15 +444,13 @@ const Slippage = () => {
                   </button>
                 </div>
               ) : (
-                // Show Save button when changes exist
                 <button
                   onClick={handleSaveAllSlippages}
                   disabled={isSaving || isPending}
-                  className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${
-                    isSaving || isPending
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-orange-500 hover:bg-orange-600'
-                  }`}
+                  className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${isSaving || isPending
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-orange-500 hover:bg-orange-600'
+                    }`}
                 >
                   <Database className="h-4 w-4" />
                   <span>
@@ -460,7 +477,6 @@ const Slippage = () => {
                 clickable={false}
               />
 
-              {/* Show change count at the bottom when there are changes */}
               {hasChanges && (
                 <div className="mt-4 flex items-center justify-end">
                   <span className="text-sm text-orange-500">
