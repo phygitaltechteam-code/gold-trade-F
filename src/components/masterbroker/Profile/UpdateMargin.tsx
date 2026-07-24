@@ -1,43 +1,24 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Database,
-  Clock3,
-  ChevronUp,
-  ChevronDown,
-  Users,
   Search,
-  CheckCircle,
-  XCircle,
   Eye,
   EyeOff,
 } from 'lucide-react';
-import {
-  useGetTradeTime,
-  useSetTradingTime,
-} from '@/lib/api/masterpanelapi/profile';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import toast from 'react-hot-toast';
-import {useGetClients} from '@/lib/react-query/client';
-import {useUpdateMargin} from '@/lib/api/customerholding';
+import { useGetClients } from '@/lib/react-query/client';
 import { useUpdateMarginMaster } from '@/lib/api/masterpanelapi/customerholding';
 
 const UpdateMargin = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [deliveryMargins, setDeliveryMargins] = useState<
-    Record<string, string>
-  >({});
-  const [intradayMargins, setIntradayMargins] = useState<
-    Record<string, string>
-  >({});
-  const [originalDeliveryMargins, setOriginalDeliveryMargins] = useState<
-    Record<string, string>
-  >({});
-  const [originalIntradayMargins, setOriginalIntradayMargins] = useState<
-    Record<string, string>
-  >({});
+  const [deliveryMargins, setDeliveryMargins] = useState<Record<string, string>>({});
+  const [intradayMargins, setIntradayMargins] = useState<Record<string, string>>({});
+  const [originalDeliveryMargins, setOriginalDeliveryMargins] = useState<Record<string, string>>({});
+  const [originalIntradayMargins, setOriginalIntradayMargins] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);
 
-  // Apply to All states - Two fields but one button
+  // Apply to All states
   const [applyToAllDelivery, setApplyToAllDelivery] = useState<string>('');
   const [applyToAllIntraday, setApplyToAllIntraday] = useState<string>('');
 
@@ -46,17 +27,32 @@ const UpdateMargin = () => {
   const [pin, setPin] = useState('');
   const [showPin, setShowPin] = useState(false);
 
-  const {data: clients = [], refetch, isLoading} = useGetClients();
-  const {mutate: updateMargin, isPending} = useUpdateMarginMaster();
+  const { data: responseData, refetch, isLoading } = useGetClients();
+  const { mutate: updateMargin, isPending } = useUpdateMarginMaster();
+
+  // Extract clients array from response - handle different response structures
+  const clients = React.useMemo(() => {
+    if (!responseData) return [];
+    // If responseData is already an array
+    if (Array.isArray(responseData)) return responseData;
+    // If responseData has a data property that is an array
+    if (responseData.data && Array.isArray(responseData.data)) return responseData.data;
+    // If responseData has a data property with a data property (nested)
+    if (responseData.data?.data && Array.isArray(responseData.data.data)) return responseData.data.data;
+    // If responseData has a customers property
+    if (responseData.customers && Array.isArray(responseData.customers)) return responseData.customers;
+    // If responseData has a users property
+    if (responseData.users && Array.isArray(responseData.users)) return responseData.users;
+    return [];
+  }, [responseData]);
+
   useEffect(() => {
     if (clients && clients.length > 0) {
       const delivery: Record<string, string> = {};
       const intraday: Record<string, string> = {};
 
       clients.forEach((client: any) => {
-        // Map deliveryLeverage to delivery margin input
         delivery[client.id] = client.deliveryLeverage?.toString() || '';
-        // Map intradayLeverage to intraday margin input
         intraday[client.id] = client.intradayLeverage?.toString() || '';
       });
 
@@ -66,6 +62,7 @@ const UpdateMargin = () => {
       setOriginalIntradayMargins(intraday);
     }
   }, [clients]);
+
   // Handle delivery margin change
   const handleDeliveryMarginChange = (customerId: string, value: string) => {
     if (value !== '' && !/^\d*\.?\d*$/.test(value)) {
@@ -111,7 +108,6 @@ const UpdateMargin = () => {
     const updatedIntraday: Record<string, string> = {};
 
     clients.forEach((client: any) => {
-      // Only update if value is provided
       if (applyToAllDelivery) {
         updatedDelivery[client.id] = applyToAllDelivery;
       }
@@ -120,17 +116,14 @@ const UpdateMargin = () => {
       }
     });
 
-    // Update delivery margins if provided
     if (applyToAllDelivery) {
-      setDeliveryMargins((prev) => ({...prev, ...updatedDelivery}));
+      setDeliveryMargins((prev) => ({ ...prev, ...updatedDelivery }));
     }
 
-    // Update intraday margins if provided
     if (applyToAllIntraday) {
-      setIntradayMargins((prev) => ({...prev, ...updatedIntraday}));
+      setIntradayMargins((prev) => ({ ...prev, ...updatedIntraday }));
     }
 
-    // Show success message
     let message = 'Applied ';
     if (applyToAllDelivery && applyToAllIntraday) {
       message += `delivery margin ${applyToAllDelivery} and intraday margin ${applyToAllIntraday} to all customers`;
@@ -141,7 +134,6 @@ const UpdateMargin = () => {
     }
     toast.success(message);
 
-    // Clear the input fields
     setApplyToAllDelivery('');
     setApplyToAllIntraday('');
   };
@@ -154,7 +146,6 @@ const UpdateMargin = () => {
 
   // Save all margins at once - Show PIN popup first
   const handleSaveAllMargins = () => {
-    // Check if there are any changes
     const customers: {
       customerId: string;
       deliveryMargin: string;
@@ -167,7 +158,6 @@ const UpdateMargin = () => {
       const currentIntraday = intradayMargins[client.id] || '';
       const originalIntraday = originalIntradayMargins[client.id] || '';
 
-      // Only include customers that have changes in either margin
       if (
         currentDelivery !== originalDelivery ||
         currentIntraday !== originalIntraday
@@ -185,7 +175,6 @@ const UpdateMargin = () => {
       return;
     }
 
-    // Show PIN modal instead of saving directly
     setShowPinModal(true);
     setPin('');
     setShowPin(false);
@@ -202,7 +191,6 @@ const UpdateMargin = () => {
       return;
     }
 
-    // Prepare array of customer IDs and their margins
     const customers: {
       customerId: string;
       deliveryMargin: string;
@@ -215,7 +203,6 @@ const UpdateMargin = () => {
       const currentIntraday = intradayMargins[client.id] || '0';
       const originalIntraday = originalIntradayMargins[client.id] || '0';
 
-      // Only include customers that have changes
       if (
         currentDelivery !== originalDelivery ||
         currentIntraday !== originalIntraday
@@ -234,7 +221,6 @@ const UpdateMargin = () => {
       return;
     }
 
-    // Call the update margin API
     updateMargin(
       {
         customers: customers,
@@ -245,9 +231,8 @@ const UpdateMargin = () => {
           toast.success(
             `Successfully updated margins for ${customers.length} customer(s)`,
           );
-          // Update original values
-          setOriginalDeliveryMargins({...deliveryMargins});
-          setOriginalIntradayMargins({...intradayMargins});
+          setOriginalDeliveryMargins({ ...deliveryMargins });
+          setOriginalIntradayMargins({ ...intradayMargins });
           closeModal();
           refetch();
         },
@@ -262,17 +247,21 @@ const UpdateMargin = () => {
   };
 
   // Filter clients based on search
-  const filteredClients = clients.filter((client: any) => {
+  const filteredClients = React.useMemo(() => {
+    if (!Array.isArray(clients)) return [];
     const searchLower = searchTerm.toLowerCase();
-    return (
-      client.user?.fullname?.toLowerCase().includes(searchLower) ||
-      client.user?.phoneNumber?.includes(searchTerm) ||
-      client.CRN?.toLowerCase().includes(searchLower)
-    );
-  });
+    return clients.filter((client: any) => {
+      return (
+        client.user?.fullname?.toLowerCase().includes(searchLower) ||
+        client.user?.phoneNumber?.includes(searchTerm) ||
+        client.CRN?.toLowerCase().includes(searchLower)
+      );
+    });
+  }, [clients, searchTerm]);
 
   // Check if any changes were made
   const hasChanges = React.useMemo(() => {
+    if (!Array.isArray(clients)) return false;
     for (const client of clients) {
       const currentDelivery = deliveryMargins[client.id] || '';
       const originalDelivery = originalDeliveryMargins[client.id] || '';
@@ -297,6 +286,7 @@ const UpdateMargin = () => {
 
   // Get total number of customers with changes
   const getChangedCount = React.useMemo(() => {
+    if (!Array.isArray(clients)) return 0;
     let count = 0;
     for (const client of clients) {
       const currentDelivery = deliveryMargins[client.id] || '';
@@ -320,7 +310,7 @@ const UpdateMargin = () => {
     clients,
   ]);
 
-  // Customer Table Columns with two margin input fields
+  // Customer Table Columns
   const customerColumns = [
     {
       header: 'Customer Name',
@@ -355,7 +345,6 @@ const UpdateMargin = () => {
             <input
               type="text"
               value={currentValue}
-              name="deliveryMargin"
               onChange={(e) => {
                 const value = e.target.value;
                 if (value === '' || /^\d*\.?\d*$/.test(value)) {
@@ -381,7 +370,6 @@ const UpdateMargin = () => {
             <input
               type="text"
               value={currentValue}
-              name="intradayMargin"
               onChange={(e) => {
                 const value = e.target.value;
                 if (value === '' || /^\d*\.?\d*$/.test(value)) {
@@ -401,7 +389,6 @@ const UpdateMargin = () => {
   return (
     <div className="font-sans min-h-screen bg-[#F8F9FA] text-[#1A1A1A]">
       <main className="mx-auto max-w-7xl space-y-4 px-4 py-4 sm:space-y-6 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
-        {/* Customer Margin Table */}
         <section className="overflow-hidden rounded-xl border border-stroke bg-white p-6 shadow-sm">
           <div className="mb-4 flex flex-col justify-between gap-4 border-b border-stroke pb-4 sm:flex-row sm:items-center">
             <h2 className="text-lg font-semibold">Update Margins</h2>
@@ -421,7 +408,6 @@ const UpdateMargin = () => {
 
               {/* Conditional: Show Apply to All OR Save Button */}
               {!hasChanges ? (
-                // Show Apply to All when no changes - Single button for both fields
                 <div className="flex items-center gap-2">
                   <input
                     type="text"
@@ -457,7 +443,6 @@ const UpdateMargin = () => {
                   </button>
                 </div>
               ) : (
-                // Show Save button when changes exist
                 <button
                   onClick={handleSaveAllMargins}
                   disabled={isSaving || isPending}
@@ -492,7 +477,6 @@ const UpdateMargin = () => {
                 clickable={false}
               />
 
-              {/* Show change count at the bottom when there are changes */}
               {hasChanges && (
                 <div className="mt-4 flex items-center justify-end">
                   <span className="text-sm text-orange-500">
@@ -505,7 +489,7 @@ const UpdateMargin = () => {
         </section>
       </main>
 
-      {/* PIN Modal - Only on Save button click */}
+      {/* PIN Modal */}
       {showPinModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-lg">

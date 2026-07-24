@@ -308,11 +308,11 @@ const SlippageMaster = () => {
       ),
     },
     {
-      header: 'Email',
-      accessor: 'user.email',
+      header: 'Phone Number',
+      accessor: 'user.phoneNumber',
       render: (row: any) => (
         <span className="text-gray-700 text-sm">
-          {row.user?.email || 'N/A'}
+          {row.user?.phoneNumber || 'N/A'}
         </span>
       ),
     },
@@ -373,7 +373,7 @@ const SlippageMaster = () => {
       <main className="mx-auto max-w-7xl space-y-4 px-4 py-4 sm:space-y-6 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
         <section className="overflow-hidden rounded-xl border border-stroke bg-white p-6 shadow-sm">
           <div className="mb-4 flex flex-col justify-between gap-4 border-b border-stroke pb-4 sm:flex-row sm:items-center">
-            <h2 className="text-lg font-semibold">Update Customer Slippage</h2>
+            <h2 className="text-lg font-semibold">Customer Slippage</h2>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               {/* Search Input */}
@@ -430,11 +430,10 @@ const SlippageMaster = () => {
                 <button
                   onClick={handleSaveAllSlippages}
                   disabled={isSaving || isPending}
-                  className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${
-                    isSaving || isPending
+                  className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${isSaving || isPending
                       ? 'bg-gray-400 cursor-not-allowed'
                       : 'bg-orange-500 hover:bg-orange-600'
-                  }`}
+                    }`}
                 >
                   <Database className="h-4 w-4" />
                   <span>
