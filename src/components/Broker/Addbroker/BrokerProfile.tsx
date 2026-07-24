@@ -1,19 +1,19 @@
-import React, {useState, useEffect, useMemo} from 'react';
-import {FiEdit2, FiSave, FiX, FiArrowLeft} from 'react-icons/fi';
+import React, { useState, useEffect, useMemo } from 'react';
+import { FiEdit2, FiSave, FiX, FiArrowLeft } from 'react-icons/fi';
 import GenericTable from '@/components/Forms/Table/GenericTable';
-import {Route} from '@/routes/_app/broker/brokerprofile.$id';
+import { Route } from '@/routes/_app/broker/brokerprofile.$id';
 import {
   useGetAllBrockerById,
   useGetBrokerCardDataById,
   useGetBrokersDataApi,
   useUpdateBrokerProfile,
 } from './brokerapi';
-import {useNavigate} from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import toast from 'react-hot-toast';
 import { formatIndianCurrency } from '@/utils/formatIndianNumber';
 
 const BrokerProfile = () => {
-  const {id} = Route.useParams();
+  const { id } = Route.useParams();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('ledger');
@@ -24,12 +24,12 @@ const BrokerProfile = () => {
   const [ledgerEndDate, setLedgerEndDate] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
 
-  const {data: profileData, refetch} = useGetAllBrockerById(id);
-  const{data:cardData , refetch:cardRefetch} = useGetBrokerCardDataById(id);
+  const { data: profileData, refetch } = useGetAllBrockerById(id);
+  const { data: cardData, refetch: cardRefetch } = useGetBrokerCardDataById(id);
   console.log('PROFILE DATA:', profileData);
-  console.log("card",cardData)
-  const {data: brokerData} = useGetBrokersDataApi();
-  const {mutate: updateBrokerProfile, isPending: isUpdating} =
+  console.log("card", cardData)
+  const { data: brokerData } = useGetBrokersDataApi();
+  const { mutate: updateBrokerProfile, isPending: isUpdating } =
     useUpdateBrokerProfile();
 
   const [editData, setEditData] = useState({
@@ -77,7 +77,7 @@ const BrokerProfile = () => {
 
   // Initialize dates with current week range
   useEffect(() => {
-    const {startDate, endDate} = getCurrentWeekRange();
+    const { startDate, endDate } = getCurrentWeekRange();
     setLedgerStartDate(startDate);
     setLedgerEndDate(endDate);
     setPaymentStartDate(startDate);
@@ -119,12 +119,12 @@ const BrokerProfile = () => {
   }, [paymentData]);
 
   const handleBack = () => {
-    navigate({to: '/broker/displaybroker'});
+    navigate({ to: '/broker/displaybroker' });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const {name, value} = e.target;
-    setEditData((prev) => ({...prev, [name]: value}));
+    const { name, value } = e.target;
+    setEditData((prev) => ({ ...prev, [name]: value }));
   };
 
   // const handleSave = () => {
@@ -149,34 +149,34 @@ const BrokerProfile = () => {
   // };
 
   const handleSave = () => {
-  if (!id) {
-    toast.error('Broker ID is missing');
-    return;
-  }
-
-  const updatePayload = {
-    fullname: editData.fullname,
-    phoneNumber: editData.phoneNumber,
-    email: editData.email,
-    aadharCardNumber: editData.aadharCardNumber,
-    brokeragePercent: editData.brokeragePercent,
-    area: editData.area,
-  };
-
-  updateBrokerProfile(
-    { id: id, data: updatePayload },
-    {
-      onSuccess: () => {
-        toast.success('Profile updated successfully!');
-        setIsEditing(false);
-        refetch(); // Refresh the profile data
-      },
-      onError: (error) => {
-        console.error('Update failed:', error);
-      },
+    if (!id) {
+      toast.error('Broker ID is missing');
+      return;
     }
-  );
-};
+
+    const updatePayload = {
+      fullname: editData.fullname,
+      phoneNumber: editData.phoneNumber,
+      email: editData.email,
+      aadharCardNumber: editData.aadharCardNumber,
+      brokeragePercent: editData.brokeragePercent,
+      area: editData.area,
+    };
+
+    updateBrokerProfile(
+      { id: id, data: updatePayload },
+      {
+        onSuccess: () => {
+          toast.success('Profile updated successfully!');
+          setIsEditing(false);
+          refetch(); // Refresh the profile data
+        },
+        onError: (error) => {
+          console.error('Update failed:', error);
+        },
+      }
+    );
+  };
 
   const handleCancel = () => {
     if (profileData) {
@@ -194,35 +194,35 @@ const BrokerProfile = () => {
 
   // Base Ledger Columns
   const baseLedgerColumns = [
-    {header: 'Sr', accessor: 'sr'},
-    {header: 'Date/Time', accessor: 'dateTime'},
+    { header: 'Sr', accessor: 'sr' },
+    { header: 'Date/Time', accessor: 'dateTime' },
     // {header: 'Transaction ID', accessor: 'transactionId'},
-    {header: 'Stript', accessor: 'stript'},
-    {header: 'Transaction Amount', accessor: 'transactionAmount'},
-    {header: 'Super Broker Commission', accessor: 'superBrokerCommission'},
+    { header: 'Stript', accessor: 'stript' },
+    { header: 'Transaction Amount', accessor: 'transactionAmount' },
+    { header: 'Super Broker Commission', accessor: 'superBrokerCommission' },
 
     // {header: 'Transaction ID', accessor: 'transactionId'},
-    {header: 'Order Type', accessor: 'orderType'},
-    {header: 'Holding Type', accessor: 'holdingType'},
-    {header: 'Qty', accessor: 'qty'},
-    {header: 'Price', accessor: 'price'},
-    {header: 'Status', accessor: 'status'},
-    {header: 'Paid Amount', accessor: 'paidAmount'},
-    {header: 'Margin Amount', accessor: 'marginAmount'},
-    {header: 'Total Commission', accessor: 'totalCommission'},
-    {header: 'Broker Commission', accessor: 'brokerCommission'},
-    {header: 'Payment Status', accessor: 'paymentStatus'},
+    { header: 'Order Type', accessor: 'orderType' },
+    { header: 'Holding Type', accessor: 'holdingType' },
+    { header: 'Qty', accessor: 'qty' },
+    { header: 'Price', accessor: 'price' },
+    { header: 'Status', accessor: 'status' },
+    { header: 'Paid Amount', accessor: 'paidAmount' },
+    { header: 'Margin Amount', accessor: 'marginAmount' },
+    { header: 'Total Commission', accessor: 'totalCommission' },
+    { header: 'Broker Commission', accessor: 'brokerCommission' },
+    { header: 'Payment Status', accessor: 'paymentStatus' },
   ];
 
 
   // Column definitions for the Payment History table
   const paymentColumns = [
-    {header: 'Sr', accessor: 'sr'},
-    {header: 'Date', accessor: 'date'},
-    {header: 'Commission Generated', accessor: 'commissionGenerated'},
-    {header: 'Paid Amount', accessor: 'paidAmount'},
-    {header: 'Paid Date', accessor: 'paidDate'},
-    {header: 'Status', accessor: 'status'},
+    { header: 'Sr', accessor: 'sr' },
+    { header: 'Date', accessor: 'date' },
+    { header: 'Commission Generated', accessor: 'commissionGenerated' },
+    { header: 'Paid Amount', accessor: 'paidAmount' },
+    { header: 'Paid Date', accessor: 'paidDate' },
+    { header: 'Status', accessor: 'status' },
   ];
 
   // Customer Table Columns
@@ -417,6 +417,7 @@ const BrokerProfile = () => {
                   name="phoneNumber"
                   value={editData.phoneNumber}
                   onChange={handleInputChange}
+                  maxLength={10}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-4 md:py-2"
                 />
               ) : (
@@ -566,7 +567,7 @@ const BrokerProfile = () => {
             Pending Commission
           </span>
         </div>
-       
+
       </div>
 
       {/* Tabs Section */}
@@ -574,31 +575,28 @@ const BrokerProfile = () => {
         <div className="flex flex-wrap border-b border-stroke dark:border-strokedark">
           <button
             onClick={() => setActiveTab('ledger')}
-            className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
-              activeTab === 'ledger'
-                ? 'border-b-2 border-orange-500 text-orange-500'
-                : 'text-bodydark2'
-            }`}
+            className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'ledger'
+              ? 'border-b-2 border-orange-500 text-orange-500'
+              : 'text-bodydark2'
+              }`}
           >
             Ledger
           </button>
           <button
             onClick={() => setActiveTab('payment')}
-            className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
-              activeTab === 'payment'
-                ? 'border-b-2 border-orange-500 text-orange-500'
-                : 'text-bodydark2'
-            }`}
+            className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'payment'
+              ? 'border-b-2 border-orange-500 text-orange-500'
+              : 'text-bodydark2'
+              }`}
           >
             Payment History
           </button>
           <button
             onClick={() => setActiveTab('customer')}
-            className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
-              activeTab === 'customer'
-                ? 'border-b-2 border-orange-500 text-orange-500'
-                : 'text-bodydark2'
-            }`}
+            className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${activeTab === 'customer'
+              ? 'border-b-2 border-orange-500 text-orange-500'
+              : 'text-bodydark2'
+              }`}
           >
             Clients ({profileData?.customers?.length || 0})
           </button>
@@ -648,7 +646,7 @@ const BrokerProfile = () => {
                   {(ledgerStartDate || ledgerEndDate) && (
                     <button
                       onClick={() => {
-                        const {startDate, endDate} = getCurrentWeekRange();
+                        const { startDate, endDate } = getCurrentWeekRange();
                         setLedgerStartDate(startDate);
                         setLedgerEndDate(endDate);
                       }}
@@ -703,7 +701,7 @@ const BrokerProfile = () => {
                   {(paymentStartDate || paymentEndDate) && (
                     <button
                       onClick={() => {
-                        const {startDate, endDate} = getCurrentWeekRange();
+                        const { startDate, endDate } = getCurrentWeekRange();
                         setPaymentStartDate(startDate);
                         setPaymentEndDate(endDate);
                       }}
