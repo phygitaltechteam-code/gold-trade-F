@@ -9,6 +9,8 @@ import ChamkiTrading from './ChamkiTrading';
 import DisplayScripts from './scripts';
 import CustomerHolding from './CustomerHolding';
 import UpdateMargin from './UpdateMargin';
+import Slippage from './SlippageMaster'; // Import the Slippage component
+import SlippageMaster from './SlippageMaster';
 
 const ProfileTabs = () => {
   const { user } = useAuthContext();
@@ -28,8 +30,8 @@ const ProfileTabs = () => {
         { id: 'Script', label: 'Script Management' },
         { id: 'Chamki', label: 'Order Setting' },
         { id: 'customerholding', label: 'Minimum Stock Holding Time(In Minutes)' },
-         { id: 'updatemargin', label: 'Update Margin' },
-
+        { id: 'updatemargin', label: 'Update Margin' },
+        { id: 'slippage', label: 'Slippage' }, // Added Slippage tab
       ];
     }
 
@@ -72,10 +74,11 @@ const ProfileTabs = () => {
             <button
               key={tab.id}
               data-tab-id={tab.id}
-              className={`flex-shrink-0 whitespace-nowrap border-b-2 px-3 py-3 text-center text-xs font-medium transition-all sm:px-4 sm:text-sm md:px-5 md:text-base ${activeComponent === tab.id
+              className={`flex-shrink-0 whitespace-nowrap border-b-2 px-3 py-3 text-center text-xs font-medium transition-all sm:px-4 sm:text-sm md:px-5 md:text-base ${
+                activeComponent === tab.id
                   ? 'border-[#0284C7] text-[#0284C7] dark:border-[#0284C7] dark:text-[#0284C7]'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
-                }`}
+              }`}
               onClick={() => handleTabClick(tab.id)}
             >
               {tab.label}
@@ -92,8 +95,8 @@ const ProfileTabs = () => {
         {activeComponent === 'Script' && <DisplayScripts />}
         {activeComponent === 'Chamki' && <ChamkiTrading />}
         {activeComponent === 'customerholding' && <CustomerHolding />}
-        
-         {activeComponent === 'updatemargin' && <UpdateMargin/>}
+        {activeComponent === 'updatemargin' && <UpdateMargin />}
+        {activeComponent === 'slippage' && <SlippageMaster />} 
       </div>
     </div>
   );

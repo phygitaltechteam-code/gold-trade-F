@@ -9,6 +9,7 @@ import DisplayScripts from '../company/scripts';
 import ChamkiTrading from './ChamkiTrading';
 import CustomerHolding from './CustomerHolding';
 import UpdateMargin from './UpdateMargin';
+import Slippage from './Slippage'; // Changed from SlipPage to Slippage
 
 const ProfileTabs = () => {
   const { user } = useAuthContext();
@@ -29,6 +30,7 @@ const ProfileTabs = () => {
         { id: 'Chamki', label: 'Holding' },
         { id: 'customerholding', label: 'Minimum Stock Holding Time (In Minutes)' },
         { id: 'updatemargin', label: 'Update Margin' },
+        { id: 'slippage', label: 'Slippage' }, // Changed label
       ];
     }
 
@@ -39,7 +41,6 @@ const ProfileTabs = () => {
 
   const handleTabClick = (tabId: string) => {
     setActiveComponent(tabId);
-    // Scroll to center the selected tab on mobile
     const container = scrollContainerRef.current;
     if (container) {
       const tabElement = container.querySelector(`[data-tab-id="${tabId}"]`);
@@ -58,7 +59,6 @@ const ProfileTabs = () => {
   return (
     <div className="mt-2 border-b border-[#eee] px-5 dark:border-strokedark dark:bg-boxdark">
       <div className="dark:border-gray-700 relative border-b border-neutral-300 bg-white">
-        {/* Scrollable Tabs Container */}
         <div
           ref={scrollContainerRef}
           className="flex overflow-x-auto scrollbar-hide gap-1 sm:gap-2 md:gap-3 px-2 py-1"
@@ -71,10 +71,11 @@ const ProfileTabs = () => {
             <button
               key={tab.id}
               data-tab-id={tab.id}
-              className={`flex-shrink-0 whitespace-nowrap border-b-2 px-3 py-3 text-center text-xs font-medium transition-all sm:px-4 sm:text-sm md:px-5 md:text-base ${activeComponent === tab.id
+              className={`flex-shrink-0 whitespace-nowrap border-b-2 px-3 py-3 text-center text-xs font-medium transition-all sm:px-4 sm:text-sm md:px-5 md:text-base ${
+                activeComponent === tab.id
                   ? 'border-[#0284C7] text-[#0284C7] dark:border-[#0284C7] dark:text-[#0284C7]'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
-                }`}
+              }`}
               onClick={() => handleTabClick(tab.id)}
             >
               {tab.label}
@@ -90,9 +91,9 @@ const ProfileTabs = () => {
         {activeComponent === 'set-password' && <ResetPassword />}
         {activeComponent === 'Script' && <DisplayScripts />}
         {activeComponent === 'Chamki' && <ChamkiTrading />}
-         {activeComponent === 'customerholding' && <CustomerHolding />}
-         
-         {activeComponent === 'updatemargin' && <UpdateMargin/>}
+        {activeComponent === 'customerholding' && <CustomerHolding />}
+        {activeComponent === 'updatemargin' && <UpdateMargin />}
+        {activeComponent === 'slippage' && <Slippage />} 
       </div>
     </div>
   );

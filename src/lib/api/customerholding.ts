@@ -30,3 +30,19 @@ export const useUpdateMargin = () => {
         },
     });
 };
+
+export const useUpdateSlippage = () => {
+  return useMutation({
+    mutationFn: async (data: {
+      customers: Array<{
+        customerId: string;
+        sellSlippage: string;
+        buySlippage: string;
+      }>;
+      securityPin: string;
+    }) => {
+      const response = await api.patch('/company/customer/slipage', data);
+      return response.data;
+    },
+  });
+};
