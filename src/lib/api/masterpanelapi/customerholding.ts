@@ -1,5 +1,5 @@
 import { api } from "@/utils/axios";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 export const useCustomerHolding = () => {
     return useMutation({
@@ -43,4 +43,33 @@ export const useUpdateMarginMaster = () => {
             return response.data;
         },
     });
+};
+
+export const useGetSlipPageClientsMaster = () => {
+  return useQuery({
+    queryKey: ['clients'],
+
+    queryFn: async () => {
+
+      const response = await api.get('/master-broker/profile/slipage');
+      console.log('GET Client', response.data);
+      return response.data;
+    },
+  });
+};
+
+export const useUpdateSlippageMaster = () => {
+  return useMutation({
+    mutationFn: async (data: {
+      customers: Array<{
+        customerId: string;
+        sellSlippage: string;
+        buySlippage: string;
+      }>;
+      securityPin: string;
+    }) => {
+      const response = await api.patch('/master-broker/profile/slipage', data);
+      return response.data;
+    },
+  });
 };

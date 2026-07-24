@@ -9,8 +9,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuthContext } from '@/context/AuthContext';
 import { X, ZoomIn } from 'lucide-react';
 import GenericInputField from '@/components/Forms/Input/GenericInputField';
-import GenericDropdown from '@/components/Forms/DropDown/GenericDropdown';
 import { formatIndianCurrency } from '@/utils/formatIndianNumber';
+import GenericDropdown from '../Forms/DropDown/GenericDropDown';
 
 // Define Zod schema for form data validation
 const CustomerSchema = z.object({
@@ -94,10 +94,10 @@ const CompanyAddCustomer = () => {
       BrokerId: '',
       isDemo: false,
       type: '',
-      stockHoldingLimit: 0,
+      stockHoldingLimit: 10,
       walletBalance: 0,
-      intradayLeverage: 0,
-      deliveryLeverage: 0,
+      intradayLeverage: 300,
+      deliveryLeverage: 1,
     },
   });
 
