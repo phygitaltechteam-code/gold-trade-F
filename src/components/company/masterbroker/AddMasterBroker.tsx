@@ -24,7 +24,6 @@ const BrokerSchema = z.object({
   customerLimit: z.coerce
     .number()
     .min(0, 'Customer limit must be a positive number'),
-  // New fields for slippage
   allowSlippage: z.boolean().default(false),
   buySlippage: z.coerce.number().min(0, 'Buy slippage must be a positive number').optional(),
   sellSlippage: z.coerce.number().min(0, 'Sell slippage must be a positive number').optional(),
@@ -157,19 +156,17 @@ const AddMasterBroker = () => {
 
       // Only add slippage fields if allowed
       if (data.allowSlippage) {
-        // Map form field names to API expected field names
         const buyValue = Number(data.buySlippage);
         const sellValue = Number(data.sellSlippage);
 
-        // Only add if values are valid numbers and greater than 0
         if (!isNaN(buyValue) && buyValue > 0) {
           payload.buySlipagePercent = buyValue;
-          payload.buySlippage = buyValue; // Alternative field name
+          payload.buySlippage = buyValue;
         }
 
         if (!isNaN(sellValue) && sellValue > 0) {
           payload.sellSlipagePercent = sellValue;
-          payload.sellSlippage = sellValue; // Alternative field name
+          payload.sellSlippage = sellValue;
         }
       }
 
@@ -354,7 +351,7 @@ const AddMasterBroker = () => {
                 type="number"
                 placeholder="Enter commission percentage"
               />
-              
+
               <GenericInputField
                 name="customerLimit"
                 label="Trader Limit"
@@ -364,9 +361,9 @@ const AddMasterBroker = () => {
                 placeholder="Enter Trader Limit"
               />
 
-              {/* Allow Slippage Checkbox */}
+              {/* Allow Slippage Checkbox - Simple design */}
               <div className="col-span-1 sm:col-span-2">
-                <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3">
+                <div className="flex items-center gap-3">
                   <input
                     type="checkbox"
                     id="allowSlippage"
@@ -375,12 +372,11 @@ const AddMasterBroker = () => {
                       const isChecked = e.target.checked;
                       methods.setValue('allowSlippage', isChecked);
                       if (!isChecked) {
-                        // Reset slippage values when unchecked
                         methods.setValue('buySlippage', 0);
                         methods.setValue('sellSlippage', 0);
                       }
                     }}
-                    className="h-5 w-5 cursor-pointer accent-orange-500"
+                    className="h-4 w-4 cursor-pointer accent-orange-500"
                   />
                   <label
                     htmlFor="allowSlippage"
@@ -395,28 +391,23 @@ const AddMasterBroker = () => {
               {allowSlippage && (
                 <>
                   <div className="col-span-1 sm:col-span-2">
-                    <div className="rounded-lg border border-orange-200 bg-orange-50 p-4">
-                      <h3 className="mb-3 text-sm font-semibold text-orange-700">
-                        Slippage Settings
-                      </h3>
-                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <GenericInputField
-                          name="buySlippage"
-                          label="Buy Slippage (%)"
-                          type="number"
-                          required={allowSlippage}
-                          step="0.01"
-                          placeholder="Enter buy slippage percentage"
-                        />
-                        <GenericInputField
-                          name="sellSlippage"
-                          label="Sell Slippage (%)"
-                          type="number"
-                          required={allowSlippage}
-                          step="0.01"
-                          placeholder="Enter sell slippage percentage"
-                        />
-                      </div>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <GenericInputField
+                        name="buySlippage"
+                        label="Buy Slippage (%)"
+                        type="number"
+                        required={allowSlippage}
+                        step="0.01"
+                        placeholder="Enter buy slippage percentage"
+                      />
+                      <GenericInputField
+                        name="sellSlippage"
+                        label="Sell Slippage (%)"
+                        type="number"
+                        required={allowSlippage}
+                        step="0.01"
+                        placeholder="Enter sell slippage percentage"
+                      />
                     </div>
                   </div>
                 </>
@@ -424,7 +415,7 @@ const AddMasterBroker = () => {
             </div>
 
             {/* Image Uploads */}
-            <div className="border-gray-200 mt-6 border-t pt-6 sm:mt-8">
+            <div className="border-stroke mt-6 border-t pt-6 sm:mt-8">
               <h2 className="text-gray-800 mb-4 text-base font-semibold sm:text-lg">
                 Upload Documents
               </h2>
