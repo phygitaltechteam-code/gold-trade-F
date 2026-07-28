@@ -455,9 +455,9 @@ const AddMasterBroker = () => {
                     Allow Slippage Settings
                   </label>
                 </div>
-                <p className="mt-1 text-xs text-gray-400">
+                {/* <p className="mt-1 text-xs text-gray-400">
                   {allowSlipage ? '✅ Slippage is ENABLED' : '❌ Slippage is DISABLED'}
-                </p>
+                </p> */}
               </div>
             </div>
 

@@ -322,31 +322,6 @@ const SlippageMaster = () => {
       ),
     },
     {
-      header: 'Sell Slippage (%)',
-      accessor: 'sellSlipagePercent',
-      render: (row: any) => {
-        const currentValue = sellSlipagePercents[row.id] || '';
-
-        return (
-          <div className="relative w-36">
-            <input
-              type="text"
-              value={currentValue}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (value === '' || /^\d*\.?\d*$/.test(value)) {
-                  handleSellSlipagePercentChange(row.id, value);
-                }
-              }}
-              className="w-full rounded-lg border border-stroke px-3 py-1.5 pr-8 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-              placeholder="Enter %"
-              inputMode="decimal"
-            />
-          </div>
-        );
-      },
-    },
-    {
       header: 'Buy Slippage (%)',
       accessor: 'buySlipagePercent',
       render: (row: any) => {
@@ -361,6 +336,31 @@ const SlippageMaster = () => {
                 const value = e.target.value;
                 if (value === '' || /^\d*\.?\d*$/.test(value)) {
                   handleBuySlipagePercentChange(row.id, value);
+                }
+              }}
+              className="w-full rounded-lg border border-stroke px-3 py-1.5 pr-8 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+              placeholder="Enter %"
+              inputMode="decimal"
+            />
+          </div>
+        );
+      },
+    },
+    {
+      header: 'Sell Slippage (%)',
+      accessor: 'sellSlipagePercent',
+      render: (row: any) => {
+        const currentValue = sellSlipagePercents[row.id] || '';
+
+        return (
+          <div className="relative w-36">
+            <input
+              type="text"
+              value={currentValue}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                  handleSellSlipagePercentChange(row.id, value);
                 }
               }}
               className="w-full rounded-lg border border-stroke px-3 py-1.5 pr-8 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
@@ -399,19 +399,6 @@ const SlippageMaster = () => {
                 <div className="flex items-center gap-2">
                   <input
                     type="text"
-                    value={applyToAllSell}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      if (value === '' || /^\d*\.?\d*$/.test(value)) {
-                        setApplyToAllSell(value);
-                      }
-                    }}
-                    className="w-28 rounded-lg border border-stroke px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                    placeholder="Sell %"
-                    inputMode="decimal"
-                  />
-                  <input
-                    type="text"
                     value={applyToAllBuy}
                     onChange={(e) => {
                       const value = e.target.value;
@@ -421,6 +408,19 @@ const SlippageMaster = () => {
                     }}
                     className="w-28 rounded-lg border border-stroke px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                     placeholder="Buy %"
+                    inputMode="decimal"
+                  />
+                  <input
+                    type="text"
+                    value={applyToAllSell}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                        setApplyToAllSell(value);
+                      }
+                    }}
+                    className="w-28 rounded-lg border border-stroke px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                    placeholder="Sell %"
                     inputMode="decimal"
                   />
                   <button
@@ -436,8 +436,8 @@ const SlippageMaster = () => {
                   onClick={handleSaveAllSlippages}
                   disabled={isSaving || isPending}
                   className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${isSaving || isPending
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-orange-500 hover:bg-orange-600'
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-orange-500 hover:bg-orange-600'
                     }`}
                 >
                   <Database className="h-4 w-4" />
