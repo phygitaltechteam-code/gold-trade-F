@@ -650,7 +650,7 @@ export const ClientDetail: React.FC = () => {
             <CreditCard className="h-16 w-16" />
           </div>
           <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-            Total P&L
+            Admin P&L
           </div>
           <div className="text-xl font-semibold text-slate-900 md:text-2xl">
             {/* FIXED: Show swapped P&L with proper sign */}
