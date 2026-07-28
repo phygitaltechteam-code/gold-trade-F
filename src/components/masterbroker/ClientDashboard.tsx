@@ -52,10 +52,11 @@ const StatCard = ({ title, value, trend, icon: Icon, isLoading }: any) => (
     {trend && !isLoading && (
       <div className="mt-2 flex items-center gap-2">
         <span
-          className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${trend > 0
-            ? 'bg-emerald-50 text-emerald-600'
-            : 'bg-rose-50 text-rose-600'
-            }`}
+          className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
+            trend > 0
+              ? 'bg-emerald-50 text-emerald-600'
+              : 'bg-rose-50 text-rose-600'
+          }`}
         >
           {trend > 0 ? '↑' : '↓'} {Math.abs(trend)}%
         </span>
@@ -76,14 +77,32 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
   const [brokerFilter, setBrokerFilter] = useState<string>('all');
   const [superBrokerFilter, setSuperBrokerFilter] = useState<string>('all');
   const { mutateAsync: statusChange, isPending } = useActivateCustomer();
-  const { data: clients = [], refetch, isLoading } = useGetMasterClients();
+  const { data: responseData, refetch, isLoading } = useGetMasterClients();
   const [customerFilter, setCustomerFilter] = useState('all');
 
   const { data: limit } = useGetMasterBrokerLimit();
 
+  // Extract clients array from response - handle different response structures
+  const clients = React.useMemo(() => {
+    if (!responseData) return [];
+    // If responseData is already an array
+    if (Array.isArray(responseData)) return responseData;
+    // If responseData has a data property that is an array
+    if (responseData.data && Array.isArray(responseData.data)) return responseData.data;
+    // If responseData has a data property with a data property (nested)
+    if (responseData.data?.data && Array.isArray(responseData.data.data)) return responseData.data.data;
+    // If responseData has a customers property
+    if (responseData.customers && Array.isArray(responseData.customers)) return responseData.customers;
+    // If responseData has a users property
+    if (responseData.users && Array.isArray(responseData.users)) return responseData.users;
+    // If responseData has a clients property
+    if (responseData.clients && Array.isArray(responseData.clients)) return responseData.clients;
+    return [];
+  }, [responseData]);
+
   // Extract unique broker names for filter
   const brokers = Array.from(
-    new Set(clients.map((c: any) => c?.broker?.user?.fullname).filter(Boolean)),
+    new Set(clients?.map((c: any) => c?.broker?.user?.fullname).filter(Boolean)),
   );
 
   // Extract unique super broker names for filter
@@ -155,9 +174,9 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       customerFilter === 'all'
         ? true
         : customerFilter === 'active'
-          ? client.user?.isActive && !client.isDemo  // Exclude demo traders
+          ? client.user?.isActive && !client.isDemo
           : customerFilter === 'inactive'
-            ? !client.user?.isActive && !client.isDemo  // Exclude demo traders
+            ? !client.user?.isActive && !client.isDemo
             : customerFilter === 'demo'
               ? client.isDemo
               : true;
@@ -304,23 +323,6 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
         </span>
       ),
     },
-    // {
-    //   header: 'P&L',
-    //   accessor: 'pnl',
-    //   render: (row: Client) => {
-    //     const pnl = 0;
-    //     const isProfit = pnl >= 0;
-    //     return (
-    //       <span
-    //         className={`whitespace-nowrap text-sm ${isProfit ? 'text-gray-9000' : 'text-gray-900'
-    //           }`}
-    //       >
-    //         {isProfit ? '+' : ''}
-    //         {pnl.toFixed(2)}
-    //       </span>
-    //     );
-    //   },
-    // },
     {
       header: 'Demo Account',
       accessor: 'isDemo',
@@ -379,10 +381,11 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
             navigate({ to: '/masterbroker/add-client' });
           }}
           disabled={totalClients >= limit}
-          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md transition-all ${totalClients >= limit
-            ? 'bg-gray-400 cursor-not-allowed opacity-70'
-            : 'bg-gradient-to-r from-orange-500 to-red-500 hover:scale-[1.02] hover:from-orange-600 hover:to-red-600'
-            }`}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md transition-all ${
+            totalClients >= limit
+              ? 'bg-gray-400 cursor-not-allowed opacity-70'
+              : 'bg-gradient-to-r from-orange-500 to-red-500 hover:scale-[1.02] hover:from-orange-600 hover:to-red-600'
+          }`}
         >
           <Plus className="h-4 w-4" />
           {totalClients >= limit ? 'Add TraderLimit Reached' : 'Add Trader'}
@@ -391,24 +394,6 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
 
       {/* Stats Cards Grid */}
       <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 md:gap-4">
-        {/* <StatCard
-          title="Total Traders"
-          value={totalClients.toLocaleString()}
-          icon={Users}
-          isLoading={isLoading}
-        />
-        <StatCard
-          title="Active Traders"
-          value={activeTraders.toLocaleString()}
-          icon={Activity}
-          isLoading={isLoading}
-        />
-        <StatCard
-          title="Demo Traders"
-          value={totalDemoTraders.toLocaleString()}
-          icon={Activity}
-          isLoading={isLoading}
-        /> */}
         <StatCard
           title="Wallet Balance"
           value={formatCurrency(totalAUM)}
@@ -528,10 +513,11 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
               <button
                 onClick={handleConfirm}
                 disabled={isPending}
-                className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${selectedClient?.user?.isActive
-                  ? 'bg-red-500 hover:bg-red-600'
-                  : 'bg-emerald-500 hover:bg-emerald-600'
-                  } disabled:opacity-50`}
+                className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${
+                  selectedClient?.user?.isActive
+                    ? 'bg-red-500 hover:bg-red-600'
+                    : 'bg-emerald-500 hover:bg-emerald-600'
+                } disabled:opacity-50`}
               >
                 {isPending ? 'Processing...' : 'Confirm'}
               </button>

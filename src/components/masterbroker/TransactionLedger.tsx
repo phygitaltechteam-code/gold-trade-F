@@ -11,6 +11,7 @@ import {
   Wallet,
   Clock,
 } from 'lucide-react';
+import { formatIndianCurrency } from '@/utils/formatIndianNumber';
 
 // Animation variants
 const containerVariants = {
@@ -42,6 +43,7 @@ const StatCard = ({
   value,
   icon: Icon,
   iconColor = 'text-orange-500',
+  valueColor = 'text-black dark:text-white',
 }) => (
   <div className="group relative overflow-hidden rounded-lg border border-stroke bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-strokedark dark:bg-boxdark md:p-5">
     <div className="flex items-start justify-between">
@@ -49,7 +51,7 @@ const StatCard = ({
         <p className="text-gray-500 text-xs font-medium uppercase tracking-wider">
           {title}
         </p>
-        <h4 className="mt-2 text-xl font-bold text-black dark:text-white md:text-2xl">
+        <h4 className={`mt-2 text-xl font-bold md:text-2xl ${valueColor}`}>
           {value}
         </h4>
       </div>
@@ -66,43 +68,46 @@ const TransactionLedger = () => {
   const [statusFilter, setStatusFilter] = useState('');
   const { data: transactionLedgerData, refetch, isLoading } = useGetTransactionLedger();
 
+  // Helper function to swap P&L sign (for Admin P&L card only)
+  const swapPnLSign = (value) => {
+    if (value === undefined || value === null) return 0;
+    return -value;
+  };
+
   // Calculate statistics from transaction data
   const calculateStats = (data) => {
     if (!data || !Array.isArray(data)) {
       return {
         activeTrades: 0,
         activeTradeAmount: 0,
-        todaysPnL: 0,
+        totalPnL: 0,
         todaysCommission: 0,
       };
     }
 
     let activeTrades = 0;
     let activeTradeAmount = 0;
-    let todaysPnL = 0;
+    let totalPnL = 0;
     let todaysCommission = 0;
 
     // Get today's date
     const today = new Date().toISOString().split('T')[0];
 
     data.forEach((item) => {
-      // Count active trades (status is not completed or closed)
+      // Count active trades
       if (item.status && item.status.toLowerCase() !== 'completed' && item.status.toLowerCase() !== 'closed') {
         activeTrades++;
-        // Calculate active trade amount (buy price * qty)
         const qty = item.qty || item.Qty || 0;
         const buyPrice = item.buyPrice || 0;
         activeTradeAmount += qty * buyPrice;
       }
 
-      // Calculate today's P&L
-      const itemDate = item.dateTime?.split('T')[0];
-      if (itemDate === today) {
-        const pnl = item.pnl || item['p&l'] || 0;
-        todaysPnL += pnl;
-      }
+      // Calculate total P&L (actual value - no swap)
+      const pnl = item.pnl || item['p&l'] || 0;
+      totalPnL += pnl;
 
-      // Calculate today's commission (assuming there's a commission field)
+      // Calculate today's commission
+      const itemDate = item.dateTime?.split('T')[0];
       const commission = item.commission || item.masterBrokerCommission || 0;
       if (itemDate === today) {
         todaysCommission += commission;
@@ -112,7 +117,7 @@ const TransactionLedger = () => {
     return {
       activeTrades,
       activeTradeAmount,
-      todaysPnL,
+      totalPnL,
       todaysCommission,
     };
   };
@@ -128,14 +133,37 @@ const TransactionLedger = () => {
     return qty;
   };
 
-  // Format P&L with proper sign and color
+  // Format P&L for table - SHOW ACTUAL VALUE (no swap)
   const formatPnL = (item) => {
     const pnl = item.pnl || item['p&l'] || 0;
     const sign = pnl > 0 ? '+' : '';
     return `${sign}${Number(pnl).toFixed(2)}`;
   };
 
-  // All columns - showing all data (removed the View More toggle)
+  // Get P&L color for table - based on ACTUAL value
+  const getPnLColor = (item) => {
+    const pnl = item.pnl || item['p&l'] || 0;
+    if (pnl > 0) return 'text-green-600 dark:text-green-400';
+    if (pnl < 0) return 'text-red-600 dark:text-red-400';
+    return 'text-gray-600 dark:text-gray-400';
+  };
+
+  // Format Admin P&L for card - SWAPPED value
+  const formatAdminPnL = () => {
+    const swappedValue = swapPnLSign(stats.totalPnL);
+    const sign = swappedValue > 0 ? '+' : '';
+    return `${sign}${formatIndianCurrency(swappedValue)}`;
+  };
+
+  // Get color for Admin P&L card - based on SWAPPED value
+  const getAdminPnLColor = () => {
+    const swappedValue = swapPnLSign(stats.totalPnL);
+    if (swappedValue > 0) return 'text-green-600 dark:text-green-400';
+    if (swappedValue < 0) return 'text-red-600 dark:text-red-400';
+    return 'text-gray-600 dark:text-gray-400';
+  };
+
+  // All columns - showing actual P&L values (no swap)
   const allColumns = [
     { header: 'Date & Time', accessor: 'dateTime' },
     { header: 'Trader Name', accessor: 'customerName' },
@@ -146,7 +174,15 @@ const TransactionLedger = () => {
     { header: 'Buy Time', accessor: 'buyTime' },
     { header: 'Sell Time', accessor: 'sellTime' },
     { header: 'Status', accessor: 'status' },
-    { header: 'P&L', accessor: (item) => formatPnL(item) },
+    {
+      header: 'P&L',
+      accessor: (item) => formatPnL(item),
+      render: (item) => (
+        <span className={`font-medium ${(item)}`}>
+          {formatPnL(item)}
+        </span>
+      )
+    },
     { header: 'Master Broker Commission', accessor: 'masterBrokerCommission' },
   ];
 
@@ -263,10 +299,11 @@ const TransactionLedger = () => {
             iconColor="text-orange-500"
           />
           <StatCard
-            title="Today's P&L"
-            value={formatCurrency(stats.todaysPnL)}
+            title="Admin P&L"
+            value={formatAdminPnL()}
             icon={DollarSign}
-            iconColor={stats.todaysPnL >= 0 ? 'text-green-500' : 'text-red-500'}
+          // iconColor={getAdminPnLColor()}
+          // valueColor={getAdminPnLColor()}
           />
           <StatCard
             title="Today's Commission"
