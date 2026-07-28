@@ -1149,6 +1149,7 @@ export const ClientDetail: React.FC = () => {
                   step="0.01"
                   min="0"
                   placeholder="Enter Amount"
+                   autoComplete="off"
                   value={walletAmount}
                   onChange={(e) => setWalletAmount(e.target.value)}
                   className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
@@ -1165,6 +1166,7 @@ export const ClientDetail: React.FC = () => {
                     required
                     placeholder="Enter Security PIN"
                     value={walletPin}
+                     autoComplete="new-password"
                     onChange={(e) => setWalletPin(e.target.value)}
                     className="w-full rounded-xl border border-slate-200 px-4 py-2.5 pr-10 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                   />

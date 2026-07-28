@@ -336,31 +336,6 @@ const Slippage = () => {
       ),
     },
     {
-      header: 'Sell Slippage (%)',
-      accessor: 'sellSlipagePercent',
-      render: (row: any) => {
-        const currentValue = sellSlippages[row.id] || '';
-
-        return (
-          <div className="relative w-36">
-            <input
-              type="text"
-              value={currentValue}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (value === '' || /^\d*\.?\d*$/.test(value)) {
-                  handleSellSlippageChange(row.id, value);
-                }
-              }}
-              className="w-full rounded-lg border border-stroke px-3 py-1.5 pr-8 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-              placeholder="Enter %"
-              inputMode="decimal"
-            />
-          </div>
-        );
-      },
-    },
-    {
       header: 'Buy Slippage (%)',
       accessor: 'buySlipagePercent',
       render: (row: any) => {
@@ -375,6 +350,31 @@ const Slippage = () => {
                 const value = e.target.value;
                 if (value === '' || /^\d*\.?\d*$/.test(value)) {
                   handleBuySlippageChange(row.id, value);
+                }
+              }}
+              className="w-full rounded-lg border border-stroke px-3 py-1.5 pr-8 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+              placeholder="Enter %"
+              inputMode="decimal"
+            />
+          </div>
+        );
+      },
+    },
+    {
+      header: 'Sell Slippage (%)',
+      accessor: 'sellSlipagePercent',
+      render: (row: any) => {
+        const currentValue = sellSlippages[row.id] || '';
+
+        return (
+          <div className="relative w-36">
+            <input
+              type="text"
+              value={currentValue}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                  handleSellSlippageChange(row.id, value);
                 }
               }}
               className="w-full rounded-lg border border-stroke px-3 py-1.5 pr-8 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
@@ -410,19 +410,7 @@ const Slippage = () => {
               {/* Conditional: Show Apply to All OR Save Button */}
               {!hasChanges ? (
                 <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={applyToAllSell}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      if (value === '' || /^\d*\.?\d*$/.test(value)) {
-                        setApplyToAllSell(value);
-                      }
-                    }}
-                    className="w-32 rounded-lg border border-stroke px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                    placeholder="Sell %"
-                    inputMode="decimal"
-                  />
+
                   <input
                     type="text"
                     value={applyToAllBuy}
@@ -434,6 +422,19 @@ const Slippage = () => {
                     }}
                     className="w-32 rounded-lg border border-stroke px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                     placeholder="Buy %"
+                    inputMode="decimal"
+                  />
+                  <input
+                    type="text"
+                    value={applyToAllSell}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                        setApplyToAllSell(value);
+                      }
+                    }}
+                    className="w-32 rounded-lg border border-stroke px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                    placeholder="Sell %"
                     inputMode="decimal"
                   />
                   <button

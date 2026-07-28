@@ -171,7 +171,7 @@ const formatCurrency = (amount: number) => {
         className="mb-4 flex flex-col justify-between gap-4 md:flex-row md:items-center"
       >
         <h1 className="text-2xl font-semibold text-slate-900 md:text-3xl">
-          Super Broker Management.
+          Super Broker Management
         </h1>
         <button
           onClick={() => navigate({ to: '/companybroker/addSuperBrocker' })}

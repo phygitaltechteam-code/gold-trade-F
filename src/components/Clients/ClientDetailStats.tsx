@@ -53,7 +53,7 @@ export const ClientDetailStats: React.FC<ClientDetailStatsProps> = ({
           <TrendingUp className="h-16 w-16" />
         </div>
         <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-          Total P&L
+          Admin P&L
         </div>
         <div className={`text-xl font-semibold md:text-2xl ${
           totalPnL < 0 ? 'text-green-600' : 

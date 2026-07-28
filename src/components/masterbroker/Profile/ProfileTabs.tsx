@@ -9,20 +9,26 @@ import ChamkiTrading from './ChamkiTrading';
 import DisplayScripts from './scripts';
 import CustomerHolding from './CustomerHolding';
 import UpdateMargin from './UpdateMargin';
-import Slippage from './SlippageMaster'; // Import the Slippage component
 import SlippageMaster from './SlippageMaster';
+import { useGetSlipPageClientsMaster } from '@/lib/api/masterpanelapi/customerholding';
 
 const ProfileTabs = () => {
   const { user } = useAuthContext();
   const [activeComponent, setActiveComponent] = useState('Profile');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // Get tabs based on user role
+  // Fetch slippage permission
+  const { data: responseData, isLoading: isSlippageLoading } = useGetSlipPageClientsMaster();
+
+  // Check if slippage is allowed
+  const isSlippageAllowed = responseData?.allowSlipage || false;
+
+  // Get tabs based on user role and slippage permission
   const getTabs = () => {
     const baseTabs = [{ id: 'Profile', label: 'Profile' }];
 
     if (user?.role === 'MASTER_BROKER') {
-      return [
+      const tabs = [
         ...baseTabs,
         { id: 'pin-set', label: 'Pin Set' },
         { id: 'commission', label: 'Set Commission' },
@@ -31,14 +37,27 @@ const ProfileTabs = () => {
         { id: 'Chamki', label: 'Order Setting' },
         { id: 'customerholding', label: 'Minimum Stock Holding Time(In Minutes)' },
         { id: 'updatemargin', label: 'Update Margin' },
-        { id: 'slippage', label: 'Slippage' }, // Added Slippage tab
       ];
+
+      // Only add Slippage tab if allowed
+      if (isSlippageAllowed) {
+        tabs.push({ id: 'slippage', label: 'Slippage' });
+      }
+
+      return tabs;
     }
 
     return baseTabs;
   };
 
   const tabs = getTabs();
+
+  // If active component is 'slippage' and it's not allowed, switch to Profile
+  useEffect(() => {
+    if (activeComponent === 'slippage' && !isSlippageAllowed) {
+      setActiveComponent('Profile');
+    }
+  }, [isSlippageAllowed, activeComponent]);
 
   const handleTabClick = (tabId: string) => {
     setActiveComponent(tabId);
@@ -96,7 +115,7 @@ const ProfileTabs = () => {
         {activeComponent === 'Chamki' && <ChamkiTrading />}
         {activeComponent === 'customerholding' && <CustomerHolding />}
         {activeComponent === 'updatemargin' && <UpdateMargin />}
-        {activeComponent === 'slippage' && <SlippageMaster />} 
+        {activeComponent === 'slippage' && isSlippageAllowed && <SlippageMaster />}
       </div>
     </div>
   );
