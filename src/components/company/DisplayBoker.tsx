@@ -220,10 +220,17 @@ const DisplayBroker = ({ refreshTrigger }: { refreshTrigger?: boolean }) => {
       ),
     },
     {
-      header: 'BKId',
-      accessor: 'BKId',
+      header: 'Phone Number',
+      accessor: 'phoneNumber',
       render: (row) => (
-        <span className="font-mono text-sm">{row.BKId || 'N/A'}</span>
+        <span>{row.phoneNumber || row.user?.phoneNumber || 'N/A'}</span>
+      ),
+    },
+    {
+      header: 'Total Active Traders',
+      accessor: 'totalActiveTraders',
+      render: (row) => (
+        <span className="font-mono text-sm">{row.totalActiveTraders || '0'}</span>
       ),
     },
     {
@@ -339,11 +346,11 @@ const DisplayBroker = ({ refreshTrigger }: { refreshTrigger?: boolean }) => {
           <StatCard
             title="Total Commission"
             value={formatIndianCurrency(totalCommission)}
-           
+
             iconColor="text-purple-500"
             bgColor="bg-purple-50"
           />
-          
+
           <StatCard
             title="Paid Commission"
             value={

@@ -35,6 +35,8 @@ import {
   Key,
   LogOut,
   User,
+  Menu,
+  X,
 } from 'lucide-react';
 import { useGetProfile } from '@/lib/react-query/admin';
 import { useGetMasterbrokerProfile } from '@/lib/react-query/masterbroker';
@@ -105,7 +107,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         path: '/companybroker/DisplaySuperBroker',
         icon: <TbUserStar size={22} />,
       },
-       {
+      {
         label: 'Broker',
         path: '/companybroker/displaybroker',
         icon: <UserCog size={22} />,
@@ -115,7 +117,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         path: '/companybroker/display-master-broker',
         icon: <TbUserStar size={22} />,
       },
-     
       {
         label: 'Traders',
         path: '/clients/mainpage',
@@ -126,7 +127,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         path: '/TransactionLedger',
         icon: <Activity size={22} />,
       },
-
       {
         label: 'Pending Approvals',
         path: '/Approval/pendingapprovals',
@@ -147,10 +147,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         path: '/profile',
         icon: <Settings size={22} />,
       },
-      //  {
-      //       label: 'Logout',
-      //       onClick: () => handleSignOut(),
-      //       icon: <LogOut size={18} />, },
     ]
     : isSuperAdmin
       ? [
@@ -198,7 +194,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               path: '/change-password',
               icon: <Key size={18} />,
             },
-
             {
               label: 'Logout',
               onClick: () => handleSignOut(),
@@ -229,17 +224,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             path: '/broker/trader/brokertrader',
             icon: <UserCog size={22} />,
           },
-          // {
-          //   label: 'Profile',
-          //   path: '/broker/brokerprofiles',
-          //   icon: <UserCog size={22} />,
-          // },
           {
             label: 'Profile',
-            icon: <Settings size={22} />,
-
             path: '/broker/brokerprofiles',
-
+            icon: <Settings size={22} />,
           },
         ]
         : isCustomer
@@ -295,16 +283,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               },
               {
                 label: 'Profile',
-
                 path: '/broker/superbrokerprofile',
                 icon: <Settings size={22} />,
-
-                // {
-                //   label: 'Logout',
-                //   onClick: () => handleSignOut(),
-                //   icon: <LogOut size={18} />,
-                // },
-
               },
             ]
             : isMasterBroker
@@ -336,10 +316,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 },
                 {
                   label: 'Settings',
-
                   path: '/masterbroker/profile',
                   icon: <Settings size={22} />,
-
                 },
               ]
               : [];
@@ -445,14 +423,42 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   // Width classes based on expanded state
   const sidebarWidth = isExpanded ? 'w-64' : 'w-20';
 
+  // Close sidebar on mobile when clicking a link
+  const handleLinkClick = () => {
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
+    setHoveredRoute(null);
+    setShowSubRoutes(null);
+  };
+
+  // Toggle sidebar for mobile
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
   return (
     <div className="relative z-50">
+      {/* Mobile Menu Toggle Button */}
+      <button
+        onClick={toggleSidebar}
+        className="fixed left-4 top-4 z-50 rounded-lg bg-white p-2 shadow-lg lg:hidden"
+        aria-label="Toggle sidebar"
+      >
+        {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
+
       <aside
         ref={sidebar}
-        className={`fixed inset-y-0 left-0 z-50 flex h-screen flex-col bg-white text-black shadow-lg transition-all duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed inset-y-0 left-0 z-40 flex h-screen flex-col bg-white text-black shadow-lg transition-all duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
           } lg:static lg:translate-x-0 ${sidebarWidth}`}
       >
-        <div className={`flex items-center ${isExpanded ? 'px-4 py-3 lg:px-5 lg:py-6' : 'justify-center px-2 py-3 lg:py-6'}`}>
+        <div
+          className={`flex items-center ${isExpanded
+              ? 'px-4 py-3 lg:px-5 lg:py-6'
+              : 'justify-center px-2 py-3 lg:py-6'
+            }`}
+        >
           <button
             ref={trigger}
             className={`flex items-center gap-3 rounded-lg transition-all duration-200 focus:outline-none ${!isExpanded ? 'justify-center' : ''
@@ -466,8 +472,14 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               setHoveredRect(null);
             }}
           >
-            <div className={`flex ${isExpanded ? 'items-center gap-3' : 'items-center justify-center'}`}>
-              <div className={`flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg shadow-lg shadow-orange-500/20 transition-transform duration-200 hover:scale-105 active:scale-95 ${!isExpanded ? 'mx-auto' : ''}`}>
+            <div
+              className={`flex ${isExpanded ? 'items-center gap-3' : 'items-center justify-center'
+                }`}
+            >
+              <div
+                className={`flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg shadow-lg shadow-orange-500/20 transition-transform duration-200 hover:scale-105 active:scale-95 ${!isExpanded ? 'mx-auto' : ''
+                  }`}
+              >
                 <img
                   src={getUserImage()}
                   alt="Profile"
@@ -476,7 +488,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               </div>
               {isExpanded && (
                 <div className="flex flex-col items-start overflow-hidden">
-                  <p className="font-bold text-black-2 text-sm truncate max-w-[120px]">
+                  <p className="max-w-[120px] truncate text-sm font-bold text-black-2">
                     {getUserName()}
                   </p>
                   <p className="bg-gradient-to-r from-[#FF6321] to-[#FF8C00] bg-clip-text text-xs font-semibold text-transparent">
@@ -488,8 +500,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           </button>
         </div>
 
-        <div className="no-scrollbar flex flex-col overflow-y-auto px-2 duration-300 ease-linear">
-          <nav className={`${isExpanded ? 'mt-4 space-y-1 p-2' : 'mt-2 space-y-1 p-1'}`}>
+        <div className="no-scrollbar flex flex-1 flex-col overflow-y-auto px-2 duration-300 ease-linear">
+          <nav
+            className={`${isExpanded ? 'mt-4 space-y-1 p-2' : 'mt-2 space-y-1 p-1'
+              }`}
+          >
             <ul>
               {sidebarRoutes.length > 0 ? (
                 sidebarRoutes.map((route, index) =>
@@ -534,11 +549,14 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                               });
                             }}
                             className={`group flex w-full items-center gap-2.5 rounded px-3 py-2 text-sm font-medium text-black hover:bg-primary/10 ${pathname.includes(route.path || '')
-                              ? 'bg-primary/10'
-                              : ''
+                                ? 'bg-primary/10'
+                                : ''
                               } ${!isExpanded ? 'justify-center' : ''}`}
                           >
-                            <span className={`text-black transition-colors group-hover:text-primary ${!isExpanded ? 'mx-auto' : ''}`}>
+                            <span
+                              className={`text-black transition-colors group-hover:text-primary ${!isExpanded ? 'mx-auto' : ''
+                                }`}
+                            >
                               {route.icon}
                             </span>
                             {isExpanded && route.label}
@@ -557,9 +575,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                     <button
                                       onClick={() => {
                                         subRoute.onClick();
-                                        setHoveredRoute(null);
-                                        setShowSubRoutes(null);
-                                        setSidebarOpen(false);
+                                        handleLinkClick();
                                       }}
                                       className="block w-full rounded px-3 py-2 text-left text-sm text-black hover:bg-primary/20"
                                     >
@@ -571,11 +587,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                   ) : (
                                     <Link
                                       to={subRoute.path}
-                                      onClick={() => {
-                                        setHoveredRoute(null);
-                                        setShowSubRoutes(null);
-                                        setSidebarOpen(false);
-                                      }}
+                                      onClick={handleLinkClick}
                                       className="block rounded px-3 py-2 text-sm text-black hover:bg-primary/20"
                                     >
                                       <span className="flex items-center gap-2">
@@ -611,15 +623,14 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                           setHoveredLabel(null);
                           setTooltipPos(null);
                         }}
-                        onClick={() => {
-                          setHoveredRoute(null);
-                          setShowSubRoutes(null);
-                          setSidebarOpen(false);
-                        }}
+                        onClick={handleLinkClick}
                         className={`group flex w-full items-center gap-2.5 rounded px-3 py-2 text-sm font-medium text-black hover:bg-primary/10 ${pathname.includes(route.path) ? 'bg-primary/10' : ''
                           } ${!isExpanded ? 'justify-center' : ''}`}
                       >
-                        <span className={`text-black transition-colors group-hover:text-primary ${!isExpanded ? 'mx-auto' : ''}`}>
+                        <span
+                          className={`text-black transition-colors group-hover:text-primary ${!isExpanded ? 'mx-auto' : ''
+                            }`}
+                        >
                           {route.icon}
                         </span>
                         {isExpanded && route.label}
@@ -628,13 +639,16 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   ),
                 )
               ) : (
-                <li className="text-gray-500 px-3 py-2 text-center text-sm">
+                <li className="px-3 py-2 text-center text-sm text-gray-500">
                   No menu items available
                 </li>
               )}
             </ul>
           </nav>
-        </div><div className="mt-auto px-2 py-2">
+        </div>
+
+        {/* Logout Button - Responsive */}
+        <div className="mt-auto border-t border-gray-200 px-2 py-3">
           <button
             onClick={handleSignOut}
             className={`flex w-full items-center gap-2.5 rounded px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 hover:text-red-700 ${!isExpanded ? 'justify-center' : ''
@@ -649,7 +663,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       {/* Tooltip for collapsed sidebar */}
       {hoveredLabel && tooltipPos && !isExpanded && (
         <div
-          className="fixed z-[999] rounded-md bg-gray-800 px-3 py-1.5 text-xs font-medium text-black shadow-lg pointer-events-none"
+          className="pointer-events-none fixed z-[999] rounded-md bg-gray-800 px-3 py-1.5 text-xs font-medium text-white shadow-lg"
           style={{
             top: tooltipPos.top,
             left: tooltipPos.left,
@@ -663,7 +677,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       {/* Submenu popup for collapsed sidebar */}
       {showSubRoutes && hoveredRect && !isExpanded && (
         <div
-          className="fixed z-[999] w-56 overflow-y-auto rounded-md bg-white p-2 text-black shadow-lg border border-gray-200"
+          className="fixed z-[999] w-56 overflow-y-auto rounded-md border border-gray-200 bg-white p-2 text-black shadow-lg"
           style={{
             top: (() => {
               const menuItemCount = showSubRoutes.subRoutes.length;
@@ -700,7 +714,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     setSidebarOpen(false);
                   }
                 }}
-                className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm text-black hover:bg-primary/10 transition-colors"
+                className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm text-black transition-colors hover:bg-primary/10"
               >
                 <span className="text-gray-600">{subRoute.icon}</span>
                 {subRoute.label}
@@ -717,7 +731,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     setSidebarOpen(false);
                   }
                 }}
-                className="flex items-center gap-2 rounded px-3 py-2 text-sm text-black hover:bg-primary/10 transition-colors"
+                className="flex items-center gap-2 rounded px-3 py-2 text-sm text-black transition-colors hover:bg-primary/10"
               >
                 <span className="text-gray-600">{subRoute.icon}</span>
                 {subRoute.label}
