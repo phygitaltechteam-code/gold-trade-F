@@ -147,6 +147,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         path: '/profile',
         icon: <Settings size={22} />,
       },
+      {
+        label: 'Logout',
+        icon: <LogOut size={22} />,
+        onClick: () => handleSignOut(),
+      },
     ]
     : isSuperAdmin
       ? [
@@ -194,12 +199,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               path: '/change-password',
               icon: <Key size={18} />,
             },
-            {
-              label: 'Logout',
-              onClick: () => handleSignOut(),
-              icon: <LogOut size={18} />,
-            },
           ],
+        },
+        {
+          label: 'Logout',
+          icon: <LogOut size={22} />,
+          onClick: () => handleSignOut(),
         },
       ]
       : isBroker
@@ -229,6 +234,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             path: '/broker/brokerprofiles',
             icon: <Settings size={22} />,
           },
+          {
+            label: 'Logout',
+            icon: <LogOut size={22} />,
+            onClick: () => handleSignOut(),
+          },
         ]
         : isCustomer
           ? [
@@ -251,12 +261,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   path: '/change-password',
                   icon: <Key size={18} />,
                 },
-                {
-                  label: 'Logout',
-                  onClick: () => handleSignOut(),
-                  icon: <LogOut size={18} />,
-                },
               ],
+            },
+            {
+              label: 'Logout',
+              icon: <LogOut size={22} />,
+              onClick: () => handleSignOut(),
             },
           ]
           : isSuperBroker
@@ -285,6 +295,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 label: 'Profile',
                 path: '/broker/superbrokerprofile',
                 icon: <Settings size={22} />,
+              },
+              {
+                label: 'Logout',
+                icon: <LogOut size={22} />,
+                onClick: () => handleSignOut(),
               },
             ]
             : isMasterBroker
@@ -318,6 +333,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   label: 'Settings',
                   path: '/masterbroker/profile',
                   icon: <Settings size={22} />,
+                },
+                {
+                  label: 'Logout',
+                  icon: <LogOut size={22} />,
+                  onClick: () => handleSignOut(),
                 },
               ]
               : [];
@@ -437,6 +457,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     setSidebarOpen(!sidebarOpen);
   };
 
+  // Check if route has onClick (for logout)
+  const isClickableRoute = (route: any) => {
+    return route.onClick !== undefined;
+  };
+
   return (
     <div className="relative z-50">
       {/* Mobile Menu Toggle Button */}
@@ -455,8 +480,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       >
         <div
           className={`flex items-center ${isExpanded
-              ? 'px-4 py-3 lg:px-5 lg:py-6'
-              : 'justify-center px-2 py-3 lg:py-6'
+            ? 'px-4 py-3 lg:px-5 lg:py-6'
+            : 'justify-center px-2 py-3 lg:py-6'
             }`}
         >
           <button
@@ -549,8 +574,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                               });
                             }}
                             className={`group flex w-full items-center gap-2.5 rounded px-3 py-2 text-sm font-medium text-black hover:bg-primary/10 ${pathname.includes(route.path || '')
-                                ? 'bg-primary/10'
-                                : ''
+                              ? 'bg-primary/10'
+                              : ''
                               } ${!isExpanded ? 'justify-center' : ''}`}
                           >
                             <span
@@ -605,36 +630,73 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     </SidebarLinkGroup>
                   ) : (
                     <li key={index}>
-                      <Link
-                        to={route.path}
-                        onMouseEnter={(e) => {
-                          if (!isExpanded) {
-                            const rect = (
-                              e.currentTarget as unknown as HTMLAnchorElement
-                            ).getBoundingClientRect();
-                            setHoveredLabel(route.label);
-                            setTooltipPos({
-                              top: rect.top + rect.height / 2,
-                              left: rect.right + 8,
-                            });
-                          }
-                        }}
-                        onMouseLeave={() => {
-                          setHoveredLabel(null);
-                          setTooltipPos(null);
-                        }}
-                        onClick={handleLinkClick}
-                        className={`group flex w-full items-center gap-2.5 rounded px-3 py-2 text-sm font-medium text-black hover:bg-primary/10 ${pathname.includes(route.path) ? 'bg-primary/10' : ''
-                          } ${!isExpanded ? 'justify-center' : ''}`}
-                      >
-                        <span
-                          className={`text-black transition-colors group-hover:text-primary ${!isExpanded ? 'mx-auto' : ''
+                      {isClickableRoute(route) ? (
+                        // For logout button - use button instead of Link
+                        <button
+                          onClick={() => {
+                            route.onClick();
+                            handleLinkClick();
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!isExpanded) {
+                              const rect = (
+                                e.currentTarget as HTMLButtonElement
+                              ).getBoundingClientRect();
+                              setHoveredLabel(route.label);
+                              setTooltipPos({
+                                top: rect.top + rect.height / 2,
+                                left: rect.right + 8,
+                              });
+                            }
+                          }}
+                          onMouseLeave={() => {
+                            setHoveredLabel(null);
+                            setTooltipPos(null);
+                          }}
+                          className={`group flex w-full items-center gap-2.5 rounded px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 hover:text-red-700 ${!isExpanded ? 'justify-center' : ''
                             }`}
                         >
-                          {route.icon}
-                        </span>
-                        {isExpanded && route.label}
-                      </Link>
+                          <span
+                            className={`transition-colors group-hover:text-red-700 ${!isExpanded ? 'mx-auto' : ''
+                              }`}
+                          >
+                            {route.icon}
+                          </span>
+                          {isExpanded && route.label}
+                        </button>
+                      ) : (
+                        // Regular navigation link
+                        <Link
+                          to={route.path}
+                          onMouseEnter={(e) => {
+                            if (!isExpanded) {
+                              const rect = (
+                                e.currentTarget as unknown as HTMLAnchorElement
+                              ).getBoundingClientRect();
+                              setHoveredLabel(route.label);
+                              setTooltipPos({
+                                top: rect.top + rect.height / 2,
+                                left: rect.right + 8,
+                              });
+                            }
+                          }}
+                          onMouseLeave={() => {
+                            setHoveredLabel(null);
+                            setTooltipPos(null);
+                          }}
+                          onClick={handleLinkClick}
+                          className={`group flex w-full items-center gap-2.5 rounded px-3 py-2 text-sm font-medium text-black hover:bg-primary/10 ${pathname.includes(route.path) ? 'bg-primary/10' : ''
+                            } ${!isExpanded ? 'justify-center' : ''}`}
+                        >
+                          <span
+                            className={`text-black transition-colors group-hover:text-primary ${!isExpanded ? 'mx-auto' : ''
+                              }`}
+                          >
+                            {route.icon}
+                          </span>
+                          {isExpanded && route.label}
+                        </Link>
+                      )}
                     </li>
                   ),
                 )
@@ -645,18 +707,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               )}
             </ul>
           </nav>
-        </div>
-
-        {/* Logout Button - Responsive */}
-        <div className="mt-auto border-t0  px-2 py-3">
-          <button
-            onClick={handleSignOut}
-            className={`flex w-full items-center gap-2.5 rounded px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 hover:text-red-700 ${!isExpanded ? 'justify-center' : ''
-              }`}
-          >
-            <LogOut className={`h-5 w-5 ${!isExpanded ? 'mx-auto' : ''}`} />
-            {isExpanded && <span>Logout</span>}
-          </button>
         </div>
       </aside>
 

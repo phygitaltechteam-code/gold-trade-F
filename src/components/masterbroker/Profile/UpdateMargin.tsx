@@ -4,6 +4,7 @@ import {
   Search,
   Eye,
   EyeOff,
+  X,
 } from 'lucide-react';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import toast from 'react-hot-toast';
@@ -33,15 +34,10 @@ const UpdateMargin = () => {
   // Extract clients array from response - handle different response structures
   const clients = React.useMemo(() => {
     if (!responseData) return [];
-    // If responseData is already an array
     if (Array.isArray(responseData)) return responseData;
-    // If responseData has a data property that is an array
     if (responseData.data && Array.isArray(responseData.data)) return responseData.data;
-    // If responseData has a data property with a data property (nested)
     if (responseData.data?.data && Array.isArray(responseData.data.data)) return responseData.data.data;
-    // If responseData has a customers property
     if (responseData.customers && Array.isArray(responseData.customers)) return responseData.customers;
-    // If responseData has a users property
     if (responseData.users && Array.isArray(responseData.users)) return responseData.users;
     return [];
   }, [responseData]);
@@ -341,7 +337,7 @@ const UpdateMargin = () => {
         const currentValue = deliveryMargins[row.id] || '';
 
         return (
-          <div className="relative w-36">
+          <div className="relative w-full min-w-[100px] max-w-[140px]">
             <input
               type="text"
               value={currentValue}
@@ -366,7 +362,7 @@ const UpdateMargin = () => {
         const currentValue = intradayMargins[row.id] || '';
 
         return (
-          <div className="relative w-36">
+          <div className="relative w-full min-w-[100px] max-w-[140px]">
             <input
               type="text"
               value={currentValue}
@@ -388,76 +384,86 @@ const UpdateMargin = () => {
 
   return (
     <div className="font-sans min-h-screen bg-[#F8F9FA] text-[#1A1A1A]">
-      <main className="mx-auto max-w-7xl space-y-4 px-4 py-4 sm:space-y-6 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
-        <section className="overflow-hidden rounded-xl border border-stroke bg-white p-6 shadow-sm">
-          <div className="mb-4 flex flex-col justify-between gap-4 border-b border-stroke pb-4 sm:flex-row sm:items-center">
-            <h2 className="text-lg font-semibold">Update Margins</h2>
+      <main className="mx-auto max-w-7xl space-y-4 px-3 py-3 sm:space-y-6 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
+        <section className="overflow-hidden rounded-xl border border-stroke bg-white p-4 shadow-sm sm:p-6">
+          <div className="mb-4 flex flex-col gap-4 border-b border-stroke pb-4">
+            {/* Header */}
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="text-base font-semibold sm:text-lg">Update Margins</h2>
+            </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              {/* Search Input */}
-              <div className="relative w-full sm:w-64">
-                <Search className="text-gray-400 absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
-                <input
-                  type="text"
-                  placeholder="Search by name, phone..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full rounded-lg border border-stroke bg-white py-2 pl-10 pr-4 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                />
-              </div>
-
-              {/* Conditional: Show Apply to All OR Save Button */}
-              {!hasChanges ? (
-                <div className="flex items-center gap-2">
+            {/* Controls */}
+            <div className="flex flex-col gap-3">
+              {/* Search and Action Buttons */}
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                {/* Search */}
+                <div className="relative w-full sm:w-56 md:w-64">
+                  <Search className="text-gray-400 absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
                   <input
                     type="text"
-                    value={applyToAllDelivery}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      if (value === '' || /^\d*\.?\d*$/.test(value)) {
-                        setApplyToAllDelivery(value);
-                      }
-                    }}
-                    className="w-32 rounded-lg border border-stroke px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                    placeholder="Delivery margin"
-                    inputMode="decimal"
+                    placeholder="Search by name, phone..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full rounded-lg border border-stroke bg-white py-2 pl-10 pr-4 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                   />
-                  <input
-                    type="text"
-                    value={applyToAllIntraday}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      if (value === '' || /^\d*\.?\d*$/.test(value)) {
-                        setApplyToAllIntraday(value);
-                      }
-                    }}
-                    className="w-32 rounded-lg border border-stroke px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                    placeholder="Intraday margin"
-                    inputMode="decimal"
-                  />
-                  <button
-                    onClick={handleApplyToAll}
-                    className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
-                  >
-                    Apply to All
-                  </button>
                 </div>
-              ) : (
-                <button
-                  onClick={handleSaveAllMargins}
-                  disabled={isSaving || isPending}
-                  className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${
-                    isSaving || isPending
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-orange-500 hover:bg-orange-600'
-                  }`}
-                >
-                  <Database className="h-4 w-4" />
-                  <span>
-                    {isSaving || isPending ? 'Saving...' : 'Save Changes'}
-                  </span>
-                </button>
-              )}
+
+                {/* Action Buttons */}
+                <div className="flex flex-wrap items-center gap-2">
+                  {!hasChanges ? (
+                    <>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <input
+                          type="text"
+                          value={applyToAllDelivery}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                              setApplyToAllDelivery(value);
+                            }
+                          }}
+                          className="w-24 rounded-lg border border-stroke px-2 py-1.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 sm:w-28 md:w-32"
+                          placeholder="Delivery"
+                          inputMode="decimal"
+                        />
+                        <input
+                          type="text"
+                          value={applyToAllIntraday}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                              setApplyToAllIntraday(value);
+                            }
+                          }}
+                          className="w-24 rounded-lg border border-stroke px-2 py-1.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 sm:w-28 md:w-32"
+                          placeholder="Intraday"
+                          inputMode="decimal"
+                        />
+                        <button
+                          onClick={handleApplyToAll}
+                          className="whitespace-nowrap rounded-lg bg-orange-500 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-orange-600 sm:px-4"
+                        >
+                          Apply to All
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <button
+                      onClick={handleSaveAllMargins}
+                      disabled={isSaving || isPending}
+                      className={`flex w-full items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium text-white transition-colors sm:w-auto sm:px-4 ${isSaving || isPending
+                          ? 'bg-gray-400 cursor-not-allowed'
+                          : 'bg-orange-500 hover:bg-orange-600'
+                        }`}
+                    >
+                      <Database className="h-4 w-4" />
+                      <span>
+                        {isSaving || isPending ? 'Saving...' : 'Save Changes'}
+                      </span>
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -470,15 +476,17 @@ const UpdateMargin = () => {
             </div>
           ) : (
             <>
-              <GenericTable
-                columns={customerColumns}
-                data={filteredClients}
-                rowsPerPage={10}
-                clickable={false}
-              />
+              <div className="overflow-x-auto">
+                <GenericTable
+                  columns={customerColumns}
+                  data={filteredClients}
+                  rowsPerPage={10}
+                  clickable={false}
+                />
+              </div>
 
               {hasChanges && (
-                <div className="mt-4 flex items-center justify-end">
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
                   <span className="text-sm text-orange-500">
                     {getChangedCount} customer(s) have unsaved changes
                   </span>
@@ -491,11 +499,19 @@ const UpdateMargin = () => {
 
       {/* PIN Modal */}
       {showPinModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-lg">
-            <h2 className="mb-4 text-lg font-semibold text-slate-900">
-              Confirm Save Changes
-            </h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-xl bg-white p-5 shadow-lg sm:p-6">
+            <div className="mb-4 flex items-start justify-between">
+              <h2 className="text-base font-semibold text-slate-900 sm:text-lg">
+                Confirm Save Changes
+              </h2>
+              <button
+                onClick={closeModal}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
 
             <p className="mb-4 text-sm text-slate-600">
               You are about to update {getChangedCount} customer(s) margin
@@ -512,7 +528,7 @@ const UpdateMargin = () => {
                 placeholder="Enter Security PIN"
                 value={pin}
                 onChange={(e) => setPin(e.target.value)}
-                className="border-gray-300 w-full rounded-lg border px-4 py-2 pr-10 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 pr-10 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
@@ -530,10 +546,10 @@ const UpdateMargin = () => {
               </button>
             </div>
 
-            <div className="mt-5 flex justify-end gap-3">
+            <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-3">
               <button
                 onClick={closeModal}
-                className="border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg border px-4 py-2 text-sm font-medium transition-colors"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 sm:w-auto"
               >
                 Cancel
               </button>
@@ -541,7 +557,7 @@ const UpdateMargin = () => {
               <button
                 onClick={handleConfirmSave}
                 disabled={isSaving || isPending}
-                className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 disabled:opacity-50"
+                className="w-full rounded-lg bg-orange-500 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-orange-600 disabled:opacity-50 sm:w-auto"
               >
                 {isSaving || isPending ? 'Saving...' : 'Confirm Save'}
               </button>
