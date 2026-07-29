@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Database,
   Clock3,
@@ -17,8 +17,8 @@ import {
 } from '@/lib/api/masterpanelapi/profile';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import toast from 'react-hot-toast';
-import {useGetClients} from '@/lib/react-query/client';
-import {useUpdateMargin} from '@/lib/api/customerholding';
+import { useGetClients } from '@/lib/react-query/client';
+import { useUpdateMargin } from '@/lib/api/customerholding';
 
 const UpdateMargin = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -45,17 +45,16 @@ const UpdateMargin = () => {
   const [pin, setPin] = useState('');
   const [showPin, setShowPin] = useState(false);
 
-  const {data: clients = [], refetch, isLoading} = useGetClients();
-  const {mutate: updateMargin, isPending} = useUpdateMargin();
+  const { data: clients = [], refetch, isLoading } = useGetClients();
+  const { mutate: updateMargin, isPending } = useUpdateMargin();
+  
   useEffect(() => {
     if (clients && clients.length > 0) {
       const delivery: Record<string, string> = {};
       const intraday: Record<string, string> = {};
 
       clients.forEach((client: any) => {
-        // Map deliveryLeverage to delivery margin input
         delivery[client.id] = client.deliveryLeverage?.toString() || '';
-        // Map intradayLeverage to intraday margin input
         intraday[client.id] = client.intradayLeverage?.toString() || '';
       });
 
@@ -65,6 +64,7 @@ const UpdateMargin = () => {
       setOriginalIntradayMargins(intraday);
     }
   }, [clients]);
+
   // Handle delivery margin change
   const handleDeliveryMarginChange = (customerId: string, value: string) => {
     if (value !== '' && !/^\d*\.?\d*$/.test(value)) {
@@ -110,7 +110,6 @@ const UpdateMargin = () => {
     const updatedIntraday: Record<string, string> = {};
 
     clients.forEach((client: any) => {
-      // Only update if value is provided
       if (applyToAllDelivery) {
         updatedDelivery[client.id] = applyToAllDelivery;
       }
@@ -119,17 +118,14 @@ const UpdateMargin = () => {
       }
     });
 
-    // Update delivery margins if provided
     if (applyToAllDelivery) {
-      setDeliveryMargins((prev) => ({...prev, ...updatedDelivery}));
+      setDeliveryMargins((prev) => ({ ...prev, ...updatedDelivery }));
     }
 
-    // Update intraday margins if provided
     if (applyToAllIntraday) {
-      setIntradayMargins((prev) => ({...prev, ...updatedIntraday}));
+      setIntradayMargins((prev) => ({ ...prev, ...updatedIntraday }));
     }
 
-    // Show success message
     let message = 'Applied ';
     if (applyToAllDelivery && applyToAllIntraday) {
       message += `delivery margin ${applyToAllDelivery} and intraday margin ${applyToAllIntraday} to all customers`;
@@ -140,7 +136,6 @@ const UpdateMargin = () => {
     }
     toast.success(message);
 
-    // Clear the input fields
     setApplyToAllDelivery('');
     setApplyToAllIntraday('');
   };
@@ -153,7 +148,6 @@ const UpdateMargin = () => {
 
   // Save all margins at once - Show PIN popup first
   const handleSaveAllMargins = () => {
-    // Check if there are any changes
     const customers: {
       customerId: string;
       deliveryMargin: string;
@@ -166,7 +160,6 @@ const UpdateMargin = () => {
       const currentIntraday = intradayMargins[client.id] || '';
       const originalIntraday = originalIntradayMargins[client.id] || '';
 
-      // Only include customers that have changes in either margin
       if (
         currentDelivery !== originalDelivery ||
         currentIntraday !== originalIntraday
@@ -184,7 +177,6 @@ const UpdateMargin = () => {
       return;
     }
 
-    // Show PIN modal instead of saving directly
     setShowPinModal(true);
     setPin('');
     setShowPin(false);
@@ -201,7 +193,6 @@ const UpdateMargin = () => {
       return;
     }
 
-    // Prepare array of customer IDs and their margins
     const customers: {
       customerId: string;
       deliveryMargin: string;
@@ -214,7 +205,6 @@ const UpdateMargin = () => {
       const currentIntraday = intradayMargins[client.id] || '0';
       const originalIntraday = originalIntradayMargins[client.id] || '0';
 
-      // Only include customers that have changes
       if (
         currentDelivery !== originalDelivery ||
         currentIntraday !== originalIntraday
@@ -233,7 +223,6 @@ const UpdateMargin = () => {
       return;
     }
 
-    // Call the update margin API
     updateMargin(
       {
         customers: customers,
@@ -244,9 +233,8 @@ const UpdateMargin = () => {
           toast.success(
             `Successfully updated margins for ${customers.length} customer(s)`,
           );
-          // Update original values
-          setOriginalDeliveryMargins({...deliveryMargins});
-          setOriginalIntradayMargins({...intradayMargins});
+          setOriginalDeliveryMargins({ ...deliveryMargins });
+          setOriginalIntradayMargins({ ...intradayMargins });
           closeModal();
           refetch();
         },
@@ -319,7 +307,6 @@ const UpdateMargin = () => {
     clients,
   ]);
 
-  // Customer Table Columns with two margin input fields
   const customerColumns = [
     {
       header: 'Customer Name',
@@ -350,7 +337,7 @@ const UpdateMargin = () => {
         const currentValue = deliveryMargins[row.id] || '';
 
         return (
-          <div className="relative w-36">
+          <div className="relative w-28 sm:w-32 md:w-36">
             <input
               type="text"
               value={currentValue}
@@ -361,7 +348,7 @@ const UpdateMargin = () => {
                   handleDeliveryMarginChange(row.id, value);
                 }
               }}
-              className="w-full rounded-lg border border-stroke px-3 py-1.5 pr-8 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+              className="w-full rounded-lg border border-stroke px-2 py-1.5 pr-6 text-xs focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 sm:px-3 sm:py-1.5 sm:pr-8 sm:text-sm"
               placeholder="Enter margin"
               inputMode="decimal"
             />
@@ -376,7 +363,7 @@ const UpdateMargin = () => {
         const currentValue = intradayMargins[row.id] || '';
 
         return (
-          <div className="relative w-36">
+          <div className="relative w-28 sm:w-32 md:w-36">
             <input
               type="text"
               value={currentValue}
@@ -387,7 +374,7 @@ const UpdateMargin = () => {
                   handleIntradayMarginChange(row.id, value);
                 }
               }}
-              className="w-full rounded-lg border border-stroke px-3 py-1.5 pr-8 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+              className="w-full rounded-lg border border-stroke px-2 py-1.5 pr-6 text-xs focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 sm:px-3 sm:py-1.5 sm:pr-8 sm:text-sm"
               placeholder="Enter margin"
               inputMode="decimal"
             />
@@ -399,29 +386,30 @@ const UpdateMargin = () => {
 
   return (
     <div className="font-sans min-h-screen bg-[#F8F9FA] text-[#1A1A1A]">
-      <main className="mx-auto max-w-7xl space-y-4 px-4 py-4 sm:space-y-6 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
+      <main className="mx-auto max-w-7xl space-y-4 px-3 py-3 sm:space-y-6 sm:px-4 sm:py-4 md:px-6 md:py-6 lg:px-8 lg:py-8">
         {/* Customer Margin Table */}
-        <section className="overflow-hidden rounded-xl border border-stroke bg-white p-6 shadow-sm">
-          <div className="mb-4 flex flex-col justify-between gap-4 border-b border-stroke pb-4 sm:flex-row sm:items-center">
-            <h2 className="text-lg font-semibold">Update Customer Margins</h2>
+        <section className="overflow-hidden rounded-xl border border-stroke bg-white p-3 shadow-sm sm:p-4 md:p-6">
+          <div className="mb-3 flex flex-col justify-between gap-3 border-b border-stroke pb-3 sm:mb-4 sm:flex-row sm:items-center sm:pb-4 md:gap-4">
+            <h2 className="text-base font-semibold sm:text-lg">
+              Update Customer Margins
+            </h2>
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
               {/* Search Input */}
-              <div className="relative w-full sm:w-64">
-                <Search className="text-gray-400 absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
+              <div className="relative w-full sm:w-48 md:w-56 lg:w-64">
+                <Search className="text-gray-400 absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 sm:h-4 sm:w-4" />
                 <input
                   type="text"
-                  placeholder="Search by name, phone..."
+                  placeholder="Search..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full rounded-lg border border-stroke bg-white py-2 pl-10 pr-4 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                  className="w-full rounded-lg border border-stroke bg-white py-1.5 pl-8 pr-3 text-xs focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 sm:py-2 sm:pl-9 sm:pr-4 sm:text-sm"
                 />
               </div>
 
               {/* Conditional: Show Apply to All OR Save Button */}
               {!hasChanges ? (
-                // Show Apply to All when no changes - Single button for both fields
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                   <input
                     type="text"
                     value={applyToAllDelivery}
@@ -431,8 +419,8 @@ const UpdateMargin = () => {
                         setApplyToAllDelivery(value);
                       }
                     }}
-                    className="w-32 rounded-lg border border-stroke px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                    placeholder="Delivery margin"
+                    className="w-20 rounded-lg border border-stroke px-2 py-1.5 text-xs focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 sm:w-24 sm:px-2.5 sm:text-sm md:w-28 md:px-3"
+                    placeholder="Delivery"
                     inputMode="decimal"
                   />
                   <input
@@ -444,29 +432,28 @@ const UpdateMargin = () => {
                         setApplyToAllIntraday(value);
                       }
                     }}
-                    className="w-32 rounded-lg border border-stroke px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                    placeholder="Intraday margin"
+                    className="w-20 rounded-lg border border-stroke px-2 py-1.5 text-xs focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 sm:w-24 sm:px-2.5 sm:text-sm md:w-28 md:px-3"
+                    placeholder="Intraday"
                     inputMode="decimal"
                   />
                   <button
                     onClick={handleApplyToAll}
-                    className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
+                    className="whitespace-nowrap rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-orange-600 sm:px-4 sm:py-2 sm:text-sm"
                   >
                     Apply to All
                   </button>
                 </div>
               ) : (
-                // Show Save button when changes exist
                 <button
                   onClick={handleSaveAllMargins}
                   disabled={isSaving || isPending}
-                  className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${
+                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-white transition-colors sm:gap-2 sm:px-4 sm:py-2 sm:text-sm ${
                     isSaving || isPending
                       ? 'bg-gray-400 cursor-not-allowed'
                       : 'bg-orange-500 hover:bg-orange-600'
                   }`}
                 >
-                  <Database className="h-4 w-4" />
+                  <Database className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   <span>
                     {isSaving || isPending ? 'Saving...' : 'Save Changes'}
                   </span>
@@ -478,23 +465,26 @@ const UpdateMargin = () => {
           {isLoading ? (
             <div className="flex h-32 items-center justify-center">
               <div className="text-center">
-                <div className="mb-2 h-6 w-6 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
-                <p className="text-gray-500 text-sm">Loading customers...</p>
+                <div className="mb-2 h-5 w-5 animate-spin rounded-full border-4 border-orange-500 border-t-transparent sm:h-6 sm:w-6"></div>
+                <p className="text-xs text-gray-500 sm:text-sm">
+                  Loading customers...
+                </p>
               </div>
             </div>
           ) : (
             <>
-              <GenericTable
-                columns={customerColumns}
-                data={filteredClients}
-                rowsPerPage={10}
-                clickable={false}
-              />
+              <div className="overflow-x-auto">
+                <GenericTable
+                  columns={customerColumns}
+                  data={filteredClients}
+                  rowsPerPage={10}
+                  clickable={false}
+                />
+              </div>
 
-              {/* Show change count at the bottom when there are changes */}
               {hasChanges && (
-                <div className="mt-4 flex items-center justify-end">
-                  <span className="text-sm text-orange-500">
+                <div className="mt-3 flex items-center justify-end sm:mt-4">
+                  <span className="text-xs text-orange-500 sm:text-sm">
                     {getChangedCount} customer(s) have unsaved changes
                   </span>
                 </div>
@@ -504,20 +494,20 @@ const UpdateMargin = () => {
         </section>
       </main>
 
-      {/* PIN Modal - Only on Save button click */}
+      {/* PIN Modal */}
       {showPinModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-lg">
-            <h2 className="mb-4 text-lg font-semibold text-slate-900">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-3 backdrop-blur-sm sm:p-4">
+          <div className="w-full max-w-xs rounded-xl bg-white p-5 shadow-lg sm:max-w-sm sm:p-6">
+            <h2 className="mb-3 text-base font-semibold text-slate-900 sm:mb-4 sm:text-lg">
               Confirm Save Changes
             </h2>
 
-            <p className="mb-4 text-sm text-slate-600">
+            <p className="mb-3 text-xs text-slate-600 sm:mb-4 sm:text-sm">
               You are about to update {getChangedCount} customer(s) margin
               limits. Enter your security PIN to confirm.
             </p>
 
-            <p className="mb-2 text-sm font-medium text-slate-700">
+            <p className="mb-1.5 text-xs font-medium text-slate-700 sm:mb-2 sm:text-sm">
               Enter Security PIN:
             </p>
 
@@ -527,7 +517,7 @@ const UpdateMargin = () => {
                 placeholder="Enter Security PIN"
                 value={pin}
                 onChange={(e) => setPin(e.target.value)}
-                className="border-gray-300 w-full rounded-lg border px-4 py-2 pr-10 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                className="border-gray-300 w-full rounded-lg border px-3 py-1.5 pr-8 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 sm:px-4 sm:py-2 sm:pr-10"
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
@@ -539,16 +529,16 @@ const UpdateMargin = () => {
               <button
                 type="button"
                 onClick={() => setShowPin((prev) => !prev)}
-                className="text-gray-500 hover:text-gray-700 absolute right-3 top-1/2 -translate-y-1/2"
+                className="text-gray-500 hover:text-gray-700 absolute right-2 top-1/2 -translate-y-1/2 sm:right-3"
               >
-                {showPin ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showPin ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
 
-            <div className="mt-5 flex justify-end gap-3">
+            <div className="mt-4 flex justify-end gap-2 sm:mt-5 sm:gap-3">
               <button
                 onClick={closeModal}
-                className="border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg border px-4 py-2 text-sm font-medium transition-colors"
+                className="border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors sm:px-4 sm:py-2 sm:text-sm"
               >
                 Cancel
               </button>
@@ -556,7 +546,7 @@ const UpdateMargin = () => {
               <button
                 onClick={handleConfirmSave}
                 disabled={isSaving || isPending}
-                className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 disabled:opacity-50"
+                className="rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-orange-600 disabled:opacity-50 sm:px-4 sm:py-2 sm:text-sm"
               >
                 {isSaving || isPending ? 'Saving...' : 'Confirm Save'}
               </button>
