@@ -438,6 +438,7 @@ const AddClient = () => {
                   required
                   placeholder="Enter 10-digit phone number"
                   onChange={handlePhoneNumberChange}
+                  maxLength={10}
                 />
               </div>
 
@@ -455,7 +456,7 @@ const AddClient = () => {
               {/* Customer Type - Required */}
               <div className="mb-2 sm:mb-4">
                 <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                  Customer Type <span className="text-red-500">*</span>
+                Trader Type <span className="text-red-500">*</span>
                 </label>
                 <select
                   {...methods.register('type')}
@@ -587,12 +588,9 @@ const AddClient = () => {
                   type="text"
                   placeholder="Enter 12-digit Aadhar number"
                   onChange={handleAadharChange}
+                  maxLength={12}
                 />
-                {methods.formState.errors.aadharCardNumber && (
-                  <p className="mt-1 text-xs text-red-500">
-                    {methods.formState.errors.aadharCardNumber.message}
-                  </p>
-                )}
+              
               </div>
 
               {/* PAN Card Number - Optional */}

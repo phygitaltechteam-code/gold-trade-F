@@ -54,12 +54,27 @@ const App: React.FC = () => {
     let pulling = false;
     let triggered = false;
 
+    // const onStart = (e: TouchEvent) => {
+    //   if (window.scrollY === 0) {
+    //     pulling = true;
+    //     triggered = false;
+    //     startY = e.touches[0].clientY;
+    //     setIsPulling(true); // ✅ Show spinner
+    //   }
+    // };
+
+    const getScrollContainer = () =>
+      document.querySelector('#app-scroll-container');
+    // or document.scrollingElement as a fallback
+
     const onStart = (e: TouchEvent) => {
-      if (window.scrollY === 0) {
+      const container = getScrollContainer();
+      const scrollTop = container ? container.scrollTop : window.scrollY;
+      if (scrollTop === 0) {
         pulling = true;
         triggered = false;
         startY = e.touches[0].clientY;
-        setIsPulling(true); // ✅ Show spinner
+        // ❌ removed setIsPulling(true) from here
       }
     };
 
@@ -68,6 +83,11 @@ const App: React.FC = () => {
 
       const distance = e.touches[0].clientY - startY;
       const el = pullRef.current;
+
+      // ✅ only show spinner once there's real pull distance (e.g. > 10px)
+      if (distance > 10) {
+        setIsPulling(true);
+      }
 
       if (distance > 0 && el)
         el.style.transform = `translateY(${Math.min(distance, THRESHOLD)}px)`;
@@ -80,13 +100,51 @@ const App: React.FC = () => {
           el.style.transform = `translateY(${THRESHOLD}px)`;
         }
 
-        // ✅ delay reload to show spinner
         setTimeout(() => {
-          setIsPulling(false); // hide spinner just before reload
+          setIsPulling(false);
           forceReload();
-        }, 500); // give spinner ~500ms to show
+        }, 500);
       }
     };
+
+    // const onMove = (e: TouchEvent) => {
+    //   if (!pulling || triggered) return;
+
+    //   const distance = e.touches[0].clientY - startY;
+    //   const el = pullRef.current;
+
+    //   if (distance > 0 && el)
+    //     el.style.transform = `translateY(${Math.min(distance, THRESHOLD)}px)`;
+
+    //   if (distance > THRESHOLD) {
+    //     triggered = true;
+
+    //     if (el) {
+    //       el.style.transition = 'transform 0.25s ease';
+    //       el.style.transform = `translateY(${THRESHOLD}px)`;
+    //     }
+
+    //     // ✅ delay reload to show spinner
+    //     setTimeout(() => {
+    //       setIsPulling(false); // hide spinner just before reload
+    //       forceReload();
+    //     }, 500); // give spinner ~500ms to show
+    //   }
+    // };
+
+    // const onEnd = () => {
+    //   pulling = false;
+    //   const el = pullRef.current;
+
+    //   if (!triggered && el) {
+    //     el.style.transition = 'transform 0.25s ease';
+    //     el.style.transform = 'translateY(0px)';
+    //   }
+
+    //   setTimeout(() => {
+    //     setIsPulling(false); // ✅ Hide spinner after cancel
+    //   }, 250);
+    // };
 
     const onEnd = () => {
       pulling = false;
@@ -98,10 +156,9 @@ const App: React.FC = () => {
       }
 
       setTimeout(() => {
-        setIsPulling(false); // ✅ Hide spinner after cancel
+        setIsPulling(false);
       }, 250);
     };
-
     window.addEventListener('touchstart', onStart, {passive: true});
     window.addEventListener('touchmove', onMove, {passive: true});
     window.addEventListener('touchend', onEnd, {passive: true});
