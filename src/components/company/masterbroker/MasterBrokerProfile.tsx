@@ -216,29 +216,29 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
         </div>
       ),
     },
-    {
-      header: 'Broker Name',
-      accessor: 'brokerName',
-      render: (item: any) => {
-        const brokerName = item?.broker?.user?.fullname || item?.brokerName || '-';
-        return (
-          <span className="text-gray-700 text-sm">{brokerName}</span>
-        );
-      },
-    },
-    {
-      header: 'Super Broker Name',
-      accessor: 'superBrokerName',
-      render: (item: any) => {
-        const superBrokerName = item?.broker?.superBroker?.user?.fullname ||
-          item?.superBrokerName ||
-          item?.superBroker?.fullname ||
-          '-';
-        return (
-          <span className="text-gray-700 text-sm">{superBrokerName}</span>
-        );
-      },
-    },
+    // {
+    //   header: 'Broker Name',
+    //   accessor: 'brokerName',
+    //   render: (item: any) => {
+    //     const brokerName = item?.broker?.user?.fullname || item?.brokerName || '-';
+    //     return (
+    //       <span className="text-gray-700 text-sm">{brokerName}</span>
+    //     );
+    //   },
+    // },
+    // {
+    //   header: 'Super Broker Name',
+    //   accessor: 'superBrokerName',
+    //   render: (item: any) => {
+    //     const superBrokerName = item?.broker?.superBroker?.user?.fullname ||
+    //       item?.superBrokerName ||
+    //       item?.superBroker?.fullname ||
+    //       '-';
+    //     return (
+    //       <span className="text-gray-700 text-sm">{superBrokerName}</span>
+    //     );
+    //   },
+    // },
     {
       header: 'Wallet Balance',
       accessor: 'walletBalance',
@@ -749,7 +749,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
             <div className="overflow-x-auto">
               <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                 <h3 className="text-base font-semibold text-black dark:text-white md:text-lg">
-                  Traders List
+                  Traders List.
                 </h3>
                 <span className="text-sm text-gray-500">
                   Total: {tradersData.length} customers
