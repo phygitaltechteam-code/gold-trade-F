@@ -22,10 +22,8 @@ const CustomerSchema = z.object({
     .max(10, 'Phone number must be exactly 10 digits')
     .regex(/^[0-9]{10}$/, 'Phone number must contain only digits'),
 
-  password: z.string()
-    .min(6, 'Password must be at least 6 characters')
-    .max(20, 'Password must be less than 20 characters')
-    .regex(/^(?=.*[A-Za-z])(?=.*\d)/, 'Password must contain at least one letter and one number'),
+
+  password: z.string().min(1, "Password is required"),
 
   masterBrokerId: z.string().min(1, 'Please select a Broker'),
 
@@ -456,7 +454,7 @@ const AddClient = () => {
               {/* Customer Type - Required */}
               <div className="mb-2 sm:mb-4">
                 <label className="text-gray-700 mb-1 block text-sm font-medium sm:mb-2">
-                Trader Type <span className="text-red-500">*</span>
+                  Trader Type <span className="text-red-500">*</span>
                 </label>
                 <select
                   {...methods.register('type')}
@@ -590,7 +588,7 @@ const AddClient = () => {
                   onChange={handleAadharChange}
                   maxLength={12}
                 />
-              
+
               </div>
 
               {/* PAN Card Number - Optional */}

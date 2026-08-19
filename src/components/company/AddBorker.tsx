@@ -24,10 +24,8 @@ const BrokerSchema = z.object({
     .max(10, 'Phone number must be exactly 10 digits')
     .regex(/^[0-9]{10}$/, 'Phone number must contain only digits'),
   
-  password: z.string()
-    .min(6, 'Password must be at least 6 characters')
-    .max(20, 'Password must be less than 20 characters')
-    .regex(/^(?=.*[A-Za-z])(?=.*\d)/, 'Password must contain at least one letter and one number'),
+  
+  password: z.string().min(1, "Password is required"),
   
   superBrokerId: z.string().min(1, 'Please select a Super Broker'),
   
@@ -368,7 +366,7 @@ const AddBroker = () => {
                 label="Password"
                 type="password"
                 required
-                placeholder="Enter password (min 6 characters)"
+                placeholder="Enter password "
               />
 
               {/* Super Broker Dropdown - Required */}
