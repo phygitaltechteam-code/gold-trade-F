@@ -44,6 +44,7 @@
     "simple-excel-to-json": "^2.3.0",
     "tailwind-merge": "^3.5.0",
     "usehooks-ts": "^3.1.0",
+    "ws": "^8.21.3",
     "xlsx": "^0.18.5",
     "zod": "^3.23.8"
   },

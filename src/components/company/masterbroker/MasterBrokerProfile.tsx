@@ -21,12 +21,32 @@ import { CommissionModal } from './CommissionModal';
 import GenericTable from '@/components/Forms/Table/GenericTable';
 import { formatIndianCurrency, formatIndianNumber } from '@/utils/formatIndianNumber';
 import { RefreshCcw } from 'lucide-react';
+import { useAuthContext } from '@/context/AuthContext';
 
 interface MasterBrokerProfileProps {
   id: string;
 }
 
-const formatQtyLot = (item) => {
+const formatDateTime = (dateTime: string) => {
+  if (!dateTime || dateTime === '-') return '-';
+  try {
+    const date = new Date(dateTime);
+    if (isNaN(date.getTime())) return dateTime;
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    let hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'pm' : 'am';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    return `${day}/${month}/${year}, ${hours.toString().padStart(2, '0')}:${minutes} ${ampm}`;
+  } catch (error) {
+    return dateTime;
+  }
+};
+
+const formatQtyLot = (item: any) => {
   if (!item) return '-';
   const qty = item.qty || item.Qty || 0;
   const lotSize = item.lotSize || item.lotSize || 0;
@@ -36,14 +56,45 @@ const formatQtyLot = (item) => {
   return qty;
 };
 
-const formatPnL = (item) => {
-  const pnl = item.pnl || item['p&l'] || 0;
-  const sign = pnl > 0 ? '+' : '';
-  return `${sign}${Number(pnl).toFixed(2)}`;
+const extractPnL = (item: any) => {
+  if (!item) return undefined;
+
+  const rawPnl = item?.rawPnl !== undefined && item?.rawPnl !== '-' && item?.rawPnl !== null
+    ? item.rawPnl
+    : (item?.pnl !== undefined && item?.pnl !== '-' && item?.pnl !== null
+      ? item.pnl
+      : item?.['p&l']);
+
+  if (rawPnl === null || rawPnl === undefined || rawPnl === '' || rawPnl === '-') {
+    return undefined;
+  }
+
+  const clean = typeof rawPnl === 'string' ? rawPnl.replace(/[₹, ]/g, '') : rawPnl;
+  const num = Number(clean);
+  return isNaN(num) ? undefined : num;
+};
+
+// Format P&L with proper sign (+ / -), currency, no unnecessary .00, on one line
+const formatPnL = (item: any) => {
+  const pnl = extractPnL(item);
+  if (pnl === undefined || pnl === null || isNaN(pnl)) return '-';
+
+  const sign = pnl > 0 ? '+' : pnl < 0 ? '-' : '';
+  const absVal = Math.abs(pnl);
+  const hasDecimal = absVal % 1 !== 0;
+
+  const formattedNum = new Intl.NumberFormat('en-IN', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: hasDecimal ? 2 : 0,
+  }).format(absVal);
+
+  return `${sign}₹${formattedNum}`;
 };
 
 const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
   const navigate = useNavigate();
+  const { user, token } = useAuthContext();
+  const [livePnlMap, setLivePnlMap] = useState<Map<string, number>>(new Map());
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('ledger');
   const [isLedgerExpanded, setIsLedgerExpanded] = useState(false);
@@ -53,6 +104,93 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
   const [ledgerEndDate, setLedgerEndDate] = useState('');
   const [commissionStartDate, setCommissionStartDate] = useState('');
   const [commissionEndDate, setCommissionEndDate] = useState('');
+
+  // WebSocket connection for MasterBroker Profile Ledger
+  useEffect(() => {
+    const userId = user?.id || (user as any)?._id || '';
+    const envWs = import.meta.env.VITE_WS_URL;
+    const serverUrl = import.meta.env.VITE_SERVER_URL || 'http://192.168.29.227:5677';
+    let baseWsUrl = 'ws://192.168.29.227:5677';
+    try {
+      const url = new URL(serverUrl);
+      const protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+      baseWsUrl = `${protocol}//${url.host}`;
+    } catch (_) {}
+
+    const tokenParam = token?.accessToken ? `&token=${encodeURIComponent(token.accessToken)}` : '';
+    const wsUrl = `${baseWsUrl}?userId=${encodeURIComponent(userId)}&room=transaction_ledger${tokenParam}`;
+
+    console.log('[MasterBrokerProfile WS] Connecting to:', wsUrl);
+    const ws = new WebSocket(wsUrl);
+
+    ws.onopen = () => {
+      console.log('[MasterBrokerProfile WS] Connection OPEN for room: transaction_ledger');
+      try {
+        ws.send(JSON.stringify({ type: 'JOIN_TRANSACTION_LEDGER', room: 'transaction_ledger', userId }));
+      } catch (e) {}
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const message = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+
+        // Auto-refresh when trade is executed, modified, or closed/squared off
+        if (
+          message.type === 'TRANSACTION_LEDGER_TRADE_CHANGED' ||
+          message.action === 'REFRESH_TABLE'
+        ) {
+          console.log('[MasterBrokerProfile WS] Auto-refresh triggered via TRANSACTION_LEDGER_TRADE_CHANGED');
+          refetch();
+          refetchLedger();
+          return;
+        }
+
+        if (
+          message.type === 'TRANSACTION_LEDGER_LIVE_UPDATE' ||
+          message.type === 'TRANSACTION_LEDGER_OPEN_TRADES' ||
+          message.type === 'OPEN_TRADES' ||
+          message.type === 'LEDGER_UPDATE' ||
+          Array.isArray(message.data) ||
+          Array.isArray(message)
+        ) {
+          const liveOpenTrades = Array.isArray(message.data)
+            ? message.data
+            : Array.isArray(message)
+            ? message
+            : message.trades || [message.data || message];
+
+          setLivePnlMap((prevMap) => {
+            const nextMap = new Map(prevMap);
+            liveOpenTrades.forEach((t: any) => {
+              if (!t) return;
+              const newPnl = t.pnl !== undefined ? t.pnl : t['p&l'];
+              const status = t.status || 'OPEN';
+              console.log('orderId:', t.orderId || t.tradeId || t.transactionId, 'P&L:', newPnl, 'status:', status);
+
+              if (t.orderId) nextMap.set(String(t.orderId), t);
+              if (t.tradeId) nextMap.set(String(t.tradeId), t);
+              if (t.transactionId) nextMap.set(String(t.transactionId), t);
+              if (t._id) nextMap.set(String(t._id), t);
+              if (t.id) nextMap.set(String(t.id), t);
+            });
+            return nextMap;
+          });
+        }
+      } catch (err) {
+        console.error('[MasterBrokerProfile WS] Message error:', err);
+      }
+    };
+
+    return () => {
+      console.log('[MasterBrokerProfile WS] Disconnecting WebSocket');
+      try {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: 'LEAVE_TRANSACTION_LEDGER' }));
+        }
+        ws.close();
+      } catch (_) {}
+    };
+  }, [user, token]);
 
   // Password visibility state
   const [showPassword, setShowPassword] = useState(false);
@@ -191,12 +329,59 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
   // Mock data for ledger (replace with actual API data)
   const paymentData = useMemo(() => [], []);
 
-  const ledgerDataWithSr = useMemo(() => {
-    return ledgerData?.map((item: any, index: number) => ({
-      ...item,
-      sr: index + 1,
-    }));
+  const rawLedgerList = useMemo(() => {
+    if (!ledgerData) return [];
+    if (Array.isArray(ledgerData)) return ledgerData;
+    if (Array.isArray((ledgerData as any).data?.data)) return (ledgerData as any).data.data;
+    if (Array.isArray((ledgerData as any).data)) return (ledgerData as any).data;
+    if (Array.isArray((ledgerData as any).transactions)) return (ledgerData as any).transactions;
+    if (Array.isArray((ledgerData as any).data?.transactions)) return (ledgerData as any).data.transactions;
+    if (Array.isArray((ledgerData as any).ledger)) return (ledgerData as any).ledger;
+    return [];
   }, [ledgerData]);
+
+  const ledgerDataWithSr = useMemo(() => {
+    return rawLedgerList.map((item: any, index: number) => {
+      const matchKey = item.orderId || item.tradeId || item.transactionId || item._id || item.id;
+      const isOpen = item.status?.toString().toUpperCase() === 'OPEN';
+      const liveData = matchKey && isOpen && livePnlMap.has(String(matchKey))
+        ? livePnlMap.get(String(matchKey))
+        : null;
+
+      let livePnl = undefined;
+      if (liveData) {
+        livePnl = typeof liveData === 'object' && liveData !== null
+          ? (liveData.pnl !== undefined ? liveData.pnl : liveData['p&l'])
+          : liveData;
+      }
+
+      const itemPnl = extractPnL(item);
+      const effectivePnl = (isOpen && livePnl !== undefined && livePnl !== null) ? livePnl : itemPnl;
+
+      const isBuy = (item.sr || item.side || '').toString().toUpperCase() === 'BUY';
+      const effectiveBuyPrice = (isOpen && liveData?.buyPrice !== undefined && liveData?.buyPrice !== null)
+        ? liveData.buyPrice
+        : (isBuy ? item.buyPrice : (liveData?.currentPrice ?? item.buyPrice));
+
+      const effectiveSellPrice = (isOpen && liveData?.sellPrice !== undefined && liveData?.sellPrice !== null)
+        ? liveData.sellPrice
+        : (!isBuy ? item.sellPrice : (liveData?.currentPrice ?? item.sellPrice));
+
+      return {
+        ...item,
+        rawDateTime: item.dateTime,
+        dateTime: item.dateTime ? formatDateTime(item.dateTime) : '-',
+        buyPrice: effectiveBuyPrice ?? item.buyPrice,
+        sellPrice: effectiveSellPrice ?? item.sellPrice,
+        buyTime: item.buyTime ? formatDateTime(item.buyTime) : '-',
+        sellTime: item.sellTime ? formatDateTime(item.sellTime) : '-',
+        status: (isOpen && liveData?.status) || item.status,
+        rawPnl: effectivePnl,
+        pnl: effectivePnl !== undefined && effectivePnl !== null && effectivePnl !== '' ? effectivePnl : '-',
+        sr: index + 1,
+      };
+    });
+  }, [rawLedgerList, livePnlMap]);
 
   const paymentDataWithSr = useMemo(() => {
     return paymentData.map((item: any, index: number) => ({
@@ -329,23 +514,30 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
     {
       header: 'Buy Price',
       accessor: 'buyPrice',
-      render: (item: any) => <span className="font-medium">{item.buyPrice || '-'}</span>
+      render: (item: any) => <span className="font-medium">{item.buyPrice ? (typeof item.buyPrice === 'string' && item.buyPrice.startsWith('₹') ? item.buyPrice : formatIndianNumber(item.buyPrice)) : '-'}</span>
     },
     {
       header: 'Sell Price',
       accessor: 'sellPrice',
-      render: (item: any) => <span className="font-medium">{item.sellPrice || '-'}</span>
+      render: (item: any) => <span className="font-medium">{item.sellPrice ? (typeof item.sellPrice === 'string' && item.sellPrice.startsWith('₹') ? item.sellPrice : formatIndianNumber(item.sellPrice)) : '-'}</span>
     },
     { header: 'Status', accessor: 'status' },
     {
       header: 'P&L',
-      accessor: (item) => formatPnL(item),
+      accessor: (item: any) => formatPnL(item),
       render: (item: any) => {
-        const pnl = item.pnl || item['p&l'] || 0;
+        const pnl = extractPnL(item);
+        if (pnl === undefined || pnl === null || isNaN(pnl)) {
+          return <span>-</span>;
+        }
         const isPositive = pnl > 0;
         const isNegative = pnl < 0;
         return (
-          <span className={`font-semibold ${isPositive ? 'text-green-600' : isNegative ? 'text-red-600' : 'text-gray-600'}`}>
+          <span
+            className={`font-semibold whitespace-nowrap inline-block ${
+              isPositive ? 'text-green-600' : isNegative ? 'text-red-600' : 'text-gray-900'
+            }`}
+          >
             {formatPnL(item)}
           </span>
         );
@@ -354,17 +546,17 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
     {
       header: 'Buy Time',
       accessor: 'buyTime',
-      render: (item: any) => <span>{item.buyTime || '-'}</span>
+      render: (item: any) => <span>{item.buyTime ? formatDateTime(item.buyTime) : '-'}</span>
     },
     {
       header: 'Sell Time',
       accessor: 'sellTime',
-      render: (item: any) => <span>{item.sellTime || '-'}</span>
+      render: (item: any) => <span>{item.sellTime ? formatDateTime(item.sellTime) : '-'}</span>
     },
     {
       header: 'Master Broker Commission',
       accessor: 'masterBrokerCommission',
-      render: (item: any) => <span className="font-medium">{item.masterBrokerCommission || '-'}</span>
+      render: (item: any) => <span className="font-medium">{item.masterBrokerCommission !== undefined && item.masterBrokerCommission !== null && item.masterBrokerCommission !== '-' ? formatIndianCurrency(item.masterBrokerCommission) : '-'}</span>
     },
   ];
 
@@ -607,7 +799,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
 
 
     return ledgerDataWithSr?.filter((item: any) => {
-      const itemDate = new Date(item.dateTime || item.createdAt);
+      const itemDate = new Date(item.rawDateTime || item.dateTime || item.createdAt);
       if (isNaN(itemDate.getTime())) return true;
       const startDate = new Date(ledgerStartDate);
       const endDate = new Date(ledgerEndDate);

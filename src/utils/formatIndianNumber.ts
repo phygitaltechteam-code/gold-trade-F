@@ -59,13 +59,13 @@ export const formatIndianNumber = (amount: number | string | undefined | null): 
 
 // For displaying with ₹ symbol
 export const formatIndianCurrency = (amount: number | string | undefined | null): string => {
-  if (amount === null || amount === undefined || amount === '') {
+  if (amount === null || amount === undefined || amount === '' || amount === '-') {
     return '₹0';
   }
 
   // If amount is a string, remove ₹ symbol, commas, and any extra characters
   let cleanAmount = typeof amount === 'string'
-    ? amount.replace(/[₹,]/g, '').trim()
+    ? amount.replace(/[₹, ]/g, '').trim()
     : amount;
 
   const num = typeof cleanAmount === 'string' ? parseFloat(cleanAmount) : cleanAmount;
@@ -74,21 +74,24 @@ export const formatIndianCurrency = (amount: number | string | undefined | null)
     return '₹0';
   }
 
+  const isNegative = num < 0;
+  const absNum = Math.abs(num);
+
   // Check if the number has decimal places
-  const hasDecimal = num % 1 !== 0;
+  const hasDecimal = absNum % 1 !== 0;
 
   let formatted: string;
   if (!hasDecimal) {
     formatted = new Intl.NumberFormat('en-IN', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(num);
+    }).format(absNum);
   } else {
     formatted = new Intl.NumberFormat('en-IN', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }).format(num);
+    }).format(absNum);
   }
 
-  return `₹${formatted}`;
+  return isNegative ? `-₹${formatted}` : `₹${formatted}`;
 };

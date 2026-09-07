@@ -318,3 +318,39 @@ export const useAddBrokerCommission = () => {
     },
   });
 };
+
+export const getBrokerLedgerById = async (id: string) => {
+  try {
+    const token = getAccessToken();
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    try {
+      const response = await api.get(`/super-broker/broker/ledger/${id}`, { headers });
+      return response.data;
+    } catch (err: any) {
+      if (err?.response?.status === 404) {
+        try {
+          const fallback = await api.get(`/super-broker/broker/${id}/ledger`, { headers });
+          return fallback.data;
+        } catch (e: any) {
+          if (e?.response?.status === 404) {
+            const fallbackCompany = await api.get(`/company/broker/ledger/${id}`, { headers });
+            return fallbackCompany.data;
+          }
+          throw e;
+        }
+      }
+      throw err;
+    }
+  } catch (error) {
+    console.error('Error fetching broker ledger:', error);
+    throw error;
+  }
+};
+
+export const useGetBrokerLedgerById = (id: string) =>
+  useQuery({
+    queryKey: ['super-broker-broker-ledger', id],
+    queryFn: () => getBrokerLedgerById(id),
+    enabled: !!id,
+  });
+

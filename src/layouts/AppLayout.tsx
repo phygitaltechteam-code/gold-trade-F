@@ -1,6 +1,7 @@
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import { useAuthContext } from '@/context/AuthContext';
+import { WebSocketProvider } from '@/context/WebSocketContext';
 import { Outlet, useNavigate, useLocation } from '@tanstack/react-router';
 import React, { useEffect, useState, useRef } from 'react';
 
@@ -48,21 +49,23 @@ const AppLayout = () => {
   };
 
   return (
-    <div className="bg-white dark:bg-boxdark-2 dark:text-bodydark">
-      <div className="flex h-screen overflow-hidden">
-        {isAuthenticated && (
-          <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-        )}
-        <div id="app-scroll-container" className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden bg-[#f8fafc]">
-          <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-          <main>
-            <div className="mx-auto">
-              <Outlet />
-            </div>
-          </main>
+    <WebSocketProvider>
+      <div className="bg-white dark:bg-boxdark-2 dark:text-bodydark">
+        <div className="flex h-screen overflow-hidden">
+          {isAuthenticated && (
+            <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+          )}
+          <div id="app-scroll-container" className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden bg-[#f8fafc]">
+            <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+            <main>
+              <div className="mx-auto">
+                <Outlet />
+              </div>
+            </main>
+          </div>
         </div>
       </div>
-    </div>
+    </WebSocketProvider>
   );
 };
 

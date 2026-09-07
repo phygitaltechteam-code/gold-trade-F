@@ -35,6 +35,7 @@ import {
 } from '@/lib/api/masterpanelapi/masterapi';
 import { useGetMasterClientLedger } from '@/lib/api/masterpanelapi/profile';
 import { formatIndianCurrency } from '@/utils/formatIndianNumber';
+import { useAuthContext } from '@/context/AuthContext';
 
 // Document Card Component
 const DocCard = ({ name, type, status, icon: Icon, color, url }: any) => (
@@ -58,7 +59,7 @@ const DocCard = ({ name, type, status, icon: Icon, color, url }: any) => (
 );
 
 // Helper functions
-const formatQtyLot = (item) => {
+const formatQtyLot = (item: any) => {
   if (!item) return '-';
   const qty = item.qty || item.Qty || 0;
   const lotSize = item.lotSize || item.lotSize || 0;
@@ -68,10 +69,49 @@ const formatQtyLot = (item) => {
   return qty;
 };
 
-const formatPnL = (item) => {
-  const pnl = item.pnl || item['p&l'] || 0;
-  const sign = pnl > 0 ? '+' : '';
-  return `${sign}${Number(pnl).toFixed(2)}`;
+const extractPnL = (item: any) => {
+  if (!item) return undefined;
+
+  const rawPnl = item?.rawPnl !== undefined && item?.rawPnl !== '-' && item?.rawPnl !== null
+    ? item.rawPnl
+    : (item?.pnl !== undefined && item?.pnl !== '-' && item?.pnl !== null
+      ? item.pnl
+      : item?.['p&l']);
+
+  if (rawPnl === null || rawPnl === undefined || rawPnl === '' || rawPnl === '-') {
+    return undefined;
+  }
+
+  const clean = typeof rawPnl === 'string' ? rawPnl.replace(/[₹, ]/g, '') : rawPnl;
+  const num = Number(clean);
+  return isNaN(num) ? undefined : num;
+};
+
+// Format P&L with proper sign (+ / -), currency, no unnecessary .00, on one line
+const formatPnL = (item: any) => {
+  const pnl = extractPnL(item);
+  if (pnl === undefined || pnl === null || isNaN(pnl)) return '-';
+
+  const sign = pnl > 0 ? '+' : pnl < 0 ? '-' : '';
+  const absVal = Math.abs(pnl);
+  const hasDecimal = absVal % 1 !== 0;
+
+  const formattedNum = new Intl.NumberFormat('en-IN', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: hasDecimal ? 2 : 0,
+  }).format(absVal);
+
+  return `${sign}₹${formattedNum}`;
+};
+
+const extractLedgerData = (resData: any) => {
+  if (!resData) return [];
+  if (Array.isArray(resData)) return resData;
+  if (Array.isArray(resData?.data)) return resData.data;
+  if (Array.isArray(resData?.data?.data)) return resData.data.data;
+  if (Array.isArray(resData?.data?.transactions)) return resData.data.transactions;
+  if (Array.isArray(resData?.transactions)) return resData.transactions;
+  return [];
 };
 
 const formatDateTime = (dateTime: string) => {
@@ -116,6 +156,96 @@ export const ClientDetail: React.FC = () => {
   const [holdingMargin, setHoldingMargin] = useState('');
   const [marginPin, setMarginPin] = useState('');
   const [showMarginPin, setShowMarginPin] = useState(false);
+  const { user, token } = useAuthContext();
+  const [livePnlMap, setLivePnlMap] = useState<Map<string, number>>(new Map());
+
+  // WebSocket connection for MasterBroker Client Ledger
+  useEffect(() => {
+    const userId = user?.id || (user as any)?._id || '';
+    const envWs = import.meta.env.VITE_WS_URL;
+    const serverUrl = import.meta.env.VITE_SERVER_URL || 'http://192.168.29.227:5677';
+    let baseWsUrl = 'ws://192.168.29.227:5677';
+    try {
+      const url = new URL(serverUrl);
+      const protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+      baseWsUrl = `${protocol}//${url.host}`;
+    } catch (_) {}
+
+    const tokenParam = token?.accessToken ? `&token=${encodeURIComponent(token.accessToken)}` : '';
+    const wsUrl = `${baseWsUrl}?userId=${encodeURIComponent(userId)}&room=transaction_ledger${tokenParam}`;
+
+    console.log('[MasterClientDetail WS] Connecting to:', wsUrl);
+    const ws = new WebSocket(wsUrl);
+
+    ws.onopen = () => {
+      console.log('[MasterClientDetail WS] Connection OPEN for room: transaction_ledger');
+      try {
+        ws.send(JSON.stringify({ type: 'JOIN_TRANSACTION_LEDGER', room: 'transaction_ledger', userId }));
+      } catch (e) {}
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const message = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+
+        // Auto-refresh when trade is executed, modified, or closed/squared off
+        if (
+          message.type === 'TRANSACTION_LEDGER_TRADE_CHANGED' ||
+          message.action === 'REFRESH_TABLE'
+        ) {
+          console.log('[MasterClientDetail WS] Auto-refresh triggered via TRANSACTION_LEDGER_TRADE_CHANGED');
+          refetch();
+          refetchLedger();
+          return;
+        }
+
+        if (
+          message.type === 'TRANSACTION_LEDGER_LIVE_UPDATE' ||
+          message.type === 'TRANSACTION_LEDGER_OPEN_TRADES' ||
+          message.type === 'OPEN_TRADES' ||
+          message.type === 'LEDGER_UPDATE' ||
+          Array.isArray(message.data) ||
+          Array.isArray(message)
+        ) {
+          const liveOpenTrades = Array.isArray(message.data)
+            ? message.data
+            : Array.isArray(message)
+            ? message
+            : message.trades || [message.data || message];
+
+          setLivePnlMap((prevMap) => {
+            const nextMap = new Map(prevMap);
+            liveOpenTrades.forEach((t: any) => {
+              if (!t) return;
+              const newPnl = t.pnl !== undefined ? t.pnl : t['p&l'];
+              const status = t.status || 'OPEN';
+              console.log('orderId:', t.orderId || t.tradeId || t.transactionId, 'P&L:', newPnl, 'status:', status);
+
+              if (t.orderId) nextMap.set(String(t.orderId), t);
+              if (t.tradeId) nextMap.set(String(t.tradeId), t);
+              if (t.transactionId) nextMap.set(String(t.transactionId), t);
+              if (t._id) nextMap.set(String(t._id), t);
+              if (t.id) nextMap.set(String(t.id), t);
+            });
+            return nextMap;
+          });
+        }
+      } catch (err) {
+        console.error('[MasterClientDetail WS] Message error:', err);
+      }
+    };
+
+    return () => {
+      console.log('[MasterClientDetail WS] Disconnecting WebSocket');
+      try {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: 'LEAVE_TRANSACTION_LEDGER' }));
+        }
+        ws.close();
+      } catch (_) {}
+    };
+  }, [user, token]);
+
   const [editData, setEditData] = useState({
     fullname: '',
     phoneNumber: '',
@@ -158,104 +288,59 @@ export const ClientDetail: React.FC = () => {
     }));
   }, [displayClient?.tradingLedgers]);
 
-  // Calculate total P&L with proper sign handling
-  const totalPnL = useMemo(() => {
-    if (!ledgerDataaa?.data?.data || !Array.isArray(ledgerDataaa.data.data)) {
-      return 0;
-    }
-    return ledgerDataaa.data.data.reduce((sum: number, item: any) => {
-      const pnlValue = Number(item.pnl ?? item['p&l'] ?? 0);
-      return sum + pnlValue;
-    }, 0);
-  }, [ledgerDataaa]);
-
-  // Helper function to get swapped P&L value
-  const getSwappedPnL = (value: number) => {
-    // Swap the sign: positive becomes negative, negative becomes positive
-    return -value;
-  };
-  // Ledger Columns
-  const baseColumns = [
-    {
-      header: 'Date & Time',
-      accessor: 'dateTime',
-      render: (item: any) => <span>{formatDateTime(item.dateTime)}</span>
-    },
-    { header: 'Customer Name', accessor: 'customerName' },
-    { header: 'Script', accessor: 'script' },
-    { header: 'Qty/Lot', accessor: (item: any) => formatQtyLot(item) },
-    {
-      header: 'Buy Price',
-      accessor: 'buyPrice',
-      render: (item: any) => <span>{formatIndianCurrency(item.buyPrice)}</span>
-    },
-    {
-      header: 'Sell Price',
-      accessor: 'sellPrice',
-      render: (item: any) => <span>{formatIndianCurrency(item.sellPrice)}</span>
-    },
-    { header: 'Buy Time', accessor: 'buyTime' },
-    { header: 'Sell Time', accessor: 'sellTime' },
-    {
-      header: 'Status',
-      accessor: 'status',
-      render: (item: any) => {
-        const status = item.status || 'Pending';
-        const statusColor = status.toLowerCase() === 'closed' || status.toLowerCase() === 'close'
-          ? 'bg-green-100 text-green-700'
-          : status.toLowerCase() === 'open'
-            ? 'bg-yellow-100 text-yellow-700'
-            : 'bg-gray-100 text-gray-700';
-        return (
-          <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${statusColor}`}>
-            {status}
-          </span>
-        );
-      }
-    },
-    {
-      header: 'P&L',
-      accessor: (item: any) => formatPnL(item),
-      render: (item: any) => {
-        const pnl = item.pnl || item['p&l'] || 0;
-        const isPositive = pnl > 0;
-        const isNegative = pnl < 0;
-        return (
-          <span className='text-gray-900'>
-            {formatIndianCurrency(pnl)}
-          </span>
-        );
-      }
-    },
-    {
-      header: 'Master Broker Commission',
-      accessor: 'masterBrokerCommission',
-      render: (item: any) => <span>{formatIndianCurrency(item.masterBrokerCommission)}</span>
-    },
-  ];
-
   // Filter ledger data by date and status
   const ledgerRows = useMemo(() => {
-    if (!ledgerDataaa?.data?.data || !Array.isArray(ledgerDataaa.data.data)) {
+    const rawList = extractLedgerData(ledgerDataaa);
+    if (!rawList || !Array.isArray(rawList)) {
       return [];
     }
 
-    let filtered = ledgerDataaa.data.data.map((item: any) => ({
-      dateTime: item.dateTime,
-      rawDate: item.dateTime,
-      customerName: item.customerName,
-      script: item.script,
-      qty: item.qty,
-      lotSize: item.lotSize,
-      lots: item.lots,
-      buyPrice: item.buyPrice,
-      sellPrice: item.sellPrice,
-      buyTime: item.buyTime,
-      sellTime: item.sellTime,
-      status: item.status,
-      pnl: item.pnl ?? item['p&l'] ?? 0,
-      masterBrokerCommission: item.masterBrokerCommission,
-    }));
+    let filtered = rawList.map((item: any) => {
+      const matchKey = item.orderId || item.tradeId || item.transactionId || item._id || item.id;
+      const isOpen = item.status?.toString().toUpperCase() === 'OPEN';
+      const liveData = matchKey && isOpen && livePnlMap.has(String(matchKey))
+        ? livePnlMap.get(String(matchKey))
+        : null;
+
+      let livePnl = undefined;
+      if (liveData) {
+        livePnl = typeof liveData === 'object' && liveData !== null
+          ? (liveData.pnl !== undefined ? liveData.pnl : liveData['p&l'])
+          : liveData;
+      }
+
+      const itemPnl = extractPnL(item);
+      const effectivePnl = (isOpen && livePnl !== undefined && livePnl !== null) ? livePnl : itemPnl;
+
+      const isBuy = (item.sr || item.side || '').toString().toUpperCase() === 'BUY';
+      const effectiveBuyPrice = (isOpen && liveData?.buyPrice !== undefined && liveData?.buyPrice !== null)
+        ? liveData.buyPrice
+        : (isBuy ? item.buyPrice : (liveData?.currentPrice ?? item.buyPrice));
+
+      const effectiveSellPrice = (isOpen && liveData?.sellPrice !== undefined && liveData?.sellPrice !== null)
+        ? liveData.sellPrice
+        : (!isBuy ? item.sellPrice : (liveData?.currentPrice ?? item.sellPrice));
+
+      return {
+        ...item,
+        dateTime: item.dateTime,
+        rawDate: item.dateTime,
+        customerName: item.customerName,
+        script: item.script,
+        qty: item.qty,
+        lotSize: item.lotSize,
+        lots: item.lots,
+        buyPrice: effectiveBuyPrice ?? item.buyPrice,
+        sellPrice: effectiveSellPrice ?? item.sellPrice,
+        buyTime: item.buyTime,
+        sellTime: item.sellTime,
+        status: (isOpen && liveData?.status) || item.status,
+        rawPnl: effectivePnl,
+        pnl: effectivePnl !== undefined && effectivePnl !== null && effectivePnl !== '' ? effectivePnl : '-',
+        'p&l': effectivePnl !== undefined && effectivePnl !== null && effectivePnl !== '' ? effectivePnl : '-',
+        masterBrokerCommission: item.masterBrokerCommission,
+      };
+    });
 
     // Apply date filter
     if (fromDate && toDate) {
@@ -293,7 +378,78 @@ export const ClientDetail: React.FC = () => {
     }
 
     return filtered;
-  }, [ledgerDataaa, fromDate, toDate, statusFilter]);
+  }, [ledgerDataaa, fromDate, toDate, statusFilter, livePnlMap]);
+
+  // Calculate total P&L accurately from all ledger records
+  const totalPnL = useMemo(() => {
+    return ledgerRows.reduce((sum: number, item: any) => {
+      const pnl = extractPnL(item);
+      return sum + (pnl !== undefined && !isNaN(pnl) ? pnl : 0);
+    }, 0);
+  }, [ledgerRows]);
+
+  // Ledger Columns
+  const baseColumns = [
+    {
+      header: 'Date & Time',
+      accessor: 'dateTime',
+      render: (item: any) => <span>{formatDateTime(item.dateTime)}</span>
+    },
+    { header: 'Customer Name', accessor: 'customerName' },
+    { header: 'Script', accessor: 'script' },
+    { header: 'Qty/Lot', accessor: (item: any) => formatQtyLot(item) },
+    {
+      header: 'Buy Price',
+      accessor: 'buyPrice',
+      render: (item: any) => <span>{formatIndianCurrency(item.buyPrice)}</span>
+    },
+    {
+      header: 'Sell Price',
+      accessor: 'sellPrice',
+      render: (item: any) => <span>{formatIndianCurrency(item.sellPrice)}</span>
+    },
+    {
+      header: 'Buy Time',
+      accessor: 'buyTime',
+      render: (item: any) => <span>{item.buyTime ? formatDateTime(item.buyTime) : '-'}</span>,
+    },
+    {
+      header: 'Sell Time',
+      accessor: 'sellTime',
+      render: (item: any) => <span>{item.sellTime ? formatDateTime(item.sellTime) : '-'}</span>,
+    },
+    {
+      header: 'Status',
+      accessor: 'status',
+      render: (item: any) => <span>{item.status || '-'}</span>,
+    },
+    {
+      header: 'P&L',
+      accessor: (item: any) => formatPnL(item),
+      render: (item: any) => {
+        const pnl = extractPnL(item);
+        if (pnl === undefined || pnl === null || isNaN(pnl)) {
+          return <span>-</span>;
+        }
+        const isPositive = pnl > 0;
+        const isNegative = pnl < 0;
+        return (
+          <span
+            className={`font-semibold whitespace-nowrap inline-block ${
+              isPositive ? 'text-green-600' : isNegative ? 'text-red-600' : 'text-gray-900'
+            }`}
+          >
+            {formatPnL(item)}
+          </span>
+        );
+      }
+    },
+    {
+      header: 'Master Broker Commission',
+      accessor: 'masterBrokerCommission',
+      render: (item: any) => <span>{formatIndianCurrency(item.masterBrokerCommission)}</span>
+    },
+  ];
 
   // Trading Ledger Columns
   const tradingLedgerColumns = [
@@ -647,47 +803,34 @@ export const ClientDetail: React.FC = () => {
 
         <div className="group relative overflow-hidden rounded-2xl border border-black/5 bg-white p-5 shadow-sm md:p-6">
           <div className="absolute right-0 top-0 p-4 opacity-5 transition-opacity group-hover:opacity-10">
-            <CreditCard className="h-16 w-16" />
+            <TrendingUp className="h-16 w-16" />
           </div>
           <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-            Admin P&L
+            Total P&L
           </div>
           <div className="text-xl font-semibold text-slate-900 md:text-2xl">
-            {/* FIXED: Show swapped P&L with proper sign */}
-            {(() => {
-              const swappedPnL = getSwappedPnL(totalPnL);
-              if (swappedPnL > 0) {
-                return <span className="text-green-600">+{formatIndianCurrency(swappedPnL)}</span>;
-              } else if (swappedPnL < 0) {
-                return <span className="text-red-600">{formatIndianCurrency(swappedPnL)}</span>;
-              } else {
-                return <span className="text-gray-600">₹0</span>;
-              }
-            })()}
+            {totalPnL > 0 ? (
+              <span className="text-green-600">+{formatIndianCurrency(totalPnL)}</span>
+            ) : totalPnL < 0 ? (
+              <span className="text-red-600">{formatIndianCurrency(totalPnL)}</span>
+            ) : (
+              <span className="text-gray-600">₹0</span>
+            )}
           </div>
           <div className="mt-1 flex items-center gap-1 text-xs font-medium">
-            {(() => {
-              const swappedPnL = getSwappedPnL(totalPnL);
-              if (swappedPnL > 0) {
-                return (
-                  <div className="flex items-center gap-1 text-green-600">
-                    <div className="h-2 w-2 rounded-full bg-green-500" /> Profit
-                  </div>
-                );
-              } else if (swappedPnL < 0) {
-                return (
-                  <div className="flex items-center gap-1 text-red-600">
-                    <div className="h-2 w-2 rounded-full bg-red-500" /> Loss
-                  </div>
-                );
-              } else {
-                return (
-                  <div className="flex items-center gap-1 text-gray-500">
-                    <div className="h-2 w-2 rounded-full bg-gray-400" /> Break-even
-                  </div>
-                );
-              }
-            })()}
+            {totalPnL > 0 ? (
+              <div className="flex items-center gap-1 text-green-600">
+                <div className="h-2 w-2 rounded-full bg-green-500" /> Profit
+              </div>
+            ) : totalPnL < 0 ? (
+              <div className="flex items-center gap-1 text-red-600">
+                <div className="h-2 w-2 rounded-full bg-red-500" /> Loss
+              </div>
+            ) : (
+              <div className="flex items-center gap-1 text-gray-500">
+                <div className="h-2 w-2 rounded-full bg-gray-400" /> Break-even
+              </div>
+            )}
           </div>
         </div>
       </div>

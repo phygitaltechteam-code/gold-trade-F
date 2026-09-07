@@ -21,6 +21,7 @@ import { useNavigate } from '@tanstack/react-router';
 import toast from 'react-hot-toast';
 import { Eye, EyeOff, RefreshCcw } from 'lucide-react';
 import { formatIndianCurrency, formatIndianNumber } from '@/utils/formatIndianNumber';
+import { useAuthContext } from '@/context/AuthContext';
 
 // Format date function
 const formatDateTime = (dateString: string) => {
@@ -40,6 +41,41 @@ const formatDateTime = (dateString: string) => {
   } catch (error) {
     return 'N/A';
   }
+};
+
+const extractPnL = (item: any) => {
+  if (!item) return undefined;
+
+  const rawPnl = item?.rawPnl !== undefined
+    ? item.rawPnl
+    : (item?.pnl !== undefined
+      ? item.pnl
+      : item?.['p&l']);
+
+  if (rawPnl === null || rawPnl === undefined || rawPnl === '' || rawPnl === '-') {
+    return undefined;
+  }
+
+  const clean = typeof rawPnl === 'string' ? rawPnl.replace(/[₹, ]/g, '') : rawPnl;
+  const num = Number(clean);
+  return isNaN(num) ? undefined : num;
+};
+
+// Format P&L with proper sign (+ / -), currency, no unnecessary .00, on one line
+const formatPnL = (item: any) => {
+  const pnl = extractPnL(item);
+  if (pnl === undefined || pnl === null || isNaN(pnl)) return '-';
+
+  const sign = pnl > 0 ? '+' : pnl < 0 ? '-' : '';
+  const absVal = Math.abs(pnl);
+  const hasDecimal = absVal % 1 !== 0;
+
+  const formattedNum = new Intl.NumberFormat('en-IN', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: hasDecimal ? 2 : 0,
+  }).format(absVal);
+
+  return `${sign}₹${formattedNum}`;
 };
 
 const SuperBrokerProfile = () => {
@@ -70,6 +106,97 @@ const SuperBrokerProfile = () => {
   const [commissionType, setCommissionType] = useState<'credit' | 'debit'>(
     'credit',
   );
+
+  const { user, token } = useAuthContext();
+  const [livePnlMap, setLivePnlMap] = useState<Map<string, any>>(new Map());
+
+  // WebSocket connection for live P&L and prices in SuperBroker Profile Ledger
+  useEffect(() => {
+    const userId = user?.id || (user as any)?._id || '';
+    const envWs = import.meta.env.VITE_WS_URL;
+    const serverUrl = import.meta.env.VITE_SERVER_URL || 'http://192.168.29.227:5677';
+    let baseWsUrl = 'ws://192.168.29.227:5677';
+    try {
+      const url = new URL(serverUrl);
+      const protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+      baseWsUrl = `${protocol}//${url.host}`;
+    } catch (_) {}
+
+    const tokenParam = token?.accessToken ? `&token=${encodeURIComponent(token.accessToken)}` : '';
+    const wsUrl = `${baseWsUrl}?userId=${encodeURIComponent(userId)}&room=transaction_ledger${tokenParam}`;
+
+    console.log('[SuperBrokerProfile WS] Connecting to:', wsUrl);
+    const ws = new WebSocket(wsUrl);
+
+    ws.onopen = () => {
+      console.log('[SuperBrokerProfile WS] Connected to room: transaction_ledger');
+      try {
+        ws.send(JSON.stringify({ type: 'JOIN_TRANSACTION_LEDGER', room: 'transaction_ledger', userId }));
+      } catch (e) {}
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const message = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+
+        // Auto-refresh when trade is executed, modified, or closed/squared off
+        if (
+          message.type === 'TRANSACTION_LEDGER_TRADE_CHANGED' ||
+          message.action === 'REFRESH_TABLE'
+        ) {
+          console.log('[SuperBrokerProfile WS] Auto-refresh triggered via TRANSACTION_LEDGER_TRADE_CHANGED');
+          refetch();
+          return;
+        }
+
+        if (
+          message.type === 'TRANSACTION_LEDGER_LIVE_UPDATE' ||
+          message.type === 'TRANSACTION_LEDGER_OPEN_TRADES' ||
+          message.type === 'OPEN_TRADES' ||
+          message.type === 'LEDGER_UPDATE' ||
+          Array.isArray(message.data) ||
+          Array.isArray(message)
+        ) {
+          const liveOpenTrades = Array.isArray(message.data)
+            ? message.data
+            : Array.isArray(message)
+            ? message
+            : message.trades || [message.data || message];
+
+          setLivePnlMap((prevMap) => {
+            const nextMap = new Map(prevMap);
+            liveOpenTrades.forEach((t: any) => {
+              if (!t) return;
+              const newPnl = t.pnl !== undefined ? t.pnl : t['p&l'];
+              const status = t.status || 'OPEN';
+              const orderId = t.orderId || t.tradeId || t.transactionId || t.id || t._id;
+              if (orderId && newPnl !== undefined) {
+                console.log('orderId:', orderId, 'P&L:', newPnl, 'status:', status);
+              }
+
+              if (t.orderId) nextMap.set(String(t.orderId), t);
+              if (t.tradeId) nextMap.set(String(t.tradeId), t);
+              if (t.transactionId) nextMap.set(String(t.transactionId), t);
+              if (t._id) nextMap.set(String(t._id), t);
+              if (t.id) nextMap.set(String(t.id), t);
+            });
+            return nextMap;
+          });
+        }
+      } catch (err) {
+        console.error('[SuperBrokerProfile WS] Message error:', err);
+      }
+    };
+
+    return () => {
+      try {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: 'LEAVE_TRANSACTION_LEDGER' }));
+        }
+        ws.close();
+      } catch (_) {}
+    };
+  }, [user, token]);
 
   const { data: profileData, refetch } = useGetAllSuperBrockerById(id);
   const { data: getbrokerData = [] } = useAllSuperBrockerBrokers(id);
@@ -230,44 +357,73 @@ const SuperBrokerProfile = () => {
       return `₹${Number(value).toFixed(2)}`;
     };
 
-    return ledgerDataFromApi.map((item: any) => ({
-      rawDateTime: item.dateTime,
-      dateTime: formatDateTime(item.dateTime),
-      customerName: item.customerName || item.customername || '-',
-      script: item.script || '-',
-      qty:
-        item.qty && item.lotSize
-          ? `${item.qty}/${item.lotSize}`
-          : item.qty || '-',
-      buyPrice: item.buyPrice ? `₹${Number(item.buyPrice).toFixed(2)}` : '-',
-      sellPrice: item.sellPrice ? `₹${Number(item.sellPrice).toFixed(2)}` : '-',
-      status: item.status || 'Pending',
-      pnl: item.pnl
-        ? `₹${Number(item.pnl).toFixed(2)}`
-        : item['p&l']
-          ? `₹${Number(item['p&l']).toFixed(2)}`
+    return ledgerDataFromApi.map((item: any) => {
+      const matchKey = item.orderId || item.tradeId || item.transactionId || item._id || item.id;
+      const isOpen = item.status?.toString().toUpperCase() === 'OPEN';
+      const liveData = matchKey && isOpen && livePnlMap.has(String(matchKey))
+        ? livePnlMap.get(String(matchKey))
+        : null;
+
+      let livePnl = undefined;
+      if (liveData) {
+        livePnl = typeof liveData === 'object' && liveData !== null
+          ? (liveData.pnl !== undefined ? liveData.pnl : liveData['p&l'])
+          : liveData;
+      }
+
+      const itemPnl = extractPnL(item);
+      const effectivePnl = (isOpen && livePnl !== undefined && livePnl !== null) ? livePnl : itemPnl;
+
+      const isBuy = (item.sr || item.side || '').toString().toUpperCase() === 'BUY';
+      const effectiveBuyPrice = liveData && liveData.buyPrice !== undefined && liveData.buyPrice !== null
+        ? liveData.buyPrice
+        : (isBuy ? item.buyPrice : (liveData?.currentPrice ?? item.buyPrice));
+
+      const effectiveSellPrice = liveData && liveData.sellPrice !== undefined && liveData.sellPrice !== null
+        ? liveData.sellPrice
+        : (!isBuy ? item.sellPrice : (liveData?.currentPrice ?? item.sellPrice));
+
+      return {
+        ...item,
+        rawDateTime: item.dateTime,
+        dateTime: formatDateTime(item.dateTime),
+        customerName: item.customerName || item.customername || '-',
+        script: item.script || '-',
+        qty:
+          item.qty && item.lotSize
+            ? `${item.qty}/${item.lotSize}`
+            : item.qty || '-',
+        buyPrice: effectiveBuyPrice !== undefined && effectiveBuyPrice !== null
+          ? (typeof effectiveBuyPrice === 'number' ? `₹${effectiveBuyPrice.toFixed(2)}` : effectiveBuyPrice)
+          : (item.buyPrice ? `₹${Number(item.buyPrice).toFixed(2)}` : '-'),
+        sellPrice: effectiveSellPrice !== undefined && effectiveSellPrice !== null
+          ? (typeof effectiveSellPrice === 'number' ? `₹${effectiveSellPrice.toFixed(2)}` : effectiveSellPrice)
+          : (item.sellPrice ? `₹${Number(item.sellPrice).toFixed(2)}` : '-'),
+        status: liveData?.status || item.status || 'Pending',
+        rawPnl: effectivePnl,
+        pnl: effectivePnl !== undefined && effectivePnl !== null && effectivePnl !== '' ? effectivePnl : (item.pnl ? `₹${Number(item.pnl).toFixed(2)}` : '-'),
+        buyTime: item.buyTime ? formatDateTime(item.buyTime) : '-',
+        sellTime: item.sellTime ? formatDateTime(item.sellTime) : '-',
+        superBrokerCommission: formatCommission(
+          item.superBrokerCommission || item.superbrokercommission,
+        ),
+        orderType: item.orderType || '-',
+        holdingType: item.holdingType || '-',
+        price: item.price ? `₹${Number(item.price).toFixed(2)}` : '-',
+        paidAmount: item.paidAmount
+          ? `₹${Number(item.paidAmount).toFixed(2)}`
           : '-',
-      buyTime: item.buyTime ? formatDateTime(item.buyTime) : '-',
-      sellTime: item.sellTime ? formatDateTime(item.sellTime) : '-',
-      superBrokerCommission: formatCommission(
-        item.superBrokerCommission || item.superbrokercommission,
-      ),
-      orderType: item.orderType || '-',
-      holdingType: item.holdingType || '-',
-      price: item.price ? `₹${Number(item.price).toFixed(2)}` : '-',
-      paidAmount: item.paidAmount
-        ? `₹${Number(item.paidAmount).toFixed(2)}`
-        : '-',
-      marginAmount: item.marginAmount
-        ? `₹${Number(item.marginAmount).toFixed(2)}`
-        : '-',
-      transactionAmount: item.transactionAmount
-        ? `₹${Number(item.transactionAmount).toFixed(2)}`
-        : '-',
-      paymentStatus: item.paymentStatus || '-',
-      transactionId: item.transactionId || '-',
-    }));
-  }, [ledgerDataFromApi]);
+        marginAmount: item.marginAmount
+          ? `₹${Number(item.marginAmount).toFixed(2)}`
+          : '-',
+        transactionAmount: item.transactionAmount
+          ? `₹${Number(item.transactionAmount).toFixed(2)}`
+          : '-',
+        paymentStatus: item.paymentStatus || '-',
+        transactionId: item.transactionId || '-',
+      };
+    });
+  }, [ledgerDataFromApi, livePnlMap]);
 
   const paymentData = useMemo(() => {
     if (!paymentDataFromApi || !Array.isArray(paymentDataFromApi.data)) {
@@ -322,17 +478,28 @@ const SuperBrokerProfile = () => {
       accessor: 'sellPrice',
       render: (item: any) => <span className="font-medium">{formatIndianCurrency(item.sellPrice || '-')}</span>
     },
-    { header: 'Status', accessor: 'status' },
+    {
+      header: 'Status',
+      accessor: 'status',
+      render: (item: any) => <span>{item.status || '-'}</span>,
+    },
     {
       header: 'P&L',
       accessor: 'pnl',
       render: (item: any) => {
-        const pnl = item.pnl || '-';
-        const isPositive = typeof pnl === 'string' && pnl.startsWith('+');
-        const isNegative = typeof pnl === 'string' && pnl.startsWith('-');
+        const pnl = extractPnL(item);
+        if (pnl === undefined || pnl === null || isNaN(pnl)) {
+          return <span>-</span>;
+        }
+        const isPositive = pnl > 0;
+        const isNegative = pnl < 0;
         return (
-          <span className={` ${isPositive ? 'text-green-600' : isNegative ? 'text-red-600' : 'text-gray-600'}`}>
-            {formatIndianCurrency(pnl)}
+          <span
+            className={`font-semibold whitespace-nowrap inline-block ${
+              isPositive ? 'text-green-600' : isNegative ? 'text-red-600' : 'text-gray-900'
+            }`}
+          >
+            {formatPnL(item)}
           </span>
         );
       }
@@ -340,12 +507,12 @@ const SuperBrokerProfile = () => {
     {
       header: 'Buy Time',
       accessor: 'buyTime',
-      render: (item: any) => <span>{(item.buyTime || '-')}</span>
+      render: (item: any) => <span>{item.buyTime ? formatDateTime(item.buyTime) : '-'}</span>
     },
     {
       header: 'Sell Time',
       accessor: 'sellTime',
-      render: (item: any) => <span>{(item.sellTime || '-')}</span>
+      render: (item: any) => <span>{item.sellTime ? formatDateTime(item.sellTime) : '-'}</span>
     },
     {
       header: 'Super Broker Commission',
@@ -1267,15 +1434,395 @@ const SuperBrokerProfile = () => {
         </div>
       </div>
 
-      {/* Tabs Section - Keep your existing tabs code */}
+      {/* Tabs Section */}
       <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-        {/* ... existing tabs code ... */}
+        <div className="flex flex-wrap items-center justify-between border-b border-stroke dark:border-strokedark">
+          <div className="flex flex-wrap">
+            <button
+              onClick={() => setActiveTab('ledger')}
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
+                activeTab === 'ledger'
+                  ? 'border-b-2 border-orange-500 text-orange-500'
+                  : 'text-bodydark2'
+              }`}
+            >
+              Ledger
+            </button>
+            <button
+              onClick={() => setActiveTab('payment')}
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
+                activeTab === 'payment'
+                  ? 'border-b-2 border-orange-500 text-orange-500'
+                  : 'text-bodydark2'
+              }`}
+            >
+              Payment History
+            </button>
+            <button
+              onClick={() => setActiveTab('paid')}
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
+                activeTab === 'paid'
+                  ? 'border-b-2 border-orange-500 text-orange-500'
+                  : 'text-bodydark2'
+              }`}
+            >
+              Paid History
+            </button>
+            <button
+              onClick={() => setActiveTab('commission')}
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
+                activeTab === 'commission'
+                  ? 'border-b-2 border-orange-500 text-orange-500'
+                  : 'text-bodydark2'
+              }`}
+            >
+              Commission History
+            </button>
+            <button
+              onClick={() => setActiveTab('broker')}
+              className={`px-4 py-3 text-sm font-medium transition-colors hover:text-orange-500 md:px-6 md:py-4 ${
+                activeTab === 'broker'
+                  ? 'border-b-2 border-orange-500 text-orange-500'
+                  : 'text-bodydark2'
+              }`}
+            >
+              Brokers ({brokersList?.length || 0})
+            </button>
+          </div>
+          <div className="flex items-center gap-2 px-4 py-2">
+            <button
+              onClick={handlePrintTables}
+              className="flex items-center gap-2 rounded-lg bg-orange-500 px-3 py-1.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-orange-600 md:px-4 md:py-2"
+            >
+              <FiPrinter className="h-4 w-4" />
+              Print
+            </button>
+            <button
+              onClick={handleOpenCommissionModal}
+              className="flex items-center gap-2 rounded-lg bg-orange-500 px-3 py-1.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-orange-600 md:px-4 md:py-2"
+            >
+              <FiPlus className="h-4 w-4" />
+              Add Commission
+            </button>
+          </div>
+        </div>
+
+        <div className="p-4 md:p-6">
+          {activeTab === 'ledger' ? (
+            <div className="overflow-x-auto">
+              <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                <h3 className="text-base font-semibold text-black dark:text-white md:text-lg">
+                  Ledger Records
+                </h3>
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-medium text-black dark:text-white md:text-sm">
+                      From:
+                    </label>
+                    <input
+                      type="date"
+                      value={ledgerStartDate}
+                      onChange={(e) => setLedgerStartDate(e.target.value)}
+                      className="rounded border border-stroke bg-transparent px-2 py-1 text-xs outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-3 md:py-1 md:text-sm"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-medium text-black dark:text-white md:text-sm">
+                      To:
+                    </label>
+                    <input
+                      type="date"
+                      value={ledgerEndDate}
+                      onChange={(e) => setLedgerEndDate(e.target.value)}
+                      className="rounded border border-stroke bg-transparent px-2 py-1 text-xs outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-3 md:py-1 md:text-sm"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-sm font-medium text-black dark:text-white">
+                      Status:
+                    </label>
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="rounded border border-stroke bg-transparent px-3 py-1.5 text-sm outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                    >
+                      <option value="">All</option>
+                      <option value="OPEN">Open</option>
+                      <option value="CLOSED">Closed</option>
+                    </select>
+                  </div>
+                  <button
+                    onClick={() => refetch()}
+                    className="flex items-center gap-1 rounded bg-orange-500 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-orange-600"
+                  >
+                    <RefreshCcw size={16} /> Refresh
+                  </button>
+                </div>
+              </div>
+              {isLoadingLedger ? (
+                <div className="flex justify-center py-8">
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
+                </div>
+              ) : (
+                <GenericTable
+                  data={filteredLedgerData}
+                  columns={baseLedgerColumns}
+                  paginationOff={true}
+                  emptyMessage="No ledger records found"
+                />
+              )}
+            </div>
+          ) : activeTab === 'payment' ? (
+            <div className="overflow-x-auto">
+              <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                <h3 className="text-base font-semibold text-black dark:text-white md:text-lg">
+                  Payment History
+                </h3>
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-medium text-black dark:text-white md:text-sm">
+                      From:
+                    </label>
+                    <input
+                      type="date"
+                      value={paymentStartDate}
+                      onChange={(e) => setPaymentStartDate(e.target.value)}
+                      className="rounded border border-stroke bg-transparent px-2 py-1 text-xs outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-3 md:py-1 md:text-sm"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-medium text-black dark:text-white md:text-sm">
+                      To:
+                    </label>
+                    <input
+                      type="date"
+                      value={paymentEndDate}
+                      onChange={(e) => setPaymentEndDate(e.target.value)}
+                      className="rounded border border-stroke bg-transparent px-2 py-1 text-xs outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-3 md:py-1 md:text-sm"
+                    />
+                  </div>
+                  {(paymentStartDate || paymentEndDate) && (
+                    <button
+                      onClick={() => {
+                        const { startDate, endDate } = getCurrentWeekRange();
+                        setPaymentStartDate(startDate);
+                        setPaymentEndDate(endDate);
+                      }}
+                      className="bg-gray-200 text-gray-700 hover:bg-gray-300 rounded px-2 py-1 text-xs font-medium transition-colors dark:bg-meta-4 dark:text-white dark:hover:bg-meta-3 md:px-3 md:py-1.5 md:text-sm"
+                    >
+                      This Week
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {isLoadingPayment ? (
+                <div className="flex justify-center py-8">
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
+                </div>
+              ) : (
+                <GenericTable
+                  data={filteredPaymentData}
+                  columns={paymentColumns}
+                  paginationOff={true}
+                />
+              )}
+            </div>
+          ) : activeTab === 'paid' ? (
+            <div className="overflow-x-auto">
+              <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                <h3 className="text-base font-semibold text-black dark:text-white md:text-lg">
+                  Paid History
+                </h3>
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-medium text-black dark:text-white md:text-sm">
+                      From:
+                    </label>
+                    <input
+                      type="date"
+                      value={paidStartDate}
+                      onChange={(e) => setPaidStartDate(e.target.value)}
+                      className="rounded border border-stroke bg-transparent px-2 py-1 text-xs outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-3 md:py-1 md:text-sm"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-medium text-black dark:text-white md:text-sm">
+                      To:
+                    </label>
+                    <input
+                      type="date"
+                      value={paidEndDate}
+                      onChange={(e) => setPaidEndDate(e.target.value)}
+                      className="rounded border border-stroke bg-transparent px-2 py-1 text-xs outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white md:px-3 md:py-1 md:text-sm"
+                    />
+                  </div>
+                  {(paidStartDate || paidEndDate) && (
+                    <button
+                      onClick={() => {
+                        const { startDate, endDate } = getCurrentWeekRange();
+                        setPaidStartDate(startDate);
+                        setPaidEndDate(endDate);
+                      }}
+                      className="bg-gray-200 text-gray-700 hover:bg-gray-300 rounded px-2 py-1 text-xs font-medium transition-colors dark:bg-meta-4 dark:text-white dark:hover:bg-meta-3 md:px-3 md:py-1.5 md:text-sm"
+                    >
+                      This Week
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {isLoadingPayment ? (
+                <div className="flex justify-center py-8">
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
+                </div>
+              ) : (
+                <GenericTable
+                  data={filteredPaidHistory}
+                  columns={paidColumns}
+                  paginationOff={true}
+                />
+              )}
+            </div>
+          ) : activeTab === 'commission' ? (
+            <div className="overflow-x-auto">
+              <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                <h3 className="text-base font-semibold text-black dark:text-white md:text-lg">
+                  Commission History
+                </h3>
+              </div>
+              {commissionHistoryList.length > 0 ? (
+                <GenericTable
+                  data={commissionHistoryList}
+                  columns={commissionColumns}
+                  paginationOff={false}
+                  itemsPerPage={10}
+                />
+              ) : (
+                <div className="py-8 text-center">
+                  <p className="text-gray-500">No commission history found</p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                <h3 className="text-base font-semibold text-black dark:text-white md:text-lg">
+                  Brokers List
+                </h3>
+              </div>
+              <GenericTable
+                data={brokersList}
+                columns={brokerColumns}
+                searchAble={true}
+                searchFields={['user.fullname', 'BKId']}
+                itemsPerPage={10}
+              />
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Commission Modal - Keep your existing modal code */}
+      {/* Commission Modal */}
       {isCommissionModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
-          {/* ... existing modal code ... */}
+          <div className="w-full max-w-md rounded-2xl border border-slate-100 bg-white p-5 shadow-xl md:p-6">
+            <h3 className="mb-4 text-lg font-bold text-slate-900">
+              Commission Transaction
+            </h3>
+
+            <div className="mb-6 grid grid-cols-2 gap-2 rounded-xl bg-slate-100 p-1">
+              <button
+                type="button"
+                onClick={() => setCommissionType('credit')}
+                className={`rounded-lg py-2 text-sm font-semibold transition-all ${
+                  commissionType === 'credit'
+                    ? 'bg-white text-orange-500 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-800'
+                }`}
+              >
+                Credit (+)
+              </button>
+              <button
+                type="button"
+                onClick={() => setCommissionType('debit')}
+                className={`rounded-lg py-2 text-sm font-semibold transition-all ${
+                  commissionType === 'debit'
+                    ? 'bg-white text-orange-500 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-800'
+                }`}
+              >
+                Debit (-)
+              </button>
+            </div>
+
+            <form onSubmit={handleCommissionSubmit} className="space-y-4">
+              <div>
+                <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
+                  Amount (₹)
+                </label>
+                <input
+                  type="number"
+                  required
+                  step="0.01"
+                  min="0"
+                  placeholder="Enter amount"
+                  value={commissionAmount}
+                  onChange={(e) => setCommissionAmount(e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">
+                  Security PIN
+                </label>
+                <div className="relative">
+                  <input
+                    type={showCommissionPin ? 'text' : 'password'}
+                    required
+                    placeholder="Enter Security PIN"
+                    value={commissionPin}
+                    onChange={(e) => setCommissionPin(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 px-4 py-2.5 pr-10 text-sm transition-all focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowCommissionPin(!showCommissionPin)}
+                    className="text-gray-500 hover:text-gray-700 absolute right-3 top-1/2 -translate-y-1/2"
+                  >
+                    {showCommissionPin ? (
+                      <EyeOff size={18} />
+                    ) : (
+                      <Eye size={18} />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCommissionModalOpen(false);
+                    setCommissionAmount('');
+                    setCommissionPin('');
+                    setShowCommissionPin(false);
+                  }}
+                  className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isCommissionPending}
+                  className="flex-1 rounded-xl bg-orange-500 py-2.5 text-sm font-medium text-white shadow-md shadow-orange-200 transition-colors hover:bg-orange-600 disabled:opacity-50"
+                >
+                  {isCommissionPending ? 'Processing...' : 'Add Transaction'}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>
