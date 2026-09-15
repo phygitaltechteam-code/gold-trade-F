@@ -10,6 +10,7 @@ interface EditData {
   aadharCardNumber: string;
   customerLimit?: string;
   password?: string;
+  allowSlipage?: boolean;
 }
 
 interface MasterBrokerProfileInfoProps {
@@ -23,6 +24,10 @@ interface MasterBrokerProfileInfoProps {
   isUpdating: boolean;
   showPassword: boolean;
   setShowPassword: (val: boolean) => void;
+  editErrors?: {
+    phoneNumber: string;
+    aadharCardNumber: string;
+  };
 }
 
 export const MasterBrokerProfileInfo: React.FC<MasterBrokerProfileInfoProps> = ({
@@ -36,6 +41,7 @@ export const MasterBrokerProfileInfo: React.FC<MasterBrokerProfileInfoProps> = (
   isUpdating,
   showPassword,
   setShowPassword,
+  editErrors,
 }) => {
   return (
     <div className="mb-6 rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
@@ -92,15 +98,42 @@ export const MasterBrokerProfileInfo: React.FC<MasterBrokerProfileInfoProps> = (
             )}
           </div>
 
-          {/* BK ID */}
-          {/* <div>
+          {/* Allow Slippage Checkbox */}
+          <div>
             <label className="mb-1 block text-xs font-medium text-black dark:text-white md:mb-2 md:text-sm">
-              BK ID
+              Allow Slippage Settings
             </label>
-            <p className="text-sm text-black dark:text-white md:text-base">
-              {profileData?.BKId || 'N/A'}
-            </p>
-          </div> */}
+            {isEditing ? (
+              <div className="flex items-center gap-3 py-1.5 md:py-2">
+                <input
+                  type="checkbox"
+                  id="allowSlipage"
+                  name="allowSlipage"
+                  checked={!!editData.allowSlipage}
+                  onChange={handleInputChange}
+                  className="h-4 w-4 cursor-pointer accent-orange-500"
+                />
+                <label
+                  htmlFor="allowSlipage"
+                  className="cursor-pointer text-sm font-medium text-black dark:text-white"
+                >
+                  Allow Slippage
+                </label>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 py-1.5 md:py-2">
+                <span
+                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                    profileData?.allowSlipage
+                      ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                      : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                  }`}
+                >
+                  {profileData?.allowSlipage ? 'Allowed' : 'Not Allowed'}
+                </span>
+              </div>
+            )}
+          </div>
 
           {/* Phone Number */}
           <div>

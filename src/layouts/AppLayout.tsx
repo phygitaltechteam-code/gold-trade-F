@@ -49,7 +49,7 @@ const AppLayout = () => {
   };
 
   return (
-    <WebSocketProvider>
+    <WebSocketProvider autoConnect={false}>
       <div className="bg-white dark:bg-boxdark-2 dark:text-bodydark">
         <div className="flex h-screen overflow-hidden">
           {isAuthenticated && (

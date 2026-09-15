@@ -100,7 +100,8 @@ const BrokerProfile = () => {
 
   // WebSocket connection for Broker Profile Ledger
   useEffect(() => {
-    const userId = user?.id || (user as any)?._id || '';
+    const superBrokerId = user?.roleId || user?.id || (user as any)?._id || '';
+    const brokerId = id || '';
     const envWs = import.meta.env.VITE_WS_URL;
     const serverUrl = import.meta.env.VITE_SERVER_URL || 'http://192.168.29.227:5677';
     let baseWsUrl = 'ws://192.168.29.227:5677';
@@ -111,7 +112,7 @@ const BrokerProfile = () => {
     } catch (_) {}
 
     const tokenParam = token?.accessToken ? `&token=${encodeURIComponent(token.accessToken)}` : '';
-    const wsUrl = `${baseWsUrl}?userId=${encodeURIComponent(userId)}&room=transaction_ledger${tokenParam}`;
+    const wsUrl = `${baseWsUrl}?room=transaction_ledger&superBrokerId=${encodeURIComponent(superBrokerId)}&brokerId=${encodeURIComponent(brokerId)}${tokenParam}`;
 
     console.log('[SuperBroker BrokerProfile WS] Connecting to:', wsUrl);
     const ws = new WebSocket(wsUrl);
@@ -119,7 +120,7 @@ const BrokerProfile = () => {
     ws.onopen = () => {
       console.log('[SuperBroker BrokerProfile WS] Connection OPEN for room: transaction_ledger');
       try {
-        ws.send(JSON.stringify({ type: 'JOIN_TRANSACTION_LEDGER', room: 'transaction_ledger', userId }));
+        ws.send(JSON.stringify({ type: 'JOIN_TRANSACTION_LEDGER', superBrokerId, brokerId }));
       } catch (e) {}
     };
 

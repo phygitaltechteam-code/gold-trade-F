@@ -188,7 +188,8 @@ export const BrokerTraderById: React.FC = () => {
 
     // WebSocket connection for live trade updates
     useEffect(() => {
-        const userId = user?.id || (user as any)?._id || '';
+        const brokerId = user?.roleId || user?.id || (user as any)?._id || '';
+        const customerId = id || '';
         const envWs = import.meta.env.VITE_WS_URL;
         const serverUrl = import.meta.env.VITE_SERVER_URL || 'http://192.168.29.227:5677';
         let baseWsUrl = 'ws://192.168.29.227:5677';
@@ -199,13 +200,13 @@ export const BrokerTraderById: React.FC = () => {
         } catch (_) {}
 
         const tokenParam = token?.accessToken ? `&token=${encodeURIComponent(token.accessToken)}` : '';
-        const wsUrl = `${baseWsUrl}?userId=${encodeURIComponent(userId)}&room=transaction_ledger${tokenParam}`;
+        const wsUrl = `${baseWsUrl}?room=transaction_ledger&brokerId=${encodeURIComponent(brokerId)}&customerId=${encodeURIComponent(customerId)}${tokenParam}`;
 
         const ws = new WebSocket(wsUrl);
 
         ws.onopen = () => {
             try {
-                ws.send(JSON.stringify({ type: 'JOIN_TRANSACTION_LEDGER', room: 'transaction_ledger', userId }));
+                ws.send(JSON.stringify({ type: 'JOIN_TRANSACTION_LEDGER', brokerId, customerId }));
             } catch (e) {}
         };
 

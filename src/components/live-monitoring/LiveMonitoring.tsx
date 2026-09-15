@@ -1,4 +1,4 @@
-import React, {useState, useMemo} from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Search,
   Filter,
@@ -13,7 +13,7 @@ import {
   PieChart,
   X,
 } from 'lucide-react';
-import {motion, AnimatePresence} from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Order {
   id: string;
@@ -212,7 +212,7 @@ const LiveMonitoring = () => {
       .map((row) => row.join(','))
       .join('\n');
 
-    const blob = new Blob([csvContent], {type: 'text/csv'});
+    const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -257,8 +257,8 @@ const LiveMonitoring = () => {
         {/* Stats Cards - Responsive Grid */}
         <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 lg:gap-6">
           <motion.div
-            initial={{opacity: 0, y: 20}}
-            animate={{opacity: 1, y: 0}}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             className="group relative overflow-hidden rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:rounded-xl sm:p-5 lg:p-6"
           >
             <div className="mb-2 flex items-start justify-between sm:mb-4">
@@ -279,9 +279,9 @@ const LiveMonitoring = () => {
           </motion.div>
 
           <motion.div
-            initial={{opacity: 0, y: 20}}
-            animate={{opacity: 1, y: 0}}
-            transition={{delay: 0.1}}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
             className="group relative overflow-hidden rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:rounded-xl sm:p-5 lg:p-6"
           >
             <div className="mb-2 flex items-start justify-between sm:mb-4">
@@ -305,9 +305,9 @@ const LiveMonitoring = () => {
           </motion.div>
 
           <motion.div
-            initial={{opacity: 0, y: 20}}
-            animate={{opacity: 1, y: 0}}
-            transition={{delay: 0.2}}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
             className="group relative overflow-hidden rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:col-span-2 sm:rounded-xl sm:p-5 lg:col-span-1 lg:p-6"
           >
             <div className="mb-2 flex items-start justify-between sm:mb-4">
@@ -331,7 +331,7 @@ const LiveMonitoring = () => {
               <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-rose-500 sm:h-2">
                 <div
                   className="h-full bg-emerald-500 transition-all duration-300"
-                  style={{width: `${buyVolume}%`}}
+                  style={{ width: `${buyVolume}%` }}
                 />
               </div>
             </div>
@@ -384,11 +384,10 @@ const LiveMonitoring = () => {
                     setSelectedFilter(filter);
                     setCurrentPage(1);
                   }}
-                  className={`rounded-md px-4 py-1.5 text-xs font-bold transition-all ${
-                    selectedFilter === filter
+                  className={`rounded-md px-4 py-1.5 text-xs font-bold transition-all ${selectedFilter === filter
                       ? 'bg-slate-100 text-slate-900'
                       : 'text-slate-400 hover:text-slate-600'
-                  }`}
+                    }`}
                 >
                   {filter}
                 </button>
@@ -410,9 +409,9 @@ const LiveMonitoring = () => {
         <AnimatePresence>
           {showMobileFilter && (
             <motion.div
-              initial={{opacity: 0, height: 0}}
-              animate={{opacity: 1, height: 'auto'}}
-              exit={{opacity: 0, height: 0}}
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
               className="mb-4 overflow-hidden lg:hidden"
             >
               <div className="rounded-lg border border-slate-200 bg-white p-4">
@@ -428,11 +427,10 @@ const LiveMonitoring = () => {
                         setCurrentPage(1);
                         setShowMobileFilter(false);
                       }}
-                      className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all ${
-                        selectedFilter === filter
+                      className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all ${selectedFilter === filter
                           ? 'bg-slate-900 text-white'
                           : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
+                        }`}
                     >
                       {filter}
                     </button>
@@ -538,11 +536,10 @@ const LiveMonitoring = () => {
                       <td className="px-4 py-4 text-center xl:px-6 xl:py-5">
                         <div className="flex justify-center">
                           <span
-                            className={`rounded px-1.5 py-0.5 text-[8px] font-bold tracking-wider xl:px-2 xl:text-[10px] ${
-                              order.type === 'BUY'
+                            className={`rounded px-1.5 py-0.5 text-[8px] font-bold tracking-wider xl:px-2 xl:text-[10px] ${order.type === 'BUY'
                                 ? 'border border-emerald-100 bg-emerald-50 text-emerald-600'
                                 : 'border border-rose-100 bg-rose-50 text-rose-600'
-                            }`}
+                              }`}
                           >
                             {order.type}
                           </span>

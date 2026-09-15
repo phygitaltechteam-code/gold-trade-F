@@ -137,10 +137,10 @@ const SuperBrokerTransactionLedger = () => {
 
   // WebSocket connection for Super Broker Ledger
   useEffect(() => {
-    const userId = user?.id || (user as any)?._id || '';
+    const superBrokerId = user?.id || (user as any)?._id || user?.roleId || '';
     const baseWsUrl = getWsUrl();
     const tokenParam = token?.accessToken ? `&token=${encodeURIComponent(token.accessToken)}` : '';
-    const wsUrl = `${baseWsUrl}?userId=${encodeURIComponent(userId)}&room=transaction_ledger${tokenParam}`;
+    const wsUrl = `${baseWsUrl}?room=transaction_ledger&superBrokerId=${encodeURIComponent(superBrokerId)}${tokenParam}`;
 
     console.log('[SuperBrokerLedger WS] Connecting to:', wsUrl);
     const ws = new WebSocket(wsUrl);
@@ -148,7 +148,7 @@ const SuperBrokerTransactionLedger = () => {
     ws.onopen = () => {
       console.log('[SuperBrokerLedger WS] Connection OPEN for room: transaction_ledger');
       try {
-        ws.send(JSON.stringify({ type: 'JOIN_TRANSACTION_LEDGER', room: 'transaction_ledger', userId }));
+        ws.send(JSON.stringify({ type: 'JOIN_TRANSACTION_LEDGER', superBrokerId }));
       } catch (e) {
         console.error('[SuperBrokerLedger WS] Send join error:', e);
       }

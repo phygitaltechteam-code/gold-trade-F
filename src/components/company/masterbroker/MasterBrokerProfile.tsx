@@ -107,7 +107,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
 
   // WebSocket connection for MasterBroker Profile Ledger
   useEffect(() => {
-    const userId = user?.id || (user as any)?._id || '';
+    const masterBrokerId = id || '';
     const envWs = import.meta.env.VITE_WS_URL;
     const serverUrl = import.meta.env.VITE_SERVER_URL || 'http://192.168.29.227:5677';
     let baseWsUrl = 'ws://192.168.29.227:5677';
@@ -118,7 +118,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
     } catch (_) {}
 
     const tokenParam = token?.accessToken ? `&token=${encodeURIComponent(token.accessToken)}` : '';
-    const wsUrl = `${baseWsUrl}?userId=${encodeURIComponent(userId)}&room=transaction_ledger${tokenParam}`;
+    const wsUrl = `${baseWsUrl}?room=transaction_ledger&masterBrokerId=${encodeURIComponent(masterBrokerId)}${tokenParam}`;
 
     console.log('[MasterBrokerProfile WS] Connecting to:', wsUrl);
     const ws = new WebSocket(wsUrl);
@@ -126,7 +126,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
     ws.onopen = () => {
       console.log('[MasterBrokerProfile WS] Connection OPEN for room: transaction_ledger');
       try {
-        ws.send(JSON.stringify({ type: 'JOIN_TRANSACTION_LEDGER', room: 'transaction_ledger', userId }));
+        ws.send(JSON.stringify({ type: 'JOIN_TRANSACTION_LEDGER', masterBrokerId }));
       } catch (e) {}
     };
 
@@ -221,6 +221,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
     aadharCardNumber: '',
     customerLimit: '',
     password: '',
+    allowSlipage: false,
   });
 
   // Validation errors state for edit form
@@ -240,6 +241,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
         aadharCardNumber: profileData?.aadharCardNumber || '',
         customerLimit: profileData?.customerLimit?.toString() || '',
         password: '',
+        allowSlipage: Boolean(profileData?.allowSlipage),
       });
       // Clear validation errors
       setEditErrors({ phoneNumber: '', aadharCardNumber: '' });
@@ -646,8 +648,13 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     
+    if (type === 'checkbox') {
+      setEditData((prev) => ({ ...prev, [name]: checked }));
+      return;
+    }
+
     // Format and validate on change
     let formattedValue = value;
     let error = '';
@@ -699,6 +706,7 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
       area: editData.area,
       aadharCardNumber: editData.aadharCardNumber,
       customerLimit: editData.customerLimit,
+      allowSlipage: editData.allowSlipage,
     };
 
     if (editData.password) {
@@ -731,11 +739,12 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
       setEditData({
         fullname: profileData?.fullname || '',
         phoneNumber: profileData?.phoneNumber || '',
-        commission: profileData?.brokeragePercent?.toString() || '',
+        commission: profileData?.brokeragePercent?.toString() || profileData?.commission?.toString() || '',
         area: profileData?.area || '',
         aadharCardNumber: profileData?.aadharCardNumber || '',
         customerLimit: profileData?.customerLimit?.toString() || '',
         password: '',
+        allowSlipage: Boolean(profileData?.allowSlipage),
       });
     }
     setIsEditing(false);
@@ -916,8 +925,6 @@ const MasterBrokerProfile = ({ id }: MasterBrokerProfileProps) => {
             </button>
 
           </div>
-
-        
         </div>
 
 

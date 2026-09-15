@@ -60,14 +60,13 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
     const envWsUrl = import.meta.env.VITE_WS_URL;
     if (envWsUrl) return envWsUrl;
 
-    const serverUrl = import.meta.env.VITE_SERVER_URL || 'http://localhost:5677';
+    const serverUrl = import.meta.env.VITE_SERVER_URL || 'http://192.168.29.227:5677';
     try {
       const parsed = new URL(serverUrl);
       const protocol = parsed.protocol === 'https:' ? 'wss:' : 'ws:';
-      // Connect to root or /ws on the server host:port
-      return `${protocol}//${parsed.host}/ws`;
+      return `${protocol}//${parsed.host}`;
     } catch {
-      return 'ws://192.168.29.227:5677/ws';
+      return 'ws://192.168.29.227:5677';
     }
   }, [wsUrl]);
 
@@ -114,6 +113,13 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
         try {
           const parsed: WebSocketMessage =
             typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+
+          // Ignore LIVE_TICKS
+          if (parsed && (parsed.type === 'LIVE_TICKS' || parsed.type === 'live_ticks')) {
+            return;
+          }
+
+          console.log('📥 [WebSocket Context Received]:', parsed.type || 'RAW', parsed);
           setLastMessage(parsed);
 
           // Dispatch to specific event subscribers
