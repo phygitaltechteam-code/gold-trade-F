@@ -18,9 +18,10 @@ const SignIn: React.FC = () => {
 
   useEffect(() => {
     if (isSuccess) {
-      window.location.href = '/';
+      toast.success('Login successful');
+      navigate({to: '/'});
     }
-  }, [isSuccess]);
+  }, [isSuccess, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,6 +38,7 @@ const SignIn: React.FC = () => {
       await login({
         username: credentials.username,
         password: credentials.password,
+        type: 'ADMIN',
       });
     } catch (err) {
       // Error already handled in useEffect

@@ -22,6 +22,7 @@ const Signin: React.FC = () => {
   interface SignInPayload {
     username: string;
     password: string;
+    type?: string;
   }
 
   // Validate password on change or after form submission
@@ -42,7 +43,8 @@ const Signin: React.FC = () => {
       if (newData) {
         localStorage.setItem('token', newData);
         setIsAuthenticated(true);
-        window.location.href = '/dashboard';
+        toast.success(data?.message || 'Login successful');
+        navigate({to: '/dashboard'});
       }
     },
     onError: (error: AxiosError<any>) => {
@@ -116,7 +118,7 @@ const Signin: React.FC = () => {
     if (!isPhoneValid || !cleanedPhone || !isPasswordValid) {
       return;
     }
-    mutate({username: cleanedPhone, password});
+    mutate({username: cleanedPhone, password, type: 'ADMIN'});
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
