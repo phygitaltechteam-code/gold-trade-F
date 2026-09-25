@@ -215,7 +215,7 @@ const SetCommission = () => {
         securityPin: securityPin
       });
 
-      toast.success(`Commission updated to ${commissionValue}% successfully!`);
+      // toast.success(`Commission updated to ${commissionValue}% successfully!`);
       setShowPinPopup(false);
       setSecurityPin('');
       refetch(); // Refresh commission data
@@ -263,9 +263,6 @@ const SetCommission = () => {
                 </p>
               </div>
               {/* Show current commission */}
-              {/* <div className="rounded-lg bg-orange-50 px-3 py-1.5 text-xs font-medium text-orange-600 border border-orange-200">
-                Current: {inputCommission || 0}%
-              </div> */}
             </div>
 
             <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:gap-8">

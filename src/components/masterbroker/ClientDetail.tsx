@@ -2053,13 +2053,10 @@ export const ClientDetail: React.FC = () => {
                   <div className="flex justify-between">
                     <span className="text-gray-500">Buy Price / Sell Price:</span>
                     <span className="font-medium text-black dark:text-white">
-                      {closeItem.buyPrice ?? '-'} / {closeItem.sellPrice ?? '-'}
+                      {closeItem.buyPrice} {closeItem.sellPrice}
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">P&L:</span>
-                    <span className="font-semibold">{formatPnL(closeItem)}</span>
-                  </div>
+                 
                 </div>
               </div>
 

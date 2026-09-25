@@ -11,7 +11,7 @@ import toast from 'react-hot-toast';
 import { set } from 'lodash';
 
 const SetCommission = () => {
-  const [makerFee, setMakerFee] = useState('0.15');
+  const [makerFee, setMakerFee] = useState('');
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const { data: commission, refetch } = useGetComission();
   const { mutateAsync: setCommission } = useSetComission();
@@ -58,6 +58,15 @@ const SetCommission = () => {
       }
     }
   }, [profile]);
+
+  useEffect(() => {
+    if (commission) {
+      const current = commission.upcomingBrokeragePercent > 0
+        ? commission.upcomingBrokeragePercent
+        : commission.brokeragePercent || 0;
+      setMakerFee(current.toString());
+    }
+  }, [commission]);
 
   // preview selected image
   useEffect(() => {
@@ -213,7 +222,7 @@ const SetCommission = () => {
         securityPin: securityPin
       });
 
-      toast.success('Commission updated successfully!');
+      // toast.success('Commission updated successfully!');
       setShowPinPopup(false);
       setSecurityPin('');
       refetch();
@@ -268,9 +277,6 @@ const SetCommission = () => {
                     %
                   </span>
                 </div>
-                <p className="text-xs text-gray-400 mt-1">
-                  Current: {currentCommission}%
-                </p>
               </div>
             </div>
 

@@ -10,7 +10,7 @@ import {
 import {set} from 'lodash';
 
 const PinSet = () => {
-  const [makerFee, setMakerFee] = useState('0.15');
+  const [makerFee, setMakerFee] = useState('');
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const {data: commission} = useGetComission();
   const {mutateAsync: setCommission} = useSetComission();

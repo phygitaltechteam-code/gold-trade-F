@@ -26,14 +26,14 @@ interface SKU {
 }
 
 export default function Review() {
-  const [makerFee, setMakerFee] = useState('0.15');
-  const [takerFee, setTakerFee] = useState('0.25');
-  const [annualStorageFee, setAnnualStorageFee] = useState('0.50');
-  const [baseFee, setBaseFee] = useState('25.00');
-  const [variableFee, setVariableFee] = useState('0.10');
-  const [flatWithdrawalFee, setFlatWithdrawalFee] = useState('10.00');
+  const [makerFee, setMakerFee] = useState('');
+  const [takerFee, setTakerFee] = useState('');
+  const [annualStorageFee, setAnnualStorageFee] = useState('');
+  const [baseFee, setBaseFee] = useState('');
+  const [variableFee, setVariableFee] = useState('');
+  const [flatWithdrawalFee, setFlatWithdrawalFee] = useState('');
   const [percentageWithdrawalFee, setPercentageWithdrawalFee] =
-    useState('0.50');
+    useState('');
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   const skus: SKU[] = [

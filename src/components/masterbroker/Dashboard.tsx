@@ -299,7 +299,7 @@ const Dashboard: React.FC = () => {
           />
           <FinancialStatCard
             title="Total Active Trades"
-            amount={formatCurrency(dashboardStats.activeTrades)}
+            amount={dashboardStats.activeTrades}
             icon={Wallet}
             iconColor="text-blue-500"
           />
