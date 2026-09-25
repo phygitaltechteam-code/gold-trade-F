@@ -18,10 +18,9 @@ const SignIn: React.FC = () => {
 
   useEffect(() => {
     if (isSuccess) {
-      toast.success('Login successful');
-      navigate({to: '/'});
+      window.location.href = '/';
     }
-  }, [isSuccess, navigate]);
+  }, [isSuccess]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

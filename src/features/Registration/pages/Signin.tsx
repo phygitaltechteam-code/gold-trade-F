@@ -7,9 +7,16 @@ import {AxiosError} from 'axios';
 import React, {useState, useEffect} from 'react';
 import toast from 'react-hot-toast';
 import swissLogo from '@/assets/images/logo/swiss-logo.png';
+import {jwtDecode} from 'jwt-decode';
 
 const Signin: React.FC = () => {
-  const {setIsAuthenticated} = useAuthContext();
+  const {
+    setIsAuthenticated,
+    setUser,
+    setRole,
+    setToken,
+    setIsSuperAdmin,
+  } = useAuthContext();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -42,9 +49,27 @@ const Signin: React.FC = () => {
       const newData = JSON.stringify(data, null, 2);
       if (newData) {
         localStorage.setItem('token', newData);
+        
+        let targetRoute = '/dashboard';
+        try {
+          const decodedToken: any = jwtDecode(data.accessToken);
+          setToken(data);
+          setUser(decodedToken);
+          setRole(decodedToken.role);
+          setIsSuperAdmin(decodedToken.role === 'SuperAdmin');
+          
+          if (decodedToken.role === 'COMPANY') targetRoute = '/dashboard';
+          else if (decodedToken.role === 'SUPERADMIN') targetRoute = '/superadmin/superadmin';
+          else if (decodedToken.role === 'BROKER') targetRoute = '/broker/brokerdashboard';
+          else if (decodedToken.role === 'SUPER_BROKER' || decodedToken.role === 'SUPERBROKER') targetRoute = '/superbroker/superbrokerdashbaord';
+          else if (decodedToken.role === 'MASTER_BROKER') targetRoute = '/masterbroker/dashboard';
+        } catch (e) {
+          console.error("Failed to decode token", e);
+        }
+
         setIsAuthenticated(true);
-        toast.success(data?.message || 'Login successful');
-        navigate({to: '/dashboard'});
+        // toast.success(data?.message || 'Login successful');
+        window.location.href = targetRoute;
       }
     },
     onError: (error: AxiosError<any>) => {
