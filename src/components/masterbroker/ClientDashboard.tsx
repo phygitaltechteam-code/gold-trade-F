@@ -310,7 +310,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = () => {
       accessor: 'totalActiveTrade',
       render: (row: Client) => (
         <span className="whitespace-nowrap text-sm text-gray-900">
-          {row._count?.trades || 0}
+          {row.totalActiveTrade || 0}
         </span>
       ),
     },
